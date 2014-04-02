@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="main_drawer_item_ic_description">Ikona drawer menu</string>
+    <string name="main_drawer_open">Otwórz drawer</string>
+    <string name="main_drawer_close">Zamknij drawer</string>
+
+    <string name="add">Dodaj</string>
+    <string name="edit">Edytuj</string>
+    <string name="delete">Usuń</string>
+
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard">To jest dashboard</string>
+
+    <string name="categories_title">Kategorie</string>
+    <string name="categoryName">Nazwa kategorii:</string>
+    <string name="parentCategory">Katogoria nadrzędna:</string>
+    <string name="is_main_category">Główna kategoria</string>
+    <string name="category_have_children">Selected category contain at last one subcategory</string>
+    <string name="do_you_want_to_delete_with_subcategories">Do you want to delete with every subcategories?</string>
+
+</resources>

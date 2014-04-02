@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="">
+
+    <!-- Content of View -->
+    <!-- Must be first child of DrawerLayout -->
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Content of left drawer -->
+    <!-- Must specify horizontal gravity, "start" to support RTL languages-->
+    <!-- layout_width = 240p - 320p px -->
+
+    <ListView
+        android:id="@+id/main_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:background="#ff818181"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp" />
+
+</android.support.v4.widget.DrawerLayout>

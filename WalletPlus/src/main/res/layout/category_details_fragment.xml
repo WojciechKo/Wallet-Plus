@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/categoryNameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/categoryName"
+        android:gravity="center_vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBottom="@+id/categoryName" />
+
+    <EditText
+        android:id="@+id/categoryName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/categoryNameLabel" />
+
+    <RadioGroup
+        android:id="@+id/categoryTypes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_below="@+id/categoryNameLabel"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true" >
+        <ToggleButton
+            android:id="@+id/categoryIncomeType"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textOn="Income"
+            android:textOff="Income"
+            android:checked="true" />
+        <ToggleButton
+            android:id="@+id/categoryExpenseType"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textOn="Expense"
+            android:textOff="Expense"
+            android:checked="true" />
+    </RadioGroup>
+
+    <CheckBox
+        android:id="@+id/isMainCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/is_main_category"
+        android:checked="true"
+        android:layout_below="@+id/categoryTypes"
+        android:layout_alignLeft="@+id/parentCategoryLabel"
+        android:layout_alignRight="@+id/parentCategory" />
+
+    <TextView
+        android:id="@+id/parentCategoryLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/parentCategory"
+        android:gravity="center_vertical"
+        android:visibility="invisible"
+        android:layout_below="@+id/isMainCategory"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBottom="@+id/parentCategory" />
+
+    <Spinner
+        android:id="@+id/parentCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_below="@+id/isMainCategory"
+        android:layout_toRightOf="@+id/parentCategoryLabel"
+        android:layout_alignParentRight="true"/>
+
+</RelativeLayout>
