@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ExpandableListView;
@@ -18,18 +19,16 @@ import com.googlecode.androidannotations.annotations.OptionsItem;
 import com.googlecode.androidannotations.annotations.OptionsMenu;
 import com.googlecode.androidannotations.annotations.ViewById;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.activity.MainActivity;
+import info.korzeniowski.walletplus.datamanager.CannotDeleteCategoryWithChildrenException;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.CategoryHaveChildrenException;
 import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.greendao.CategoryGDao;
 
 /**
  * Fragment with list of categories.
@@ -46,10 +45,7 @@ public class CategoryListFragment extends Fragment {
     ExpandableListView superList;
 
     @Inject
-    CategoryDataManager categoryDataManager;
-
-    @Inject
-    CategoryGDao categoryDao;
+    CategoryDataManager localCategoryDataManager;
 
     private ActionMode mActionMode;
 
@@ -60,18 +56,10 @@ public class CategoryListFragment extends Fragment {
 
     @AfterViews
     void setupViews() {
-        resetDatabase();
-
+        Log.d("WalletPlus", "CategoryList.setupViews");
         setHasOptionsMenu(true);
         int type = getArguments().getInt(CATEGORY_TYPE);
         superList.setAdapter(new CategoryListAdapter(getActivity(), getCategoryList(type)));
-//        superList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-//            @Override
-//            public boolean onChildClick(ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
-//                Category category = (Category) parent.getExpandableListAdapter().getChild(groupPosition, childPosition);
-//                return false;
-//            }
-//        });
         superList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -92,37 +80,39 @@ public class CategoryListFragment extends Fragment {
 
     private void resetDatabase() {
 //        categoryDao.deleteAll();
-//        categoryDataManager.insert(new Category().setName("Main"));
-//        categoryDataManager.insert(new Category().setName("Main"));
+//        localCategoryDataManager.insert(new Category().setName("Main"));
+//        localCategoryDataManager.insert(new Category().setName("Main"));
 //
 //
-//        categoryDataManager.insert(new Category("Main 1", EnumSet.allOf(Category.Type.class)).setId((long) 101));
-//        categoryDataManager.insert(new Category("Main 2", EnumSet.allOf(Category.Type.class)).setId((long) 201));
-//        categoryDataManager.insert(new Category("Main 3", EnumSet.allOf(Category.Type.class)).setId((long) 301));
+//        localCategoryDataManager.insert(new Category("Main 1", EnumSet.allOf(Category.Type.class)).setId((long) 101));
+//        localCategoryDataManager.insert(new Category("Main 2", EnumSet.allOf(Category.Type.class)).setId((long) 201));
+//        localCategoryDataManager.insert(new Category("Main 3", EnumSet.allOf(Category.Type.class)).setId((long) 301));
 //
-//        categoryDataManager.insert(new Category("Main 1 Sub 1", EnumSet.allOf(Category.Type.class)).setParentId((long) 101));
-//        categoryDataManager.insert(new Category("Main 1 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 101));
-//        categoryDataManager.insert(new Category("Main 1 Sub 3", EnumSet.allOf(Category.Type.class)).setParentId((long) 101));
+//        localCategoryDataManager.insert(new Category("Main 1 Sub 1", EnumSet.allOf(Category.Type.class)).setParentId((long) 101));
+//        localCategoryDataManager.insert(new Category("Main 1 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 101));
+//        localCategoryDataManager.insert(new Category("Main 1 Sub 3", EnumSet.allOf(Category.Type.class)).setParentId((long) 101));
 //
-//        categoryDataManager.insert(new Category("Main 2 Sub 1", EnumSet.allOf(Category.Type.class)).setParentId((long) 201));
-//        categoryDataManager.insert(new Category("Main 2 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 201));
-//        categoryDataManager.insert(new Category("Main 2 Sub 3", EnumSet.allOf(Category.Type.class)).setParentId((long) 201));
+//        localCategoryDataManager.insert(new Category("Main 2 Sub 1", EnumSet.allOf(Category.Type.class)).setParentId((long) 201));
+//        localCategoryDataManager.insert(new Category("Main 2 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 201));
+//        localCategoryDataManager.insert(new Category("Main 2 Sub 3", EnumSet.allOf(Category.Type.class)).setParentId((long) 201));
 //
-//        categoryDataManager.insert(new Category("Main 3 Sub 1", EnumSet.allOf(Category.Type.class)).setParentId((long) 301));
-//        categoryDataManager.insert(new Category("Main 3 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 301));
-//        categoryDataManager.insert(new Category("Main 3 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 301));
+//        localCategoryDataManager.insert(new Category("Main 3 Sub 1", EnumSet.allOf(Category.Type.class)).setParentId((long) 301));
+//        localCategoryDataManager.insert(new Category("Main 3 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 301));
+//        localCategoryDataManager.insert(new Category("Main 3 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 301));
     }
 
     @OptionsItem(R.id.menu_new)
     void actionAdd() {
+        Log.d("WalletPlus", "CategoryList.actionAdd");
         startCategoryDetailsFragment();
     }
 
     private void startCategoryDetailsFragment() {
-        startCategoryDetailsFragment(Category.INVALID_ID);
+        startCategoryDetailsFragment(0L);
     }
 
     private void startCategoryDetailsFragment(Long id) {
+        Log.d("WalletPlus", "CategoryList.startCategoryDetailsFragment");
         Fragment fragment= new CategoryDetailsFragment_();
         Bundle bundle = new Bundle();
         bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, id);
@@ -131,16 +121,18 @@ public class CategoryListFragment extends Fragment {
     }
 
     private List<Category> getCategoryList(int type) {
+        Log.d("WalletPlus", "CategoryList.getCategoryList");
         switch (type) {
             case ONLY_INCOME:
-                return categoryDataManager.getMainIncomeCategories();
+                return localCategoryDataManager.getMainIncomeTypeCategories();
             case ONLY_EXPENSE:
-                return categoryDataManager.getMainExpenseCategories();
+                return localCategoryDataManager.getMainExpenseTypeCategories();
             case ALL:
-                return categoryDataManager.getMainCategories();
+                return localCategoryDataManager.getMainCategories();
         }
-        return new ArrayList<Category>();
+        throw new RuntimeException("Inacceptable category type: " + type);
     }
+
     /**********************************************************************
      *
      */
@@ -170,15 +162,15 @@ public class CategoryListFragment extends Fragment {
                     break;
                 case R.id.menu_delete:
                     try {
-                        categoryDataManager.deleteById(id);
-                    } catch (CategoryHaveChildrenException e) {
+                        localCategoryDataManager.deleteById(id);
+                    } catch (CannotDeleteCategoryWithChildrenException e) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle(categoryDataManager.getById(id).getName());
+                        builder.setTitle(localCategoryDataManager.getById(id).getName());
                         builder.setMessage(R.string.category_have_children + "\n\n" + R.string.do_you_want_to_delete_with_subcategories);
                         builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                categoryDataManager.deleteByIdWithSubcategories(id);
+                                localCategoryDataManager.deleteByIdWithSubcategories(id);
                             }
                         });
                         builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {

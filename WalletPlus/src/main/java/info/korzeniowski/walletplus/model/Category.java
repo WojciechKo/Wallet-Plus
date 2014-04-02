@@ -4,15 +4,15 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
 /**
  * Created by Wojtek on 27.03.14.
  */
-public class Category {
-    public static Long INVALID_ID = (long) -1;
-
+public class Category implements Comparable<Category> {
     private Long id;
     private Long parentId;
     private Category parent;
@@ -35,7 +35,7 @@ public class Category {
     }
 
     public Category setId(Long id) {
-        this.id = id != null ? id : INVALID_ID;
+        this.id = id;
         return this;
     }
 
@@ -44,7 +44,7 @@ public class Category {
     }
 
     public Category setParentId(Long parentId) {
-        this.parentId = parentId != null ? parentId : INVALID_ID;
+        this.parentId = parentId;
         return this;
     }
 
@@ -88,6 +88,11 @@ public class Category {
         this.children = children;
     }
 
+    public void addChild(Category category) {
+        children.add(category);
+        Collections.sort(children, Comparators.NAME);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof Category) {
@@ -98,10 +103,36 @@ public class Category {
                     other.getTypes().equals(getTypes()) ) {
                 return true;
             }
-            return true;
         }
-
         return false;
+    }
+
+    @Override
+    public int compareTo(Category other) {
+        String thisName = getName().toUpperCase();
+        String otherName = other.getName().toUpperCase();
+        return thisName.compareTo(otherName);
+    }
+
+    public static class Comparators {
+
+        public static Comparator<Category> NAME = new Comparator<Category>() {
+            @Override
+            public int compare(Category category1, Category category2) {
+                String categoryName1 = category1.getName().toUpperCase();
+                String categoryName2 = category2.getName().toUpperCase();
+                return categoryName1.compareTo(categoryName2);
+            }
+        };
+
+        public static Comparator<Category> POSITION = new Comparator<Category>() {
+
+            @Override
+            public int compare(Category category1, Category category2) {
+                //TODO: napisać
+                return category1.compareTo(category2);
+            }
+        };
     }
 
     public enum Type {

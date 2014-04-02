@@ -18,12 +18,9 @@ import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment_;
 @Singleton
 public class MainDrawerContent {
     private List<MainDrawerItem> mainDrawerItems;
-    private Context context;
 
     @Inject
     public MainDrawerContent(Context context) {
-        this.context = context;
-
         mainDrawerItems = new LinkedList<MainDrawerItem>();
         mainDrawerItems.add(new MainDrawerItem(
                                 context.getString(R.string.app_name),
@@ -45,9 +42,5 @@ public class MainDrawerContent {
 
     public int getCount() {
         return mainDrawerItems.size();
-    }
-
-    public Context getContext() {
-        return context;
     }
 }

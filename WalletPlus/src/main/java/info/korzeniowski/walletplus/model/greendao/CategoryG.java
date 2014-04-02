@@ -162,7 +162,7 @@ public class CategoryG {
 
     // KEEP METHODS - put your custom methods here
 
-    //TODO: ugly pice of code, fix?
+    //TODO: ugly piece of code, fix?
     public CategoryG(Category category) {
         if (category == null) return;
 
@@ -172,21 +172,26 @@ public class CategoryG {
         setType(Category.Type.convertEnumToBitwise(category.getTypes()));
     }
 
+    boolean isMainCategory() {
+        return getParent() == null;
+    }
+
     public static Category toCategory(CategoryG categoryG) {
         if (categoryG == null) return null;
 
-        if (categoryG.getParent() == null) {
+        if (categoryG.isMainCategory()) {
             Category category = toCategoryWithoutNavigations(categoryG);
             copyChildren(category, categoryG);
             return category;
         } else {
             Category parent = toCategory(categoryG.getParent());
             return copyChildren(parent, categoryG.getParent(), categoryG.getId());
-
         }
     }
 
     private static Category copyChildren(Category parent, CategoryG parentG, Long id) {
+        copyChildren(parent, parentG);
+
         List<Category> children = new ArrayList<Category>();
         List<CategoryG> childrenG = parentG.getChildren();
         Category result = null;
@@ -216,14 +221,13 @@ public class CategoryG {
     }
 
     private static Category toCategoryWithoutNavigations(CategoryG categoryG) {
-        if (categoryG != null) {
-            Category result = new Category();
-            result.setId(categoryG.getId());
-            result.setName(categoryG.getName());
-            result.setTypes(Category.Type.convertBitwiseToEnumSet(categoryG.getType()));
-            return result;
-        }
-        return null;
+        if (categoryG == null) return null;
+
+        Category result = new Category();
+        result.setId(categoryG.getId());
+        result.setName(categoryG.getName());
+        result.setTypes(Category.Type.convertBitwiseToEnumSet(categoryG.getType()));
+        return result;
     }
     // KEEP METHODS END
 

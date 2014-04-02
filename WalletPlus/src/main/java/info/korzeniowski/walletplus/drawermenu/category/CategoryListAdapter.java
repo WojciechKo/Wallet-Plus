@@ -2,6 +2,7 @@ package info.korzeniowski.walletplus.drawermenu.category;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ public class CategoryListAdapter extends BaseExpandableListAdapter {
     private List<Category> categoryList;
 
     CategoryListAdapter(Context context, List<Category> categories) {
+        Log.d("WalletPlus", "CategoryListAdapter()");
         this.context = context;
         this.categoryList = categories;
     }

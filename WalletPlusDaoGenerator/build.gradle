@@ -1,8 +1,5 @@
 apply plugin: 'java'
 apply plugin: 'application'
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     compile 'de.greenrobot:greendao-generator:1.3.0'

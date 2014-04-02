@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.activity;
+package info.korzeniowski.walletplus;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -22,11 +22,9 @@ import com.googlecode.androidannotations.annotations.ViewById;
 
 import javax.inject.Inject;
 
-import info.korzeniowski.walletplus.R;
-import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.drawermenu.MainDrawerListAdapter;
 import info.korzeniowski.walletplus.drawermenu.MainDrawerContent;
 import info.korzeniowski.walletplus.drawermenu.MainDrawerItem;
+import info.korzeniowski.walletplus.drawermenu.MainDrawerListAdapter;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity{

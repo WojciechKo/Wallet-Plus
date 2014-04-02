@@ -16,6 +16,7 @@ import info.korzeniowski.walletplus.module.MainModule;
  */
 public class WalletPlus extends Application {
     public static final String DATABASE_NAME = "wallet-plus.db";
+    public static final String LOG_TAG = "WalletPlus";
 
     protected ObjectGraph graph;
 

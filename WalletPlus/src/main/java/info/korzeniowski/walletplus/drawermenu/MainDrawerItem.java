@@ -28,7 +28,9 @@ public class MainDrawerItem {
     public Fragment getFragment() {
         try {
             return fragment.newInstance();
-        } catch (Exception e) {
+        } catch (InstantiationException e) {
+            Log.w("WalletPlus", "Nie można stworzyć obiektu Fragment");
+        } catch (IllegalAccessException e) {
             Log.w("WalletPlus", "Nie można stworzyć obiektu Fragment");
         }
         return null;

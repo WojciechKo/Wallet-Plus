@@ -3,6 +3,7 @@ package info.korzeniowski.walletplus.drawermenu.category;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,7 @@ import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
+import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.model.Category;
 
 @EFragment(R.layout.category_details_fragment)
@@ -63,9 +64,9 @@ public class CategoryDetailsFragment extends Fragment {
     RadioGroup categoryTypes;
 
     @Inject
-    LocalCategoryDataManager localCategoryDataManager;
+    CategoryDataManager localCategoryDataManager;
 
-    private long categoryId;
+    private Long categoryId;
     private Category category;
     private DetailsType type;
 
@@ -76,14 +77,18 @@ public class CategoryDetailsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d("WalletPlus", "CategoryDetails.onCreateView");
         categoryId = getArguments().getLong(CATEGORY_ID);
-        category = getCategory();
-        type = Category.INVALID_ID.equals(categoryId) ? DetailsType.ADD : DetailsType.EDIT;
+        type = categoryId == 0L ? DetailsType.ADD : DetailsType.EDIT;
+        if (type.equals(DetailsType.EDIT)) {
+            category = getCategory();
+        }
         return null;
     }
 
     @AfterViews
     void setupViews() {
+        Log.d("WalletPlus", "CategoryDetails.setupViews");
         setupAdapters();
         setupListeners();
         if (type.equals(DetailsType.ADD)) {
@@ -156,6 +161,7 @@ public class CategoryDetailsFragment extends Fragment {
 
     @OptionsItem(R.id.menu_save)
     void actionSave() {
+        Log.d("WalletPlus", "CategoryDetails.actionSave");
         getDataFromViews();
         if (DetailsType.ADD.equals(type)) {
             localCategoryDataManager.insert(category);

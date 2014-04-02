@@ -10,10 +10,9 @@ import info.korzeniowski.walletplus.model.Category;
  */
 public interface CategoryDataManager extends DataManager<Category> {
 
-    void deleteByIdWithSubcategories(Long id);
-    List<Category> getMainIncomeCategories();
-    List<Category> getMainExpenseCategories();
+    Category getByName(final String name);
+    void deleteByIdWithSubcategories(final Long id);
+    List<Category> getMainIncomeTypeCategories();
+    List<Category> getMainExpenseTypeCategories();
     List<Category> getMainCategories();
-    List<Category> getByMainPosition(int mainPosition);
-    Category getByMainAndSubPosition(int mainPosition, int subPosition);
 }

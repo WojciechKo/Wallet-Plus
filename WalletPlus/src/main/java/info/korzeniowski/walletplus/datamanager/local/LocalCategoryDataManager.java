@@ -1,54 +1,38 @@
 package info.korzeniowski.walletplus.datamanager.local;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.inject.Inject;
 
-import de.greenrobot.dao.query.WhereCondition;
+import info.korzeniowski.walletplus.datamanager.CannotDeleteCategoryWithChildrenException;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.CategoryHaveChildrenException;
-import info.korzeniowski.walletplus.datamanager.NotFoundInMainCategoriesException;
-import info.korzeniowski.walletplus.datamanager.ParentCategoryIsNotMainCategoryException;
+import info.korzeniowski.walletplus.datamanager.CategoryWithGivenNameAlreadyExistsException;
+import info.korzeniowski.walletplus.datamanager.EntityAlreadyExistsException;
+import info.korzeniowski.walletplus.datamanager.ParentIsNotMainCategoryException;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.greendao.CategoryG;
 import info.korzeniowski.walletplus.model.greendao.CategoryGDao;
 
-/**
- * Created by Wojtek on 04.03.14.
- */
 public class LocalCategoryDataManager implements CategoryDataManager {
-
     private CategoryGDao categoryDao;
     private List<Category> categories;
+    private List<Category> mainCategories;
 
     @Inject
     public LocalCategoryDataManager(CategoryGDao categoryDao) {
         this.categoryDao = categoryDao;
-        getMainCategories();
-    }
-
-    @Override
-    public Long count() {
-        return categoryDao.count();
-    }
-
-    @Override
-    public Category getById(Long id) {
-        CategoryG categoryG = categoryDao.loadDeep(id);
-        if (categoryG != null) {
-            Category category = CategoryG.toCategory(categoryG);
-            if (category.getParent() != null) {
-                category.setTypes(category.getParent().getTypes());
-            }
-            return category;
-        }
-        return null;
-    }
-
-    public Category getByName(String name) {
-        return CategoryG.toCategory(categoryDao.queryBuilder().where(CategoryGDao.Properties.Name.eq(name)).build().unique());
+        categories = getAll();
+        mainCategories = getMainCategories();
     }
 
     @Override
@@ -57,46 +41,172 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     }
 
     public List<Category> getMainCategories() {
-        List<CategoryG> categoryGList = categoryDao.queryBuilder()
-                .where(CategoryGDao.Properties.ParentId.isNull())
-                .list();
-        categories = getCategoryListFromCategoryGList(categoryGList);
-        return categories;
+        if (mainCategories == null) {
+            mainCategories = Lists.newArrayList();
+            for (Category category : categories) {
+                if (category.getParentId() == null) {
+                    mainCategories.add(category);
+                }
+            }
+            Collections.sort(mainCategories, Category.Comparators.NAME);
+        }
+        return mainCategories;
     }
 
     @Override
-    public List<Category> getByMainPosition(int mainPosition) {
-        return categories.get(mainPosition).getChildren();
+    public List<Category> getMainIncomeTypeCategories() {
+        return getMainCategoriesOfType(Category.Type.INCOME);
     }
 
     @Override
-    public Category getByMainAndSubPosition(int mainPosition, int subPosition) {
-        return categories.get(mainPosition).getChildren().get(subPosition);
+    public List<Category> getMainExpenseTypeCategories() {
+        return getMainCategoriesOfType(Category.Type.EXPENSE);
+    }
+
+    private List<Category> getMainCategoriesOfType(final Category.Type type) {
+        List<Category> result = Lists.newArrayList();
+        for (Category category : mainCategories) {
+            if (category.getTypes().contains(type)) {
+                result.add(category);
+            }
+        }
+        Collections.sort(result, Category.Comparators.POSITION);
+        return result;
     }
 
     @Override
-    public void update(Category category) {
+    public Long count() {
+        return categoryDao.count();
+    }
+
+    @Override
+    public Category getById(final Long id) {
+        Preconditions.checkNotNull(id);
+
+        Category result = Iterables.find(categories, new Predicate<Category>() {
+            @Override
+            public boolean apply(Category input) {
+                return Objects.equal(input.getId(), id);
+            }
+        });
+        ifSubGetTypesFromParent(result);
+        return result;
+    }
+
+    private void ifSubGetTypesFromParent(Category category) {
+        if (category.getParentId() != null) {
+            Category parent = findInMainCategoriesById(category.getParentId());
+            category.setTypes(parent.getTypes());
+        }
+    }
+
+    @Override
+    public Category getByName(final String name) {
+        return Iterables.find(categories, new Predicate<Category>() {
+            @Override
+            public boolean apply(Category input) {
+                return Objects.equal(input.getName(), name);
+            }
+        });
+    }
+
+    @Override
+    public void update(final Category category) {
+        validateUpdate(category);
+        Category toUpdate = getById(category.getId());
+        if (toUpdate.getParentId() == null) {
+            updateMain(category, toUpdate);
+        } else {
+            updateSub(category);
+        }
+        toUpdate.setTypes(category.getTypes());
+        toUpdate.setName(category.getName());
         categoryDao.update(new CategoryG(category));
+    }
+
+    private void updateMain(final Category newCategory, final Category oldCategory) {
+        // Main => Sub
+        if (newCategory.getParentId() != null) {
+            if (!oldCategory.getChildren().isEmpty()) {
+                throw new ParentIsNotMainCategoryException(oldCategory.getChildren().get(0).getId(), oldCategory.getId());
+            } else {
+                Category parent = findInMainCategoriesById(newCategory.getParentId());
+                Iterables.removeIf(mainCategories, new Predicate<Category>() {
+                    @Override
+                    public boolean apply(Category input) {
+                        return Objects.equal(input.getId(), newCategory.getId());
+                    }
+                });
+                parent.addChild(oldCategory);
+            }
+        }
+
+    }
+
+    private void updateSub(Category category) {
+
     }
 
     @Override
     public Long insert(Category category) {
-        checkUnique(category);
+        Preconditions.checkNotNull(category);
+        validateInsert(category);
 
+        category.setId(categoryDao.insert(new CategoryG(category)));
+        categories.add(category);
         if (category.getParentId() == null) {
-            return insertMain(category);
+            insertMain(category);
         } else {
-            return insertSub(category);
+            insertSub(category);
         }
+        Collections.sort(categories, Category.Comparators.NAME);
+        Collections.sort(mainCategories, Category.Comparators.POSITION);
+        return category.getId();
     }
 
-    private void checkUnique(Category category) {
-//        if (getById(category.getId()) != null) {
-//            throw new EntityAlreadyExistsException(category, category.getId());
-//        }
-//        else if (getByName(category.getName()) != null) {
-//            throw new DuplicateCategoryNameException(category.getName());
-//        }
+    private void insertMain(Category category) {
+        mainCategories.add(category);
+    }
+
+    private void insertSub(Category category) {
+        category.setTypes(EnumSet.noneOf(Category.Type.class));
+        Category parent;
+        try {
+            parent = findInMainCategoriesById(category.getParentId());
+        } catch (NoSuchElementException e) {
+            throw new ParentIsNotMainCategoryException(category.getId(), category.getParentId());
+        }
+        parent.getChildren().add(category);
+        Collections.sort(parent.getChildren(), Category.Comparators.POSITION);
+    }
+
+    private void validateInsert(Category category) {
+        validateUniqueId(category);
+        validateUniqueName(category);
+    }
+
+    private void validateUpdate(Category category) {
+        validateUniqueName(category);
+    }
+
+    private void validateUniqueId(Category category) {
+        if (category.getId() == null) return;
+
+        try {
+            getById(category.getId());
+        } catch (NoSuchElementException e) {
+            return;
+        }
+        throw new EntityAlreadyExistsException(category, category.getId());
+    }
+
+    private void validateUniqueName(Category category) {
+        try {
+            getByName(category.getName());
+        } catch (NoSuchElementException e) {
+            return;
+        }
+        throw new CategoryWithGivenNameAlreadyExistsException(category.getName());
     }
 
     @Override
@@ -109,81 +219,34 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         }
     }
 
-    @Override
-    public void deleteByIdWithSubcategories(Long id) {
-        categoryDao.queryBuilder().where(CategoryGDao.Properties.ParentId.eq(id)).buildDelete().executeDeleteWithoutDetachingEntities();
-        Category category = findInMainCategories(id);
-        category.getChildren().clear();
-
-        deleteById(id);
-        categories.remove(category);
-    }
-
-    @Override
-    public List<Category> getMainIncomeCategories() {
-        return getCategoryListFromCategoryGList(
-                categoryDao.queryBuilder().where(
-                        new WhereCondition.StringCondition(
-                                CategoryGDao.Properties.Type.columnName + " & " + Category.Type.convertEnumToBitwise(Category.Type.INCOME)+ " <> 0")
-                ).build().listLazyUncached()
-        );
-    }
-
-    @Override
-    public List<Category> getMainExpenseCategories() {
-        return getCategoryListFromCategoryGList(
-                categoryDao.queryBuilder().where(
-                        new WhereCondition.StringCondition(
-                                CategoryGDao.Properties.Type.columnName + " & " + Category.Type.convertEnumToBitwise(Category.Type.EXPENSE)+ " <> 0")
-                ).build().listLazyUncached()
-        );
-    }
-
-    private Category findInMainCategories(Long id) {
-        for (Category category : categories) {
-            if (category.getId().equals(id)) {
-                return category;
-            }
-        }
-        throw new NotFoundInMainCategoriesException(id);
-    }
-
-    private Long insertMain(Category category) {
-        CategoryG categoryG = new CategoryG(category);
-        Long id = categoryDao.insert(categoryG);
-        categories.add(category.setId(id));
-        return id;
-    }
-
-    private Long insertSub(Category category) {
-        try {
-            category.setTypes(EnumSet.noneOf(Category.Type.class));
-            findInMainCategories(category.getParentId()).getChildren().add(category);
-        } catch (NotFoundInMainCategoriesException e) {
-            throw new ParentCategoryIsNotMainCategoryException(category.getId(), category.getParentId());
-        }
-        return categoryDao.insert(new CategoryG(category));
-    }
-
-    private void deleteMainCategory(Category categoryToDelete) {
+    private void deleteMainCategory(final Category categoryToDelete) {
         if (categoryToDelete.getChildren().isEmpty()) {
             categoryDao.deleteByKey(categoryToDelete.getId());
-            categories.remove(categoryToDelete);
+            Iterables.removeIf(mainCategories, new Predicate<Category>() {
+                @Override
+                public boolean apply(Category input) {
+                    return Objects.equal(input.getId(), categoryToDelete.getId());
+                }
+            });
         } else {
-            throw new CategoryHaveChildrenException();
+            throw new CannotDeleteCategoryWithChildrenException(categoryToDelete);
         }
     }
 
     private void deleteSubCategory(Category categoryToDelete) {
-        Category parentCategory = findInMainCategories(categoryToDelete.getParentId());
+        Category parentCategory = findInMainCategoriesById(categoryToDelete.getParentId());
         categoryDao.deleteByKey(categoryToDelete.getId());
         parentCategory.getChildren().remove(categoryToDelete);
     }
 
+    @Override
+    public void deleteByIdWithSubcategories(Long id) {
+        categoryDao.queryBuilder().where(CategoryGDao.Properties.ParentId.eq(id)).buildDelete().executeDeleteWithoutDetachingEntities();
+        Category category = findInMainCategoriesById(id);
+        category.getChildren().clear();
 
-
-
-
+        deleteById(id);
+    }
 
     private List<Category> getCategoryListFromCategoryGList(List<CategoryG> categoryGList) {
         List<Category> categoryList = new ArrayList<Category>();
@@ -191,5 +254,14 @@ public class LocalCategoryDataManager implements CategoryDataManager {
             categoryList.add(CategoryG.toCategory(categoryG));
         }
         return categoryList;
+    }
+
+    private Category findInMainCategoriesById(final Long id) {
+        return Iterables.find(mainCategories, new Predicate<Category>() {
+            @Override
+            public boolean apply(Category input) {
+                return Objects.equal(input.getId(), id);
+            }
+        });
     }
 }
