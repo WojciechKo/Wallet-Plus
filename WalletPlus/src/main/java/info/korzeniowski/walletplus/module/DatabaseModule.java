@@ -3,6 +3,7 @@ package info.korzeniowski.walletplus.module;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -47,8 +48,9 @@ public class DatabaseModule {
     }
 
     @Provides
+    @Named("local")
     @Singleton
-    public CategoryDataManager provideCategoryDataManager(LocalCategoryDataManager categoryDataManager) {
-        return categoryDataManager;
+    public CategoryDataManager provideCategoryDataManager(LocalCategoryDataManager localCategoryDataManager) {
+        return localCategoryDataManager;
     }
 }

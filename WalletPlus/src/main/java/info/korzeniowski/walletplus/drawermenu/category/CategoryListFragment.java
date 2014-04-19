@@ -22,6 +22,7 @@ import com.googlecode.androidannotations.annotations.ViewById;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
@@ -41,10 +42,11 @@ public class CategoryListFragment extends Fragment {
     public static final int ONLY_INCOME = 1;
     public static final int ONLY_EXPENSE = ONLY_INCOME + 1;
     public static final int ALL = ONLY_EXPENSE + 1;
+
     @ViewById(R.id.superList)
     ExpandableListView superList;
 
-    @Inject
+    @Inject @Named("local")
     CategoryDataManager localCategoryDataManager;
 
     private ActionMode mActionMode;

@@ -27,6 +27,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
@@ -63,7 +64,7 @@ public class CategoryDetailsFragment extends Fragment {
     @ViewById
     RadioGroup categoryTypes;
 
-    @Inject
+    @Inject @Named("local")
     CategoryDataManager localCategoryDataManager;
 
     private Long categoryId;
