@@ -10,7 +10,9 @@ import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
+import info.korzeniowski.walletplus.datamanager.RecordDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
+import info.korzeniowski.walletplus.datamanager.local.LocalRecordDataManager;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
 import info.korzeniowski.walletplus.model.greendao.CategoryGDao;
@@ -52,5 +54,12 @@ public class DatabaseModule {
     @Singleton
     public CategoryDataManager provideCategoryDataManager(LocalCategoryDataManager localCategoryDataManager) {
         return localCategoryDataManager;
+    }
+
+    @Provides
+    @Named("local")
+    @Singleton
+    public RecordDataManager provideRecordDataManager(LocalRecordDataManager localRecordDataManager) {
+        return localRecordDataManager;
     }
 }

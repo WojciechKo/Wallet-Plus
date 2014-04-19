@@ -17,7 +17,6 @@ public class WalletPlusDaoGenerator {
     private static final String MAIN_PACKAGE = "info.korzeniowski.walletplus";
     private static final String SRC_PACKAGE = MAIN_PACKAGE + ".model.greendao";
     private static final int SCHEMA_VERSION = 1;
-
     private static final String ENTITY_ID = "id";
     // Category table
     private static final String CATEGORY_TABLE_NAME = "Category";
@@ -26,45 +25,52 @@ public class WalletPlusDaoGenerator {
     private static final String CATEGORY_PROPERTY_NAME = "name";
     private static final String CATEGORY_PROPERTY_TYPE = "type";
 
+    // Record table
+    private static final String RECORD_TABLE_NAME = "Record";
+    private static final String RECORD_CLASS_NAME = "RecordG";
+    private static final String RECORD_PROPERTY_AMOUNT = "amount";
+    private static final String RECORD_PROPERTY_CATEGORY_ID = "categoryId";
+    private static final String RECORD_PROPERTY_DESCRIPTION = "description";
+    private static final String RECORD_PROPERTY_DATETIME = "dateTime";
+
     public static void main(String[] args) throws Exception {
         schema = new Schema(SCHEMA_VERSION, SRC_PACKAGE);
-
         addEntities();
         addRelations();
-
-        File srcDir = new File(OUTPUT_SRC_DIR + SRC_PACKAGE.replace('.', '/'));
-//        for (File file : srcDir.listFiles()) file.delete();
-//        File testDir = new File(OUTPUT_TEST_DIR + TEST_PACKAGE.replace('.', '/'));
-//        for (File file : testDir.listFiles()) file.delete();
-
         schema.setDefaultJavaPackageDao(SRC_PACKAGE);
-//        schema.setDefaultJavaPackageTest(TEST_PACKAGE);
-
         new DaoGenerator().generateAll(schema, OUTPUT_SRC_DIR);
-//        new DaoGenerator().generateAll(schema, OUTPUT_SRC_DIR, OUTPUT_TEST_DIR);
     }
 
-    // Entities //
     private static void addEntities() {
         addCategory();
+        addRecord();
     }
 
     private static void addCategory() {
         Entity category = schema.addEntity(CATEGORY_CLASS_NAME);
         category.setTableName(CATEGORY_TABLE_NAME);
-//        category.setClassNameDao(CATEGORY_TABLE_NAME + "Dao");
         category.addIdProperty();
         category.addLongProperty(CATEGORY_PROPERTY_PARENT_ID);
         category.addStringProperty(CATEGORY_PROPERTY_NAME).notNull().unique();
         category.addIntProperty(CATEGORY_PROPERTY_TYPE);
         category.setHasKeepSections(true);
-//        category.implementsInterface(CATEGORY_TABLE_NAME);
-        //category.setSuperclass("CategoryBase");
+    }
+
+    private static void addRecord() {
+        Entity record = schema.addEntity(RECORD_CLASS_NAME);
+        record.setTableName(RECORD_TABLE_NAME);
+        record.addIdProperty();
+        record.addFloatProperty(RECORD_PROPERTY_AMOUNT).notNull();
+        record.addLongProperty(RECORD_PROPERTY_CATEGORY_ID).notNull();
+        record.addStringProperty(RECORD_PROPERTY_DESCRIPTION);
+        record.addDateProperty(RECORD_PROPERTY_DATETIME).notNull();
+        record.setHasKeepSections(true);
     }
 
     // Relations //
     private static void addRelations() {
         addCategoryToParentCategory();
+        addRecordToCategory();
     }
 
     private static void addCategoryToParentCategory() {
@@ -72,6 +78,13 @@ public class WalletPlusDaoGenerator {
         Property parentCategoryId = getPropertyByName(category, CATEGORY_PROPERTY_PARENT_ID);
         category.addToMany(category, parentCategoryId).setName("children");
         category.addToOne(category, parentCategoryId).setName("parent");
+    }
+
+    private static void addRecordToCategory() {
+        Entity category = getEntityByName(CATEGORY_CLASS_NAME);
+        Entity record = getEntityByName(RECORD_CLASS_NAME);
+        Property categoryId = getPropertyByName(record, RECORD_PROPERTY_CATEGORY_ID);
+        record.addToOne(category, categoryId);
     }
 
     private static Entity getEntityByName(final String name) {
