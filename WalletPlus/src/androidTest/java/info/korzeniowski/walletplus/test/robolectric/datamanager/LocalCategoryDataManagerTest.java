@@ -20,9 +20,9 @@ import info.korzeniowski.walletplus.datamanager.EntityAlreadyExistsException;
 import info.korzeniowski.walletplus.datamanager.ParentIsNotMainCategoryException;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.greendao.CategoryGDao;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
 import info.korzeniowski.walletplus.model.greendao.DaoSession;
+import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -38,7 +38,7 @@ public class LocalCategoryDataManagerTest {
     //TODO: inject this!
     CategoryDataManager categoryDataManager;
 
-    CategoryGDao categoryGDao;
+    GreenCategoryDao greenCategoryDao;
     @Before
     public void setUp() {
         // ((TestWalletPlus) Robolectric.application).injectMocks(this);
@@ -46,8 +46,8 @@ public class LocalCategoryDataManagerTest {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         DaoMaster daoMaster = new DaoMaster(database);
         DaoSession daoSession = daoMaster.newSession();
-        categoryGDao = daoSession.getCategoryGDao();
-        categoryDataManager = new LocalCategoryDataManager(daoSession.getCategoryGDao());
+        greenCategoryDao = daoSession.getGreenCategoryDao();
+        categoryDataManager = new LocalCategoryDataManager(greenCategoryDao);
     }
 
     @Test

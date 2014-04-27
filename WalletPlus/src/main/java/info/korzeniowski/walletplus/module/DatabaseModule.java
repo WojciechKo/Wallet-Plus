@@ -15,15 +15,18 @@ import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalRecordDataManager;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
-import info.korzeniowski.walletplus.model.greendao.CategoryGDao;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
 import info.korzeniowski.walletplus.model.greendao.DaoSession;
+import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
+import info.korzeniowski.walletplus.model.greendao.GreenRecordDao;
 
 
 /**
  * Module for Database objects.
  */
+//TODO: usunąć library = true
 @Module(
+        library = true,
         injects = {
                 CategoryDetailsFragment_.class,
                 CategoryListFragment_.class,
@@ -45,8 +48,8 @@ public class DatabaseModule {
 
     @Provides
     @Singleton
-    public CategoryGDao provideCategoryDao() {
-        return daoSession.getCategoryGDao();
+    public GreenCategoryDao provideGreenCategoryDao() {
+        return daoSession.getGreenCategoryDao();
     }
 
     @Provides
@@ -54,6 +57,12 @@ public class DatabaseModule {
     @Singleton
     public CategoryDataManager provideCategoryDataManager(LocalCategoryDataManager localCategoryDataManager) {
         return localCategoryDataManager;
+    }
+
+    @Provides
+    @Singleton
+    public GreenRecordDao provideGreenRecordDao() {
+        return daoSession.getGreenRecordDao();
     }
 
     @Provides

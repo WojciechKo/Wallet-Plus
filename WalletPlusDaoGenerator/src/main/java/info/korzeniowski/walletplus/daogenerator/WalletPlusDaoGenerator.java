@@ -20,14 +20,14 @@ public class WalletPlusDaoGenerator {
     private static final String ENTITY_ID = "id";
     // Category table
     private static final String CATEGORY_TABLE_NAME = "Category";
-    private static final String CATEGORY_CLASS_NAME = "CategoryG";
+    private static final String CATEGORY_CLASS_NAME = "GreenCategory";
     private static final String CATEGORY_PROPERTY_PARENT_ID = "parentId";
     private static final String CATEGORY_PROPERTY_NAME = "name";
     private static final String CATEGORY_PROPERTY_TYPE = "type";
 
     // Record table
     private static final String RECORD_TABLE_NAME = "Record";
-    private static final String RECORD_CLASS_NAME = "RecordG";
+    private static final String RECORD_CLASS_NAME = "GreenRecord";
     private static final String RECORD_PROPERTY_AMOUNT = "amount";
     private static final String RECORD_PROPERTY_CATEGORY_ID = "categoryId";
     private static final String RECORD_PROPERTY_DESCRIPTION = "description";

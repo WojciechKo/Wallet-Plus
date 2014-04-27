@@ -33,7 +33,7 @@ public class CategoryTypeTest {
         // ((TestWalletPlus) Robolectric.application).injectMocks(this);
         SQLiteOpenHelper dbHelper = new DaoMaster.DevOpenHelper(Robolectric.application, null, null);
         DaoSession daoSession = new DaoMaster(dbHelper.getWritableDatabase()).newSession();
-        categoryDataManager = new LocalCategoryDataManager(daoSession.getCategoryGDao());
+        categoryDataManager = new LocalCategoryDataManager(daoSession.getGreenCategoryDao());
     }
 
     /**

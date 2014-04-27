@@ -6,8 +6,8 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.MainActivity_;
+import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.drawermenu.MainDrawerContent;
 import info.korzeniowski.walletplus.drawermenu.MainDrawerListAdapter;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;

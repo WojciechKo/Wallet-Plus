@@ -20,24 +20,24 @@ import info.korzeniowski.walletplus.datamanager.CategoryWithGivenNameAlreadyExis
 import info.korzeniowski.walletplus.datamanager.EntityAlreadyExistsException;
 import info.korzeniowski.walletplus.datamanager.ParentIsNotMainCategoryException;
 import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.greendao.CategoryG;
-import info.korzeniowski.walletplus.model.greendao.CategoryGDao;
+import info.korzeniowski.walletplus.model.greendao.GreenCategory;
+import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
 
 public class LocalCategoryDataManager implements CategoryDataManager {
-    private CategoryGDao categoryDao;
+    private GreenCategoryDao greenCategoryDao;
     private List<Category> categories;
     private List<Category> mainCategories;
 
     @Inject
-    public LocalCategoryDataManager(CategoryGDao categoryDao) {
-        this.categoryDao = categoryDao;
+    public LocalCategoryDataManager(GreenCategoryDao greenCategoryDao) {
+        this.greenCategoryDao = greenCategoryDao;
         categories = getAll();
         mainCategories = getMainCategories();
     }
 
     @Override
     public List<Category> getAll() {
-        return getCategoryListFromCategoryGList(categoryDao.loadAll());
+        return getCategoryListFromGreenCategoryList(greenCategoryDao.loadAll());
     }
 
     public List<Category> getMainCategories() {
@@ -76,7 +76,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
 
     @Override
     public Long count() {
-        return categoryDao.count();
+        return greenCategoryDao.count();
     }
 
     @Override
@@ -121,7 +121,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         }
         toUpdate.setTypes(category.getTypes());
         toUpdate.setName(category.getName());
-        categoryDao.update(new CategoryG(category));
+        greenCategoryDao.update(new GreenCategory(category));
     }
 
     private void updateMain(final Category newCategory, final Category oldCategory) {
@@ -152,7 +152,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         Preconditions.checkNotNull(category);
         validateInsert(category);
 
-        category.setId(categoryDao.insert(new CategoryG(category)));
+        category.setId(greenCategoryDao.insert(new GreenCategory(category)));
         categories.add(category);
         if (category.getParentId() == null) {
             insertMain(category);
@@ -221,7 +221,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
 
     private void deleteMainCategory(final Category categoryToDelete) {
         if (categoryToDelete.getChildren().isEmpty()) {
-            categoryDao.deleteByKey(categoryToDelete.getId());
+            greenCategoryDao.deleteByKey(categoryToDelete.getId());
             Iterables.removeIf(mainCategories, new Predicate<Category>() {
                 @Override
                 public boolean apply(Category input) {
@@ -235,23 +235,23 @@ public class LocalCategoryDataManager implements CategoryDataManager {
 
     private void deleteSubCategory(Category categoryToDelete) {
         Category parentCategory = findInMainCategoriesById(categoryToDelete.getParentId());
-        categoryDao.deleteByKey(categoryToDelete.getId());
+        greenCategoryDao.deleteByKey(categoryToDelete.getId());
         parentCategory.getChildren().remove(categoryToDelete);
     }
 
     @Override
     public void deleteByIdWithSubcategories(Long id) {
-        categoryDao.queryBuilder().where(CategoryGDao.Properties.ParentId.eq(id)).buildDelete().executeDeleteWithoutDetachingEntities();
+        greenCategoryDao.queryBuilder().where(GreenCategoryDao.Properties.ParentId.eq(id)).buildDelete().executeDeleteWithoutDetachingEntities();
         Category category = findInMainCategoriesById(id);
         category.getChildren().clear();
 
         deleteById(id);
     }
 
-    private List<Category> getCategoryListFromCategoryGList(List<CategoryG> categoryGList) {
+    private List<Category> getCategoryListFromGreenCategoryList(List<GreenCategory> greenCategoryList) {
         List<Category> categoryList = new ArrayList<Category>();
-        for(CategoryG categoryG : categoryGList) {
-            categoryList.add(CategoryG.toCategory(categoryG));
+        for(GreenCategory greenCategory : greenCategoryList) {
+            categoryList.add(GreenCategory.toCategory(greenCategory));
         }
         return categoryList;
     }
