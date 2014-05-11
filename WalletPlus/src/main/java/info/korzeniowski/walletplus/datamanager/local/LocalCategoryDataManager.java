@@ -14,11 +14,11 @@ import java.util.NoSuchElementException;
 
 import javax.inject.Inject;
 
-import info.korzeniowski.walletplus.datamanager.CannotDeleteCategoryWithChildrenException;
+import info.korzeniowski.walletplus.datamanager.exception.CannotDeleteCategoryWithChildrenException;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.CategoryWithGivenNameAlreadyExistsException;
-import info.korzeniowski.walletplus.datamanager.EntityAlreadyExistsException;
-import info.korzeniowski.walletplus.datamanager.ParentIsNotMainCategoryException;
+import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenNameAlreadyExistsException;
+import info.korzeniowski.walletplus.datamanager.exception.EntityAlreadyExistsException;
+import info.korzeniowski.walletplus.datamanager.exception.ParentIsNotMainCategoryException;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.greendao.GreenCategory;
 import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;

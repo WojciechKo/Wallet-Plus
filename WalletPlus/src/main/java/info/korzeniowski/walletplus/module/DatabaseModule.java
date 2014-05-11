@@ -51,6 +51,9 @@ public class DatabaseModule {
         daoSession = daoMaster.newSession();
     }
 
+    /****************
+     * CATEGORY
+     ***************/
     @Provides
     @Singleton
     public GreenCategoryDao provideGreenCategoryDao() {
@@ -64,6 +67,9 @@ public class DatabaseModule {
         return localCategoryDataManager;
     }
 
+    /****************
+     * RECORD
+     ***************/
     @Provides
     @Singleton
     public GreenRecordDao provideGreenRecordDao() {

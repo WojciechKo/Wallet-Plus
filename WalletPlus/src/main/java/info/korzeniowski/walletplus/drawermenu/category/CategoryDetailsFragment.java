@@ -187,7 +187,7 @@ public class CategoryDetailsFragment extends Fragment {
     public void getDataFromViews() {
         category.setName(categoryName.getText().toString());
 
-        EnumSet categorySet = EnumSet.noneOf(Category.Type.class);
+        EnumSet<Category.Type> categorySet = EnumSet.noneOf(Category.Type.class);
         if (categoryIncomeType.isChecked()) {
             categorySet.add(Category.Type.INCOME);
         }

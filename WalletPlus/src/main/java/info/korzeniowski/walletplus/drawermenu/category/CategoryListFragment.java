@@ -27,7 +27,7 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.CannotDeleteCategoryWithChildrenException;
+import info.korzeniowski.walletplus.datamanager.exception.CannotDeleteCategoryWithChildrenException;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.model.Category;
 
@@ -37,7 +37,6 @@ import info.korzeniowski.walletplus.model.Category;
 @EFragment(R.layout.category_list)
 @OptionsMenu(R.menu.action_new)
 public class CategoryListFragment extends Fragment {
-
     public static final String CATEGORY_TYPE = "categoryType";
     public static final int ONLY_INCOME = 1;
     public static final int ONLY_EXPENSE = ONLY_INCOME + 1;
@@ -49,8 +48,6 @@ public class CategoryListFragment extends Fragment {
     @Inject @Named("local")
     CategoryDataManager localCategoryDataManager;
 
-    private ActionMode mActionMode;
-
     @AfterInject
     void daggerInject() {
         ((WalletPlus) getActivity().getApplication()).inject(this);
@@ -58,7 +55,6 @@ public class CategoryListFragment extends Fragment {
 
     @AfterViews
     void setupViews() {
-        Log.d("WalletPlus", "CategoryList.setupViews");
         setHasOptionsMenu(true);
         int type = getArguments().getInt(CATEGORY_TYPE);
         superList.setAdapter(new CategoryListAdapter(getActivity(), getCategoryList(type)));
@@ -74,38 +70,14 @@ public class CategoryListFragment extends Fragment {
                 else
                     categoryId = ((ExpandableListView) parent).getExpandableListAdapter().getChildId(groupPosition, childPosition);
                 Toast.makeText(getActivity(),"Przytrzymano: gr:" + groupPosition + " child: " + childPosition + "id: " + categoryId, Toast.LENGTH_SHORT).show();
-                mActionMode = ((ActionBarActivity) getActivity()).startSupportActionMode(new ActionModeAfterLongPress(categoryId));
+                ((ActionBarActivity) getActivity()).startSupportActionMode(new ActionModeAfterLongPress(categoryId));
                 return true;
             }
         });
     }
 
-    private void resetDatabase() {
-//        categoryDao.deleteAll();
-//        localCategoryDataManager.insert(new Category().setName("Main"));
-//        localCategoryDataManager.insert(new Category().setName("Main"));
-//
-//
-//        localCategoryDataManager.insert(new Category("Main 1", EnumSet.allOf(Category.Type.class)).setId((long) 101));
-//        localCategoryDataManager.insert(new Category("Main 2", EnumSet.allOf(Category.Type.class)).setId((long) 201));
-//        localCategoryDataManager.insert(new Category("Main 3", EnumSet.allOf(Category.Type.class)).setId((long) 301));
-//
-//        localCategoryDataManager.insert(new Category("Main 1 Sub 1", EnumSet.allOf(Category.Type.class)).setParentId((long) 101));
-//        localCategoryDataManager.insert(new Category("Main 1 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 101));
-//        localCategoryDataManager.insert(new Category("Main 1 Sub 3", EnumSet.allOf(Category.Type.class)).setParentId((long) 101));
-//
-//        localCategoryDataManager.insert(new Category("Main 2 Sub 1", EnumSet.allOf(Category.Type.class)).setParentId((long) 201));
-//        localCategoryDataManager.insert(new Category("Main 2 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 201));
-//        localCategoryDataManager.insert(new Category("Main 2 Sub 3", EnumSet.allOf(Category.Type.class)).setParentId((long) 201));
-//
-//        localCategoryDataManager.insert(new Category("Main 3 Sub 1", EnumSet.allOf(Category.Type.class)).setParentId((long) 301));
-//        localCategoryDataManager.insert(new Category("Main 3 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 301));
-//        localCategoryDataManager.insert(new Category("Main 3 Sub 2", EnumSet.allOf(Category.Type.class)).setParentId((long) 301));
-    }
-
     @OptionsItem(R.id.menu_new)
     void actionAdd() {
-        Log.d("WalletPlus", "CategoryList.actionAdd");
         startCategoryDetailsFragment();
     }
 

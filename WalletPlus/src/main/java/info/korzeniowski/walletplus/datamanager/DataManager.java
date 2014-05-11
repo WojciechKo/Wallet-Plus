@@ -2,9 +2,6 @@ package info.korzeniowski.walletplus.datamanager;
 
 import java.util.List;
 
-/**
- * Created by Wojtek on 04.03.14.
- */
 public interface DataManager<E> {
 
     Long insert(E entity);

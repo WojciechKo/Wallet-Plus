@@ -1,8 +1,5 @@
-package info.korzeniowski.walletplus.datamanager;
+package info.korzeniowski.walletplus.datamanager.exception;
 
-/**
- * Created by Wojtek on 02.04.14.
- */
 public class CategoryWithGivenNameAlreadyExistsException extends RuntimeException {
     public CategoryWithGivenNameAlreadyExistsException(String msg) {
         super("Category with name: " + msg + " already exists.");

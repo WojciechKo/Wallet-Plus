@@ -1,7 +1,5 @@
 package info.korzeniowski.walletplus.drawermenu.record;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
@@ -27,10 +25,8 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.CannotDeleteCategoryWithChildrenException;
 import info.korzeniowski.walletplus.datamanager.RecordDataManager;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment;
-import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 
 /**
  * Fragment with list of records.

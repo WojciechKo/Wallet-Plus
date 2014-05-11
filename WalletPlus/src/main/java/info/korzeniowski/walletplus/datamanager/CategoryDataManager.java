@@ -4,10 +4,6 @@ import java.util.List;
 
 import info.korzeniowski.walletplus.model.Category;
 
-
-/**
- * Created by Wojtek on 04.03.14.
- */
 public interface CategoryDataManager extends DataManager<Category> {
 
     List<Category> getMainCategories();

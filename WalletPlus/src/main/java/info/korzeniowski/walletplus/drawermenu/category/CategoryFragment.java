@@ -9,10 +9,6 @@ import android.view.ViewGroup;
 
 import info.korzeniowski.walletplus.R;
 
-/**
- * Created by Wojtek on 27.03.14.
- */
-
 public class CategoryFragment extends Fragment{
     FragmentTabHost tabHost;
 

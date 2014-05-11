@@ -2,9 +2,6 @@ package info.korzeniowski.walletplus.test.module;
 
 import dagger.Module;
 
-/**
- * Created by Wojtek on 20.03.14.
- */
 @Module(
 //        injects = {
 //                LocalCategoryDataManagerTest.class

@@ -1,5 +1,7 @@
 package info.korzeniowski.walletplus.model;
 
+import com.google.common.base.Objects;
+
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -9,9 +11,6 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
-/**
- * Created by Wojtek on 27.03.14.
- */
 public class Category implements Comparable<Category> {
     private Long id;
     private Long parentId;
@@ -97,9 +96,9 @@ public class Category implements Comparable<Category> {
     public boolean equals(Object o) {
         if (o instanceof Category) {
             Category other = (Category) o;
-            if (ObjectUtils.equals(other.getId(), getId()) &&
-                    ObjectUtils.equals(other.getName(), getName()) &&
-                    ObjectUtils.equals(other.getParentId(), getParentId()) &&
+            if (Objects.equal(other.getId(), getId()) &&
+                    Objects.equal(other.getName(), getName()) &&
+                    Objects.equal(other.getParentId(), getParentId()) &&
                     other.getTypes().equals(getTypes()) ) {
                 return true;
             }
