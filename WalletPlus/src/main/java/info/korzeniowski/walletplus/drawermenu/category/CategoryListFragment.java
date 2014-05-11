@@ -166,28 +166,31 @@ public class CategoryListFragment extends Fragment {
                     try {
                         localCategoryDataManager.deleteById(id);
                     } catch (CannotDeleteCategoryWithChildrenException e) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                        builder.setTitle(localCategoryDataManager.getById(id).getName());
-                        builder.setMessage(R.string.category_have_children + "\n\n" + R.string.do_you_want_to_delete_with_subcategories);
-                        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                localCategoryDataManager.deleteByIdWithSubcategories(id);
-                            }
-                        });
-                        builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        });
-                        builder.create();
-                        builder.show();
+                        buildAlertDialog().show();
                     }
                     break;
             }
             actionMode.finish();
             return true;
+        }
+
+        private AlertDialog buildAlertDialog() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(localCategoryDataManager.getById(id).getName());
+            builder.setMessage(R.string.category_have_children + "\n\n" + R.string.do_you_want_to_delete_with_subcategories);
+            builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    localCategoryDataManager.deleteByIdWithSubcategories(id);
+                }
+            });
+            builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            return builder.create();
         }
 
         @Override
