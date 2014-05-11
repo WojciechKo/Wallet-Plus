@@ -1,11 +1,20 @@
 package info.korzeniowski.walletplus.datamanager.local;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.RecordDataManager;
+import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Record;
+import info.korzeniowski.walletplus.model.greendao.GreenCategory;
+import info.korzeniowski.walletplus.model.greendao.GreenRecord;
 import info.korzeniowski.walletplus.model.greendao.GreenRecordDao;
 
 public class LocalRecordDataManager implements RecordDataManager{
@@ -21,22 +30,46 @@ public class LocalRecordDataManager implements RecordDataManager{
 
     @Override
     public Long count() {
-        return null;
+        return (long) records.size();
     }
 
     @Override
-    public Record getById(Long id) {
-        return null;
+    public Record getById(final Long id) {
+        Preconditions.checkNotNull(id);
+
+        return Iterables.find(records, new Predicate<Record>() {
+            @Override
+            public boolean apply(Record record) {
+                return Objects.equal(record.getId(), id);
+            }
+        });
     }
 
     @Override
     public List<Record> getAll() {
-        return null;
+        return getCategoryListFromGreenCategoryList(greenRecordDao.loadAll());
+    }
+
+    private List<Record> getCategoryListFromGreenCategoryList(List<GreenRecord> greenRecords) {
+        List<Record> recordList = new ArrayList<Record>();
+        for(GreenRecord greenRecord: greenRecords) {
+            recordList.add(GreenRecord.toRecord(greenRecord));
+        }
+        return recordList;
     }
 
     @Override
-    public void update(Record entity) {
+    public void update(Record record) {
+        validateUpdate(record);
+        Record toUpdate = getById(record.getId());
+        toUpdate.setAmount(record.getAmount());
+        toUpdate.setCategoryId(record.getCategoryId());
+        toUpdate.setDescription(record.getDescription());
+        toUpdate.setDateTime(record.getDateTime());
+        greenRecordDao.update(new GreenRecord(record));
+    }
 
+    private void validateUpdate(Record record) {
     }
 
     @Override

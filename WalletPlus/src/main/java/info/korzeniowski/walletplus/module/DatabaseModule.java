@@ -15,6 +15,8 @@ import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalRecordDataManager;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
+import info.korzeniowski.walletplus.drawermenu.record.RecordDetailsFragment_;
+import info.korzeniowski.walletplus.drawermenu.record.RecordListFragment_;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
 import info.korzeniowski.walletplus.model.greendao.DaoSession;
 import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
@@ -30,7 +32,10 @@ import info.korzeniowski.walletplus.model.greendao.GreenRecordDao;
         injects = {
                 CategoryDetailsFragment_.class,
                 CategoryListFragment_.class,
-                LocalCategoryDataManager.class
+                LocalCategoryDataManager.class,
+
+                RecordDetailsFragment_.class,
+                RecordListFragment_.class
         }
 )
 public class DatabaseModule {

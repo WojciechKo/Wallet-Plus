@@ -1,11 +1,14 @@
 package info.korzeniowski.walletplus.model;
 
+import java.util.Date;
+
 public class Record {
     private Long id;
-    private Long amount;
+    private Float amount;
     private Category category;
+    private Long categoryId;
     private String description;
-    private String dateTime;
+    private Date dateTime;
 
     public Long getId() {
         return id;
@@ -15,11 +18,11 @@ public class Record {
         this.id = id;
     }
 
-    public Long getAmount() {
+    public Float getAmount() {
         return amount;
     }
 
-    public void setAmount(Long amount) {
+    public void setAmount(Float amount) {
         this.amount = amount;
     }
 
@@ -31,6 +34,14 @@ public class Record {
         this.category = category;
     }
 
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -39,11 +50,11 @@ public class Record {
         this.description = description;
     }
 
-    public String getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(String dateTime) {
+    public void setDateTime(Date dateTime) {
         this.dateTime = dateTime;
     }
 }
