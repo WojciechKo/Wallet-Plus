@@ -8,7 +8,7 @@ public interface DataManager<E> {
 
     Long count();
 
-    E getById(Long id);
+    E findById(Long id);
 
     List<E> getAll();
 

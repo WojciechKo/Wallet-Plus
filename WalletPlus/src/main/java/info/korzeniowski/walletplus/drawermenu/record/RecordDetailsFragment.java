@@ -6,8 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.RadioGroup;
 
 import com.googlecode.androidannotations.annotations.AfterInject;
 import com.googlecode.androidannotations.annotations.AfterViews;
@@ -21,7 +19,6 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.datamanager.RecordDataManager;
-import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Record;
 
 @EFragment(R.layout.record_details_fragment)
@@ -51,7 +48,7 @@ public class RecordDetailsFragment extends Fragment {
     }
 
     private Record getRecord() {
-        return localRecordDataManager.getById(recordId);
+        return localRecordDataManager.findById(recordId);
     }
 
     @AfterViews

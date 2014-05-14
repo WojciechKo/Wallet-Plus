@@ -15,7 +15,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class CategoryTypeTest {
 
     @Test
-    public void enumToBitwise() {
+    public void testEnumToBitwiseTypeConversion() {
         assertThat(Category.Type.convertEnumToBitwise(EnumSet.noneOf(Category.Type.class))).
                 isEqualTo(0);
         assertThat(Category.Type.convertEnumToBitwise(EnumSet.of(Category.Type.INCOME))).
@@ -27,7 +27,7 @@ public class CategoryTypeTest {
     }
 
     @Test
-    public void bitwiseToEnum() {
+    public void testBitwiseToEnumTypeConversion() {
         Set<Category.Type> testSet = Category.Type.convertBitwiseToEnumSet(0);
 
         assertThat(testSet).doesNotContain(Category.Type.INCOME);

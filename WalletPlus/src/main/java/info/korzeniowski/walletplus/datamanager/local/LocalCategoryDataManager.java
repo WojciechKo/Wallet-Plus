@@ -6,19 +6,18 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import javax.inject.Inject;
 
+import info.korzeniowski.walletplus.datamanager.exception.ParentCategoryHaveToHaveAtLastOneType;
+import info.korzeniowski.walletplus.datamanager.exception.SubCategoryCannotHaveSetTypeException;
 import info.korzeniowski.walletplus.datamanager.exception.CannotDeleteCategoryWithChildrenException;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenNameAlreadyExistsException;
-import info.korzeniowski.walletplus.datamanager.exception.EntityAlreadyExistsException;
-import info.korzeniowski.walletplus.datamanager.exception.ParentIsNotMainCategoryException;
+import info.korzeniowski.walletplus.datamanager.exception.CategoryIsNotMainCategoryException;
+import info.korzeniowski.walletplus.datamanager.local.validation.CategoryValidator;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.greendao.GreenCategory;
 import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
@@ -27,86 +26,91 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     private GreenCategoryDao greenCategoryDao;
     private List<Category> categories;
     private List<Category> mainCategories;
+    private CategoryValidator categoryValidator;
 
     @Inject
     public LocalCategoryDataManager(GreenCategoryDao greenCategoryDao) {
         this.greenCategoryDao = greenCategoryDao;
-        categories = getAll();
-        mainCategories = getMainCategories();
+        categories = getCategoryListFromGreenCategoryList(greenCategoryDao.loadAll());
+        mainCategories = filterMainCategoriesFromCategories(categories);
+        Collections.sort(mainCategories, Category.Comparators.NAME);
+        categoryValidator = new CategoryValidator(this);
     }
 
     /*************
      * CREATE
      *************/
-
     @Override
     public Long insert(Category category) {
         Preconditions.checkNotNull(category);
-        validateInsert(category);
+        categoryValidator.validateInsert(category);
 
         category.setId(greenCategoryDao.insert(new GreenCategory(category)));
-        categories.add(category);
         if (category.getParentId() == null) {
             insertMain(category);
+            Collections.sort(mainCategories, Category.Comparators.POSITION);
         } else {
             insertSub(category);
         }
         Collections.sort(categories, Category.Comparators.NAME);
-        Collections.sort(mainCategories, Category.Comparators.POSITION);
         return category.getId();
     }
 
     private void insertMain(Category category) {
+        if (category.getTypes().size() == 0) {
+            throw new ParentCategoryHaveToHaveAtLastOneType();
+        }
+        categories.add(category);
         mainCategories.add(category);
     }
 
     private void insertSub(Category category) {
-        category.setTypes(EnumSet.noneOf(Category.Type.class));
         Category parent;
         try {
             parent = findInMainCategoriesById(category.getParentId());
         } catch (NoSuchElementException e) {
-            throw new ParentIsNotMainCategoryException(category.getId(), category.getParentId());
+            throw new CategoryIsNotMainCategoryException("Category id: " + category.getParentId());
         }
         parent.getChildren().add(category);
         Collections.sort(parent.getChildren(), Category.Comparators.POSITION);
     }
 
-    private void validateInsert(Category category) {
-        validateUniqueId(category);
-        validateUniqueName(category);
-    }
-
     /*************
      * READ
      *************/
-
     @Override
-    public Category getById(final Long id) {
-        Preconditions.checkNotNull(id);
-
-        Category result = Iterables.find(categories, new Predicate<Category>() {
+    public Category findById(final Long id) {
+        Category found = Iterables.find(categories, new Predicate<Category>() {
             @Override
             public boolean apply(Category input) {
                 return Objects.equal(input.getId(), id);
             }
         });
-        ifSubGetTypesFromParent(result);
-        return result;
+        getTypeFromParentIfSubCategory(found);
+        return new Category(found);
     }
 
-    private Category getByName(final String name) {
-        return Iterables.find(categories, new Predicate<Category>() {
+    private void getTypeFromParentIfSubCategory(Category category) {
+        if (category.getParentId() != null) {
+            Category parent = findInMainCategoriesById(category.getParentId());
+            category.setTypes(parent.getTypes());
+        }
+    }
+
+    @Override
+    public Category findByName(final String name) {
+        Category found = Iterables.find(categories, new Predicate<Category>() {
             @Override
             public boolean apply(Category input) {
                 return Objects.equal(input.getName(), name);
             }
         });
+        return new Category(found);
     }
 
     @Override
     public List<Category> getAll() {
-        return getCategoryListFromGreenCategoryList(greenCategoryDao.loadAll());
+        return Category.deepCopyOfCategories(categories);
     }
 
     @Override
@@ -116,16 +120,16 @@ public class LocalCategoryDataManager implements CategoryDataManager {
 
     @Override
     public List<Category> getMainCategories() {
-        if (mainCategories == null) {
-            mainCategories = Lists.newArrayList();
-            for (Category category : categories) {
-                if (category.getParentId() == null) {
-                    mainCategories.add(category);
-                }
+        return Category.deepCopyOfMainCategories(mainCategories);
+    }
+
+    private List<Category> filterMainCategoriesFromCategories(List<Category> categories) {
+        return Lists.newArrayList(Iterables.filter(categories, new Predicate<Category>() {
+            @Override
+            public boolean apply(Category category) {
+                return category.getParentId() == null;
             }
-            Collections.sort(mainCategories, Category.Comparators.NAME);
-        }
-        return mainCategories;
+        }));
     }
 
     @Override
@@ -145,90 +149,68 @@ public class LocalCategoryDataManager implements CategoryDataManager {
                 result.add(category);
             }
         }
+        result = Category.deepCopyOfMainCategories(result);
         Collections.sort(result, Category.Comparators.POSITION);
         return result;
     }
 
-    private void ifSubGetTypesFromParent(Category category) {
-        if (category.getParentId() != null) {
-            Category parent = findInMainCategoriesById(category.getParentId());
-            category.setTypes(parent.getTypes());
-        }
-    }
 
     /*************
      * UPDATE
      *************/
-
     @Override
-    public void update(final Category category) {
-        validateUpdate(category);
-        Category toUpdate = getById(category.getId());
-        if (toUpdate.getParentId() == null) {
-            updateMain(category, toUpdate);
-        } else {
-            updateSub(category);
-        }
-        toUpdate.setTypes(category.getTypes());
-        toUpdate.setName(category.getName());
-        greenCategoryDao.update(new GreenCategory(category));
+    public void update(final Category newValue) {
+        Category toUpdate = Category.findById(categories, newValue.getId());
+        categoryValidator.validateUpdate(newValue, toUpdate);
+        greenCategoryDao.update(new GreenCategory(newValue));
+        updateCategoryLists(newValue, toUpdate);
     }
-
-    private void updateMain(final Category newCategory, final Category oldCategory) {
-        // Main => Sub
-        if (newCategory.getParentId() != null) {
-            if (!oldCategory.getChildren().isEmpty()) {
-                throw new ParentIsNotMainCategoryException(oldCategory.getChildren().get(0).getId(), oldCategory.getId());
-            } else {
-                Category parent = findInMainCategoriesById(newCategory.getParentId());
-                Iterables.removeIf(mainCategories, new Predicate<Category>() {
-                    @Override
-                    public boolean apply(Category input) {
-                        return Objects.equal(input.getId(), newCategory.getId());
-                    }
-                });
-                parent.addChild(oldCategory);
+    
+    private void updateCategoryLists(Category updated, Category toUpdate) {
+        new Applier() {
+            @Override
+            protected void commonApply(Category updated, Category toUpdate) {
+                toUpdate.setTypes(updated.getTypes());
+                toUpdate.setName(updated.getName());
             }
-        }
 
-    }
+            @Override
+            protected void mainToMainApply(Category updated, Category toUpdate) {
 
-    private void updateSub(Category category) {
+            }
 
-    }
+            @Override
+            protected void mainToSubApply(Category updated, Category toUpdate) {
+                Category parent = Category.findById(categories, updated.getParentId());
+                parent.addChild(toUpdate);
+                toUpdate.setParent(parent);
+                toUpdate.setParentId(parent.getId());
+                mainCategories.remove(toUpdate);
+            }
 
+            @Override
+            protected void subToMainApply(Category updated, Category toUpdate) {
+                Category.findById(categories, toUpdate.getParentId()).getChildren().remove(toUpdate);
+                mainCategories.add(toUpdate);
+            }
 
-    private void validateUpdate(Category category) {
-        validateUniqueName(category);
-    }
-
-    private void validateUniqueId(Category category) {
-        if (category.getId() == null) return;
-
-        try {
-            getById(category.getId());
-        } catch (NoSuchElementException e) {
-            return;
-        }
-        throw new EntityAlreadyExistsException(category, category.getId());
-    }
-
-    private void validateUniqueName(Category category) {
-        try {
-            getByName(category.getName());
-        } catch (NoSuchElementException e) {
-            return;
-        }
-        throw new CategoryWithGivenNameAlreadyExistsException(category.getName());
+            @Override
+            protected void subToSubApply(Category updated, Category toUpdate) {
+                Category oldParent = Category.findById(categories, toUpdate.getParentId());
+                oldParent.getChildren().remove(toUpdate);
+                Category newParent = Category.findById(categories, updated.getParentId());
+                newParent.getChildren().add(toUpdate);
+                toUpdate.setParent(newParent);
+            }
+        }.apply(updated, toUpdate);
     }
 
     /*************
      * DELETE
      *************/
-
     @Override
     public void deleteById(Long id) {
-        Category categoryToDelete = getById(id);
+        Category categoryToDelete = findById(id);
         if (categoryToDelete.getParent() == null) {
             deleteMainCategory(categoryToDelete);
         } else {
@@ -238,38 +220,35 @@ public class LocalCategoryDataManager implements CategoryDataManager {
 
     @Override
     public void deleteByIdWithSubcategories(Long id) {
+        List<Category> children = getCategoryListFromGreenCategoryList(
+                greenCategoryDao.queryBuilder().where(GreenCategoryDao.Properties.ParentId.eq(id)).build().list()
+        );
         greenCategoryDao.queryBuilder().where(GreenCategoryDao.Properties.ParentId.eq(id)).buildDelete().executeDeleteWithoutDetachingEntities();
         Category category = findInMainCategoriesById(id);
         category.getChildren().clear();
+        categories.removeAll(children);
         deleteById(id);
     }
 
     private void deleteMainCategory(final Category categoryToDelete) {
         if (categoryToDelete.getChildren().isEmpty()) {
             greenCategoryDao.deleteByKey(categoryToDelete.getId());
-            Iterables.removeIf(mainCategories, new Predicate<Category>() {
-                @Override
-                public boolean apply(Category input) {
-                    return Objects.equal(input.getId(), categoryToDelete.getId());
-                }
-            });
+            removeById(mainCategories, categoryToDelete.getId());
+            removeById(categories, categoryToDelete.getId());
         } else {
             throw new CannotDeleteCategoryWithChildrenException(categoryToDelete);
         }
     }
 
-    private void deleteSubCategory(Category categoryToDelete) {
+    private void deleteSubCategory(final Category categoryToDelete) {
         Category parentCategory = findInMainCategoriesById(categoryToDelete.getParentId());
         greenCategoryDao.deleteByKey(categoryToDelete.getId());
-        parentCategory.getChildren().remove(categoryToDelete);
+        removeById(parentCategory.getChildren(), categoryToDelete.getId());
+        removeById(categories, categoryToDelete.getId());
     }
 
     private List<Category> getCategoryListFromGreenCategoryList(List<GreenCategory> greenCategoryList) {
-        List<Category> categoryList = new ArrayList<Category>();
-        for(GreenCategory greenCategory : greenCategoryList) {
-            categoryList.add(GreenCategory.toCategory(greenCategory));
-        }
-        return categoryList;
+        return GreenCategory.deepCopyToCategories(greenCategoryList);
     }
 
     private Category findInMainCategoriesById(final Long id) {
@@ -279,5 +258,35 @@ public class LocalCategoryDataManager implements CategoryDataManager {
                 return Objects.equal(input.getId(), id);
             }
         });
+    }
+
+    private void removeById(List<Category> categories, final Long id) {
+        Iterables.removeIf(categories, new Predicate<Category>() {
+            @Override
+            public boolean apply(Category input) {
+                return Objects.equal(input.getId(), id);
+            }
+        });
+    }
+
+    private abstract class Applier {
+        public void apply(Category newValue, Category toUpdate) {
+            commonApply(newValue, toUpdate);
+            if(newValue.getParentId() == null && toUpdate.getParentId() == null) {
+                mainToMainApply(newValue, toUpdate);
+            } else if (toUpdate.getParentId() == null) {
+                mainToSubApply(newValue, toUpdate);
+            } else if(newValue.getParentId() == null) {
+                subToMainApply(newValue, toUpdate);
+            } else {
+                subToSubApply(newValue, toUpdate);
+            }
+        }
+
+        protected abstract void commonApply(Category newValue, Category toUpdate);
+        protected abstract void mainToMainApply(Category newValue, Category toUpdate);
+        protected abstract void mainToSubApply(Category newValue, Category toUpdate);
+        protected abstract void subToMainApply(Category newValue, Category toUpdate);
+        protected abstract void subToSubApply(Category newValue, Category toUpdate);
     }
 }

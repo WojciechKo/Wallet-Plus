@@ -1,7 +1,4 @@
 package info.korzeniowski.walletplus.datamanager.exception;
 
-/**
- * Created by wojciechko on 12.05.14.
- */
-public class SubCategoryCannotHaveSetTypeException extends Throwable {
+public class SubCategoryCannotHaveSetTypeException extends RuntimeException {
 }

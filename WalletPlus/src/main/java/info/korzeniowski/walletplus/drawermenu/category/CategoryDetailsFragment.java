@@ -100,7 +100,7 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     private Category getCategory() {
-        return localCategoryDataManager.getById(categoryId);
+        return localCategoryDataManager.findById(categoryId);
     }
 
     private void setupAdapters() {
@@ -173,10 +173,10 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     private void fillViewsWithData() {
-        Category category = localCategoryDataManager.getById(categoryId);
+        Category category = localCategoryDataManager.findById(categoryId);
         categoryName.setText(category.getName());
         if (category.getParent() != null) {
-            Category parent = localCategoryDataManager.getById(category.getParentId());
+            Category parent = localCategoryDataManager.findById(category.getParentId());
             isMainCategory.setChecked(false);
             parentCategory.setSelection(localCategoryDataManager.getMainCategories().indexOf(parent));
         }

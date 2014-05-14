@@ -148,7 +148,7 @@ public class CategoryListFragment extends Fragment {
 
         private AlertDialog buildAlertDialog() {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(localCategoryDataManager.getById(id).getName());
+            builder.setTitle(localCategoryDataManager.findById(id).getName());
             builder.setMessage(R.string.category_have_children + "\n\n" + R.string.do_you_want_to_delete_with_subcategories);
             builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                 @Override

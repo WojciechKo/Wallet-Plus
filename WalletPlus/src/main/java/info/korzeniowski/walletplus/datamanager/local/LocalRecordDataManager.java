@@ -11,9 +11,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.RecordDataManager;
-import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Record;
-import info.korzeniowski.walletplus.model.greendao.GreenCategory;
 import info.korzeniowski.walletplus.model.greendao.GreenRecord;
 import info.korzeniowski.walletplus.model.greendao.GreenRecordDao;
 
@@ -34,7 +32,7 @@ public class LocalRecordDataManager implements RecordDataManager{
     }
 
     @Override
-    public Record getById(final Long id) {
+    public Record findById(final Long id) {
         Preconditions.checkNotNull(id);
 
         return Iterables.find(records, new Predicate<Record>() {
@@ -61,7 +59,7 @@ public class LocalRecordDataManager implements RecordDataManager{
     @Override
     public void update(Record record) {
         validateUpdate(record);
-        Record toUpdate = getById(record.getId());
+        Record toUpdate = findById(record.getId());
         toUpdate.setAmount(record.getAmount());
         toUpdate.setCategoryId(record.getCategoryId());
         toUpdate.setDescription(record.getDescription());
