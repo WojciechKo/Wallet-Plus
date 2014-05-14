@@ -30,6 +30,9 @@ public class Category implements Comparable<Category> {
 
         for (Category copy : result) {
             Category copyParent = findById(result, copy.getParentId());
+            if (copyParent != null) {
+                copy.setTypes(copyParent.getTypes());
+            }
             copyParent.addChild(copy);
             copy.setParent(copyParent);
         }
@@ -66,11 +69,11 @@ public class Category implements Comparable<Category> {
         return copies;
     }
 
-    private static Category deepCopyOfChildCategory(final Category original) {
-        Category copyParent = new Category(original.getParent());
-        deepCopyOfMainCategory(copyParent);
-        return findById(copyParent.getChildren(), original.getId());
-    }
+//    private static Category deepCopyOfChildCategory(final Category original) {
+//        Category copyParent = new Category(original.getParent());
+//        deepCopyOfMainCategory(copyParent);
+//        return findById(copyParent.getChildren(), original.getId());
+//    }
 
     private static Category deepCopyOfMainCategory(Category original) {
         Category copy = new Category(original);

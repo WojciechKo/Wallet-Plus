@@ -3,6 +3,7 @@ package info.korzeniowski.walletplus.test.robolectric.datamanager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -20,11 +21,13 @@ import java.util.NoSuchElementException;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.exception.CannotDeleteCategoryWithChildrenException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveNoTypesSetException;
+import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenIdAlreadyExistsException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenNameAlreadyExistsException;
 import info.korzeniowski.walletplus.datamanager.exception.EntityAlreadyExistsException;
 import info.korzeniowski.walletplus.datamanager.exception.ParentCategoryHaveToHaveAtLastOneType;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryIsNotMainCategoryException;
 import info.korzeniowski.walletplus.datamanager.exception.SubCategoryCannotHaveSetTypeException;
+import info.korzeniowski.walletplus.datamanager.exception.SubCategoryHaveDifferentTypeThanParentException;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
@@ -191,8 +194,8 @@ public class LocalCategoryDataManagerTest {
 
         try {
             categoryDataManager.insert(new Category().setId(id).setName("Main 2"));
-            failBecauseExceptionWasNotThrown(EntityAlreadyExistsException.class);
-        } catch (EntityAlreadyExistsException e) {
+            failBecauseExceptionWasNotThrown(CategoryWithGivenIdAlreadyExistsException.class);
+        } catch (CategoryWithGivenIdAlreadyExistsException e) {
             assertThat(categoryDataManager.count()).isEqualTo(1);
         }
     }
@@ -279,8 +282,8 @@ public class LocalCategoryDataManagerTest {
         Long parentId = categoryDataManager.insert(new Category().setName("Main").setType(Category.Type.INCOME));
         try {
             categoryDataManager.insert(new Category().setName("Sub").setTypes(EnumSet.of(Category.Type.INCOME, Category.Type.EXPENSE)).setParentId(parentId));
-            failBecauseExceptionWasNotThrown(SubCategoryCannotHaveSetTypeException.class);
-        } catch (SubCategoryCannotHaveSetTypeException e) {
+            failBecauseExceptionWasNotThrown(SubCategoryHaveDifferentTypeThanParentException.class);
+        } catch (SubCategoryHaveDifferentTypeThanParentException e) {
         }
     }
 
@@ -324,10 +327,10 @@ public class LocalCategoryDataManagerTest {
         Category parentCategory = new Category().setName("Main").setType(Category.Type.INCOME);
         Long parentCategoryId = categoryDataManager.insert(parentCategory);
         Category subCategory = new Category().setName("Sub").setParentId(parentCategoryId);
-
         Long subCategoryId = categoryDataManager.insert(subCategory);
 
         Category readSubCategory = categoryDataManager.getMainCategories().get(0).getChildren().get(0);
+
         assertThat(readSubCategory).isEqualTo(subCategory);
         assertThat(readSubCategory).isEqualTo(categoryDataManager.findById(subCategoryId));
         assertThat(readSubCategory.getTypes()).isEqualTo(parentCategory.getTypes());
@@ -524,7 +527,6 @@ public class LocalCategoryDataManagerTest {
 
     @Test
     public void deleteMainCategoryWithSubs() {
-
         Long otherMainCategory = categoryDataManager.insert(new Category().setName("Main 1").setType(Category.Type.EXPENSE));
         categoryDataManager.insert(new Category().setName("Sub 1 of Main 1").setParentId(otherMainCategory));
         categoryDataManager.insert(new Category().setName("Sub 2 of Main 1").setParentId(otherMainCategory));

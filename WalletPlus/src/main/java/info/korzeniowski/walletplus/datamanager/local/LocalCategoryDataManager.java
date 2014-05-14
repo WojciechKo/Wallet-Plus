@@ -52,6 +52,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         } else {
             insertSub(category);
         }
+        categories.add(category);
         Collections.sort(categories, Category.Comparators.NAME);
         return category.getId();
     }
@@ -60,7 +61,6 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         if (category.getTypes().size() == 0) {
             throw new ParentCategoryHaveToHaveAtLastOneType();
         }
-        categories.add(category);
         mainCategories.add(category);
     }
 
@@ -71,6 +71,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         } catch (NoSuchElementException e) {
             throw new CategoryIsNotMainCategoryException("Category id: " + category.getParentId());
         }
+        category.setTypes(parent.getTypes());
         parent.getChildren().add(category);
         Collections.sort(parent.getChildren(), Category.Comparators.POSITION);
     }
@@ -154,7 +155,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         return result;
     }
 
-
+//TODO: sub musi mieć swój typ w liście.
     /*************
      * UPDATE
      *************/

@@ -8,8 +8,10 @@ import java.util.NoSuchElementException;
 
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveChildrenException;
+import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveNoParentException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveNoTypesSetException;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveIncorrectTypesSetException;
+import info.korzeniowski.walletplus.datamanager.exception.MainCategoryShouldHaveTypeException;
+import info.korzeniowski.walletplus.datamanager.exception.SubCategoryHaveDifferentTypeThanParentException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenIdAlreadyExistsException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenNameAlreadyExistsException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryIsNotMainCategoryException;
@@ -26,7 +28,6 @@ public class CategoryValidator {
 
     public void validateInsert(Category category) {
         new InsertApplier() {
-
             @Override
             protected void commonApply(Category category) {
                 validateIfIdIsUnique(category.getId());
@@ -40,7 +41,8 @@ public class CategoryValidator {
 
             @Override
             protected void toSubApply(Category category) {
-                validateIfCategoryHaveParentTypesOrNoType(category);
+                validateIfCategoryIsMain(category.getParentId());
+                validateIfCategoryHaveNoTypeOrParentTypes(category);
             }
         }.apply(category);
     }
@@ -61,9 +63,9 @@ public class CategoryValidator {
 
             @Override
             protected void mainToSubApply(Category newValue, Category toUpdate) {
-                validateIfCategoryHaveParentTypesOrNoType(newValue);
+                validateIfCategoryHaveNoTypeOrParentTypes(newValue);
                 validateIfCategoryHaveNoChildren(toUpdate);
-                validateIfCategoryIsMain(categoryDataManager.findById(newValue.getParentId()));
+                validateIfCategoryIsMain(newValue.getParentId());
             }
 
             @Override
@@ -75,8 +77,8 @@ public class CategoryValidator {
 
             @Override
             protected void subToSubApply(Category newValue, Category toUpdate) {
-                validateIfCategoryHaveParentTypesOrNoType(newValue);
-                validateIfCategoryIsMain(categoryDataManager.findById(newValue.getParentId()));
+                validateIfCategoryHaveNoTypeOrParentTypes(newValue);
+                validateIfCategoryIsMain(newValue.getParentId());
                 return;
             }
         }.apply(newValue, toUpdate);
@@ -88,16 +90,18 @@ public class CategoryValidator {
         }
     }
 
-    private void validateIfCategoryHaveParentTypesOrNoType(Category category) {
+    private void validateIfCategoryHaveNoTypeOrParentTypes(Category category) {
+        if (category.getTypes().isEmpty()) {
+            return;
+        }
         try {
             Category parent = categoryDataManager.findById(category.getParentId());
             if (!parent.getTypes().equals(category.getTypes())) {
-                throw new CategoryHaveIncorrectTypesSetException("Category id: " + category.getId());
+                throw new SubCategoryHaveDifferentTypeThanParentException(
+                        "Category name: " + category.getName() + " have different Types than parent " + parent.getName());
             }
         } catch (NoSuchElementException e) {
-            if (!category.getTypes().isEmpty()) {
-                throw new CategoryHaveIncorrectTypesSetException("Category id: " + category.getId());
-            }
+            throw new CategoryHaveNoParentException("Category name: " + category.getName());
         }
 
     }
@@ -114,9 +118,9 @@ public class CategoryValidator {
         }
     }
 
-    private void validateIfCategoryIsMain(Category category) {
-        if (!isMainCategory(category.getId())) {
-            throw new CategoryIsNotMainCategoryException("Category id: " + category.getId());
+    private void validateIfCategoryIsMain(Long id) {
+        if (!isMainCategory(id)) {
+            throw new CategoryIsNotMainCategoryException("Category id: " + id);
         }
     }
 
