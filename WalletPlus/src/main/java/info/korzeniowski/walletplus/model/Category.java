@@ -32,8 +32,8 @@ public class Category implements Comparable<Category> {
             Category copyParent = findById(result, copy.getParentId());
             if (copyParent != null) {
                 copy.setTypes(copyParent.getTypes());
+                copyParent.addChild(copy);
             }
-            copyParent.addChild(copy);
             copy.setParent(copyParent);
         }
 
@@ -69,13 +69,7 @@ public class Category implements Comparable<Category> {
         return copies;
     }
 
-//    private static Category deepCopyOfChildCategory(final Category original) {
-//        Category copyParent = new Category(original.getParent());
-//        deepCopyOfMainCategory(copyParent);
-//        return findById(copyParent.getChildren(), original.getId());
-//    }
-
-    private static Category deepCopyOfMainCategory(Category original) {
+    public static Category deepCopyOfMainCategory(Category original) {
         Category copy = new Category(original);
         copy.setChildren(copyOfCategoriesWithoutChildren(original.getChildren()));
         for (Category copyChild : copy.getChildren()) {
@@ -111,7 +105,6 @@ public class Category implements Comparable<Category> {
         this.parentId = category.getParentId();
         this.name = category.getName();
         this.types = EnumSet.copyOf(category.getTypes());
-        this.children = Lists.newArrayList();
     }
 
     private Category getCategory(Category category) {

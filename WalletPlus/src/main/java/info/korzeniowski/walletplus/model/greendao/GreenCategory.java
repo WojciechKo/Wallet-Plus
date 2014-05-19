@@ -186,8 +186,8 @@ public class GreenCategory {
             Category copyParent = findById(result, copy.getParentId());
             if (copyParent != null) {
                 copy.setTypes(copyParent.getTypes());
+                copyParent.addChild(copy);
             }
-            copyParent.addChild(copy);
             copy.setParent(copyParent);
         }
         return result;

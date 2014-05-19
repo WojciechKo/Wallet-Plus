@@ -3,7 +3,6 @@ package info.korzeniowski.walletplus.test.robolectric.datamanager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -13,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -23,10 +21,7 @@ import info.korzeniowski.walletplus.datamanager.exception.CannotDeleteCategoryWi
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveNoTypesSetException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenIdAlreadyExistsException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenNameAlreadyExistsException;
-import info.korzeniowski.walletplus.datamanager.exception.EntityAlreadyExistsException;
-import info.korzeniowski.walletplus.datamanager.exception.ParentCategoryHaveToHaveAtLastOneType;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryIsNotMainCategoryException;
-import info.korzeniowski.walletplus.datamanager.exception.SubCategoryCannotHaveSetTypeException;
 import info.korzeniowski.walletplus.datamanager.exception.SubCategoryHaveDifferentTypeThanParentException;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.model.Category;
@@ -85,108 +80,52 @@ public class LocalCategoryDataManagerTest {
      *           TEST INSERT             *
      *************************************/
     @Test
-    public void testInsertMainCategoryOfIncomeType() {
-        assertThat(categoryDataManager.getMainCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(0);
-
-        categoryDataManager.insert(new Category().setName("Main 1").setType(Category.Type.INCOME));
-
-        assertThat(categoryDataManager.getMainCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(1);
-
-        categoryDataManager.insert(new Category().setName("Main 2").setType(Category.Type.INCOME));
-
-        assertThat(categoryDataManager.getMainCategories()).hasSize(2);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(2);
+    public void shouldInsertMainAndTwoSubCategoryOfIncomeType() {
+        shouldInsertMainTwoSubCategoriesOfType(EnumSet.of(Category.Type.INCOME));
     }
 
     @Test
-    public void testInsertMainCategoryOfExpenseType() {
-        assertThat(categoryDataManager.getMainCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(0);
-
-        categoryDataManager.insert(new Category().setName("Main 1").setType(Category.Type.EXPENSE));
-
-        assertThat(categoryDataManager.getMainCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(0);
-
-        categoryDataManager.insert(new Category().setName("Main 2").setType(Category.Type.EXPENSE));
-
-        assertThat(categoryDataManager.getMainCategories()).hasSize(2);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(2);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(0);
+    public void shouldInsertMainAndTwoSubCategoryOfExpenseType() {
+        shouldInsertMainTwoSubCategoriesOfType(EnumSet.of(Category.Type.EXPENSE));
     }
 
     @Test
-    public void testInsertMainCategoryOfBothTypes() {
-        assertThat(categoryDataManager.getMainCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(0);
-
-        categoryDataManager.insert(new Category().setName("Main 1").setTypes(EnumSet.of(Category.Type.INCOME, Category.Type.EXPENSE)));
-
-        assertThat(categoryDataManager.getMainCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(1);
-
-        categoryDataManager.insert(new Category().setName("Main 2").setTypes(EnumSet.of(Category.Type.INCOME, Category.Type.EXPENSE)));
-
-        assertThat(categoryDataManager.getMainCategories()).hasSize(2);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(2);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(2);
+    public void shouldInsertMainAndTwoSubCategoryOfBothTypes() {
+        shouldInsertMainTwoSubCategoriesOfType(EnumSet.of(Category.Type.INCOME, Category.Type.EXPENSE));
     }
 
-    @Test
-    public void testInsertSubCategoryOfBothTypes() {
-        Long mainId = categoryDataManager.insert(new Category().setName("Main").setTypes(EnumSet.allOf(Category.Type.class)));
+    private void shouldInsertMainTwoSubCategoriesOfType(EnumSet<Category.Type> types) {
+        Integer numberOfIncomeMain = 0;
+        Integer numberOfExpenseMain = 0;
+        Category main = new Category().setName("Main").setTypes(types);
+
+        main.setId(categoryDataManager.insert(main));
+
+        if (types.contains(Category.Type.INCOME)) {
+            numberOfIncomeMain++;
+        }
+        if (types.contains(Category.Type.EXPENSE)) {
+            numberOfExpenseMain++;
+        }
         assertThat(categoryDataManager.getMainCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(1);
+        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(numberOfIncomeMain);
+        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(numberOfExpenseMain);
         assertThat(categoryDataManager.getMainCategories().get(0).getChildren()).hasSize(0);
 
-        categoryDataManager.insert(new Category().setParentId(mainId).setName("Sub 1 of Main"));
+        categoryDataManager.insert(new Category().setParentId(main.getId()).setName("Sub 1 of Main"));
 
         assertThat(categoryDataManager.getMainCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(1);
+        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(numberOfIncomeMain);
+        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(numberOfExpenseMain);
         assertThat(categoryDataManager.getMainCategories().get(0).getChildren()).hasSize(1);
 
-        categoryDataManager.insert(new Category().setParentId(mainId).setName("Sub 2 of Main"));
+        categoryDataManager.insert(new Category().setParentId(main.getId()).setName("Sub 2 of Main").setTypes(main.getTypes()));
 
         assertThat(categoryDataManager.getMainCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(1);
+        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(numberOfIncomeMain);
+        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(numberOfExpenseMain);
         assertThat(categoryDataManager.getMainCategories().get(0).getChildren()).hasSize(2);
     }
-
-    @Test
-    public void testInsertSubCategoryOfIncomeTypes() {
-        Long mainId = categoryDataManager.insert(new Category().setName("Main").setType(Category.Type.INCOME));
-        assertThat(categoryDataManager.getMainCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainCategories().get(0).getChildren()).hasSize(0);
-
-        categoryDataManager.insert(new Category().setParentId(mainId).setName("Sub 1 of Main"));
-
-        assertThat(categoryDataManager.getMainCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainCategories().get(0).getChildren()).hasSize(1);
-
-        categoryDataManager.insert(new Category().setParentId(mainId).setName("Sub 2 of Main"));
-
-        assertThat(categoryDataManager.getMainCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(1);
-        assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(0);
-        assertThat(categoryDataManager.getMainCategories().get(0).getChildren()).hasSize(2);
-    }
-
 
     @Test
     public void insertWithDuplicatedIdShouldThrowException() {
@@ -435,6 +374,19 @@ public class LocalCategoryDataManagerTest {
         assertThat(readed).isEqualTo(newCategory);
     }
 
+    @Test
+    public void editMainTypeShouldEditTypeOfSubs() {
+        Category oldMain= new Category().setName("Main 1").setType(Category.Type.EXPENSE);
+        categoryDataManager.insert(oldMain);
+        Category oldSub = new Category().setName("Sub Main 1").setParentId(oldMain.getId());
+        categoryDataManager.insert(oldSub);
+        Category.Type newType = Category.Type.INCOME;
+
+        categoryDataManager.update(categoryDataManager.findById(oldMain.getId()).setType(newType));
+
+        assertThat(categoryDataManager.findById(oldSub.getId()).getTypes()).isEqualTo(EnumSet.of(newType));
+    }
+
     public Category insertMainAndSubs(Category category, Integer numberOfChildren) {
         categoryDataManager.insert(category);
         for (int i = 0; i < numberOfChildren; i++) {
@@ -453,16 +405,10 @@ public class LocalCategoryDataManagerTest {
         Integer oldMainIncomeSize = categoryDataManager.getMainIncomeTypeCategories().size();
         Integer oldMainExpenseSize = categoryDataManager.getMainExpenseTypeCategories().size();
 
-
         Category read = categoryDataManager.findById(main2.getId());
         categoryDataManager.update(read.setName("Main 2 Fix").setType(Category.Type.EXPENSE));
 
-//        TODO: Dopisac to warianty aktualizacji
-//        categoryDataManager.update(main2.setName("Main 2 Fix").setType(Category.Type.EXPENSE));
-//        categoryDataManager.update(new Category().setId(main2.getId()).setName("Main 2 Fix").setType(Category.Type.EXPENSE));
-
         assertThat(categoryDataManager.findById(main2.getId())).isEqualTo(read);
-
         assertThat(categoryDataManager.count()).isEqualTo(oldCategoryCount);
         assertThat(categoryDataManager.getMainCategories()).hasSize(oldMainSize);
         assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(oldMainIncomeSize - 1);

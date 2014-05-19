@@ -10,7 +10,6 @@ import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveChildrenException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveNoParentException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveNoTypesSetException;
-import info.korzeniowski.walletplus.datamanager.exception.MainCategoryShouldHaveTypeException;
 import info.korzeniowski.walletplus.datamanager.exception.SubCategoryHaveDifferentTypeThanParentException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenIdAlreadyExistsException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenNameAlreadyExistsException;
@@ -133,7 +132,7 @@ public class CategoryValidator {
     private void validateIfNameIsUnique(String name) {
         if (name == null) return;
         try {
-            categoryDataManager.findByName(name);
+            categoryDataManager.getByName(name);
         } catch (NoSuchElementException e) {
             return;
         }

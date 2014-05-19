@@ -81,12 +81,10 @@ public class LocalCategoryDataManager implements CategoryDataManager {
      *************/
     @Override
     public Category findById(final Long id) {
-        Category found = Iterables.find(categories, new Predicate<Category>() {
-            @Override
-            public boolean apply(Category input) {
-                return Objects.equal(input.getId(), id);
-            }
-        });
+        Category found = Category.findById(categories, id);
+        if (found == null) {
+            throw new NoSuchElementException();
+        }
         getTypeFromParentIfSubCategory(found);
         return new Category(found);
     }
@@ -99,7 +97,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     }
 
     @Override
-    public Category findByName(final String name) {
+    public Category getByName(final String name) {
         Category found = Iterables.find(categories, new Predicate<Category>() {
             @Override
             public boolean apply(Category input) {
@@ -143,6 +141,12 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         return getMainCategoriesOfType(Category.Type.EXPENSE);
     }
 
+    @Override
+    public List<Category> getSubCategoriesOf(Long id) {
+        Category category = findInMainCategoriesById(id);
+        return Category.deepCopyOfMainCategory(category).getChildren();
+    }
+
     private List<Category> getMainCategoriesOfType(final Category.Type type) {
         List<Category> result = Lists.newArrayList();
         for (Category category : mainCategories) {
@@ -177,7 +181,9 @@ public class LocalCategoryDataManager implements CategoryDataManager {
 
             @Override
             protected void mainToMainApply(Category updated, Category toUpdate) {
-
+                for (Category category : toUpdate.getChildren()) {
+                    category.setTypes(toUpdate.getTypes());
+                }
             }
 
             @Override
@@ -212,27 +218,15 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     @Override
     public void deleteById(Long id) {
         Category categoryToDelete = findById(id);
-        if (categoryToDelete.getParent() == null) {
+        if (categoryToDelete.getParentId() == null) {
             deleteMainCategory(categoryToDelete);
         } else {
             deleteSubCategory(categoryToDelete);
         }
     }
 
-    @Override
-    public void deleteByIdWithSubcategories(Long id) {
-        List<Category> children = getCategoryListFromGreenCategoryList(
-                greenCategoryDao.queryBuilder().where(GreenCategoryDao.Properties.ParentId.eq(id)).build().list()
-        );
-        greenCategoryDao.queryBuilder().where(GreenCategoryDao.Properties.ParentId.eq(id)).buildDelete().executeDeleteWithoutDetachingEntities();
-        Category category = findInMainCategoriesById(id);
-        category.getChildren().clear();
-        categories.removeAll(children);
-        deleteById(id);
-    }
-
     private void deleteMainCategory(final Category categoryToDelete) {
-        if (categoryToDelete.getChildren().isEmpty()) {
+        if (getSubCategoriesOf(categoryToDelete.getId()).isEmpty()) {
             greenCategoryDao.deleteByKey(categoryToDelete.getId());
             removeById(mainCategories, categoryToDelete.getId());
             removeById(categories, categoryToDelete.getId());
@@ -244,8 +238,20 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     private void deleteSubCategory(final Category categoryToDelete) {
         Category parentCategory = findInMainCategoriesById(categoryToDelete.getParentId());
         greenCategoryDao.deleteByKey(categoryToDelete.getId());
-        removeById(parentCategory.getChildren(), categoryToDelete.getId());
+        parentCategory.removeChild(categoryToDelete);
         removeById(categories, categoryToDelete.getId());
+    }
+
+    @Override
+    public void deleteByIdWithSubcategories(Long id) {
+        Category category = findInMainCategoriesById(id);
+        List<Category> children = category.getChildren();
+
+        greenCategoryDao.queryBuilder().where(GreenCategoryDao.Properties.ParentId.eq(id)).buildDelete().executeDeleteWithoutDetachingEntities();
+        categories.removeAll(children);
+        category.getChildren().clear();
+
+        deleteById(id);
     }
 
     private List<Category> getCategoryListFromGreenCategoryList(List<GreenCategory> greenCategoryList) {
