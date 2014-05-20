@@ -10,17 +10,17 @@ import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.RecordDataManager;
+import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.local.LocalRecordDataManager;
+import info.korzeniowski.walletplus.datamanager.local.LocalCashFlowDataManager;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
-import info.korzeniowski.walletplus.drawermenu.record.RecordDetailsFragment_;
-import info.korzeniowski.walletplus.drawermenu.record.RecordListFragment_;
+import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowDetailsFragment_;
+import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
 import info.korzeniowski.walletplus.model.greendao.DaoSession;
+import info.korzeniowski.walletplus.model.greendao.GreenCashFlowDao;
 import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
-import info.korzeniowski.walletplus.model.greendao.GreenRecordDao;
 
 
 /**
@@ -34,8 +34,8 @@ import info.korzeniowski.walletplus.model.greendao.GreenRecordDao;
                 CategoryListFragment_.class,
                 LocalCategoryDataManager.class,
 
-                RecordDetailsFragment_.class,
-                RecordListFragment_.class
+                CashFlowDetailsFragment_.class,
+                CashFlowListFragment_.class
         }
 )
 public class DatabaseModule {
@@ -68,18 +68,18 @@ public class DatabaseModule {
     }
 
     /****************
-     * RECORD
+     * CASH_FLOW
      ***************/
     @Provides
     @Singleton
-    public GreenRecordDao provideGreenRecordDao() {
-        return daoSession.getGreenRecordDao();
+    public GreenCashFlowDao provideGreenCashFlowDao() {
+        return daoSession.getGreenCashFlowDao();
     }
 
     @Provides
     @Named("local")
     @Singleton
-    public RecordDataManager provideRecordDataManager(LocalRecordDataManager localRecordDataManager) {
-        return localRecordDataManager;
+    public CashFlowDataManager provideCashFlowDataManager(LocalCashFlowDataManager localCashFlowDataManager) {
+        return localCashFlowDataManager;
     }
 }

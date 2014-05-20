@@ -3,9 +3,6 @@ package info.korzeniowski.walletplus.daogenerator;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-import java.io.File;
-import java.io.IOException;
-
 import de.greenrobot.daogenerator.DaoGenerator;
 import de.greenrobot.daogenerator.Entity;
 import de.greenrobot.daogenerator.Property;
@@ -17,21 +14,40 @@ public class WalletPlusDaoGenerator {
     private static final String MAIN_PACKAGE = "info.korzeniowski.walletplus";
     private static final String SRC_PACKAGE = MAIN_PACKAGE + ".model.greendao";
     private static final int SCHEMA_VERSION = 1;
-    private static final String ENTITY_ID = "id";
+    private static final String ENTITY_ID = "GUID";
+
+    // Account table
+    private static final String ACCOUNT_TABLE_NAME = "Account";
+    private static final String ACCOUNT_CLASS_NAME = "GreenAccount";
+    private static final String ACCOUNT_PROPERTY_NAME = "name";
+    private static final String ACCOUNT_PROPERTY_PASSWORD_HASH = "passwordHash";
+
     // Category table
     private static final String CATEGORY_TABLE_NAME = "Category";
     private static final String CATEGORY_CLASS_NAME = "GreenCategory";
+    private static final String CATEGORY_PROPERTY_ACCOUNT_ID = "accountId";
     private static final String CATEGORY_PROPERTY_PARENT_ID = "parentId";
     private static final String CATEGORY_PROPERTY_NAME = "name";
     private static final String CATEGORY_PROPERTY_TYPE = "type";
 
-    // Record table
-    private static final String RECORD_TABLE_NAME = "Record";
-    private static final String RECORD_CLASS_NAME = "GreenRecord";
-    private static final String RECORD_PROPERTY_AMOUNT = "amount";
-    private static final String RECORD_PROPERTY_CATEGORY_ID = "categoryId";
-    private static final String RECORD_PROPERTY_DESCRIPTION = "description";
-    private static final String RECORD_PROPERTY_DATETIME = "dateTime";
+    // Wallet table
+    private static final String WALLET_TABLE_NAME = "Wallet";
+    private static final String WALLET_CLASS_NAME = "GreenWallet";
+    private static final String WALLET_PROPERTY_ACCOUNT_ID = "accountId";
+    private static final String WALLET_PROPERTY_NAME = "name";
+    private static final String WALLET_PROPERTY_DESCRIPTION = "description";
+    private static final String WALLET_PROPERTY_AMOUNT = "amount";
+    private static final String WALLET_PROPERTY_TYPE = "type";
+
+    // Cash flow table
+    private static final String CASH_FLOW_TABLE_NAME = "CashFlow";
+    private static final String CASH_FLOW_CLASS_NAME = "GreenCashFlow";
+    private static final String CASH_FLOW_PROPERTY_FROM_WALLET_ID = "fromWalletId";
+    private static final String CASH_FLOW_PROPERTY_TO_WALLET_ID = "toWalletId";
+    private static final String CASH_FLOW_PROPERTY_AMOUNT = "amount";
+    private static final String CASH_FLOW_PROPERTY_CATEGORY_ID = "categoryId";
+    private static final String CASH_FLOW_PROPERTY_COMMENT = "comment";
+    private static final String CASH_FLOW_PROPERTY_DATETIME = "dateTime";
 
     public static void main(String[] args) throws Exception {
         schema = new Schema(SCHEMA_VERSION, SRC_PACKAGE);
@@ -42,8 +58,19 @@ public class WalletPlusDaoGenerator {
     }
 
     private static void addEntities() {
+        addAccount();
         addCategory();
-        addRecord();
+        addWallet();
+        addCashFlow();
+    }
+
+    private static void addAccount() {
+        Entity account = schema.addEntity(ACCOUNT_CLASS_NAME);
+        account.setTableName(ACCOUNT_TABLE_NAME);
+        account.addIdProperty();
+        account.addStringProperty(ACCOUNT_PROPERTY_NAME).notNull();
+        account.addStringProperty(ACCOUNT_PROPERTY_PASSWORD_HASH);
+        account.setHasKeepSections(true);
     }
 
     private static void addCategory() {
@@ -51,26 +78,53 @@ public class WalletPlusDaoGenerator {
         category.setTableName(CATEGORY_TABLE_NAME);
         category.addIdProperty();
         category.addLongProperty(CATEGORY_PROPERTY_PARENT_ID);
+        category.addLongProperty(CATEGORY_PROPERTY_ACCOUNT_ID);
         category.addStringProperty(CATEGORY_PROPERTY_NAME).notNull().unique();
         category.addIntProperty(CATEGORY_PROPERTY_TYPE);
         category.setHasKeepSections(true);
     }
 
-    private static void addRecord() {
-        Entity record = schema.addEntity(RECORD_CLASS_NAME);
-        record.setTableName(RECORD_TABLE_NAME);
-        record.addIdProperty();
-        record.addFloatProperty(RECORD_PROPERTY_AMOUNT).notNull();
-        record.addLongProperty(RECORD_PROPERTY_CATEGORY_ID).notNull();
-        record.addStringProperty(RECORD_PROPERTY_DESCRIPTION);
-        record.addDateProperty(RECORD_PROPERTY_DATETIME).notNull();
-        record.setHasKeepSections(true);
+    private static void addWallet() {
+        Entity wallet = schema.addEntity(WALLET_CLASS_NAME);
+        wallet.setTableName(WALLET_TABLE_NAME);
+        wallet.addIdProperty();
+        wallet.addLongProperty(WALLET_PROPERTY_ACCOUNT_ID);
+        wallet.addStringProperty(WALLET_PROPERTY_NAME);
+        wallet.addStringProperty(WALLET_PROPERTY_DESCRIPTION);
+        wallet.addDoubleProperty(WALLET_PROPERTY_AMOUNT);
+        wallet.addIntProperty(WALLET_PROPERTY_TYPE);
+        wallet.setHasKeepSections(true);
     }
 
-    // Relations //
+    private static void addCashFlow() {
+        Entity cashFlow = schema.addEntity(CASH_FLOW_CLASS_NAME);
+        cashFlow.setTableName(CASH_FLOW_TABLE_NAME);
+        cashFlow.addIdProperty();
+        cashFlow.addLongProperty(CASH_FLOW_PROPERTY_FROM_WALLET_ID);
+        cashFlow.addLongProperty(CASH_FLOW_PROPERTY_TO_WALLET_ID);
+        cashFlow.addFloatProperty(CASH_FLOW_PROPERTY_AMOUNT).notNull();
+        cashFlow.addLongProperty(CASH_FLOW_PROPERTY_CATEGORY_ID).notNull();
+        cashFlow.addStringProperty(CASH_FLOW_PROPERTY_COMMENT);
+        cashFlow.addDateProperty(CASH_FLOW_PROPERTY_DATETIME).notNull();
+        cashFlow.setHasKeepSections(true);
+    }
+
+    /**
+     * Relations
+     */
     private static void addRelations() {
+        addAccountToCategory();
+        addAccountToWallet();
         addCategoryToParentCategory();
-        addRecordToCategory();
+        addCashFlowToCategory();
+        addCashFlowToWallet();
+    }
+
+    private static void addAccountToCategory() {
+        Entity account = getEntityByName(ACCOUNT_CLASS_NAME);
+        Entity category = getEntityByName(CATEGORY_CLASS_NAME);
+        Property accountId = getPropertyByName(category, CATEGORY_PROPERTY_ACCOUNT_ID);
+        account.addToMany(category, accountId);
     }
 
     private static void addCategoryToParentCategory() {
@@ -80,11 +134,27 @@ public class WalletPlusDaoGenerator {
         category.addToOne(category, parentCategoryId).setName("parent");
     }
 
-    private static void addRecordToCategory() {
+    private static void addAccountToWallet() {
+        Entity account = getEntityByName(ACCOUNT_CLASS_NAME);
+        Entity wallet = getEntityByName(WALLET_CLASS_NAME);
+        Property accountId = getPropertyByName(wallet, WALLET_PROPERTY_ACCOUNT_ID);
+        account.addToMany(wallet, accountId);
+    }
+
+    private static void addCashFlowToWallet() {
+        Entity wallet = getEntityByName(WALLET_CLASS_NAME);
+        Entity cashFlow = getEntityByName(CASH_FLOW_CLASS_NAME);
+        Property fromWalletId = getPropertyByName(cashFlow, CASH_FLOW_PROPERTY_FROM_WALLET_ID);
+        Property toWalletId = getPropertyByName(cashFlow, CASH_FLOW_PROPERTY_TO_WALLET_ID);
+        cashFlow.addToOne(wallet, fromWalletId).setName("from" + WALLET_CLASS_NAME);
+        cashFlow.addToOne(wallet, toWalletId).setName("to" + WALLET_CLASS_NAME);
+    }
+
+    private static void addCashFlowToCategory() {
         Entity category = getEntityByName(CATEGORY_CLASS_NAME);
-        Entity record = getEntityByName(RECORD_CLASS_NAME);
-        Property categoryId = getPropertyByName(record, RECORD_PROPERTY_CATEGORY_ID);
-        record.addToOne(category, categoryId);
+        Entity cashFlow = getEntityByName(CASH_FLOW_CLASS_NAME);
+        Property categoryId = getPropertyByName(cashFlow, CASH_FLOW_PROPERTY_CATEGORY_ID);
+        cashFlow.addToOne(category, categoryId);
     }
 
     private static Entity getEntityByName(final String name) {
@@ -98,10 +168,6 @@ public class WalletPlusDaoGenerator {
         );
     }
 
-    private static Property getPropertyByName(final String entity, final String name) {
-        return getPropertyByName(getEntityByName(entity), name);
-    }
-
     private static Property getPropertyByName(final Entity entity, final String name) {
         return Iterables.find(entity.getProperties(),
                 new Predicate<Property>() {
@@ -111,26 +177,5 @@ public class WalletPlusDaoGenerator {
                     }
                 }
         );
-    }
-
-    private static void delete(File file) throws IOException {
-        if (file.isDirectory()) {
-            if (file.list().length==0) {
-                file.delete();
-            } else {
-                String files[] = file.list();
-
-                for (String temp : files) {
-                    File fileDelete = new File(file, temp);
-                    delete(fileDelete);
-                }
-
-                if (file.list().length==0) {
-                    file.delete();
-                }
-            }
-        } else {
-            file.delete();
-        }
     }
 }

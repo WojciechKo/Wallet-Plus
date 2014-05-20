@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu.record;
+package info.korzeniowski.walletplus.drawermenu.cashflow;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,19 +18,19 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.RecordDataManager;
-import info.korzeniowski.walletplus.model.Record;
+import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
+import info.korzeniowski.walletplus.model.CashFlow;
 
-@EFragment(R.layout.record_details_fragment)
+@EFragment(R.layout.cash_flow_details_fragment)
 @OptionsMenu(R.menu.action_save)
-public class RecordDetailsFragment extends Fragment {
+public class CashFlowDetailsFragment extends Fragment {
     private enum DetailsType {ADD, EDIT}
-    static final public String RECORD_ID = "RECORD_ID";
+    static final public String CASH_FLOW_ID = "CASH_FLOW_ID";
     @Inject @Named("local")
-    RecordDataManager localRecordDataManager;
-    private Long recordId;
+    CashFlowDataManager localCashFlowDataManager;
+    private Long cashFlowId;
     private DetailsType type;
-    private Record record;
+    private CashFlow cashFlow;
 
     @AfterInject
     void daggerInject() {
@@ -39,16 +39,16 @@ public class RecordDetailsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        recordId = getArguments().getLong(RECORD_ID);
-        type = recordId == 0L ? DetailsType.ADD : DetailsType.EDIT;
+        cashFlowId = getArguments().getLong(CASH_FLOW_ID);
+        type = cashFlowId == 0L ? DetailsType.ADD : DetailsType.EDIT;
         if (type.equals(DetailsType.EDIT)) {
-            record = getRecord();
+            cashFlow = getCashFlow();
         }
         return null;
     }
 
-    private Record getRecord() {
-        return localRecordDataManager.findById(recordId);
+    private CashFlow getCashFlow() {
+        return localCashFlowDataManager.findById(cashFlowId);
     }
 
     @AfterViews
@@ -57,7 +57,7 @@ public class RecordDetailsFragment extends Fragment {
         setupAdapters();
         setupListeners();
         if (type.equals(DetailsType.ADD)) {
-            record = new Record();
+            cashFlow = new CashFlow();
         } else if (type.equals(DetailsType.EDIT)) {
             fillViewsWithData();
         }
@@ -83,9 +83,9 @@ public class RecordDetailsFragment extends Fragment {
         Log.d("WalletPlus", "CategoryDetails.actionSave");
         getDataFromViews();
         if (DetailsType.ADD.equals(type)) {
-            localRecordDataManager.insert(record);
+            localCashFlowDataManager.insert(cashFlow);
         } else if (DetailsType.EDIT.equals(type)) {
-            localRecordDataManager.update(record);
+            localCashFlowDataManager.update(cashFlow);
         }
         getActivity().getSupportFragmentManager().popBackStack();
     }

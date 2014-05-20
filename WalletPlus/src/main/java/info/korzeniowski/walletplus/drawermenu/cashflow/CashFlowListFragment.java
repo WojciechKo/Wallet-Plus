@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu.record;
+package info.korzeniowski.walletplus.drawermenu.cashflow;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,21 +25,21 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.RecordDataManager;
+import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment;
 
 /**
- * Fragment with list of records.
+ * Fragment with list of cash flows.
  */
-@EFragment(R.layout.record_list)
+@EFragment(R.layout.cash_flow_list)
 @OptionsMenu(R.menu.action_new)
-public class RecordListFragment extends Fragment {
+public class CashFlowListFragment extends Fragment {
 
     @ViewById(R.id.list)
     ListView list;
 
     @Inject @Named("local")
-    RecordDataManager localRecordDataManager;
+    CashFlowDataManager localCashFlowDataManager;
 
     @AfterInject
     void daggerInject() {
@@ -49,7 +49,7 @@ public class RecordListFragment extends Fragment {
     @AfterViews
     void setupView() {
         setHasOptionsMenu(true);
-        list.setAdapter(new RecordListAdapter(getActivity(), android.R.layout.simple_list_item_1, localRecordDataManager.getAll()));
+        list.setAdapter(new CashFlowListAdapter(getActivity(), android.R.layout.simple_list_item_1, localCashFlowDataManager.getAll()));
         list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -63,15 +63,15 @@ public class RecordListFragment extends Fragment {
     @OptionsItem(R.id.menu_new)
     void actionAdd() {
         Log.d("WalletPlus", "CategoryList.actionAdd");
-        startRecordDetailsFragment();
+        startCashFlowDetailsFragment();
     }
 
-    private void startRecordDetailsFragment() {
-        startRecordDetailsFragment(0L);
+    private void startCashFlowDetailsFragment() {
+        startCashFlowDetailsFragment(0L);
     }
 
-    private void startRecordDetailsFragment(Long id) {
-        Fragment fragment= new RecordDetailsFragment_();
+    private void startCashFlowDetailsFragment(Long id) {
+        Fragment fragment= new CashFlowDetailsFragment_();
         Bundle bundle = new Bundle();
         bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, id);
         fragment.setArguments(bundle);
@@ -101,10 +101,10 @@ public class RecordListFragment extends Fragment {
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             switch(menuItem.getItemId()) {
                 case R.id.menu_edit:
-                    startRecordDetailsFragment(id);
+                    startCashFlowDetailsFragment(id);
                     break;
                 case R.id.menu_delete:
-                    localRecordDataManager.deleteById(id);
+                    localCashFlowDataManager.deleteById(id);
                     break;
             }
             actionMode.finish();
