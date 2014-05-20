@@ -65,7 +65,7 @@ def daggerVersion = '1.2.+'
 def commonsLang3Version = '3.3.+'
 def guavaVerions = '17.0'
 def JUnitVersion = '4.11'
-def robolectricVersion = '2.3-SNAPSHOT'
+def robolectricVersion = '2.4-SNAPSHOT'
 def festAndroidVersion = '1.0.+'
 
 androidTest {

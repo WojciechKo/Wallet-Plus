@@ -17,7 +17,7 @@ import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment_;
  */
 @Singleton
 public class MainDrawerContent {
-    private List<MainDrawerItem> mainDrawerItems;
+    private final List<MainDrawerItem> mainDrawerItems;
 
     @Inject
     public MainDrawerContent(Context context) {

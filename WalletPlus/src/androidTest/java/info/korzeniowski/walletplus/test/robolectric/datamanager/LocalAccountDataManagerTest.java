@@ -20,30 +20,29 @@ public class LocalAccountDataManagerTest {
 
     private AccountDataManager accountDataManager;
 
-    private GreenAccountDao greenAccountDao;
-
     @Before
     public void setUp() {
         SQLiteOpenHelper dbHelper = new DaoMaster.DevOpenHelper(Robolectric.application, null, null);
         DaoMaster daoMaster = new DaoMaster(dbHelper.getWritableDatabase());
-        greenAccountDao = daoMaster.newSession().getGreenAccountDao();
+        GreenAccountDao greenAccountDao = daoMaster.newSession().getGreenAccountDao();
         accountDataManager = new LocalAccountDataManager(greenAccountDao);
     }
 
     @Test
     public void shouldCreateNewAccount() {
+
         Account account = new Account();
         account.setName("MyAccount");
-        account.setPassword_hash("q1w2e3r4");
+        account.setPasswordHash("q1w2e3r4");
 
-       accountDataManager.insert(account);
+        accountDataManager.insert(account);
 
         Account read = accountDataManager.findById(account.getId());
         assertThat(accountDataManager.count()).isEqualTo(1);
         assertThat(read).isEqualTo(account);
         assertThat(read.getId()).isEqualTo(account.getId());
         assertThat(read.getName()).isEqualTo(account.getName());
-        assertThat(read.getPassword_hash()).isEqualTo(account.getPassword_hash());
+        assertThat(read.getPasswordHash()).isEqualTo(account.getPasswordHash());
     }
 
 }

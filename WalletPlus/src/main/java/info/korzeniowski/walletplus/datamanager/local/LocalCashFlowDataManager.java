@@ -16,8 +16,8 @@ import info.korzeniowski.walletplus.model.greendao.GreenCashFlow;
 import info.korzeniowski.walletplus.model.greendao.GreenCashFlowDao;
 
 public class LocalCashFlowDataManager implements CashFlowDataManager {
-    private GreenCashFlowDao greenCashFlowDao;
-    private List<CashFlow> cashFlows;
+    private final GreenCashFlowDao greenCashFlowDao;
+    private final List<CashFlow> cashFlows;
 
 
     @Inject

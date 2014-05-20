@@ -46,8 +46,6 @@ public class MainActivity extends ActionBarActivity{
 
     private ActionBarDrawerToggle mainDrawerToggle;
 
-    private int defaultMainDrawerItemSelected = 0;
-
     @AfterInject
     void daggerInject() {
         application.inject(this);
@@ -65,6 +63,7 @@ public class MainActivity extends ActionBarActivity{
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        int defaultMainDrawerItemSelected = 0;
         mainDrawerItemClicked(defaultMainDrawerItemSelected);
     }
 

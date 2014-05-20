@@ -6,7 +6,7 @@ import info.korzeniowski.walletplus.model.Category;
 
 public interface CategoryDataManager extends DataManager<Category> {
 
-    Category getByName(String name);
+    Category findByName(String name);
 
     List<Category> getMainCategories();
 

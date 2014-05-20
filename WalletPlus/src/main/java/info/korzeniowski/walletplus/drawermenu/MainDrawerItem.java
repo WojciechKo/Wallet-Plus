@@ -7,9 +7,9 @@ import android.util.Log;
  * Simple class for holding menu items in MainDrawerMenu.
  */
 public class MainDrawerItem {
-    private String title;
-    private int icon;
-    private Class<? extends Fragment> fragment;
+    private final String title;
+    private final int icon;
+    private final Class<? extends Fragment> fragment;
 
     public MainDrawerItem(String title, int icon, Class<? extends Fragment> fragment) {
         this.title = title;

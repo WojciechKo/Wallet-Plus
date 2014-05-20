@@ -3,7 +3,7 @@ package info.korzeniowski.walletplus.model;
 public class Account {
     private Long id;
     private String name;
-    private String password_hash;
+    private String passwordHash;
 
     public Long getId() {
         return id;
@@ -21,11 +21,11 @@ public class Account {
         this.name = name;
     }
 
-    public String getPassword_hash() {
-        return password_hash;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setPassword_hash(String password_hash) {
-        this.password_hash = password_hash;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 }

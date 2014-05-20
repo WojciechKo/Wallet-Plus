@@ -1,8 +1,6 @@
 package info.korzeniowski.walletplus.datamanager.local.validation;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 
 import java.util.NoSuchElementException;
 
@@ -18,8 +16,7 @@ import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveParentExce
 import info.korzeniowski.walletplus.model.Category;
 
 public class CategoryValidator {
-
-    CategoryDataManager categoryDataManager;
+    private final CategoryDataManager categoryDataManager;
 
     public CategoryValidator(CategoryDataManager categoryDataManager) {
         this.categoryDataManager = categoryDataManager;
@@ -50,14 +47,13 @@ public class CategoryValidator {
         new UpdateApplier() {
             @Override
             protected void commonApply(Category newValue, Category toUpdate) {
-                validateIfNewNameIfUnique(newValue, toUpdate);
+                validateIfNewNameIsUnique(newValue, toUpdate);
             }
 
             @Override
             protected void mainToMainApply(Category newValue, Category toUpdate) {
                 validateIfCategoryHaveType(newValue);
                 validateIfCategoryHaveNoParent(newValue);
-                return;
             }
 
             @Override
@@ -78,7 +74,6 @@ public class CategoryValidator {
             protected void subToSubApply(Category newValue, Category toUpdate) {
                 validateIfCategoryHaveNoTypeOrParentTypes(newValue);
                 validateIfCategoryIsMain(newValue.getParentId());
-                return;
             }
         }.apply(newValue, toUpdate);
     }
@@ -123,7 +118,7 @@ public class CategoryValidator {
         }
     }
 
-    private void validateIfNewNameIfUnique(Category newValue, Category toUpdate) {
+    private void validateIfNewNameIsUnique(Category newValue, Category toUpdate) {
         if (!Objects.equal(newValue.getName(), toUpdate.getName())) {
             validateIfNameIsUnique(newValue.getName());
         }
@@ -132,7 +127,7 @@ public class CategoryValidator {
     private void validateIfNameIsUnique(String name) {
         if (name == null) return;
         try {
-            categoryDataManager.getByName(name);
+            categoryDataManager.findByName(name);
         } catch (NoSuchElementException e) {
             return;
         }
@@ -150,19 +145,7 @@ public class CategoryValidator {
     }
 
     private boolean isMainCategory(final Long id) {
-        try {
-            Iterables.find(categoryDataManager.getMainCategories(),
-                    new Predicate<Category>() {
-                        @Override
-                        public boolean apply(Category category) {
-                            return Objects.equal(id, category.getId());
-                        }
-                    }
-            );
-        } catch (NoSuchElementException e) {
-            return false;
-        }
-        return true;
+        return Category.tryFindById(categoryDataManager.getMainCategories(), id) != null;
     }
 
     protected abstract class UpdateApplier {

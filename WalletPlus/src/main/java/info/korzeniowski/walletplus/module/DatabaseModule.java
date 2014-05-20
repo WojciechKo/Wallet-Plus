@@ -15,6 +15,7 @@ import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalAccountDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCashFlowDataManager;
+import info.korzeniowski.walletplus.datamanager.local.validation.CategoryValidator;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
 import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowDetailsFragment_;
@@ -42,15 +43,12 @@ import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
         }
 )
 public class DatabaseModule {
-    private static SQLiteOpenHelper dbHelper;
-    private static SQLiteDatabase database;
-    private static DaoMaster daoMaster;
-    private static DaoSession daoSession;
+    private final DaoSession daoSession;
 
     public DatabaseModule(WalletPlus application) {
-        dbHelper = new DaoMaster.DevOpenHelper(application, application.DATABASE_NAME, null);
-        database = dbHelper.getWritableDatabase();
-        daoMaster = new DaoMaster(database);
+        SQLiteOpenHelper dbHelper = new DaoMaster.DevOpenHelper(application, WalletPlus.DATABASE_NAME, null);
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        DaoMaster daoMaster = new DaoMaster(database);
         daoSession = daoMaster.newSession();
     }
 

@@ -194,7 +194,7 @@ public class CategoryDetailsFragment extends Fragment {
         if (categoryExpenseType.isChecked()) {
             categorySet.add(Category.Type.EXPENSE);
         }
-        category.setTypes(categorySet);
+        category.setType(categorySet);
 
         if (!isMainCategory.isChecked()) {
             category.setParentId(((Category) parentCategory.getSelectedItem()).getId());

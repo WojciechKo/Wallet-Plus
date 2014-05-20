@@ -16,8 +16,8 @@ import info.korzeniowski.walletplus.model.Category;
 
 public class CategoryListAdapter extends BaseExpandableListAdapter {
 
-    private Context context;
-    private List<Category> categoryList;
+    private final Context context;
+    private final List<Category> categoryList;
 
     CategoryListAdapter(Context context, List<Category> categories) {
         this.context = context;

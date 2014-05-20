@@ -80,7 +80,7 @@ public class CashFlowListFragment extends Fragment {
 
     private final class ActionModeAfterLongPress implements ActionMode.Callback {
 
-        private Long id;
+        private final Long id;
 
         public ActionModeAfterLongPress(Long id) {
             this.id = id;
