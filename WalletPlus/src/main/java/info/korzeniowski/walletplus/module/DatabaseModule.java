@@ -9,8 +9,10 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.datamanager.AccountDataManager;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
+import info.korzeniowski.walletplus.datamanager.local.LocalAccountDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCashFlowDataManager;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
@@ -19,6 +21,7 @@ import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowDetailsFragment_
 import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
 import info.korzeniowski.walletplus.model.greendao.DaoSession;
+import info.korzeniowski.walletplus.model.greendao.GreenAccountDao;
 import info.korzeniowski.walletplus.model.greendao.GreenCashFlowDao;
 import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
 
@@ -49,6 +52,22 @@ public class DatabaseModule {
         database = dbHelper.getWritableDatabase();
         daoMaster = new DaoMaster(database);
         daoSession = daoMaster.newSession();
+    }
+
+    /****************
+     * ACCOUNT
+     ***************/
+    @Provides
+    @Singleton
+    public GreenAccountDao provideGreenAccountDao() {
+        return daoSession.getGreenAccountDao();
+    }
+
+    @Provides
+    @Named("local")
+    @Singleton
+    public AccountDataManager provideAccountDataManager(LocalAccountDataManager localAccountDataManager) {
+        return localAccountDataManager;
     }
 
     /****************
