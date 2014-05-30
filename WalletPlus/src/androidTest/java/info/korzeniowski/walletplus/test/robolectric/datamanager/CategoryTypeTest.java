@@ -3,6 +3,7 @@ package info.korzeniowski.walletplus.test.robolectric.datamanager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -11,6 +12,7 @@ import info.korzeniowski.walletplus.model.Category;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+@Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class CategoryTypeTest {
 

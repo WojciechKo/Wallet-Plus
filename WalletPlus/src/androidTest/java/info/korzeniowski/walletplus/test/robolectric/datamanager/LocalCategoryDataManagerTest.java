@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -33,6 +34,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
 import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 
+@Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class LocalCategoryDataManagerTest {
 

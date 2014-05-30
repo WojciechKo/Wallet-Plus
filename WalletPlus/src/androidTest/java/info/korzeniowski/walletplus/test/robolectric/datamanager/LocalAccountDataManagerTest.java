@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import info.korzeniowski.walletplus.datamanager.AccountDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalAccountDataManager;
@@ -15,6 +16,7 @@ import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
 import info.korzeniowski.walletplus.model.greendao.GreenAccountDao;
 
+@Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class LocalAccountDataManagerTest {
 
