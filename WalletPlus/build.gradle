@@ -21,7 +21,6 @@ apply plugin: 'android'
 apply plugin: 'android-apt'
 apply plugin: 'android-test'
 
-
 apt {
     arguments {
         androidManifestFile variant.processResources.manifestFile
@@ -30,8 +29,8 @@ apt {
 }
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion '19.0.3'
+    compileSdkVersion 19
+    buildToolsVersion '19.1.0'
 
 //    buildTypes {
 //        release {

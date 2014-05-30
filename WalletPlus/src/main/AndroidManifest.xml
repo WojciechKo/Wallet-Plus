@@ -4,8 +4,8 @@
     package="info.korzeniowski.walletplus" >
 
     <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="18" />
+        android:minSdkVersion="14"
+        android:targetSdkVersion="19" />
 
     <application
             android:name=".WalletPlus"
