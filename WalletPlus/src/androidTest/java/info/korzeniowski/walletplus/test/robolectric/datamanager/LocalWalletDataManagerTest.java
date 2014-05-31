@@ -11,6 +11,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
+import info.korzeniowski.walletplus.datamanager.exception.WalletHaveToHaveTypeException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletTypeCannotBeChangedException;
 import info.korzeniowski.walletplus.datamanager.local.LocalWalletDataManager;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -98,5 +99,15 @@ public class LocalWalletDataManagerTest {
         assertThat(walletDataManager.getContractors()).hasSize(0);
         assertThat(walletDataManager.getMyWallets()).hasSize(0);
         assertThat(walletDataManager.getAll()).hasSize(0);
+    }
+
+    @Test
+    public void walletShouldHaveType() {
+        try {
+            walletDataManager.insert(new Wallet().setName("TestName"));
+            failBecauseExceptionWasNotThrown(WalletHaveToHaveTypeException.class);
+        } catch (WalletHaveToHaveTypeException e) {
+
+        }
     }
 }

@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.datamanager.local.validation;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
+import info.korzeniowski.walletplus.datamanager.exception.WalletHaveToHaveTypeException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletTypeCannotBeChangedException;
 import info.korzeniowski.walletplus.model.Wallet;
 
@@ -13,7 +14,9 @@ public class WalletValidator implements Validator<Wallet>{
 
     @Override
     public void validateInsert(Wallet wallet) {
-
+        if (wallet.getType() == null) {
+            throw new WalletHaveToHaveTypeException();
+        }
     }
 
     @Override
