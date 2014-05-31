@@ -29,9 +29,8 @@ public class GreenWalletDao extends AbstractDao<GreenWallet, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property AccountId = new Property(1, Long.class, "accountId", false, "ACCOUNT_ID");
         public final static Property Name = new Property(2, String.class, "name", false, "NAME");
-        public final static Property Description = new Property(3, String.class, "description", false, "DESCRIPTION");
-        public final static Property Amount = new Property(4, Double.class, "amount", false, "AMOUNT");
-        public final static Property Type = new Property(5, Integer.class, "type", false, "TYPE");
+        public final static Property Amount = new Property(3, Double.class, "amount", false, "AMOUNT");
+        public final static Property Type = new Property(4, int.class, "type", false, "TYPE");
     };
 
     private Query<GreenWallet> greenAccount_GreenWalletListQuery;
@@ -50,10 +49,9 @@ public class GreenWalletDao extends AbstractDao<GreenWallet, Long> {
         db.execSQL("CREATE TABLE " + constraint + "'Wallet' (" + //
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
                 "'ACCOUNT_ID' INTEGER," + // 1: accountId
-                "'NAME' TEXT," + // 2: name
-                "'DESCRIPTION' TEXT," + // 3: description
-                "'AMOUNT' REAL," + // 4: amount
-                "'TYPE' INTEGER);"); // 5: type
+                "'NAME' TEXT NOT NULL ," + // 2: name
+                "'AMOUNT' REAL," + // 3: amount
+                "'TYPE' INTEGER NOT NULL );"); // 4: type
     }
 
     /** Drops the underlying database table. */
@@ -76,26 +74,13 @@ public class GreenWalletDao extends AbstractDao<GreenWallet, Long> {
         if (accountId != null) {
             stmt.bindLong(2, accountId);
         }
- 
-        String name = entity.getName();
-        if (name != null) {
-            stmt.bindString(3, name);
-        }
- 
-        String description = entity.getDescription();
-        if (description != null) {
-            stmt.bindString(4, description);
-        }
+        stmt.bindString(3, entity.getName());
  
         Double amount = entity.getAmount();
         if (amount != null) {
-            stmt.bindDouble(5, amount);
+            stmt.bindDouble(4, amount);
         }
- 
-        Integer type = entity.getType();
-        if (type != null) {
-            stmt.bindLong(6, type);
-        }
+        stmt.bindLong(5, entity.getType());
     }
 
     /** @inheritdoc */
@@ -110,10 +95,9 @@ public class GreenWalletDao extends AbstractDao<GreenWallet, Long> {
         GreenWallet entity = new GreenWallet( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // accountId
-            cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2), // name
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // description
-            cursor.isNull(offset + 4) ? null : cursor.getDouble(offset + 4), // amount
-            cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5) // type
+            cursor.getString(offset + 2), // name
+            cursor.isNull(offset + 3) ? null : cursor.getDouble(offset + 3), // amount
+            cursor.getInt(offset + 4) // type
         );
         return entity;
     }
@@ -123,10 +107,9 @@ public class GreenWalletDao extends AbstractDao<GreenWallet, Long> {
     public void readEntity(Cursor cursor, GreenWallet entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setAccountId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
-        entity.setName(cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2));
-        entity.setDescription(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setAmount(cursor.isNull(offset + 4) ? null : cursor.getDouble(offset + 4));
-        entity.setType(cursor.isNull(offset + 5) ? null : cursor.getInt(offset + 5));
+        entity.setName(cursor.getString(offset + 2));
+        entity.setAmount(cursor.isNull(offset + 3) ? null : cursor.getDouble(offset + 3));
+        entity.setType(cursor.getInt(offset + 4));
      }
     
     /** @inheritdoc */

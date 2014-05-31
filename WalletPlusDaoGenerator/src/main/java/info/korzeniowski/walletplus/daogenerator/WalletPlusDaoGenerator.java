@@ -35,7 +35,6 @@ public class WalletPlusDaoGenerator {
     private static final String WALLET_CLASS_NAME = "GreenWallet";
     private static final String WALLET_PROPERTY_ACCOUNT_ID = "accountId";
     private static final String WALLET_PROPERTY_NAME = "name";
-    private static final String WALLET_PROPERTY_DESCRIPTION = "description";
     private static final String WALLET_PROPERTY_AMOUNT = "amount";
     private static final String WALLET_PROPERTY_TYPE = "type";
 
@@ -89,10 +88,9 @@ public class WalletPlusDaoGenerator {
         wallet.setTableName(WALLET_TABLE_NAME);
         wallet.addIdProperty();
         wallet.addLongProperty(WALLET_PROPERTY_ACCOUNT_ID);
-        wallet.addStringProperty(WALLET_PROPERTY_NAME);
-        wallet.addStringProperty(WALLET_PROPERTY_DESCRIPTION);
+        wallet.addStringProperty(WALLET_PROPERTY_NAME).notNull();
         wallet.addDoubleProperty(WALLET_PROPERTY_AMOUNT);
-        wallet.addIntProperty(WALLET_PROPERTY_TYPE);
+        wallet.addIntProperty(WALLET_PROPERTY_TYPE).notNull();
         wallet.setHasKeepSections(true);
     }
 
