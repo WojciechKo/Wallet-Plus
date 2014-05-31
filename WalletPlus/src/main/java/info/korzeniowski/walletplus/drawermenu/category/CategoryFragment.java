@@ -14,7 +14,7 @@ public class CategoryFragment extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.category_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.tab_host_fragment, container, false);
         tabHost = (FragmentTabHost) rootView.findViewById(android.R.id.tabhost);
         tabHost.setup(getActivity(), getChildFragmentManager(), android.R.id.tabcontent);
 

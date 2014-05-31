@@ -131,6 +131,7 @@ public class WalletDetailsFragment extends Fragment {
         wallet.setName(walletName.getText().toString());
         String initialAmount = walletInitialAmount.getText().toString();
         wallet.setInitialAmount(Double.parseDouble(initialAmount));
+        wallet.setCurrentAmount(wallet.getInitialAmount());
     }
 
     @OptionsItem(R.id.menu_save)

@@ -18,7 +18,7 @@ public class CategoryListAdapter extends BaseExpandableListAdapter {
     private final Context context;
     private final List<Category> categoryList;
 
-    CategoryListAdapter(Context context, List<Category> categories) {
+    public CategoryListAdapter(Context context, List<Category> categories) {
         this.context = context;
         this.categoryList = categories;
     }
@@ -35,22 +35,22 @@ public class CategoryListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Category getGroup(int groupPosition) {
-        return categoryList.get(groupPosition);
+        return categoryList.listIterator(groupPosition).next();
     }
 
     @Override
     public Category getChild(int groupPosition, int childPosition) {
-        return getGroup(groupPosition).getChildren().get(childPosition);
+        return getGroup(groupPosition).getChildren().iterator(childPosition).next();
     }
 
     @Override
     public long getGroupId(int groupPosition) {
-        return categoryList.get(groupPosition).getId();
+        return getGroup(groupPosition).getId();
     }
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return getGroup(groupPosition).getChildren().get(childPosition).getId();
+        return getChild(groupPosition, childPosition).getId();
     }
 
     @Override

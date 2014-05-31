@@ -1,35 +1,56 @@
 package info.korzeniowski.walletplus.drawermenu.cashflow;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
+import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.CashFlow;
 
 public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
 
-    public CashFlowListAdapter(Context context, int resource) {
-        super(context, resource);
+    public CashFlowListAdapter(Context context, List<CashFlow> objects) {
+        super(context, android.R.layout.simple_list_item_1, objects);
     }
 
-    public CashFlowListAdapter(Context context, int resource, int textViewResourceId) {
-        super(context, resource, textViewResourceId);
+    @Override
+    public long getItemId(int position) {
+        return getItem(position).getId();
     }
 
-    public CashFlowListAdapter(Context context, int resource, CashFlow[] objects) {
-        super(context, resource, objects);
-    }
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View cashFlowRowView = inflater.inflate(R.layout.cashflow_list_item, parent, false);
+        TextView fromWallet = (TextView) cashFlowRowView.findViewById(R.id.fromWallet);
+        TextView toWallet = (TextView) cashFlowRowView.findViewById(R.id.toWallet);
+        TextView amount = (TextView) cashFlowRowView.findViewById(R.id.amount);
+        TextView category = (TextView) cashFlowRowView.findViewById(R.id.category);
+        TextView comment = (TextView) cashFlowRowView.findViewById(R.id.comment);
+        TextView date = (TextView) cashFlowRowView.findViewById(R.id.date);
 
-    public CashFlowListAdapter(Context context, int resource, int textViewResourceId, CashFlow[] objects) {
-        super(context, resource, textViewResourceId, objects);
-    }
+        CashFlow selectedItem = getItem(position);
+        amount.setText(new DecimalFormat(",####.00").format(selectedItem.getAmount()));
+        comment.setText(selectedItem.getComment());
+        date.setText(new SimpleDateFormat("dd/MM/yyyy").format(selectedItem.getDateTime()));
 
-    public CashFlowListAdapter(Context context, int resource, List<CashFlow> objects) {
-        super(context, resource, objects);
-    }
+        if (selectedItem.getFromWallet() != null) {
+            fromWallet.setText(selectedItem.getFromWallet().getName());
+        }
+        if (selectedItem.getToWallet() != null) {
+            toWallet.setText(selectedItem.getToWallet().getName());
+        }
+        if (selectedItem.getCategory() != null) {
+            category.setText(selectedItem.getCategory().getName());
+        }
 
-    public CashFlowListAdapter(Context context, int resource, int textViewResourceId, List<CashFlow> objects) {
-        super(context, resource, textViewResourceId, objects);
+        return cashFlowRowView;
     }
 }

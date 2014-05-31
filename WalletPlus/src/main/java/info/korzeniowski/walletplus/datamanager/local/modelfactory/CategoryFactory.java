@@ -8,7 +8,6 @@ import java.util.List;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.greendao.GreenCategory;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static info.korzeniowski.walletplus.model.Category.findById;
 
 public class CategoryFactory {

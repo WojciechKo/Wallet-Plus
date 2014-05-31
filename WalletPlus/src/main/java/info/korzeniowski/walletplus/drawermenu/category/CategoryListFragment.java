@@ -8,6 +8,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 
 import org.androidannotations.annotations.AfterInject;
@@ -59,15 +60,18 @@ public class CategoryListFragment extends Fragment {
         superList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                long packedPosition = ((ExpandableListView)parent).getExpandableListPosition(position);
+                long packedPosition = ((ExpandableListView) parent).getExpandableListPosition(position);
                 int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
                 int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+
+                ExpandableListAdapter expandableListAdapter = ((ExpandableListView) parent).getExpandableListAdapter();
                 long categoryId;
                 if (childPosition == -1)
-                    categoryId = ((ExpandableListView) parent).getExpandableListAdapter().getGroupId(groupPosition);
+                    categoryId = expandableListAdapter.getGroupId(groupPosition);
                 else
-                    categoryId = ((ExpandableListView) parent).getExpandableListAdapter().getChildId(groupPosition, childPosition);
-                ((ActionBarActivity) getActivity()).startSupportActionMode(new ActionModeCallbackAfterLongPress(categoryId));
+                    categoryId = expandableListAdapter.getChildId(groupPosition, childPosition);
+
+                ((ActionBarActivity) getActivity()).startSupportActionMode(new CategoryLongPressCallback(categoryId));
                 return true;
             }
         });
@@ -102,10 +106,10 @@ public class CategoryListFragment extends Fragment {
         throw new RuntimeException("Inacceptable category type: " + type);
     }
 
-    private final class ActionModeCallbackAfterLongPress implements ActionMode.Callback {
+    private final class CategoryLongPressCallback implements ActionMode.Callback {
         private final Long id;
 
-        public ActionModeCallbackAfterLongPress(Long id) {
+        public CategoryLongPressCallback(Long id) {
             this.id = id;
         }
 

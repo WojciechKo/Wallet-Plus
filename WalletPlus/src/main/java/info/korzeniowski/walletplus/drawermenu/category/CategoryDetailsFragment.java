@@ -22,7 +22,6 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -169,29 +168,28 @@ public class CategoryDetailsFragment extends Fragment {
         if (type.equals(DetailsType.EDIT)) {
             categoryName.setText(category.getName());
             if (category.getParent() != null) {
-                Category parent = localCategoryDataManager.findById(category.getParentId());
+                Category parent = localCategoryDataManager.findById(category.getParent().getId());
                 isMainCategory.setChecked(false);
                 parentCategory.setSelection(localCategoryDataManager.getMainCategories().indexOf(parent));
             }
-            categoryIncomeType.setChecked(category.getTypes().contains(Category.Type.INCOME));
-            categoryExpenseType.setChecked(category.getTypes().contains(Category.Type.EXPENSE));
+            categoryIncomeType.setChecked(category.isIncomeType());
+            categoryExpenseType.setChecked(category.isExpenseType());
         }
     }
 
     public void getDataFromViews() {
         category.setName(categoryName.getText().toString());
 
-        EnumSet<Category.Type> categorySet = EnumSet.noneOf(Category.Type.class);
-        if (categoryIncomeType.isChecked()) {
-            categorySet.add(Category.Type.INCOME);
+        if (categoryExpenseType.isChecked() && categoryIncomeType.isChecked()) {
+            category.setType(Category.Type.INCOME_EXPENSE);
+        } else if (categoryIncomeType.isChecked()) {
+            category.setType(Category.Type.INCOME);
+        } else if (categoryExpenseType.isChecked()) {
+            category.setType(Category.Type.EXPENSE);
         }
-        if (categoryExpenseType.isChecked()) {
-            categorySet.add(Category.Type.EXPENSE);
-        }
-        category.setTypes(categorySet);
 
         if (!isMainCategory.isChecked()) {
-            category.setParentId(((Category) parentCategory.getSelectedItem()).getId());
+            category.setParent(((Category) parentCategory.getSelectedItem()));
         }
     }
 

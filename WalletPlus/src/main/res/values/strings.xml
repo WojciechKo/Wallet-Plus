@@ -20,6 +20,7 @@
     <string name="is_main_category">Is main category</string>
     <string name="category_have_children">Selected category contain at last one subcategory</string>
     <string name="do_you_want_to_delete_with_subcategories">Do you want to delete with every subcategories?</string>
+    <string name="cashflow_title">Cash flow</string>
     <string name="wallets_title">Wallets</string>
     <string name="initialValue">Initial value:</string>
     <string name="wallet_name_label">Wallet name:</string>
@@ -27,5 +28,8 @@
     <string name="walletNameCantBeEmpty">Wallet name can\'t be empty.</string>
     <string name="walletInitialAmountCantBeEmpty">Initial amount can\'t be empty.</string>
     <string name="walletNameHaveToBeUnique">Wallet name have to be unique.</string>
+    <string name="income">Income</string>
+    <string name="expanse">Expance</string>
+    <string name="chooseCategory">Choose category...</string>
 
 </resources>

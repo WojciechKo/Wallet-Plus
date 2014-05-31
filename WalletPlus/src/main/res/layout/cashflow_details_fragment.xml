@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:stretchColumns="1">
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        <TextView
+            android:id="@+id/fromWalletLabel"
+            android:text="Money source:"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Spinner
+            android:id="@+id/fromWallet"
+            android:spinnerMode="dropdown" />
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:id="@+id/amountLabel"
+            android:text="Amount:"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <EditText
+            android:id="@+id/amount"
+            android:inputType="numberDecimal"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </TableRow>
+
+    <TableRow>
+        <Switch
+            android:id="@+id/recordType"
+            android:checked="true"
+            android:textOff="@string/income"
+            android:textOn="@string/expanse"
+            android:layout_span="2"/>
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:id="@+id/categoryLabel"
+            android:text="Category:"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Button
+            android:id="@+id/category"
+            android:text="@string/chooseCategory"/>
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:id="@+id/toWalletLabel"
+            android:text="Contractor:"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <Spinner
+            android:id="@+id/toWallet"
+            android:spinnerMode="dropdown" />
+    </TableRow>
+
+    <TableRow>
+
+        <Button
+            android:id="@+id/datePicker" />
+
+        <Button
+            android:id="@+id/timePicker" />
+
+    </TableRow>
+</TableLayout>
