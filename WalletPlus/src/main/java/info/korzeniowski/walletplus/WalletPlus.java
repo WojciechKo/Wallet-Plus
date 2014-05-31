@@ -2,6 +2,8 @@ package info.korzeniowski.walletplus;
 
 import android.app.Application;
 
+import org.androidannotations.annotations.EApplication;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,7 @@ import info.korzeniowski.walletplus.module.MainModule;
 /**
  * Main Application class.
  */
+@EApplication
 public class WalletPlus extends Application {
     public static final String DATABASE_NAME = "wallet-plus.db";
     public static final String LOG_TAG = "WalletPlus";

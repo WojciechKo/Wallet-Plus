@@ -8,7 +8,7 @@
         android:targetSdkVersion="19" />
 
     <application
-            android:name=".WalletPlus"
+            android:name=".WalletPlus_"
             android:allowBackup="true"
             android:icon="@drawable/ic_launcher_walletplus"
             android:label="@string/app_name"
