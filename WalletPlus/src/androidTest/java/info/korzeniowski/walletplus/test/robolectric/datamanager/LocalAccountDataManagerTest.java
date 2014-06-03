@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -30,6 +31,7 @@ public class LocalAccountDataManagerTest {
         accountDataManager = new LocalAccountDataManager(greenAccountDao);
     }
 
+    @Ignore
     @Test
     public void shouldCreateNewAccount() {
 
