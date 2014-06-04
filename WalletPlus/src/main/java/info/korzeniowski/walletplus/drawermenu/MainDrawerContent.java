@@ -12,6 +12,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryFragment;
 import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment_;
 import info.korzeniowski.walletplus.drawermenu.wallet.WalletFragment;
+import info.korzeniowski.walletplus.drawermenu.wallet.WalletFragment_;
 
 /**
  * Content of Main Drawer Menu.
@@ -38,7 +39,7 @@ public class MainDrawerContent {
         mainDrawerItems.add(new MainDrawerItem(
                                 context.getString(R.string.wallets_title),
                                 R.drawable.ic_menu_wallets,
-                                WalletFragment.class
+                                WalletFragment_.class
                 )
         );
     }

@@ -1,20 +1,14 @@
 package info.korzeniowski.walletplus.drawermenu.wallet;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
-import java.util.Map;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -47,7 +41,7 @@ public class WalletListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.wallet_list_item, parent);
+            convertView = inflater.inflate(R.layout.wallet_list_item, parent, false);
         }
         Wallet wallet = getItem(position);
 
@@ -55,10 +49,10 @@ public class WalletListAdapter extends BaseAdapter {
         walletName.setText(wallet.getName());
 
         TextView initialAmount = (TextView) convertView.findViewById(R.id.initialAmount);
-        initialAmount.setText(R.string.initialValue + " " + wallet.getAmount());
+        initialAmount.setText(context.getString(R.string.initialValue) + " " + wallet.getInitialAmount());
 
         TextView actualAmount = (TextView) convertView.findViewById(R.id.actualAmount);
-        actualAmount.setText(wallet.getAmount().toString());
+        actualAmount.setText(wallet.getInitialAmount().toString());
 
         return convertView;
     }

@@ -22,6 +22,7 @@ import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
 import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
+import info.korzeniowski.walletplus.drawermenu.wallet.WalletDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.wallet.WalletFragment_;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
 import info.korzeniowski.walletplus.model.greendao.DaoSession;
@@ -45,6 +46,7 @@ import info.korzeniowski.walletplus.model.greendao.GreenWalletDao;
                 CashFlowDetailsFragment_.class,
                 CashFlowListFragment_.class,
 
+                WalletDetailsFragment_.class,
                 WalletFragment_.class
         }
 )

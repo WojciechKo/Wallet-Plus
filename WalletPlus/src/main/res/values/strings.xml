@@ -22,5 +22,9 @@
     <string name="do_you_want_to_delete_with_subcategories">Do you want to delete with every subcategories?</string>
     <string name="wallets_title">Wallets</string>
     <string name="initialValue">Initial value:</string>
+    <string name="wallet_name_label">Wallet name:</string>
+    <string name="wallet_initial_amount_label">Initial amount:</string>
+    <string name="walletNameCantBeEmpty">Wallet name can\'t be empty.</string>
+    <string name="initialAmountCantBeEmpty">Initial amount can\'t be empty.</string>
 
 </resources>
