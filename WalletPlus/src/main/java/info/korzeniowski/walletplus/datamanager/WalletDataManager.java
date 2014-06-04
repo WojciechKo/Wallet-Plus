@@ -7,4 +7,5 @@ import info.korzeniowski.walletplus.model.Wallet;
 public interface WalletDataManager extends DataManager<Wallet>{
     public List<Wallet> getMyWallets();
     public List<Wallet> getContractors();
+    public Wallet findByNameAndType(String name, Wallet.Type type);
 }

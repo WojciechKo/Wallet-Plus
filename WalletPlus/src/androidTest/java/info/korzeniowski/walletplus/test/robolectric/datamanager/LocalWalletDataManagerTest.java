@@ -11,7 +11,9 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
+import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeNullException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletHaveToHaveTypeException;
+import info.korzeniowski.walletplus.datamanager.exception.WalletNameAndTypeMustBeUniqueException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletTypeCannotBeChangedException;
 import info.korzeniowski.walletplus.datamanager.local.LocalWalletDataManager;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -28,7 +30,6 @@ public class LocalWalletDataManagerTest {
 
     @Before
     public void setUp() {
-        // ((TestWalletPlus) Robolectric.application).injectMocks(this);
         SQLiteOpenHelper dbHelper = new DaoMaster.DevOpenHelper(Robolectric.application, null, null);
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         DaoMaster daoMaster = new DaoMaster(database);
@@ -38,7 +39,7 @@ public class LocalWalletDataManagerTest {
 
     @Test
     public void changeWalletTypeShouldThrowException() {
-        Long id = walletDataManager.insert(new Wallet().setName("Name").setType(Wallet.Type.MY_WALLET));
+        Long id = walletDataManager.insert(new Wallet().setName("Name").setType(Wallet.Type.MY_WALLET).setInitialAmount(11.1));
         Wallet wallet = walletDataManager.findById(id);
         try {
             walletDataManager.update(wallet.setType(Wallet.Type.CONTRACTOR));
@@ -49,14 +50,16 @@ public class LocalWalletDataManagerTest {
     }
 
     @Test
-    public void testAddingDifferentTypeOfWallets() {
-        walletDataManager.insert(new Wallet().setName("A").setType(Wallet.Type.MY_WALLET));
-        walletDataManager.insert(new Wallet().setName("B").setType(Wallet.Type.MY_WALLET));
-        walletDataManager.insert(new Wallet().setName("C").setType(Wallet.Type.CONTRACTOR));
-        walletDataManager.insert(new Wallet().setName("D").setType(Wallet.Type.CONTRACTOR));
-        walletDataManager.insert(new Wallet().setName("E").setType(Wallet.Type.MY_WALLET));
-        walletDataManager.insert(new Wallet().setName("F").setType(Wallet.Type.CONTRACTOR));
-        walletDataManager.insert(new Wallet().setName("G").setType(Wallet.Type.CONTRACTOR));
+    public void shouldAddDifferentTypeOfWallets() {
+        Wallet myWallet = new Wallet().setType(Wallet.Type.MY_WALLET).setInitialAmount(11.1);
+        Wallet contractor = new Wallet().setType(Wallet.Type.CONTRACTOR).setInitialAmount(22.2);
+        walletDataManager.insert(myWallet.setId(null).setName("A"));
+        walletDataManager.insert(contractor.setId(null).setName("C"));
+        walletDataManager.insert(contractor.setId(null).setName("D"));
+        walletDataManager.insert(myWallet.setId(null).setName("E"));
+        walletDataManager.insert(contractor.setId(null).setName("F"));
+        walletDataManager.insert(contractor.setId(null).setName("G"));
+        walletDataManager.insert(myWallet.setId(null).setName("H"));
 
         assertThat(walletDataManager.getContractors()).hasSize(4);
         assertThat(walletDataManager.getMyWallets()).hasSize(3);
@@ -69,21 +72,21 @@ public class LocalWalletDataManagerTest {
         double oldAmount = 11.1;
         String newName = "newName";
         double newAmount = 44.4;
-        Long id = walletDataManager.insert(new Wallet().setName(oldName).setAmount(oldAmount).setType(Wallet.Type.MY_WALLET));
+        Long id = walletDataManager.insert(new Wallet().setName(oldName).setInitialAmount(oldAmount).setType(Wallet.Type.MY_WALLET));
         Wallet toUpdate = walletDataManager.findById(id);
 
-        walletDataManager.update(toUpdate.setName(newName).setAmount(newAmount));
+        walletDataManager.update(toUpdate.setName(newName).setInitialAmount(newAmount));
         Wallet updated = walletDataManager.findById(id);
 
         assertThat(updated.getName()).isEqualTo(newName);
-        assertThat(updated.getAmount()).isEqualTo(newAmount);
+        assertThat(updated.getInitialAmount()).isEqualTo(newAmount);
     }
 
     @Test
     public void shouldRemoveWallet() {
-        Long myWalletId1 = walletDataManager.insert(new Wallet().setName("A").setType(Wallet.Type.MY_WALLET));
-        Long myWalletId2 = walletDataManager.insert(new Wallet().setName("B").setType(Wallet.Type.MY_WALLET));
-        Long contractorId = walletDataManager.insert(new Wallet().setName("C").setType(Wallet.Type.CONTRACTOR));
+        Long myWalletId1 = walletDataManager.insert(new Wallet().setName("A").setType(Wallet.Type.MY_WALLET).setInitialAmount(22.2));
+        Long myWalletId2 = walletDataManager.insert(new Wallet().setName("B").setType(Wallet.Type.MY_WALLET).setInitialAmount(33.3));
+        Long contractorId = walletDataManager.insert(new Wallet().setName("C").setType(Wallet.Type.CONTRACTOR).setInitialAmount(44.4));
 
         walletDataManager.deleteById(myWalletId1);
         assertThat(walletDataManager.getContractors()).hasSize(1);
@@ -102,12 +105,43 @@ public class LocalWalletDataManagerTest {
     }
 
     @Test
+    public void shouldNotInsertDuplicatedNamedAndTypedWallet() {
+        walletDataManager.insert(new Wallet().setType(Wallet.Type.MY_WALLET).setName("MyWallet").setInitialAmount(11.1));
+        try {
+            walletDataManager.insert(new Wallet().setType(Wallet.Type.MY_WALLET).setName("MyWallet").setInitialAmount(11.1));
+            failBecauseExceptionWasNotThrown(WalletNameAndTypeMustBeUniqueException.class);
+        } catch (WalletNameAndTypeMustBeUniqueException e) {
+            assertThat(walletDataManager.getMyWallets()).hasSize(1);
+        }
+    }
+
+    @Test
+    public void shouldInsertDuplicatedNamedButDifferentTypedWallet() {
+        walletDataManager.insert(new Wallet().setType(Wallet.Type.MY_WALLET).setName("MyWallet").setInitialAmount(11.1));
+
+        walletDataManager.insert(new Wallet().setType(Wallet.Type.CONTRACTOR).setName("MyWallet").setInitialAmount(11.1));
+
+        assertThat(walletDataManager.getMyWallets()).hasSize(1);
+        assertThat(walletDataManager.getContractors()).hasSize(1);
+    }
+
+    @Test
     public void walletShouldHaveType() {
         try {
-            walletDataManager.insert(new Wallet().setName("TestName"));
-            failBecauseExceptionWasNotThrown(WalletHaveToHaveTypeException.class);
-        } catch (WalletHaveToHaveTypeException e) {
+            walletDataManager.insert(new Wallet().setName("TestName").setInitialAmount(11.1));
+            failBecauseExceptionWasNotThrown(EntityPropertyCannotBeNullException.class);
+        } catch (EntityPropertyCannotBeNullException e) {
+            assertThat(e.getProperty().equals("Type"));
+        }
+    }
 
+    @Test
+    public void walletShouldHaveInitialAmount() {
+        try {
+            walletDataManager.insert(new Wallet().setName("TestName").setInitialAmount(11.1));
+            failBecauseExceptionWasNotThrown(EntityPropertyCannotBeNullException.class);
+        } catch (EntityPropertyCannotBeNullException e) {
+            assertThat(e.getProperty().equals("InitialAmount"));
         }
     }
 }

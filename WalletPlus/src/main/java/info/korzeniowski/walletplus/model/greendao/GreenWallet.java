@@ -5,8 +5,6 @@ package info.korzeniowski.walletplus.model.greendao;
 // KEEP INCLUDES - put your custom includes here
 import info.korzeniowski.walletplus.model.Wallet;
 // KEEP INCLUDES END
-
-
 /**
  * Entity mapped to table Wallet.
  */
@@ -16,7 +14,8 @@ public class GreenWallet {
     private Long accountId;
     /** Not-null value. */
     private String name;
-    private Double amount;
+    private double initialAmount;
+    private Double currentAmount;
     private int type;
 
     // KEEP FIELDS - put your custom fields here
@@ -29,11 +28,12 @@ public class GreenWallet {
         this.id = id;
     }
 
-    public GreenWallet(Long id, Long accountId, String name, Double amount, int type) {
+    public GreenWallet(Long id, Long accountId, String name, double initialAmount, Double currentAmount, int type) {
         this.id = id;
         this.accountId = accountId;
         this.name = name;
-        this.amount = amount;
+        this.initialAmount = initialAmount;
+        this.currentAmount = currentAmount;
         this.type = type;
     }
 
@@ -63,12 +63,20 @@ public class GreenWallet {
         this.name = name;
     }
 
-    public Double getAmount() {
-        return amount;
+    public double getInitialAmount() {
+        return initialAmount;
     }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
+    public void setInitialAmount(double initialAmount) {
+        this.initialAmount = initialAmount;
+    }
+
+    public Double getCurrentAmount() {
+        return currentAmount;
+    }
+
+    public void setCurrentAmount(Double currentAmount) {
+        this.currentAmount = currentAmount;
     }
 
     public int getType() {
@@ -84,7 +92,8 @@ public class GreenWallet {
         setId(wallet.getId());
         setName(wallet.getName());
         setType(wallet.getType().ordinal());
-        setAmount(wallet.getAmount());
+        setInitialAmount(wallet.getInitialAmount());
+        setCurrentAmount(wallet.getCurrentAmount());
     }
     // KEEP METHODS END
 

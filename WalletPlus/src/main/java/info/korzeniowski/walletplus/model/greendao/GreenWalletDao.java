@@ -29,8 +29,9 @@ public class GreenWalletDao extends AbstractDao<GreenWallet, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property AccountId = new Property(1, Long.class, "accountId", false, "ACCOUNT_ID");
         public final static Property Name = new Property(2, String.class, "name", false, "NAME");
-        public final static Property Amount = new Property(3, Double.class, "amount", false, "AMOUNT");
-        public final static Property Type = new Property(4, int.class, "type", false, "TYPE");
+        public final static Property InitialAmount = new Property(3, double.class, "initialAmount", false, "INITIAL_AMOUNT");
+        public final static Property CurrentAmount = new Property(4, Double.class, "currentAmount", false, "CURRENT_AMOUNT");
+        public final static Property Type = new Property(5, int.class, "type", false, "TYPE");
     };
 
     private Query<GreenWallet> greenAccount_GreenWalletListQuery;
@@ -50,8 +51,9 @@ public class GreenWalletDao extends AbstractDao<GreenWallet, Long> {
                 "'_id' INTEGER PRIMARY KEY ," + // 0: id
                 "'ACCOUNT_ID' INTEGER," + // 1: accountId
                 "'NAME' TEXT NOT NULL ," + // 2: name
-                "'AMOUNT' REAL," + // 3: amount
-                "'TYPE' INTEGER NOT NULL );"); // 4: type
+                "'INITIAL_AMOUNT' REAL NOT NULL ," + // 3: initialAmount
+                "'CURRENT_AMOUNT' REAL," + // 4: currentAmount
+                "'TYPE' INTEGER NOT NULL );"); // 5: type
     }
 
     /** Drops the underlying database table. */
@@ -75,12 +77,13 @@ public class GreenWalletDao extends AbstractDao<GreenWallet, Long> {
             stmt.bindLong(2, accountId);
         }
         stmt.bindString(3, entity.getName());
+        stmt.bindDouble(4, entity.getInitialAmount());
  
-        Double amount = entity.getAmount();
-        if (amount != null) {
-            stmt.bindDouble(4, amount);
+        Double currentAmount = entity.getCurrentAmount();
+        if (currentAmount != null) {
+            stmt.bindDouble(5, currentAmount);
         }
-        stmt.bindLong(5, entity.getType());
+        stmt.bindLong(6, entity.getType());
     }
 
     /** @inheritdoc */
@@ -96,8 +99,9 @@ public class GreenWalletDao extends AbstractDao<GreenWallet, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // accountId
             cursor.getString(offset + 2), // name
-            cursor.isNull(offset + 3) ? null : cursor.getDouble(offset + 3), // amount
-            cursor.getInt(offset + 4) // type
+            cursor.getDouble(offset + 3), // initialAmount
+            cursor.isNull(offset + 4) ? null : cursor.getDouble(offset + 4), // currentAmount
+            cursor.getInt(offset + 5) // type
         );
         return entity;
     }
@@ -108,8 +112,9 @@ public class GreenWalletDao extends AbstractDao<GreenWallet, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setAccountId(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
         entity.setName(cursor.getString(offset + 2));
-        entity.setAmount(cursor.isNull(offset + 3) ? null : cursor.getDouble(offset + 3));
-        entity.setType(cursor.getInt(offset + 4));
+        entity.setInitialAmount(cursor.getDouble(offset + 3));
+        entity.setCurrentAmount(cursor.isNull(offset + 4) ? null : cursor.getDouble(offset + 4));
+        entity.setType(cursor.getInt(offset + 5));
      }
     
     /** @inheritdoc */

@@ -9,7 +9,8 @@ public class Wallet {
 
     private Long id;
     private String name;
-    private Double amount;
+    private Double initialAmount;
+    private Double currentAmount;
     private Type type;
 
     public Wallet() {
@@ -18,7 +19,8 @@ public class Wallet {
     public Wallet(Wallet wallet) {
         setId(wallet.getId());
         setName(wallet.getName());
-        setAmount(wallet.getAmount());
+        setInitialAmount(wallet.getInitialAmount());
+        setCurrentAmount(wallet.getCurrentAmount());
         setType(wallet.getType());
     }
 
@@ -40,12 +42,21 @@ public class Wallet {
         return this;
     }
 
-    public Double getAmount() {
-        return amount;
+    public Double getInitialAmount() {
+        return initialAmount;
     }
 
-    public Wallet setAmount(Double amount) {
-        this.amount = amount;
+    public Wallet setInitialAmount(Double initialAmount) {
+        this.initialAmount = initialAmount;
+        return this;
+    }
+
+    public Double getCurrentAmount() {
+        return currentAmount;
+    }
+
+    public Wallet setCurrentAmount(Double currentAmount) {
+        this.currentAmount = currentAmount;
         return this;
     }
 

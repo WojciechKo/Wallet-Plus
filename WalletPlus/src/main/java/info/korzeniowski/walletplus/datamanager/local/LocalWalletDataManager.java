@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
 import info.korzeniowski.walletplus.datamanager.local.validation.WalletValidator;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
 import info.korzeniowski.walletplus.model.greendao.GreenWallet;
 import info.korzeniowski.walletplus.model.greendao.GreenWalletDao;
 
@@ -51,9 +52,13 @@ public class LocalWalletDataManager implements WalletDataManager{
     }
 
     private Wallet getWalletFromGreenWallet(GreenWallet greenWallet) {
+        if (greenWallet == null) {
+            return null;
+        }
         Wallet wallet = new Wallet();
         wallet.setName(greenWallet.getName());
-        wallet.setAmount(greenWallet.getAmount());
+        wallet.setInitialAmount(greenWallet.getInitialAmount());
+        wallet.setCurrentAmount(greenWallet.getCurrentAmount());
         wallet.setId(greenWallet.getId());
         wallet.setType(Wallet.Type.values()[greenWallet.getType()]);
         return wallet;
@@ -100,7 +105,7 @@ public class LocalWalletDataManager implements WalletDataManager{
     }
 
     private void updateWalletLists(Wallet newValue, Wallet toUpdate) {
-        toUpdate.setAmount(newValue.getAmount());
+        toUpdate.setInitialAmount(newValue.getInitialAmount());
         toUpdate.setName(newValue.getName());
     }
 
@@ -129,5 +134,17 @@ public class LocalWalletDataManager implements WalletDataManager{
     @Override
     public List<Wallet> getContractors() {
         return contractors;
+    }
+
+    @Override
+    public Wallet findByNameAndType(String name, Wallet.Type type) {
+        List<GreenWallet> greenWalletList = greenWalletDao.queryBuilder().
+                where(GreenCategoryDao.Properties.Name.eq(name)).
+                where(GreenCategoryDao.Properties.Type.eq(type.ordinal())).
+                build().list();
+        if (greenWalletList.isEmpty()) {
+            return null;
+        }
+        return getWalletFromGreenWallet(greenWalletList.get(0));
     }
 }

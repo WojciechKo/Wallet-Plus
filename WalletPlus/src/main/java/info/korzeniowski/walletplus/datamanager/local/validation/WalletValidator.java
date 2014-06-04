@@ -1,7 +1,10 @@
 package info.korzeniowski.walletplus.datamanager.local.validation;
 
+import com.google.common.base.Objects;
+
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.WalletHaveToHaveTypeException;
+import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeNullException;
+import info.korzeniowski.walletplus.datamanager.exception.WalletNameAndTypeMustBeUniqueException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletTypeCannotBeChangedException;
 import info.korzeniowski.walletplus.model.Wallet;
 
@@ -14,14 +17,44 @@ public class WalletValidator implements Validator<Wallet>{
 
     @Override
     public void validateInsert(Wallet wallet) {
+        validateIfTypeIsNotNull(wallet);
+        validateIfInitialAmountIsNotNull(wallet);
+        validateIfNameAndTypeAreUnique(wallet);
+    }
+
+    private void validateIfTypeIsNotNull(Wallet wallet) {
         if (wallet.getType() == null) {
-            throw new WalletHaveToHaveTypeException();
+            throw new EntityPropertyCannotBeNullException(wallet.getClass().getSimpleName(), "Type");
+        }
+    }
+
+    private void validateIfInitialAmountIsNotNull(Wallet wallet) {
+        if (wallet.getInitialAmount() == null) {
+            throw new EntityPropertyCannotBeNullException(wallet.getClass().getSimpleName(), "InitialAmount");
+        }
+    }
+
+    private void validateIfNameAndTypeAreUnique(Wallet wallet) {
+        if (walletDataManager.findByNameAndType(wallet.getName(), wallet.getType()) != null) {
+            throw new WalletNameAndTypeMustBeUniqueException(wallet.getName());
         }
     }
 
     @Override
     public void validateUpdate(Wallet newWallet, Wallet oldWallet) {
-        if (!newWallet.getType().equals(oldWallet.getType())) {
+        validateIfNewNameIsUnique(newWallet, oldWallet);
+        validateIfWalletTypeNotChanged(newWallet, oldWallet);
+    }
+
+    private void validateIfNewNameIsUnique(Wallet newValue, Wallet toUpdate) {
+        if (!(Objects.equal(newValue.getName(), toUpdate.getName()) &&
+                Objects.equal(newValue.getType(), toUpdate.getType()))) {
+            validateIfNameAndTypeAreUnique(newValue);
+        }
+    }
+
+    private void validateIfWalletTypeNotChanged(Wallet newWallet, Wallet oldWallet) {
+        if (!Objects.equal(newWallet.getType(), oldWallet.getType())) {
             throw new WalletTypeCannotBeChangedException();
         }
     }
