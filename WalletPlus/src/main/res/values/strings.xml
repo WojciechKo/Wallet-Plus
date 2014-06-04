@@ -20,5 +20,7 @@
     <string name="is_main_category">Is main category</string>
     <string name="category_have_children">Selected category contain at last one subcategory</string>
     <string name="do_you_want_to_delete_with_subcategories">Do you want to delete with every subcategories?</string>
+    <string name="wallets_title">Wallets</string>
+    <string name="initialValue">Initial value:</string>
 
 </resources>

@@ -12,19 +12,23 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.datamanager.AccountDataManager;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
+import info.korzeniowski.walletplus.datamanager.WalletDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalAccountDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCashFlowDataManager;
+import info.korzeniowski.walletplus.datamanager.local.LocalWalletDataManager;
 import info.korzeniowski.walletplus.datamanager.local.validation.CategoryValidator;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
 import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
+import info.korzeniowski.walletplus.drawermenu.wallet.WalletFragment_;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
 import info.korzeniowski.walletplus.model.greendao.DaoSession;
 import info.korzeniowski.walletplus.model.greendao.GreenAccountDao;
 import info.korzeniowski.walletplus.model.greendao.GreenCashFlowDao;
 import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
+import info.korzeniowski.walletplus.model.greendao.GreenWalletDao;
 
 
 /**
@@ -39,7 +43,9 @@ import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
                 LocalCategoryDataManager.class,
 
                 CashFlowDetailsFragment_.class,
-                CashFlowListFragment_.class
+                CashFlowListFragment_.class,
+
+                WalletFragment_.class
         }
 )
 public class DatabaseModule {
@@ -98,5 +104,21 @@ public class DatabaseModule {
     @Singleton
     public CashFlowDataManager provideCashFlowDataManager(LocalCashFlowDataManager localCashFlowDataManager) {
         return localCashFlowDataManager;
+    }
+
+    /****************
+     * WALLET
+     ***************/
+    @Provides
+    @Singleton
+    public GreenWalletDao provideGreenWalletDao() {
+        return daoSession.getGreenWalletDao();
+    }
+
+    @Provides
+    @Named("local")
+    @Singleton
+    public WalletDataManager provideWalletDataManager(LocalWalletDataManager localWalletDataManager) {
+        return localWalletDataManager;
     }
 }
