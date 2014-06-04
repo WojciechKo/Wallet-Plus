@@ -6,11 +6,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -34,8 +32,8 @@ import info.korzeniowski.walletplus.model.Category;
 /**
  * Fragment with list of categories.
  */
-@EFragment(R.layout.category_list)
 @OptionsMenu(R.menu.action_new)
+@EFragment(R.layout.category_list)
 public class CategoryListFragment extends Fragment {
     public static final String CATEGORY_TYPE = "categoryType";
     public static final int ONLY_INCOME = 1;
@@ -69,8 +67,7 @@ public class CategoryListFragment extends Fragment {
                     categoryId = ((ExpandableListView) parent).getExpandableListAdapter().getGroupId(groupPosition);
                 else
                     categoryId = ((ExpandableListView) parent).getExpandableListAdapter().getChildId(groupPosition, childPosition);
-                Toast.makeText(getActivity(),"Przytrzymano: gr:" + groupPosition + " child: " + childPosition + "id: " + categoryId, Toast.LENGTH_SHORT).show();
-                ((ActionBarActivity) getActivity()).startSupportActionMode(new ActionModeAfterLongPress(categoryId));
+                ((ActionBarActivity) getActivity()).startSupportActionMode(new ActionModeCallbackAfterLongPress(categoryId));
                 return true;
             }
         });
@@ -86,7 +83,6 @@ public class CategoryListFragment extends Fragment {
     }
 
     private void startCategoryDetailsFragment(Long id) {
-        Log.d("WalletPlus", "CategoryList.startCategoryDetailsFragment");
         Fragment fragment= new CategoryDetailsFragment_();
         Bundle bundle = new Bundle();
         bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, id);
@@ -95,7 +91,6 @@ public class CategoryListFragment extends Fragment {
     }
 
     private List<Category> getCategoryList(int type) {
-        Log.d("WalletPlus", "CategoryList.getCategoryList");
         switch (type) {
             case ONLY_INCOME:
                 return localCategoryDataManager.getMainIncomeTypeCategories();
@@ -107,13 +102,10 @@ public class CategoryListFragment extends Fragment {
         throw new RuntimeException("Inacceptable category type: " + type);
     }
 
-    /**********************************************************************
-     *
-     */
-    private final class ActionModeAfterLongPress implements ActionMode.Callback {
+    private final class ActionModeCallbackAfterLongPress implements ActionMode.Callback {
         private final Long id;
 
-        public ActionModeAfterLongPress(Long id) {
+        public ActionModeCallbackAfterLongPress(Long id) {
             this.id = id;
         }
 
@@ -138,7 +130,7 @@ public class CategoryListFragment extends Fragment {
                     try {
                         localCategoryDataManager.deleteById(id);
                     } catch (CannotDeleteCategoryWithChildrenException e) {
-                        buildAlertDialog().show();
+                        buildIfDeleteWithSubcategoryAlertDialog().show();
                     }
                     break;
             }
@@ -146,7 +138,7 @@ public class CategoryListFragment extends Fragment {
             return true;
         }
 
-        private AlertDialog buildAlertDialog() {
+        private AlertDialog buildIfDeleteWithSubcategoryAlertDialog() {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(localCategoryDataManager.findById(id).getName());
             builder.setMessage(R.string.category_have_children + "\n\n" + R.string.do_you_want_to_delete_with_subcategories);
