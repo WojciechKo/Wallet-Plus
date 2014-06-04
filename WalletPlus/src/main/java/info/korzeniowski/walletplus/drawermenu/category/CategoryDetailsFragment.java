@@ -3,7 +3,6 @@ package info.korzeniowski.walletplus.drawermenu.category;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,8 +33,8 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.model.Category;
 
-@EFragment(R.layout.category_details_fragment)
 @OptionsMenu(R.menu.action_save)
+@EFragment(R.layout.category_details_fragment)
 public class CategoryDetailsFragment extends Fragment {
     private enum DetailsType {ADD, EDIT}
     static final public String CATEGORY_ID = "CATEGORY_ID";
@@ -78,34 +77,29 @@ public class CategoryDetailsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d("WalletPlus", "CategoryDetails.onCreateView");
         categoryId = getArguments().getLong(CATEGORY_ID);
         type = categoryId == 0L ? DetailsType.ADD : DetailsType.EDIT;
-        if (type.equals(DetailsType.EDIT)) {
-            category = getCategory();
-        }
+        category = getCategory();
         return null;
     }
 
     @AfterViews
     void setupViews() {
-        Log.d("WalletPlus", "CategoryDetails.setupViews");
         setupAdapters();
         setupListeners();
-        if (type.equals(DetailsType.ADD)) {
-            category = new Category();
-        } else if (type.equals(DetailsType.EDIT)) {
-            fillViewsWithData();
-        }
+        fillViewsWithData();
     }
 
     private Category getCategory() {
-        return localCategoryDataManager.findById(categoryId);
+        if (type.equals(DetailsType.EDIT)) {
+            return localCategoryDataManager.findById(categoryId);
+        }
+        return new Category();
     }
 
     private void setupAdapters() {
         parentCategory.setAdapter(
-                new ParentSpinnerAdapter(
+                new ParentCategorySpinnerAdapter(
                         getActivity(),
                         android.R.layout.simple_spinner_item,
                         localCategoryDataManager.getMainCategories()
@@ -162,7 +156,6 @@ public class CategoryDetailsFragment extends Fragment {
 
     @OptionsItem(R.id.menu_save)
     void actionSave() {
-        Log.d("WalletPlus", "CategoryDetails.actionSave");
         getDataFromViews();
         if (DetailsType.ADD.equals(type)) {
             localCategoryDataManager.insert(category);
@@ -173,15 +166,16 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     private void fillViewsWithData() {
-        Category category = localCategoryDataManager.findById(categoryId);
-        categoryName.setText(category.getName());
-        if (category.getParent() != null) {
-            Category parent = localCategoryDataManager.findById(category.getParentId());
-            isMainCategory.setChecked(false);
-            parentCategory.setSelection(localCategoryDataManager.getMainCategories().indexOf(parent));
+        if (type.equals(DetailsType.EDIT)) {
+            categoryName.setText(category.getName());
+            if (category.getParent() != null) {
+                Category parent = localCategoryDataManager.findById(category.getParentId());
+                isMainCategory.setChecked(false);
+                parentCategory.setSelection(localCategoryDataManager.getMainCategories().indexOf(parent));
+            }
+            categoryIncomeType.setChecked(category.getTypes().contains(Category.Type.INCOME));
+            categoryExpenseType.setChecked(category.getTypes().contains(Category.Type.EXPENSE));
         }
-        categoryIncomeType.setChecked(category.getTypes().contains(Category.Type.INCOME));
-        categoryExpenseType.setChecked(category.getTypes().contains(Category.Type.EXPENSE));
     }
 
     public void getDataFromViews() {
@@ -201,9 +195,9 @@ public class CategoryDetailsFragment extends Fragment {
         }
     }
 
-    private class ParentSpinnerAdapter extends ArrayAdapter<Category> {
+    private class ParentCategorySpinnerAdapter extends ArrayAdapter<Category> {
 
-        public ParentSpinnerAdapter(Context context, int resource, List<Category> objects) {
+        public ParentCategorySpinnerAdapter(Context context, int resource, List<Category> objects) {
             super(context, resource, objects);
         }
         @Override
