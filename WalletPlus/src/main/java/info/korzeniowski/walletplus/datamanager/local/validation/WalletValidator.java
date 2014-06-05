@@ -3,7 +3,7 @@ package info.korzeniowski.walletplus.datamanager.local.validation;
 import com.google.common.base.Objects;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeNullException;
+import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeEmptyException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletNameAndTypeMustBeUniqueException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletTypeCannotBeChangedException;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -18,19 +18,21 @@ public class WalletValidator implements Validator<Wallet>{
     @Override
     public void validateInsert(Wallet wallet) {
         validateIfTypeIsNotNull(wallet);
-        validateIfInitialAmountIsNotNull(wallet);
+        if (wallet.getType().equals(Wallet.Type.MY_WALLET)) {
+            validateIfInitialAmountIsNotNull(wallet);
+        }
         validateIfNameAndTypeAreUnique(wallet);
     }
 
     private void validateIfTypeIsNotNull(Wallet wallet) {
         if (wallet.getType() == null) {
-            throw new EntityPropertyCannotBeNullException(wallet.getClass().getSimpleName(), "Type");
+            throw new EntityPropertyCannotBeEmptyException(wallet.getClass().getSimpleName(), "Type");
         }
     }
 
     private void validateIfInitialAmountIsNotNull(Wallet wallet) {
         if (wallet.getInitialAmount() == null) {
-            throw new EntityPropertyCannotBeNullException(wallet.getClass().getSimpleName(), "InitialAmount");
+            throw new EntityPropertyCannotBeEmptyException(wallet.getClass().getSimpleName(), "InitialAmount");
         }
     }
 

@@ -15,15 +15,8 @@ import org.robolectric.annotation.Config;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.CannotDeleteCategoryWithChildrenException;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveNoTypesSetException;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryIsNotMainCategoryException;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenIdAlreadyExistsException;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenNameAlreadyExistsException;
-import info.korzeniowski.walletplus.datamanager.exception.SubCategoryHaveDifferentTypeThanParentException;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
@@ -32,7 +25,6 @@ import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
-import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
@@ -127,105 +119,6 @@ public class LocalCategoryDataManagerTest {
         assertThat(categoryDataManager.getMainIncomeTypeCategories()).hasSize(numberOfIncomeMain);
         assertThat(categoryDataManager.getMainExpenseTypeCategories()).hasSize(numberOfExpenseMain);
         assertThat(categoryDataManager.getMainCategories().get(0).getChildren()).hasSize(2);
-    }
-
-    @Test
-    public void insertWithDuplicatedIdShouldThrowException() {
-        Long id = categoryDataManager.insert(new Category().setName("Main 1").setTypes(Category.Type.INCOME));
-
-        try {
-            categoryDataManager.insert(new Category().setId(id).setName("Main 2"));
-            failBecauseExceptionWasNotThrown(CategoryWithGivenIdAlreadyExistsException.class);
-        } catch (CategoryWithGivenIdAlreadyExistsException e) {
-            assertThat(categoryDataManager.count()).isEqualTo(1);
-        }
-    }
-
-    @Test
-    public void insertMainWithDuplicatedNameShouldThrowException() {
-        categoryDataManager.insert(new Category().setName("Main").setTypes(Category.Type.INCOME));
-
-        try {
-            categoryDataManager.insert(new Category().setName("Main").setTypes(Category.Type.EXPENSE));
-            failBecauseExceptionWasNotThrown(CategoryWithGivenNameAlreadyExistsException.class);
-        } catch (CategoryWithGivenNameAlreadyExistsException e) {
-            assertThat(categoryDataManager.count()).isEqualTo(1);
-        }
-
-        try {
-            categoryDataManager.insert(new Category().setName("Main").setTypes(Category.Type.INCOME));
-            failBecauseExceptionWasNotThrown(CategoryWithGivenNameAlreadyExistsException.class);
-        } catch (CategoryWithGivenNameAlreadyExistsException e) {
-            assertThat(categoryDataManager.count()).isEqualTo(1);
-        }
-    }
-
-    @Test
-    public void insertSubWithDuplicatedNameShouldThrowException() {
-        String main1Name = "Main 1";
-        String main2Name = "Main 2";
-        String sub1OfMain1 = "Sub 1 Of Main 1";
-        String[] categoryNames = {main1Name, main2Name, sub1OfMain1};
-        Category parentCategory = new Category().setName(main1Name).setTypes(Category.Type.INCOME);
-        Long parentId = categoryDataManager.insert(parentCategory);
-        categoryDataManager.insert(new Category().setName(main2Name).setTypes(Category.Type.EXPENSE));
-        categoryDataManager.insert(new Category().setName(sub1OfMain1).setParentId(parentId));
-
-        for (String categoryName : categoryNames) {
-            testIfInsertCategoryWithNameWillThrowException(categoryName);
-            testIfInsertCategoryWithNameWillThrowException(categoryName, parentId);
-        }
-    }
-
-    private void testIfInsertCategoryWithNameWillThrowException(String name) {
-        testIfInsertCategoryWithNameWillThrowException(name, 0);
-    }
-
-    private void testIfInsertCategoryWithNameWillThrowException(String name, long parentId) {
-        EnumSet<Category.Type> types = EnumSet.noneOf(Category.Type.class);
-        if (parentId == 0) {
-            types = EnumSet.of(Category.Type.INCOME);
-        }
-
-        Long categoryCountBeforeInsert = categoryDataManager.count();
-        try {
-            categoryDataManager.insert(new Category().setName("Main 1").setParentId(parentId).setTypes(types));
-            failBecauseExceptionWasNotThrown(CategoryWithGivenNameAlreadyExistsException.class);
-        } catch (CategoryWithGivenNameAlreadyExistsException e) {
-            assertThat(categoryDataManager.count()).isEqualTo(categoryCountBeforeInsert);
-        }
-    }
-
-    @Test
-    public void insertSubOfSubShouldThrowException() {
-        Long parentCategoryId = categoryDataManager.insert(new Category().setName("Main").setTypes(Category.Type.INCOME));
-        Long subcategoryId = categoryDataManager.insert(new Category().setParentId(parentCategoryId).setName("Sub"));
-
-        try {
-            categoryDataManager.insert(new Category().setParentId(subcategoryId).setName("Sub of Sub"));
-            failBecauseExceptionWasNotThrown(CategoryIsNotMainCategoryException.class);
-        } catch (CategoryIsNotMainCategoryException e) {
-        }
-    }
-
-    @Test
-    public void insertMainCategoryWithoutTypeShouldThrowException() {
-        try {
-            categoryDataManager.insert(new Category().setName("Main"));
-            failBecauseExceptionWasNotThrown(CategoryHaveNoTypesSetException.class);
-        } catch (CategoryHaveNoTypesSetException e) {
-
-        }
-    }
-
-    @Test
-    public void insertSubCategoryWithDifferentTypeThanParentShouldThrowException() {
-        Long parentId = categoryDataManager.insert(new Category().setName("Main").setTypes(Category.Type.INCOME));
-        try {
-            categoryDataManager.insert(new Category().setName("Sub").setTypes(EnumSet.of(Category.Type.INCOME, Category.Type.EXPENSE)).setParentId(parentId));
-            failBecauseExceptionWasNotThrown(SubCategoryHaveDifferentTypeThanParentException.class);
-        } catch (SubCategoryHaveDifferentTypeThanParentException e) {
-        }
     }
 
     @Test
@@ -454,19 +347,6 @@ public class LocalCategoryDataManagerTest {
 
         assertThat(categoryDataManager.getMainCategories()).hasSize(1);
         assertThat(categoryDataManager.count()).isEqualTo(2);
-    }
-
-    @Test
-    public void deleteMainCategoryWithSubShouldThrowException() {
-        Long parentId = categoryDataManager.insert(new Category().setName("Main").setTypes(Category.Type.EXPENSE));
-        categoryDataManager.insert(new Category().setName("Sub").setParentId(parentId));
-
-        try {
-            categoryDataManager.deleteById(parentId);
-            failBecauseExceptionWasNotThrown(CannotDeleteCategoryWithChildrenException.class);
-        } catch (CannotDeleteCategoryWithChildrenException e) {
-
-        }
     }
 
     @Test

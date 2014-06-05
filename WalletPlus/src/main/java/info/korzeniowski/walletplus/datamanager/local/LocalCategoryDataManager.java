@@ -11,7 +11,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.CannotDeleteCategoryWithChildrenException;
 import info.korzeniowski.walletplus.datamanager.local.modelfactory.CategoryFactory;
 import info.korzeniowski.walletplus.datamanager.local.validation.CategoryValidator;
 import info.korzeniowski.walletplus.model.Category;
@@ -194,6 +193,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     @Override
     public void deleteById(Long id) {
         Category categoryToDelete = findById(id);
+        categoryValidator.validateDelete(categoryToDelete);
         if (categoryToDelete.getParentId() == null) {
             deleteMainCategory(categoryToDelete);
         } else {
@@ -202,13 +202,9 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     }
 
     private void deleteMainCategory(final Category categoryToDelete) {
-        if (getSubCategoriesOf(categoryToDelete.getId()).isEmpty()) {
-            greenCategoryDao.deleteByKey(categoryToDelete.getId());
-            removeById(mainCategories, categoryToDelete.getId());
-            removeById(categories, categoryToDelete.getId());
-        } else {
-            throw new CannotDeleteCategoryWithChildrenException(categoryToDelete);
-        }
+        greenCategoryDao.deleteByKey(categoryToDelete.getId());
+        removeById(mainCategories, categoryToDelete.getId());
+        removeById(categories, categoryToDelete.getId());
     }
 
     private void deleteSubCategory(final Category categoryToDelete) {

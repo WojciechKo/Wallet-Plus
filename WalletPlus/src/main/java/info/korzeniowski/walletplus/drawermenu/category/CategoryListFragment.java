@@ -26,7 +26,7 @@ import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.CannotDeleteCategoryWithChildrenException;
+import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.model.Category;
 
 /**
@@ -129,7 +129,7 @@ public class CategoryListFragment extends Fragment {
                 case R.id.menu_delete:
                     try {
                         localCategoryDataManager.deleteById(id);
-                    } catch (CannotDeleteCategoryWithChildrenException e) {
+                    } catch (CategoryHaveSubsException e) {
                         buildIfDeleteWithSubcategoryAlertDialog().show();
                     }
                     break;

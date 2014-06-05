@@ -11,7 +11,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeNullException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletNameAndTypeMustBeUniqueException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletTypeCannotBeChangedException;
 import info.korzeniowski.walletplus.datamanager.local.LocalWalletDataManager;
@@ -122,25 +121,5 @@ public class LocalWalletDataManagerTest {
 
         assertThat(walletDataManager.getMyWallets()).hasSize(1);
         assertThat(walletDataManager.getContractors()).hasSize(1);
-    }
-
-    @Test
-    public void walletShouldHaveType() {
-        try {
-            walletDataManager.insert(new Wallet().setName("TestName").setInitialAmount(11.1));
-            failBecauseExceptionWasNotThrown(EntityPropertyCannotBeNullException.class);
-        } catch (EntityPropertyCannotBeNullException e) {
-            assertThat(e.getProperty().equals("Type"));
-        }
-    }
-
-    @Test
-    public void walletShouldHaveInitialAmount() {
-        try {
-            walletDataManager.insert(new Wallet().setName("TestName").setInitialAmount(11.1));
-            failBecauseExceptionWasNotThrown(EntityPropertyCannotBeNullException.class);
-        } catch (EntityPropertyCannotBeNullException e) {
-            assertThat(e.getProperty().equals("InitialAmount"));
-        }
     }
 }
