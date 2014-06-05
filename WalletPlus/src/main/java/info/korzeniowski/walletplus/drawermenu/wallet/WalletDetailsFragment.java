@@ -2,6 +2,8 @@ package info.korzeniowski.walletplus.drawermenu.wallet;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +30,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 @OptionsMenu(R.menu.action_save)
 @EFragment(R.layout.wallet_details_fragment)
 public class WalletDetailsFragment extends Fragment {
-    private enum DetailsType {ADD, EDIT;}
+    private enum DetailsType {ADD, EDIT}
     static final String WALLET_ID = "WALLET_ID";
 
     @ViewById
@@ -45,6 +47,8 @@ public class WalletDetailsFragment extends Fragment {
     private Wallet wallet;
     private DetailsType type;
 
+    private String originalName;
+
     @AfterInject
     void daggerInject() {
         ((WalletPlus) getActivity().getApplication()).inject(this);
@@ -55,7 +59,17 @@ public class WalletDetailsFragment extends Fragment {
         walletId = getArguments().getLong(WALLET_ID);
         type = walletId == 0L ? DetailsType.ADD : DetailsType.EDIT;
         wallet = getWallet();
+        if (type.equals(DetailsType.EDIT)) {
+            originalName = wallet.getName();
+        }
         return null;
+    }
+
+    private Wallet getWallet() {
+        if (type.equals(DetailsType.EDIT)) {
+            return localWalletDataManager.findById(walletId);
+        }
+        return new Wallet();
     }
 
     @AfterViews
@@ -65,35 +79,45 @@ public class WalletDetailsFragment extends Fragment {
         fillViewsWithData();
     }
 
-    private void setupListeners() {
-        walletName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    validateIfEmpty(v, getString(R.string.walletNameCantBeEmpty));
-                }
-            }
-        });
-
-        walletInitialAmount.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus) {
-                    validateIfEmpty(v, getString(R.string.initialAmountCantBeEmpty));
-                }
-            }
-        });
-    }
-
-    private void validateIfEmpty(View view, String errorMsg) {
-        TextView textView = (TextView) view;
-        if (Strings.isNullOrEmpty(textView.getText().toString())) {
-            textView.setError(errorMsg);
-        }
-    }
-
     private void setupAdapters() {
 
+    }
+
+    private void setupListeners() {
+        walletName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                walletName.setError(null);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validateIfEmpty(walletName, getString(R.string.walletNameCantBeEmpty));
+                validateIfNameIsUnique();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        walletInitialAmount.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                walletInitialAmount.setError(null);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validateIfEmpty(walletInitialAmount, getString(R.string.walletInitialAmountCantBeEmpty));
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
     }
 
     private void fillViewsWithData() {
@@ -109,16 +133,9 @@ public class WalletDetailsFragment extends Fragment {
         wallet.setInitialAmount(Double.parseDouble(initialAmount));
     }
 
-    private Wallet getWallet() {
-        if (type.equals(DetailsType.EDIT)) {
-            return localWalletDataManager.findById(walletId);
-        }
-        return new Wallet();
-    }
-
     @OptionsItem(R.id.menu_save)
     void actionSave() {
-        if (validate()) {
+        if (validateIfEmptyFields()) {
             getDataFromViews();
             wallet.setType(Wallet.Type.MY_WALLET);
             try {
@@ -129,21 +146,34 @@ public class WalletDetailsFragment extends Fragment {
                 }
                 getActivity().getSupportFragmentManager().popBackStack();
             } catch (WalletNameAndTypeMustBeUniqueException e) {
-                walletName.setError("Wallet name have to be unique.");
+                walletName.setError(getString(R.string.walletNameHaveToBeUnique));
             }
         }
     }
 
-    private boolean validate() {
+    private boolean validateIfEmptyFields() {
         validateIfEmpty(walletName, getString(R.string.walletNameCantBeEmpty));
-        validateIfEmpty(walletInitialAmount, getString(R.string.initialAmountCantBeEmpty));
+        validateIfEmpty(walletInitialAmount, getString(R.string.walletInitialAmountCantBeEmpty));
         return !isAnyErrorsAppear();
     }
+
+    private void validateIfEmpty(TextView textView, String errorMsg) {
+        if (Strings.isNullOrEmpty(textView.getText().toString())) {
+            textView.setError(errorMsg);
+        }
+    }
+
+    private void validateIfNameIsUnique() {
+        Wallet found = localWalletDataManager.findByNameAndType(walletName.getText().toString(), Wallet.Type.MY_WALLET);
+        if (found != null && !found.getName().equals(originalName)) {
+            walletName.setError(getString(R.string.walletNameHaveToBeUnique));
+        }
+    }
+
     private boolean isAnyErrorsAppear() {
         if (walletName.getError() != null) {
             return true;
-        }
-        if (walletInitialAmount.getError() != null) {
+        } else if (walletInitialAmount.getError() != null) {
             return true;
         }
         return false;

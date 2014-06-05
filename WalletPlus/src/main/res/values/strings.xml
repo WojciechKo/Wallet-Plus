@@ -25,6 +25,7 @@
     <string name="wallet_name_label">Wallet name:</string>
     <string name="wallet_initial_amount_label">Initial amount:</string>
     <string name="walletNameCantBeEmpty">Wallet name can\'t be empty.</string>
-    <string name="initialAmountCantBeEmpty">Initial amount can\'t be empty.</string>
+    <string name="walletInitialAmountCantBeEmpty">Initial amount can\'t be empty.</string>
+    <string name="walletNameHaveToBeUnique">Wallet name have to be unique.</string>
 
 </resources>
