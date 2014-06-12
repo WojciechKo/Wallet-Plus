@@ -11,6 +11,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
+import info.korzeniowski.walletplus.datamanager.local.modelfactory.CashFlowFactory;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.greendao.GreenCashFlow;
 import info.korzeniowski.walletplus.model.greendao.GreenCashFlowDao;
@@ -51,7 +52,7 @@ public class LocalCashFlowDataManager implements CashFlowDataManager {
     private List<CashFlow> getCategoryListFromGreenCategoryList(List<GreenCashFlow> greenCashFlows) {
         List<CashFlow> cashFlowList = new ArrayList<CashFlow>();
         for(GreenCashFlow greenCashFlow : greenCashFlows) {
-            cashFlowList.add(GreenCashFlow.toCashFlow(greenCashFlow));
+            cashFlowList.add(CashFlowFactory.createCashFlow(greenCashFlow));
         }
         return cashFlowList;
     }
@@ -64,10 +65,11 @@ public class LocalCashFlowDataManager implements CashFlowDataManager {
         toUpdate.setCategoryId(cashFlow.getCategoryId());
         toUpdate.setComment(cashFlow.getComment());
         toUpdate.setDateTime(cashFlow.getDateTime());
-        greenCashFlowDao.update(new GreenCashFlow(cashFlow));
+        greenCashFlowDao.update(CashFlowFactory.createGreenCashFlow(cashFlow));
     }
 
     private void validateUpdate(CashFlow cashFlow) {
+        //TODO: if exists
     }
 
     @Override

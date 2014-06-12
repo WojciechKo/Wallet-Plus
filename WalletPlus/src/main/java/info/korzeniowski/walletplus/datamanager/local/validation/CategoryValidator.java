@@ -2,18 +2,18 @@ package info.korzeniowski.walletplus.datamanager.local.validation;
 
 import com.google.common.base.Objects;
 
-import java.util.NoSuchElementException;
-
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveChildrenException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveNoParentException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveNoTypesSetException;
-import info.korzeniowski.walletplus.datamanager.exception.SubCategoryHaveDifferentTypeThanParentException;
+import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveParentException;
+import info.korzeniowski.walletplus.datamanager.exception.CategoryIsNotMainCategoryException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenIdAlreadyExistsException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryWithGivenNameAlreadyExistsException;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryIsNotMainCategoryException;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveParentException;
+import info.korzeniowski.walletplus.datamanager.exception.SubCategoryHaveDifferentTypeThanParentException;
 import info.korzeniowski.walletplus.model.Category;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class CategoryValidator {
     private final CategoryDataManager categoryDataManager;
@@ -88,16 +88,14 @@ public class CategoryValidator {
         if (category.getTypes().isEmpty()) {
             return;
         }
-        try {
-            Category parent = categoryDataManager.findById(category.getParentId());
-            if (!parent.getTypes().equals(category.getTypes())) {
-                throw new SubCategoryHaveDifferentTypeThanParentException(
-                        "Category name: " + category.getName() + " have different Types than parent " + parent.getName());
-            }
-        } catch (NoSuchElementException e) {
+        Category parent = categoryDataManager.findById(category.getParentId());
+        if (parent == null) {
             throw new CategoryHaveNoParentException("Category name: " + category.getName());
         }
-
+        if (!parent.getTypes().equals(category.getTypes())) {
+            throw new SubCategoryHaveDifferentTypeThanParentException(
+                    "Category name: " + category.getName() + " have different Types than parent " + parent.getName());
+        }
     }
 
     private void validateIfCategoryHaveType(Category category) {
@@ -125,27 +123,23 @@ public class CategoryValidator {
     }
 
     private void validateIfNameIsUnique(String name) {
+        //TODO: czy potrzebne
         if (name == null) return;
-        try {
-            categoryDataManager.findByName(name);
-        } catch (NoSuchElementException e) {
-            return;
+        if (categoryDataManager.findByName(name) != null) {
+            throw new CategoryWithGivenNameAlreadyExistsException(name);
         }
-        throw new CategoryWithGivenNameAlreadyExistsException(name);
     }
 
     private void validateIfIdIsUnique(Long id) {
+        //TODO: czy to potrzebne
         if (id == null) return;
-        try {
-            categoryDataManager.findById(id);
-        } catch (NoSuchElementException e) {
-            return;
+        if (categoryDataManager.findById(id) != null) {
+            throw new CategoryWithGivenIdAlreadyExistsException("Category id: " + id);
         }
-        throw new CategoryWithGivenIdAlreadyExistsException("Category id: " + id);
     }
 
     private boolean isMainCategory(final Long id) {
-        return Category.tryFindById(categoryDataManager.getMainCategories(), id) != null;
+        return Category.findById(categoryDataManager.getMainCategories(), id) != null;
     }
 
     protected abstract class UpdateApplier {

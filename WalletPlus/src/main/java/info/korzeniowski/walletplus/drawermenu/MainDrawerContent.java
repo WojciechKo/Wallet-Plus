@@ -11,7 +11,6 @@ import javax.inject.Singleton;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryFragment;
 import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment_;
-import info.korzeniowski.walletplus.drawermenu.wallet.WalletFragment;
 import info.korzeniowski.walletplus.drawermenu.wallet.WalletFragment_;
 
 /**

@@ -1,7 +1,5 @@
 package info.korzeniowski.walletplus.model;
 
-import com.google.common.collect.Lists;
-
 import java.util.List;
 
 public class Wallet {
@@ -14,14 +12,6 @@ public class Wallet {
     private Type type;
 
     public Wallet() {
-    }
-
-    public Wallet(Wallet wallet) {
-        setId(wallet.getId());
-        setName(wallet.getName());
-        setInitialAmount(wallet.getInitialAmount());
-        setCurrentAmount(wallet.getCurrentAmount());
-        setType(wallet.getType());
     }
 
     public Long getId() {
@@ -77,14 +67,4 @@ public class Wallet {
         }
         return null;
     }
-
-    public static List<Wallet> copyList(List<Wallet> wallets) {
-        List<Wallet> copy = Lists.newArrayListWithExpectedSize(wallets.size());
-        for(Wallet wallet : wallets) {
-            copy.add(new Wallet(wallet));
-        }
-        return copy;
-    }
-
-
 }

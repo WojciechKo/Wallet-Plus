@@ -12,7 +12,6 @@ import org.robolectric.annotation.Config;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
 import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeNullException;
-import info.korzeniowski.walletplus.datamanager.exception.WalletHaveToHaveTypeException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletNameAndTypeMustBeUniqueException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletTypeCannotBeChangedException;
 import info.korzeniowski.walletplus.datamanager.local.LocalWalletDataManager;

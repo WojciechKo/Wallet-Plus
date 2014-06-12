@@ -9,6 +9,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
+import info.korzeniowski.walletplus.datamanager.local.modelfactory.WalletFactory;
 import info.korzeniowski.walletplus.datamanager.local.validation.WalletValidator;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
@@ -69,7 +70,7 @@ public class LocalWalletDataManager implements WalletDataManager{
         checkNotNull(wallet);
         walletValidator.validateInsert(wallet);
 
-        wallet.setId(greenWalletDao.insert(new GreenWallet(wallet)));
+        wallet.setId(greenWalletDao.insert(WalletFactory.createGreenWallet(wallet)));
         if (wallet.getType().equals(Wallet.Type.CONTRACTOR)) {
             contractors.add(wallet);
         } else if (wallet.getType().equals(Wallet.Type.MY_WALLET)) {
@@ -88,19 +89,19 @@ public class LocalWalletDataManager implements WalletDataManager{
     @Override
     public Wallet findById(Long id) {
         Wallet found = Wallet.findById(getMyWallets(), id);
-        return new Wallet(found);
+        return WalletFactory.createWallet(found);
     }
 
     @Override
     public List<Wallet> getAll() {
-       return Wallet.copyList(wallets);
+       return WalletFactory.createWalletList(wallets);
     }
 
     @Override
     public void update(Wallet newValue) {
         Wallet toUpdate = Wallet.findById(wallets, newValue.getId());
         walletValidator.validateUpdate(newValue, toUpdate);
-        greenWalletDao.update(new GreenWallet(toUpdate));
+        greenWalletDao.update(WalletFactory.createGreenWallet(toUpdate));
         updateWalletLists(newValue, toUpdate);
     }
 

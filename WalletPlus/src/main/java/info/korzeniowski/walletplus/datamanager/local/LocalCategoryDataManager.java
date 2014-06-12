@@ -10,8 +10,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import info.korzeniowski.walletplus.datamanager.exception.CannotDeleteCategoryWithChildrenException;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
+import info.korzeniowski.walletplus.datamanager.exception.CannotDeleteCategoryWithChildrenException;
+import info.korzeniowski.walletplus.datamanager.local.modelfactory.CategoryFactory;
 import info.korzeniowski.walletplus.datamanager.local.validation.CategoryValidator;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.greendao.GreenCategory;
@@ -51,7 +52,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         checkNotNull(category);
         categoryValidator.validateInsert(category);
 
-        category.setId(greenCategoryDao.insert(new GreenCategory(category)));
+        category.setId(greenCategoryDao.insert(CategoryFactory.createGreenCategory(category)));
         if (category.getParentId() == null) {
             insertMain(category);
         } else {
@@ -70,7 +71,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     private void insertSub(Category category) {
         Category parent;
         parent = findInMainCategoriesById(category.getParentId());
-        category.setType(parent.getTypes());
+        category.setTypes(parent.getTypes());
         category.setParent(parent);
         parent.getChildren().add(category);
         Collections.sort(parent.getChildren(), Category.Comparators.NAME);
@@ -82,18 +83,18 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     @Override
     public Category findById(final Long id) {
         Category found = Category.findById(categories, id);
-        return new Category(found);
+        return CategoryFactory.createCategory(found);
     }
 
     @Override
     public Category findByName(final String name) {
         Category found = Category.findByName(categories, name);
-        return new Category(found);
+        return CategoryFactory.createCategory(found);
     }
 
     @Override
     public List<Category> getAll() {
-        return Category.copyOfCategoriesWithParentAndChildren(categories);
+        return CategoryFactory.copyOfCategoriesWithParentAndChildren(categories);
     }
 
     @Override
@@ -103,7 +104,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
 
     @Override
     public List<Category> getMainCategories() {
-        return Category.copyOfMainCategoriesWithChildren(mainCategories);
+        return CategoryFactory.copyOfMainCategoriesWithChildren(mainCategories);
     }
 
     @Override
@@ -123,7 +124,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
                 result.add(category);
             }
         }
-        result = Category.copyOfMainCategoriesWithChildren(result);
+        result = CategoryFactory.copyOfMainCategoriesWithChildren(result);
         Collections.sort(result, Category.Comparators.POSITION);
         return result;
     }
@@ -131,7 +132,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     @Override
     public List<Category> getSubCategoriesOf(Long id) {
         Category category = findInMainCategoriesById(id);
-        return Category.copyOfMainCategoryWithChildren(category).getChildren();
+        return CategoryFactory.copyOfMainCategoryWithChildren(category).getChildren();
     }
 
     /*************
@@ -141,7 +142,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     public void update(final Category newValue) {
         Category toUpdate = Category.findById(categories, newValue.getId());
         categoryValidator.validateUpdate(newValue, toUpdate);
-        greenCategoryDao.update(new GreenCategory(newValue));
+        greenCategoryDao.update(CategoryFactory.createGreenCategory(newValue));
         updateCategoryLists(newValue, toUpdate);
     }
     
@@ -149,14 +150,14 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         new Applier() {
             @Override
             protected void commonApply(Category updated, Category toUpdate) {
-                toUpdate.setType(updated.getTypes());
+                toUpdate.setTypes(updated.getTypes());
                 toUpdate.setName(updated.getName());
             }
 
             @Override
             protected void mainToMainApply(Category updated, Category toUpdate) {
                 for (Category category : toUpdate.getChildren()) {
-                    category.setType(updated.getTypes());
+                    category.setTypes(updated.getTypes());
                 }
             }
 
@@ -230,7 +231,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     }
 
     private List<Category> getCategoryListFromGreenCategoryList(List<GreenCategory> greenCategoryList) {
-        return GreenCategory.deepCopyToCategoryList(greenCategoryList);
+        return CategoryFactory.createCategoryList(greenCategoryList);
     }
 
     private Category findInMainCategoriesById(final Long id) {

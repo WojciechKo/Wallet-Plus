@@ -70,7 +70,7 @@ public class WalletPlusDaoGenerator {
         account.addIdProperty();
         account.addStringProperty(ACCOUNT_PROPERTY_NAME).notNull();
         account.addStringProperty(ACCOUNT_PROPERTY_PASSWORD_HASH);
-        account.setHasKeepSections(true);
+        account.setHasKeepSections(false);
     }
 
     private static void addCategory() {
@@ -81,7 +81,7 @@ public class WalletPlusDaoGenerator {
         category.addLongProperty(CATEGORY_PROPERTY_ACCOUNT_ID);
         category.addStringProperty(CATEGORY_PROPERTY_NAME).notNull().unique();
         category.addIntProperty(CATEGORY_PROPERTY_TYPE);
-        category.setHasKeepSections(true);
+        category.setHasKeepSections(false);
     }
 
     private static void addWallet() {
@@ -93,7 +93,7 @@ public class WalletPlusDaoGenerator {
         wallet.addDoubleProperty(WALLET_PROPERTY_INITIAL_AMOUNT).notNull();
         wallet.addDoubleProperty(WALLET_PROPERTY_CURRENT_AMOUNT);
         wallet.addIntProperty(WALLET_PROPERTY_TYPE).notNull();
-        wallet.setHasKeepSections(true);
+        wallet.setHasKeepSections(false);
     }
 
     private static void addCashFlow() {
@@ -106,7 +106,7 @@ public class WalletPlusDaoGenerator {
         cashFlow.addLongProperty(CASH_FLOW_PROPERTY_CATEGORY_ID).notNull();
         cashFlow.addStringProperty(CASH_FLOW_PROPERTY_COMMENT);
         cashFlow.addDateProperty(CASH_FLOW_PROPERTY_DATETIME).notNull();
-        cashFlow.setHasKeepSections(true);
+        cashFlow.setHasKeepSections(false);
     }
 
     /**

@@ -9,7 +9,6 @@ import android.widget.ListView;
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 
@@ -20,8 +19,6 @@ import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment;
-import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 
 @OptionsMenu(R.menu.action_new)
 @EFragment

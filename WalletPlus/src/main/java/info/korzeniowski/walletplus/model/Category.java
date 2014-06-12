@@ -12,8 +12,6 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class Category implements Comparable<Category> {
     private Long id;
     private Long parentId;
@@ -25,15 +23,6 @@ public class Category implements Comparable<Category> {
     public Category() {
         types = EnumSet.noneOf(Type.class);
         children = Lists.newArrayList();
-    }
-
-    public Category(Category category) {
-        checkNotNull(category);
-
-        this.id = category.getId();
-        this.parentId = category.getParentId();
-        this.name = category.getName();
-        this.types = EnumSet.copyOf(category.getTypes());
     }
 
     public Long getId() {
@@ -77,11 +66,11 @@ public class Category implements Comparable<Category> {
         return types;
     }
 
-    public Category setType(Type type) {
-        return type != null ? setType(EnumSet.of(type)) : setType(EnumSet.noneOf(Category.Type.class));
+    public Category setTypes(Type type) {
+        return type != null ? setTypes(EnumSet.of(type)) : setTypes(EnumSet.noneOf(Category.Type.class));
     }
 
-    public Category setType(EnumSet<Type> types) {
+    public Category setTypes(EnumSet<Type> types) {
         this.types = types != null ? types : EnumSet.noneOf(Category.Type.class);
         return this;
     }
@@ -101,54 +90,6 @@ public class Category implements Comparable<Category> {
 
     public boolean removeChild(Category category) {
         return children.remove(category);
-    }
-
-
-    public static List<Category> copyOfCategoriesWithParentAndChildren(List<Category> originals) {
-        List<Category> result = Lists.newArrayList();
-
-        for (Category original : originals) {
-            result.add(new Category(original));
-        }
-
-        for (Category copy : result) {
-            Category copyParent = tryFindById(result, copy.getParentId());
-            if (copyParent != null) {
-                copy.setType(copyParent.getTypes());
-                copyParent.addChild(copy);
-            }
-            copy.setParent(copyParent);
-        }
-
-        return result;
-    }
-
-    public static List<Category> copyOfMainCategoriesWithChildren(List<Category> originals) {
-        List<Category> copies = Lists.newArrayList();
-
-        for (Category original : originals) {
-            Category copy = copyOfMainCategoryWithChildren(original);
-            copies.add(copy);
-        }
-
-        return copies;
-    }
-
-    public static Category copyOfMainCategoryWithChildren(Category original) {
-        Category copy = new Category(original);
-        copy.setChildren(copyOfCategoriesWithoutChildren(original.getChildren()));
-        for (Category copyChild : copy.getChildren()) {
-            copyChild.setParent(copy);
-        }
-        return copy;
-    }
-
-    private static List<Category> copyOfCategoriesWithoutChildren(List<Category> categories) {
-        List<Category> copies = Lists.newArrayList();
-        for (Category original : categories) {
-            copies.add(new Category(original));
-        }
-        return copies;
     }
 
     @Override
@@ -182,15 +123,6 @@ public class Category implements Comparable<Category> {
     }
 
     public static Category findById(List<Category> categories, final Long id) {
-        return Iterables.find(categories, new Predicate<Category>() {
-            @Override
-            public boolean apply(Category category) {
-                return Objects.equal(category.getId(), id);
-            }
-        });
-    }
-
-    public static Category tryFindById(List<Category> categories, final Long id) {
         return Iterables.tryFind(categories, new Predicate<Category>() {
             @Override
             public boolean apply(Category category) {
@@ -200,15 +132,6 @@ public class Category implements Comparable<Category> {
     }
 
     public static Category findByName(final List<Category> categories, final String name) {
-        return Iterables.find(categories, new Predicate<Category>() {
-            @Override
-            public boolean apply(Category category) {
-                return Objects.equal(category.getName(), name);
-            }
-        });
-    }
-
-    public static Category tryFindByName(final List<Category> categories, final String name) {
         return Iterables.tryFind(categories, new Predicate<Category>() {
             @Override
             public boolean apply(Category category) {
@@ -218,7 +141,6 @@ public class Category implements Comparable<Category> {
     }
 
     public static class Comparators {
-
         public static final Comparator<Category> NAME = new Comparator<Category>() {
             @Override
             public int compare(Category category1, Category category2) {

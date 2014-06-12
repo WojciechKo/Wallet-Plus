@@ -2,7 +2,6 @@ package info.korzeniowski.walletplus.test.robolectric.datamanager;
 
 import android.database.sqlite.SQLiteOpenHelper;
 
-import static org.fest.assertions.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -16,6 +15,8 @@ import info.korzeniowski.walletplus.datamanager.local.LocalAccountDataManager;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.greendao.DaoMaster;
 import info.korzeniowski.walletplus.model.greendao.GreenAccountDao;
+
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
