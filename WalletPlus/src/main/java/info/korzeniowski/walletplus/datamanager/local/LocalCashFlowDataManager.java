@@ -1,84 +1,138 @@
 package info.korzeniowski.walletplus.datamanager.local;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import com.j256.ormlite.dao.Dao;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
-import info.korzeniowski.walletplus.datamanager.local.modelfactory.CashFlowFactory;
+import info.korzeniowski.walletplus.datamanager.exception.SqlExceptionRuntime;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.greendao.GreenCashFlow;
-import info.korzeniowski.walletplus.model.greendao.GreenCashFlowDao;
+import info.korzeniowski.walletplus.model.Wallet;
 
 public class LocalCashFlowDataManager implements CashFlowDataManager {
-    private final GreenCashFlowDao greenCashFlowDao;
-    private final List<CashFlow> cashFlows;
-
+    private final Dao<CashFlow, Long> cashFlowDao;
+    private final Dao<Wallet, Long> walletDao;
 
     @Inject
-    public LocalCashFlowDataManager(GreenCashFlowDao greenCashFlowDao) {
-        this.greenCashFlowDao = greenCashFlowDao;
-        cashFlows = getAll();
+    public LocalCashFlowDataManager(Dao<CashFlow, Long> cashFlowDao, Dao<Wallet, Long> walletDao) {
+        this.cashFlowDao = cashFlowDao;
+        this.walletDao = walletDao;
     }
 
     @Override
     public Long count() {
-        return (long) cashFlows.size();
+        try {
+            return cashFlowDao.countOf();
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
     }
 
     @Override
     public CashFlow findById(final Long id) {
-        Preconditions.checkNotNull(id);
-
-        return Iterables.find(cashFlows, new Predicate<CashFlow>() {
-            @Override
-            public boolean apply(CashFlow cashFlow) {
-                return Objects.equal(cashFlow.getId(), id);
-            }
-        });
+        try {
+            return cashFlowDao.queryForId(id);
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
     }
 
     @Override
     public List<CashFlow> getAll() {
-        return getCategoryListFromGreenCategoryList(greenCashFlowDao.loadAll());
-    }
-
-    private List<CashFlow> getCategoryListFromGreenCategoryList(List<GreenCashFlow> greenCashFlows) {
-        List<CashFlow> cashFlowList = new ArrayList<CashFlow>();
-        for(GreenCashFlow greenCashFlow : greenCashFlows) {
-            cashFlowList.add(CashFlowFactory.createCashFlow(greenCashFlow));
+        try {
+            return cashFlowDao.queryForAll();
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
         }
-        return cashFlowList;
     }
 
     @Override
     public void update(CashFlow cashFlow) {
-        validateUpdate(cashFlow);
-        CashFlow toUpdate = findById(cashFlow.getId());
-        toUpdate.setAmount(cashFlow.getAmount());
-        toUpdate.setCategoryId(cashFlow.getCategoryId());
-        toUpdate.setComment(cashFlow.getComment());
-        toUpdate.setDateTime(cashFlow.getDateTime());
-        greenCashFlowDao.update(CashFlowFactory.createGreenCashFlow(cashFlow));
+        try {
+            CashFlow toUpdate = findById(cashFlow.getId());
+            validateUpdate(toUpdate, cashFlow);
+            cashFlowDao.update(cashFlow);
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
     }
 
-    private void validateUpdate(CashFlow cashFlow) {
+    private void validateUpdate(CashFlow old, CashFlow newValue) {
         //TODO: if exists
     }
 
     @Override
-    public Long insert(CashFlow entity) {
-        return null;
+    public Long insert(CashFlow cashFlow) {
+        try {
+            validateInsert(cashFlow);
+            cashFlowDao.create(cashFlow);
+            fixCurrentAmountInWalletAfterInsert(cashFlow);
+            return cashFlow.getId();
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
+    }
+
+    private void fixCurrentAmountInWalletAfterInsert(CashFlow cashFlow) {
+        try {
+            Wallet fromWallet = cashFlow.getFromWallet();
+            Double newFromWalletCurrentAmount = fromWallet.getCurrentAmount();
+            if (fromWallet.getType().equals(Wallet.Type.MY_WALLET)) {
+                newFromWalletCurrentAmount -= cashFlow.getAmount();
+            } else if (fromWallet.getType().equals(Wallet.Type.CONTRACTOR)) {
+                newFromWalletCurrentAmount += cashFlow.getAmount();
+            }
+            walletDao.update(fromWallet.setCurrentAmount(newFromWalletCurrentAmount));
+
+            Wallet toWallet = cashFlow.getToWallet();
+            Double newToWalletCurrentAmount = toWallet.getCurrentAmount();
+            if (toWallet.getType().equals(Wallet.Type.MY_WALLET)) {
+                newToWalletCurrentAmount += cashFlow.getAmount();
+            } else if (toWallet.getType().equals(Wallet.Type.CONTRACTOR)) {
+                newToWalletCurrentAmount -= cashFlow.getAmount();
+            }
+            walletDao.update(toWallet.setCurrentAmount(newToWalletCurrentAmount));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void validateInsert(CashFlow cashFlow) {
+
     }
 
     @Override
     public void deleteById(Long id) {
+        try {
+            CashFlow cashFlow = cashFlowDao.queryForId(id);
+            cashFlowDao.deleteById(id);
+            fixCurrentAmountInWalletAfterDelete(cashFlow);
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
 
+    }
+
+    private void fixCurrentAmountInWalletAfterDelete(CashFlow cashFlow) {
+        try {
+            Wallet fromWallet = cashFlow.getFromWallet();
+            if (fromWallet != null) {
+                fromWallet.setCurrentAmount(fromWallet.getCurrentAmount() + cashFlow.getAmount());
+                walletDao.update(fromWallet);
+            }
+
+            Wallet toWallet = cashFlow.getToWallet();
+            if (toWallet != null) {
+                toWallet.setCurrentAmount(toWallet.getCurrentAmount() - cashFlow.getAmount());
+                walletDao.update(toWallet);
+            }
+
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
     }
 }

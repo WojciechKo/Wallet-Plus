@@ -1,22 +1,20 @@
 package info.korzeniowski.walletplus.datamanager.local;
 
+import com.j256.ormlite.dao.Dao;
+
 import java.util.List;
 
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.AccountDataManager;
-import info.korzeniowski.walletplus.datamanager.local.modelfactory.AccountFactory;
 import info.korzeniowski.walletplus.model.Account;
-import info.korzeniowski.walletplus.model.greendao.GreenAccountDao;
 
 public class LocalAccountDataManager implements AccountDataManager{
-    private final GreenAccountDao greenAccountDao;
-    private final List<Account> accounts;
+    private final Dao<Account, Long> accountDao;
 
     @Inject
-    public LocalAccountDataManager(GreenAccountDao greenAccountDao) {
-        this.greenAccountDao = greenAccountDao;
-        accounts = AccountFactory.createAccountList(greenAccountDao.loadAll());
+    public LocalAccountDataManager(Dao<Account, Long> accountDao) {
+        this.accountDao = accountDao;
     }
 
     @Override

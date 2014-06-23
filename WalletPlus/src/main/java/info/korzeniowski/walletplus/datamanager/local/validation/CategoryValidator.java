@@ -12,7 +12,7 @@ import info.korzeniowski.walletplus.datamanager.exception.ParentCategoryIsNotMai
 import info.korzeniowski.walletplus.datamanager.exception.SubCategoryCantHaveTypeDifferentThanParentException;
 import info.korzeniowski.walletplus.model.Category;
 
-public class CategoryValidator implements Validator<Category>{
+public class CategoryValidator implements Validator<Category> {
     private final CategoryDataManager categoryDataManager;
 
     public CategoryValidator(CategoryDataManager categoryDataManager) {
@@ -24,7 +24,7 @@ public class CategoryValidator implements Validator<Category>{
         validateIfNameIsNotNullOrEmpty(category);
         validateIfNameIsUnique(category);
         validateIfIdIsUnique(category);
-        if (category.getParentId() == null) {
+        if (category.getParent().getId() == null) {
             validateInsertMain(category);
         } else {
             validateInsertSub(category);
@@ -45,11 +45,11 @@ public class CategoryValidator implements Validator<Category>{
         validateIfNameIsNotNullOrEmpty(newValue);
         validateIfNewNameIsUnique(newValue, toUpdate);
         validateIfNewIdIsUnique(newValue, toUpdate);
-        if(newValue.getParentId() == null && toUpdate.getParentId() == null) {
+        if(newValue.getParent().getId() == null && toUpdate.getParent().getId() == null) {
             validateUpdateMainToMain(newValue);
-        } else if (toUpdate.getParentId() == null) {
+        } else if (toUpdate.getParent().getId() == null) {
             validateUpdateMainToSub(newValue, toUpdate);
-        } else if(newValue.getParentId() == null) {
+        } else if(newValue.getParent().getId() == null) {
             validateUpdateSubToMain(newValue, toUpdate);
         } else {
             validateSubToSub(newValue);
@@ -76,7 +76,7 @@ public class CategoryValidator implements Validator<Category>{
 
     @Override
     public void validateDelete(Category category) {
-        if (category.getParentId() == null) {
+        if (category.getParent().getId() == null) {
             validateDeleteMain(category);
         } else {
             validateDeleteSub(category);
@@ -126,17 +126,17 @@ public class CategoryValidator implements Validator<Category>{
     }
 
     private void validateIfCategoryHaveTypeLikeParentOrNone(Category category) {
-        if (category.getTypes().isEmpty()) {
+        if (category.getType() == null) {
             return;
         }
-        Category parent = categoryDataManager.findById(category.getParentId());
-        if (!parent.getTypes().equals(category.getTypes())) {
+        Category parent = categoryDataManager.findById(category.getParent().getId());
+        if (!parent.getType().equals(category.getType())) {
             throw new SubCategoryCantHaveTypeDifferentThanParentException();
         }
     }
 
     private void validateIfCategoryTypeIsNotNullOrEmpty(Category category) {
-        if (category.getTypes().isEmpty()) {
+        if (category.getType() == null) {
             throw new EntityPropertyCannotBeEmptyException(category.getClass().getSimpleName(), "Type");
         }
     }
@@ -148,11 +148,11 @@ public class CategoryValidator implements Validator<Category>{
     }
 
     private boolean isMainCategory(final Long id) {
-        return Category.findById(categoryDataManager.getMainCategories(), id) != null;
+        return categoryDataManager.findById(id).getParent() == null;
     }
 
     private void validateIfParentCategoryIsMain(Category category) {
-        if (!isMainCategory(category.getParentId())) {
+        if (!isMainCategory(category.getParent().getId())) {
             throw new ParentCategoryIsNotMainCategoryException();
         }
     }

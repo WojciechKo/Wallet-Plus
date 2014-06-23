@@ -8,6 +8,8 @@ import info.korzeniowski.walletplus.datamanager.exception.WalletNameAndTypeMustB
 import info.korzeniowski.walletplus.datamanager.exception.WalletTypeCannotBeChangedException;
 import info.korzeniowski.walletplus.model.Wallet;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class WalletValidator implements Validator<Wallet>{
     private final WalletDataManager walletDataManager;
 
@@ -17,6 +19,7 @@ public class WalletValidator implements Validator<Wallet>{
 
     @Override
     public void validateInsert(Wallet wallet) {
+        checkNotNull(wallet);
         validateIfTypeIsNotNull(wallet);
         if (wallet.getType().equals(Wallet.Type.MY_WALLET)) {
             validateIfInitialAmountIsNotNull(wallet);
@@ -37,6 +40,7 @@ public class WalletValidator implements Validator<Wallet>{
     }
 
     private void validateIfNameAndTypeAreUnique(Wallet wallet) {
+        Wallet wal = walletDataManager.findByNameAndType(wallet.getName(), wallet.getType());
         if (walletDataManager.findByNameAndType(wallet.getName(), wallet.getType()) != null) {
             throw new WalletNameAndTypeMustBeUniqueException(wallet.getName());
         }

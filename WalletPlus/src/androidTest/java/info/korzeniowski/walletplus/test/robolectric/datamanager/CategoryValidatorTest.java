@@ -1,16 +1,13 @@
 package info.korzeniowski.walletplus.test.robolectric.datamanager;
 
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-
-import java.util.EnumSet;
 
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveSubsException;
@@ -21,29 +18,24 @@ import info.korzeniowski.walletplus.datamanager.exception.ParentCategoryIsNotMai
 import info.korzeniowski.walletplus.datamanager.exception.SubCategoryCantHaveTypeDifferentThanParentException;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.greendao.DaoMaster;
-import info.korzeniowski.walletplus.model.greendao.DaoSession;
-import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+@Ignore
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class CategoryValidatorTest {
+    private CategoryDataManager categoryDataManager;
 
-    CategoryDataManager categoryDataManager;
-
-    GreenCategoryDao greenCategoryDao;
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void setUp() {
-        SQLiteOpenHelper dbHelper = new DaoMaster.DevOpenHelper(Robolectric.application, null, null);
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        DaoMaster daoMaster = new DaoMaster(database);
-        DaoSession daoSession = daoMaster.newSession();
-        greenCategoryDao = daoSession.getGreenCategoryDao();
-        categoryDataManager = new LocalCategoryDataManager(greenCategoryDao);
+        categoryDataManager = mock(LocalCategoryDataManager.class);
     }
 
     /*************************************
@@ -52,7 +44,7 @@ public class CategoryValidatorTest {
     @Test
     public void insertCategoryWithNullNameShouldThrowException() {
         try {
-            categoryDataManager.insert(new Category().setTypes(Category.Type.INCOME));
+            categoryDataManager.insert(getSimpleCategory().setName(null));
             failBecauseExceptionWasNotThrown(EntityPropertyCannotBeEmptyException.class);
         } catch (EntityPropertyCannotBeEmptyException e) {
         }
@@ -60,53 +52,23 @@ public class CategoryValidatorTest {
 
     @Test
     public void insertWithDuplicatedIdShouldThrowException() {
-        Long id = categoryDataManager.insert(new Category().setName("Main 1").setTypes(Category.Type.INCOME));
+        Category toInsert = getSimpleCategory();
+        when(categoryDataManager.findById(toInsert.getId())).thenReturn(toInsert);
 
-        try {
-            categoryDataManager.insert(new Category().setId(id).setName("Main 2"));
-            failBecauseExceptionWasNotThrown(EntityAlreadyExistsException.class);
-        } catch (EntityAlreadyExistsException e) {
-            assertThat(categoryDataManager.count()).isEqualTo(1);
-        }
+        categoryDataManager.insert(getSimpleCategory().setId(toInsert.getId()));
+
+        exception.expect(EntityAlreadyExistsException.class);
     }
 
     @Test
     public void insertCategoryWithDuplicatedNameShouldThrowException() {
-        String main1Name = "Main 1";
-        String main2Name = "Main 2";
-        String sub1OfMain1 = "Sub 1 Of Main 1";
-
-        Long incomeParentId = categoryDataManager.insert(new Category().setName(main1Name).setTypes(Category.Type.INCOME));
-        Long expenseParentId = categoryDataManager.insert(new Category().setName(main2Name).setTypes(Category.Type.EXPENSE));
-        categoryDataManager.insert(new Category().setName(sub1OfMain1).setParentId(incomeParentId));
-        Long categoryCountBeforeInsert = categoryDataManager.count();
+        Category toInsert = getSimpleCategory();
+        when(categoryDataManager.findByName(toInsert.getName())).thenReturn(toInsert);
 
         try {
-            categoryDataManager.insert(new Category().setName(main1Name).setTypes(Category.Type.INCOME));
+            categoryDataManager.insert(toInsert);
             failBecauseExceptionWasNotThrown(CategoryNameMustBeUniqueException.class);
         } catch (CategoryNameMustBeUniqueException e) {
-            assertThat(categoryDataManager.count()).isEqualTo(categoryCountBeforeInsert);
-        }
-
-        try {
-            categoryDataManager.insert(new Category().setName(main1Name).setTypes(Category.Type.EXPENSE));
-            failBecauseExceptionWasNotThrown(CategoryNameMustBeUniqueException.class);
-        } catch (CategoryNameMustBeUniqueException e) {
-            assertThat(categoryDataManager.count()).isEqualTo(categoryCountBeforeInsert);
-        }
-
-        try {
-            categoryDataManager.insert(new Category().setName(sub1OfMain1).setParentId(incomeParentId));
-            failBecauseExceptionWasNotThrown(CategoryNameMustBeUniqueException.class);
-        } catch (CategoryNameMustBeUniqueException e) {
-            assertThat(categoryDataManager.count()).isEqualTo(categoryCountBeforeInsert);
-        }
-
-        try {
-            categoryDataManager.insert(new Category().setName(sub1OfMain1).setParentId(expenseParentId));
-            failBecauseExceptionWasNotThrown(CategoryNameMustBeUniqueException.class);
-        } catch (CategoryNameMustBeUniqueException e) {
-            assertThat(categoryDataManager.count()).isEqualTo(categoryCountBeforeInsert);
         }
     }
 
@@ -122,11 +84,11 @@ public class CategoryValidatorTest {
 
     @Test
     public void insertSubOfSubShouldThrowException() {
-        Long parentCategoryId = categoryDataManager.insert(new Category().setName("Main").setTypes(Category.Type.INCOME));
-        Long subcategoryId = categoryDataManager.insert(new Category().setParentId(parentCategoryId).setName("Sub"));
+        Long parentCategoryId = categoryDataManager.insert(new Category().setName("Main").setType(Category.Type.INCOME));
+        Long subcategoryId = categoryDataManager.insert(new Category().setParent(categoryDataManager.findById(parentCategoryId)).setName("Sub"));
 
         try {
-            categoryDataManager.insert(new Category().setParentId(subcategoryId).setName("Sub of Sub"));
+            categoryDataManager.insert(new Category().setParent(categoryDataManager.findById(subcategoryId)).setName("Sub of Sub"));
             failBecauseExceptionWasNotThrown(ParentCategoryIsNotMainCategoryException.class);
         } catch (ParentCategoryIsNotMainCategoryException e) {
         }
@@ -134,9 +96,9 @@ public class CategoryValidatorTest {
 
     @Test
     public void insertSubWithTypeDifferentThanParentShouldThrowException() {
-        Long parentId = categoryDataManager.insert(new Category().setName("Main").setTypes(Category.Type.INCOME));
+        Long parentId = categoryDataManager.insert(new Category().setName("Main").setType(Category.Type.INCOME));
         try {
-            categoryDataManager.insert(new Category().setName("Sub").setTypes(EnumSet.of(Category.Type.INCOME, Category.Type.EXPENSE)).setParentId(parentId));
+            categoryDataManager.insert(new Category().setName("Sub").setType(Category.Type.INCOME_EXPENSE).setParent(categoryDataManager.findById(parentId)));
             failBecauseExceptionWasNotThrown(SubCategoryCantHaveTypeDifferentThanParentException.class);
         } catch (SubCategoryCantHaveTypeDifferentThanParentException e) {
         }
@@ -145,8 +107,8 @@ public class CategoryValidatorTest {
     //DELETE
     @Test
     public void deleteMainCategoryWithSubShouldThrowException() {
-        Long parentId = categoryDataManager.insert(new Category().setName("Main").setTypes(Category.Type.EXPENSE));
-        categoryDataManager.insert(new Category().setName("Sub").setParentId(parentId));
+        Long parentId = categoryDataManager.insert(new Category().setName("Main").setType(Category.Type.EXPENSE));
+        categoryDataManager.insert(new Category().setName("Sub").setParent(categoryDataManager.findById(parentId)));
 
         try {
             categoryDataManager.deleteById(parentId);
@@ -155,4 +117,9 @@ public class CategoryValidatorTest {
 
         }
     }
+
+    private Category getSimpleCategory() {
+        return new Category("Simple category-" + System.currentTimeMillis(), Category.Type.INCOME);
+    }
+
 }

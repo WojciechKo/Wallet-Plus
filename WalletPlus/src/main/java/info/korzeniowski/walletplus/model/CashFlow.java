@@ -1,69 +1,101 @@
 package info.korzeniowski.walletplus.model;
 
+import com.j256.ormlite.field.DatabaseField;
+
 import java.util.Date;
 
 public class CashFlow {
+
+    @DatabaseField(generatedId = true)
     private Long id;
-    private Wallet from;
-    private Wallet to;
-    private float amount;
-    private Long categoryId;
-    private String comment;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
+    private Wallet fromWallet;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
+    private Wallet toWallet;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
+    private Category category;
+
+    @DatabaseField(canBeNull = false)
+    private Float amount;
+
+    @DatabaseField(canBeNull = false)
     private Date dateTime;
+
+    @DatabaseField
+    private String comment;
+
+    public CashFlow() {
+
+    }
+
+    public CashFlow(Float amount, Date dateTime) {
+        this.amount = amount;
+        this.dateTime = dateTime;
+    }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public CashFlow setId(Long id) {
         this.id = id;
+        return this;
     }
 
-    public Wallet getFrom() {
-        return from;
+    public Wallet getFromWallet() {
+        return fromWallet;
     }
 
-    public void setFrom(Wallet from) {
-        this.from = from;
+    public CashFlow setFromWallet(Wallet fromWallet) {
+        this.fromWallet = fromWallet;
+        return this;
     }
 
-    public Wallet getTo() {
-        return to;
+    public Wallet getToWallet() {
+        return toWallet;
     }
 
-    public void setTo(Wallet to) {
-        this.to = to;
+    public CashFlow setToWallet(Wallet toWallet) {
+        this.toWallet = toWallet;
+        return this;
     }
 
-    public float getAmount() {
+    public Category getCategory() {
+        return category;
+    }
+
+    public CashFlow setCategory(Category category) {
+        this.category = category;
+        return this;
+    }
+
+    public Float getAmount() {
         return amount;
     }
 
-    public void setAmount(float amount) {
+    public CashFlow setAmount(Float amount) {
         this.amount = amount;
-    }
-
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
+        return this;
     }
 
     public String getComment() {
         return comment;
     }
 
-    public void setComment(String comment) {
+    public CashFlow setComment(String comment) {
         this.comment = comment;
+        return this;
     }
 
     public Date getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(Date dateTime) {
+    public CashFlow setDateTime(Date dateTime) {
         this.dateTime = dateTime;
+        return this;
     }
 }

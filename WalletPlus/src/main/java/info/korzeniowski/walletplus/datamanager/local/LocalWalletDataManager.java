@@ -1,151 +1,112 @@
 package info.korzeniowski.walletplus.datamanager.local;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.j256.ormlite.dao.Dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.datamanager.local.modelfactory.WalletFactory;
+import info.korzeniowski.walletplus.datamanager.exception.SqlExceptionRuntime;
 import info.korzeniowski.walletplus.datamanager.local.validation.WalletValidator;
 import info.korzeniowski.walletplus.model.Wallet;
-import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
-import info.korzeniowski.walletplus.model.greendao.GreenWallet;
-import info.korzeniowski.walletplus.model.greendao.GreenWalletDao;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class LocalWalletDataManager implements WalletDataManager{
-    private final GreenWalletDao greenWalletDao;
     WalletValidator walletValidator;
-
-    private final List<Wallet> wallets;
-    private final List<Wallet> myWallets;
-    private final List<Wallet> contractors;
+    private final Dao<Wallet, Long> walletDao;
 
     @Inject
-    public LocalWalletDataManager(GreenWalletDao greenWalletDao) {
-        this.greenWalletDao = greenWalletDao;
+    public LocalWalletDataManager(Dao<Wallet, Long> walletDao) {
+        this.walletDao = walletDao;
         this.walletValidator = new WalletValidator(this);
-        wallets = getWalletListFromGreenWalletList(greenWalletDao.loadAll());
-        myWallets = filter(Wallet.Type.MY_WALLET);
-        contractors = filter(Wallet.Type.CONTRACTOR);
-    }
-
-    private List<Wallet> filter(final Wallet.Type type) {
-        return Lists.newArrayList(Iterables.filter(wallets, new Predicate<Wallet>() {
-            @Override
-            public boolean apply(Wallet wallet) {
-                return type.equals(wallet.getType());
-            }
-        }));
-    }
-
-    private List<Wallet> getWalletListFromGreenWalletList(List<GreenWallet> greenWallets) {
-        List<Wallet> wallets = Lists.newArrayList();
-        for (GreenWallet greenWallet : greenWallets) {
-            wallets.add(getWalletFromGreenWallet(greenWallet));
-        }
-        return wallets;
-    }
-
-    private Wallet getWalletFromGreenWallet(GreenWallet greenWallet) {
-        if (greenWallet == null) {
-            return null;
-        }
-        Wallet wallet = new Wallet();
-        wallet.setName(greenWallet.getName());
-        wallet.setInitialAmount(greenWallet.getInitialAmount());
-        wallet.setCurrentAmount(greenWallet.getCurrentAmount());
-        wallet.setId(greenWallet.getId());
-        wallet.setType(Wallet.Type.values()[greenWallet.getType()]);
-        return wallet;
     }
 
     @Override
     public Long insert(Wallet wallet) {
-        checkNotNull(wallet);
-        walletValidator.validateInsert(wallet);
-
-        wallet.setId(greenWalletDao.insert(WalletFactory.createGreenWallet(wallet)));
-        if (wallet.getType().equals(Wallet.Type.CONTRACTOR)) {
-            contractors.add(wallet);
-        } else if (wallet.getType().equals(Wallet.Type.MY_WALLET)) {
-            myWallets.add(wallet);
+        try {
+            walletValidator.validateInsert(wallet);
+            List<Wallet> all = walletDao.queryForAll();
+            walletDao.create(wallet);
+            return wallet.getId();
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
         }
-        wallets.add(wallet);
-
-        return wallet.getId();
     }
 
     @Override
     public Long count() {
-        return greenWalletDao.count();
+        try {
+            return walletDao.countOf();
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
     }
 
     @Override
     public Wallet findById(Long id) {
-        Wallet found = Wallet.findById(getMyWallets(), id);
-        return WalletFactory.createWallet(found);
+        try {
+            return walletDao.queryForId(id);
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
     }
 
     @Override
     public List<Wallet> getAll() {
-       return WalletFactory.createWalletList(wallets);
+        try {
+            return walletDao.queryForAll();
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
     }
 
     @Override
     public void update(Wallet newValue) {
-        Wallet toUpdate = Wallet.findById(wallets, newValue.getId());
-        walletValidator.validateUpdate(newValue, toUpdate);
-        greenWalletDao.update(WalletFactory.createGreenWallet(toUpdate));
-        updateWalletLists(newValue, toUpdate);
-    }
-
-    private void updateWalletLists(Wallet newValue, Wallet toUpdate) {
-        toUpdate.setInitialAmount(newValue.getInitialAmount());
-        toUpdate.setName(newValue.getName());
+        try {
+            Wallet toUpdate = walletDao.queryForId(newValue.getId());
+            walletValidator.validateUpdate(newValue, toUpdate);
+            walletDao.update(newValue);
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
     }
 
     @Override
     public void deleteById(Long id) {
-        Wallet walletToDelete = Wallet.findById(wallets, id);
-        walletValidator.validateDelete(walletToDelete);
-        greenWalletDao.deleteByKey(id);
-        removeWalletFromLists(walletToDelete);
-    }
-
-    private void removeWalletFromLists(Wallet walletToDelete) {
-        if (walletToDelete.getType().equals(Wallet.Type.MY_WALLET)) {
-            myWallets.remove(walletToDelete);
-        } else if (walletToDelete.getType().equals(Wallet.Type.CONTRACTOR)) {
-            contractors.remove(walletToDelete);
+        try {
+            Wallet walletToDelete = walletDao.queryForId(id);
+            walletValidator.validateDelete(walletToDelete);
+            walletDao.deleteById(id);
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
         }
-        wallets.remove(walletToDelete);
     }
 
     @Override
     public List<Wallet> getMyWallets() {
-        return myWallets;
+        try {
+            return walletDao.queryBuilder().where().eq("type", Wallet.Type.MY_WALLET).query();
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
     }
 
     @Override
     public List<Wallet> getContractors() {
-        return contractors;
+        try {
+            return walletDao.queryBuilder().where().eq("type", Wallet.Type.CONTRACTOR).query();
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
+        }
     }
 
     @Override
     public Wallet findByNameAndType(String name, Wallet.Type type) {
-        List<GreenWallet> greenWalletList = greenWalletDao.queryBuilder().
-                where(GreenCategoryDao.Properties.Name.eq(name)).
-                where(GreenCategoryDao.Properties.Type.eq(type.ordinal())).
-                build().list();
-        if (greenWalletList.isEmpty()) {
-            return null;
+        try {
+            return walletDao.queryBuilder().where().eq("name", name).and().eq("type", type).queryForFirst();
+        } catch (SQLException e) {
+            throw new SqlExceptionRuntime(e);
         }
-        return getWalletFromGreenWallet(greenWalletList.get(0));
     }
 }

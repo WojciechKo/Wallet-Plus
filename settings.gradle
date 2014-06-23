@@ -1,1 +1,1 @@
-include ':WalletPlus', ':WalletPlusDaoGenerator'
+include ':WalletPlus'

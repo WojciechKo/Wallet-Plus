@@ -1,9 +1,25 @@
 package info.korzeniowski.walletplus.model;
 
+import com.j256.ormlite.field.DatabaseField;
+
 public class Account {
+
+    @DatabaseField(generatedId = true)
     private Long id;
+
+    @DatabaseField(canBeNull = false, uniqueIndex = true)
     private String name;
+
+    @DatabaseField
     private String passwordHash;
+
+    public Account() {
+
+    }
+
+    public Account(String name) {
+        this.name = name;
+    }
 
     public Long getId() {
         return id;

@@ -1,7 +1,11 @@
 package info.korzeniowski.walletplus.module;
 
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.content.Context;
+
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
+
+import java.sql.SQLException;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -13,23 +17,22 @@ import info.korzeniowski.walletplus.datamanager.AccountDataManager;
 import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
+import info.korzeniowski.walletplus.datamanager.local.DatabaseHelper;
 import info.korzeniowski.walletplus.datamanager.local.LocalAccountDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCashFlowDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalWalletDataManager;
-import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowDetailsFragment_;
-import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
+import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowFragment_;
+import info.korzeniowski.walletplus.drawermenu.cashflow.DetailsOfRegularCashFlowFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
+import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment_;
 import info.korzeniowski.walletplus.drawermenu.wallet.WalletDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.wallet.WalletFragment_;
-import info.korzeniowski.walletplus.model.greendao.DaoMaster;
-import info.korzeniowski.walletplus.model.greendao.DaoSession;
-import info.korzeniowski.walletplus.model.greendao.GreenAccountDao;
-import info.korzeniowski.walletplus.model.greendao.GreenCashFlowDao;
-import info.korzeniowski.walletplus.model.greendao.GreenCategoryDao;
-import info.korzeniowski.walletplus.model.greendao.GreenWalletDao;
-
+import info.korzeniowski.walletplus.model.Account;
+import info.korzeniowski.walletplus.model.CashFlow;
+import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Wallet;
 
 /**
  * Module for Database objects.
@@ -38,34 +41,45 @@ import info.korzeniowski.walletplus.model.greendao.GreenWalletDao;
 @Module(
         library = true,
         injects = {
+                DashboardFragment_.class,
+
                 CategoryDetailsFragment_.class,
                 CategoryListFragment_.class,
                 LocalCategoryDataManager.class,
 
-                CashFlowDetailsFragment_.class,
-                CashFlowListFragment_.class,
+                DetailsOfRegularCashFlowFragment_.class,
+                CashFlowFragment_.class,
 
                 WalletDetailsFragment_.class,
                 WalletFragment_.class
         }
 )
 public class DatabaseModule {
-    private final DaoSession daoSession;
+
+    private DatabaseHelper databaseHelper;
 
     public DatabaseModule(WalletPlus application) {
-        SQLiteOpenHelper dbHelper = new DaoMaster.DevOpenHelper(application, WalletPlus.DATABASE_NAME, null);
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        DaoMaster daoMaster = new DaoMaster(database);
-        daoSession = daoMaster.newSession();
+        databaseHelper = getHelper(application);
+    }
+
+    private DatabaseHelper getHelper(Context context) {
+        if (databaseHelper == null) {
+            databaseHelper = OpenHelperManager.getHelper(context, DatabaseHelper.class);
+        }
+        return databaseHelper;
     }
 
     /****************
      * ACCOUNT
      ***************/
     @Provides
-    @Singleton
-    public GreenAccountDao provideGreenAccountDao() {
-        return daoSession.getGreenAccountDao();
+    public Dao<Account, Long> provideAccountDao() {
+        try {
+            return databaseHelper.getAccountDao();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Provides
@@ -79,9 +93,13 @@ public class DatabaseModule {
      * CATEGORY
      ***************/
     @Provides
-    @Singleton
-    public GreenCategoryDao provideGreenCategoryDao() {
-        return daoSession.getGreenCategoryDao();
+    public Dao<Category, Long> provideCategoryDao() {
+        try {
+            return databaseHelper.getCategoryDao();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Provides
@@ -95,9 +113,13 @@ public class DatabaseModule {
      * CASH_FLOW
      ***************/
     @Provides
-    @Singleton
-    public GreenCashFlowDao provideGreenCashFlowDao() {
-        return daoSession.getGreenCashFlowDao();
+    public Dao<CashFlow, Long> provideCashFlowDao() {
+        try {
+            return databaseHelper.getCashFlowDao();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Provides
@@ -111,9 +133,13 @@ public class DatabaseModule {
      * WALLET
      ***************/
     @Provides
-    @Singleton
-    public GreenWalletDao provideGreenWalletDao() {
-        return daoSession.getGreenWalletDao();
+    public Dao<Wallet, Long> provideWalletDao() {
+        try {
+            return databaseHelper.getWalletDao();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Provides

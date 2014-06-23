@@ -1,28 +1,36 @@
 package info.korzeniowski.walletplus.model;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 
-import org.apache.commons.lang3.EnumUtils;
-
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.List;
 
 public class Category implements Comparable<Category> {
+    public enum Type {INCOME, EXPENSE, INCOME_EXPENSE}
+
+    @DatabaseField(generatedId = true)
     private Long id;
-    private Long parentId;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Category parent;
+
+    @DatabaseField(canBeNull = false, uniqueIndex = true)
     private String name;
-    private EnumSet<Type> types;
-    private List<Category> children;
+
+    @DatabaseField(canBeNull = false)
+    private Type type;
+
+    @ForeignCollectionField
+    private ForeignCollection<Category> children;
 
     public Category() {
-        types = EnumSet.noneOf(Type.class);
-        children = Lists.newArrayList();
+
+    }
+
+    public Category(String name, Type type) {
+        this.name = name;
+        this.type = type;
     }
 
     public Long getId() {
@@ -31,15 +39,6 @@ public class Category implements Comparable<Category> {
 
     public Category setId(Long id) {
         this.id = id;
-        return this;
-    }
-
-    public Long getParentId() {
-        return parentId;
-    }
-
-    public Category setParentId(Long parentId) {
-        this.parentId = parentId;
         return this;
     }
 
@@ -56,88 +55,61 @@ public class Category implements Comparable<Category> {
         return name;
     }
 
-
     public Category setName(String name) {
         this.name = name;
         return this;
     }
 
-    public EnumSet<Type> getTypes() {
-        return types;
+    public Type getType() {
+        return type;
     }
 
-    public Category setTypes(Type type) {
-        return type != null ? setTypes(EnumSet.of(type)) : setTypes(EnumSet.noneOf(Category.Type.class));
-    }
-
-    public Category setTypes(EnumSet<Type> types) {
-        this.types = types != null ? types : EnumSet.noneOf(Category.Type.class);
+    public Category setType(Type type) {
+        this.type = type;
         return this;
     }
 
-    public List<Category> getChildren() {
+    public boolean isIncomeType() {
+        return Type.INCOME.equals(getType()) || Type.INCOME_EXPENSE.equals(getType());
+    }
+
+    public boolean isExpenseType() {
+        return Type.EXPENSE.equals(getType()) || Type.INCOME_EXPENSE.equals(getType());
+    }
+
+    public ForeignCollection<Category> getChildren() {
         return children;
-    }
-
-    public void setChildren(List<Category> children) {
-        this.children = children;
-    }
-
-    public void addChild(Category category) {
-        children.add(category);
-        Collections.sort(children, Comparators.NAME);
-    }
-
-    public boolean removeChild(Category category) {
-        return children.remove(category);
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object instanceof Category) {
-            Category other = (Category) object;
-            return Objects.equal(other.getId(), getId()) &&
-                    Objects.equal(other.getName(), getName()) &&
-                    Objects.equal(other.getParentId(), getParentId()) &&
-                    other.getTypes().equals(getTypes());
-        }
-        return false;
     }
 
     @Override
     public int compareTo(Category other) {
-        //TODO: uwzględnić bycie MainCategory.
-        String thisName = getName().toUpperCase();
-        String otherName = other.getName().toUpperCase();
-        return thisName.compareTo(otherName);
+        return Comparators.NAME.compare(this, other);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Category category = (Category) o;
+
+        if (id != null ? !id.equals(category.id) : category.id != null) return false;
+        if (name != null ? !name.equals(category.name) : category.name != null) return false;
+        if (parent != null ? !parent.getId().equals(category.parent.getId()) : category.parent != null)
+            return false;
+        if (type != category.type) return false;
+
+        return true;
     }
 
     @Override
     public String toString() {
         return "Category{" +
                 "id=" + id +
-                ", parentId=" + parentId +
+                ", parent=" + parent +
                 ", name='" + name + '\'' +
-                ", types=" + types +
+                ", type=" + type +
                 '}';
-    }
-
-    public static Category findById(List<Category> categories, final Long id) {
-        return Iterables.tryFind(categories, new Predicate<Category>() {
-            @Override
-            public boolean apply(Category category) {
-                return Objects.equal(category.getId(), id);
-            }
-        }).orNull();
-    }
-
-    public static Category findByName(final List<Category> categories, final String name) {
-        return Iterables.tryFind(categories, new Predicate<Category>() {
-            @Override
-            public boolean apply(Category category) {
-                return Objects.equal(category.getName(), name);
-            }
-        }).orNull();
     }
 
     public static class Comparators {
@@ -149,31 +121,5 @@ public class Category implements Comparable<Category> {
                 return categoryName1.compareTo(categoryName2);
             }
         };
-
-        public static final Comparator<Category> POSITION = new Comparator<Category>() {
-
-            @Override
-            public int compare(Category category1, Category category2) {
-                //TODO: napisać
-                return category1.compareTo(category2);
-            }
-        };
-    }
-
-    public enum Type {
-        INCOME,
-        EXPENSE;
-
-        public static EnumSet<Type> convertBitwiseToEnumSet(int bitwise) {
-            return EnumUtils.processBitVector(Type.class, bitwise);
-        }
-
-        public static int convertEnumToBitwise(EnumSet<Type> enumSet) {
-            return (int) EnumUtils.generateBitVector(Type.class, enumSet);
-        }
-
-        public static int convertEnumToBitwise(Type type) {
-            return (int) EnumUtils.generateBitVector(Type.class,type);
-        }
     }
 }

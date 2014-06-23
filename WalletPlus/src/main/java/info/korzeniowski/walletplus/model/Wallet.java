@@ -1,17 +1,36 @@
 package info.korzeniowski.walletplus.model;
 
+import com.j256.ormlite.field.DatabaseField;
+
 import java.util.List;
 
 public class Wallet {
-    public enum Type {MY_WALLET, CONTRACTOR;}
+    public enum Type {MY_WALLET, CONTRACTOR}
 
+    @DatabaseField(generatedId = true)
     private Long id;
+
+    @DatabaseField(uniqueIndex = true, canBeNull = false)
     private String name;
-    private Double initialAmount;
-    private Double currentAmount;
+
+    @DatabaseField(canBeNull = false)
     private Type type;
 
+    @DatabaseField(canBeNull = false)
+    private Double initialAmount;
+
+    @DatabaseField(canBeNull = false)
+    private Double currentAmount;
+
     public Wallet() {
+
+    }
+
+    public Wallet(String name, Type type, Double initialAmount, Double currentAmount) {
+        this.name = name;
+        this.type = type;
+        this.initialAmount = initialAmount;
+        this.currentAmount = currentAmount;
     }
 
     public Long getId() {
