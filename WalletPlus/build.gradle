@@ -1,23 +1,17 @@
 buildscript {
-    def androidGradlePluginVersion= '0.11.+'
-    def androidAptVersion = '1.3'
-    def robolectricGradlePluginVersion = '0.11.+'
-
     repositories {
         mavenCentral()
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
+        maven {url 'https://oss.sonatype.org/content/repositories/snapshots/'}
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:${androidGradlePluginVersion}"
-        classpath "com.neenbedankt.gradle.plugins:android-apt:${androidAptVersion}"
-        classpath "org.robolectric:robolectric-gradle-plugin:${robolectricGradlePluginVersion}"
+        classpath "com.android.tools.build:gradle:0.12.+"
+        classpath "com.neenbedankt.gradle.plugins:android-apt:1.3"
+        classpath "org.robolectric:robolectric-gradle-plugin:0.11.+"
     }
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 apply plugin: 'android-apt'
 apply plugin: 'robolectric'
 
@@ -30,7 +24,7 @@ apt {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion '19.1.0'
+    buildToolsVersion '20.0.0'
 
     lintOptions {
         abortOnError false
@@ -54,55 +48,46 @@ robolectric {
     maxHeapSize = "2048m"
 }
 
-def androidSupportVersion = '19.1.+'
-def ormLiteVersion = '4.48'
-def androidAnnotationsVersion = '3.0.1'
-def daggerVersion = '1.2.+'
-def commonsLang3Version = '3.3.+'
-def guavaVerions = '17.0'
-def JUnitVersion = '4.11'
-def mockitoVersion = '1.9.5'
-def robolectricVersion = '2.4-SNAPSHOT'
-def festAndroidVersion = '1.0.+'
-
 repositories {
-    maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots/'
-    }
     mavenCentral()
+    maven {url 'https://oss.sonatype.org/content/repositories/snapshots/'}
 }
 
 dependencies {
     // Android Support
-    compile "com.android.support:support-v4:${androidSupportVersion}"
-    compile "com.android.support:appcompat-v7:${androidSupportVersion}"
+    def androidSupportVersion = '20.0.+'
+    compile "com.android.support:support-v4:$androidSupportVersion"
+    compile "com.android.support:appcompat-v7:$androidSupportVersion"
 
     // OrmLite
-    compile "com.j256.ormlite:ormlite-android:${ormLiteVersion}"
-    compile "com.j256.ormlite:ormlite-core:${ormLiteVersion}"
+    def ormLiteVersion = '4.48'
+    compile "com.j256.ormlite:ormlite-android:$ormLiteVersion"
+    compile "com.j256.ormlite:ormlite-core:$ormLiteVersion"
 
     // Android Annotations
-    apt "org.androidannotations:androidannotations:${androidAnnotationsVersion}"
-    compile "org.androidannotations:androidannotations-api:${androidAnnotationsVersion}"
+    def androidAnnotationsVersion = '3.0.1'
+    apt "org.androidannotations:androidannotations:$androidAnnotationsVersion"
+    compile "org.androidannotations:androidannotations-api:$androidAnnotationsVersion"
 
     // Dagger
-    apt "com.squareup.dagger:dagger-compiler:${daggerVersion}"
-    compile "com.squareup.dagger:dagger:${daggerVersion}"
+    def daggerVersion = '1.2.+'
+    apt "com.squareup.dagger:dagger-compiler:$daggerVersion"
+    compile "com.squareup.dagger:dagger:$daggerVersion"
 
     // Commons-lang3
-    compile "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    compile "org.apache.commons:commons-lang3:3.3.+"
 
     // Guava
-    compile "com.google.guava:guava:${guavaVerions}"
+    compile "com.google.guava:guava:17.0"
 
     // JUnit
-    androidTestCompile "junit:junit:${JUnitVersion}"
+    androidTestCompile "junit:junit:4.11"
 
     // Mockito
-    androidTestCompile "org.mockito:mockito-core:${mockitoVersion}"
+    androidTestCompile "org.mockito:mockito-core:1.9.5"
 
     // Robolectric
-    androidTestCompile("org.robolectric:robolectric:${robolectricVersion}") {
+    androidTestCompile("org.robolectric:robolectric:2.4-SNAPSHOT") {
         exclude module: 'classworlds'
         exclude module: 'maven-artifact'
         exclude module: 'maven-artifact-manager'
@@ -123,13 +108,12 @@ dependencies {
     }
 
     // Fest-android
-    androidTestCompile "com.squareup:fest-android:${festAndroidVersion}"
+    androidTestCompile "com.squareup:fest-android:1.0.+"
 }
 
 apply plugin: "jacoco"
 
 jacoco {
-    // I have only tried 0.7.x
     toolVersion = "0.7.1.201405082137"
 }
 // Define coverage source.
