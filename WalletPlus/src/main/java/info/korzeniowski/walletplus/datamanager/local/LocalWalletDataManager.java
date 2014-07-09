@@ -8,12 +8,13 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.SqlExceptionRuntime;
+import info.korzeniowski.walletplus.datamanager.exception.DatabaseException;
+import info.korzeniowski.walletplus.datamanager.local.validation.Validator;
 import info.korzeniowski.walletplus.datamanager.local.validation.WalletValidator;
 import info.korzeniowski.walletplus.model.Wallet;
 
-public class LocalWalletDataManager implements WalletDataManager{
-    WalletValidator walletValidator;
+public class LocalWalletDataManager implements WalletDataManager {
+    Validator<Wallet> walletValidator;
     private final Dao<Wallet, Long> walletDao;
 
     @Inject
@@ -30,7 +31,7 @@ public class LocalWalletDataManager implements WalletDataManager{
             walletDao.create(wallet);
             return wallet.getId();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -39,7 +40,7 @@ public class LocalWalletDataManager implements WalletDataManager{
         try {
             return walletDao.countOf();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -48,7 +49,7 @@ public class LocalWalletDataManager implements WalletDataManager{
         try {
             return walletDao.queryForId(id);
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -57,29 +58,27 @@ public class LocalWalletDataManager implements WalletDataManager{
         try {
             return walletDao.queryForAll();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
     @Override
     public void update(Wallet newValue) {
         try {
-            Wallet toUpdate = walletDao.queryForId(newValue.getId());
-            walletValidator.validateUpdate(newValue, toUpdate);
+            walletValidator.validateUpdate(newValue);
             walletDao.update(newValue);
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
     @Override
     public void deleteById(Long id) {
         try {
-            Wallet walletToDelete = walletDao.queryForId(id);
-            walletValidator.validateDelete(walletToDelete);
+            walletValidator.validateDelete(id);
             walletDao.deleteById(id);
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -88,7 +87,7 @@ public class LocalWalletDataManager implements WalletDataManager{
         try {
             return walletDao.queryBuilder().where().eq("type", Wallet.Type.MY_WALLET).query();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -97,7 +96,7 @@ public class LocalWalletDataManager implements WalletDataManager{
         try {
             return walletDao.queryBuilder().where().eq("type", Wallet.Type.CONTRACTOR).query();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -106,7 +105,7 @@ public class LocalWalletDataManager implements WalletDataManager{
         try {
             return walletDao.queryBuilder().where().eq("name", name).and().eq("type", type).queryForFirst();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 }

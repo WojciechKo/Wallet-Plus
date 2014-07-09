@@ -1,10 +1,10 @@
 package info.korzeniowski.walletplus.datamanager.exception;
 
-public class EntityPropertyCannotBeEmptyException extends RuntimeException{
+public class EntityPropertyCannotBeNullOrEmptyException extends RuntimeException {
     private String entity;
     private String property;
 
-    public EntityPropertyCannotBeEmptyException(String entity, String property) {
+    public EntityPropertyCannotBeNullOrEmptyException(String entity, String property) {
         super ("Property: " + property + " of Entity: " + entity + ", can't be null.");
         this.entity = entity;
         this.property = property;

@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config;
 import java.sql.SQLException;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeEmptyException;
+import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeNullOrEmptyException;
 import info.korzeniowski.walletplus.datamanager.local.DatabaseHelper;
 import info.korzeniowski.walletplus.datamanager.local.LocalWalletDataManager;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -41,8 +41,8 @@ public class WalletValidatorTest {
     public void walletMustHaveType() {
         try {
             walletDataManager.insert(new Wallet().setName("TestName").setInitialAmount(11.1));
-            failBecauseExceptionWasNotThrown(EntityPropertyCannotBeEmptyException.class);
-        } catch (EntityPropertyCannotBeEmptyException e) {
+            failBecauseExceptionWasNotThrown(EntityPropertyCannotBeNullOrEmptyException.class);
+        } catch (EntityPropertyCannotBeNullOrEmptyException e) {
             assertThat(e.getProperty().equals("Type"));
         }
     }
@@ -51,8 +51,8 @@ public class WalletValidatorTest {
     public void myWalletShouldHaveInitialAmount() {
         try {
             walletDataManager.insert(new Wallet().setType(Wallet.Type.MY_WALLET).setName("TestName"));
-            failBecauseExceptionWasNotThrown(EntityPropertyCannotBeEmptyException.class);
-        } catch (EntityPropertyCannotBeEmptyException e) {
+            failBecauseExceptionWasNotThrown(EntityPropertyCannotBeNullOrEmptyException.class);
+        } catch (EntityPropertyCannotBeNullOrEmptyException e) {
             assertThat(e.getProperty().equals("InitialAmount"));
         }
     }

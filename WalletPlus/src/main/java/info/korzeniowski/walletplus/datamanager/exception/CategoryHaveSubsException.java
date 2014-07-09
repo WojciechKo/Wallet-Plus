@@ -1,5 +1,5 @@
 package info.korzeniowski.walletplus.datamanager.exception;
 
-public class CategoryHaveSubsException extends RuntimeException{
+public class CategoryHaveSubsException extends RuntimeException {
 
 }

@@ -8,7 +8,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.SqlExceptionRuntime;
+import info.korzeniowski.walletplus.datamanager.exception.DatabaseException;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Wallet;
 
@@ -27,7 +27,7 @@ public class LocalCashFlowDataManager implements CashFlowDataManager {
         try {
             return cashFlowDao.countOf();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -36,7 +36,7 @@ public class LocalCashFlowDataManager implements CashFlowDataManager {
         try {
             return cashFlowDao.queryForId(id);
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -45,7 +45,7 @@ public class LocalCashFlowDataManager implements CashFlowDataManager {
         try {
             return cashFlowDao.queryForAll();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -56,7 +56,7 @@ public class LocalCashFlowDataManager implements CashFlowDataManager {
             validateUpdate(toUpdate, cashFlow);
             cashFlowDao.update(cashFlow);
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -72,7 +72,7 @@ public class LocalCashFlowDataManager implements CashFlowDataManager {
             fixCurrentAmountInWalletAfterInsert(cashFlow);
             return cashFlow.getId();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -112,27 +112,22 @@ public class LocalCashFlowDataManager implements CashFlowDataManager {
             cashFlowDao.deleteById(id);
             fixCurrentAmountInWalletAfterDelete(cashFlow);
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
 
     }
 
-    private void fixCurrentAmountInWalletAfterDelete(CashFlow cashFlow) {
-        try {
-            Wallet fromWallet = cashFlow.getFromWallet();
-            if (fromWallet != null) {
-                fromWallet.setCurrentAmount(fromWallet.getCurrentAmount() + cashFlow.getAmount());
-                walletDao.update(fromWallet);
-            }
+    private void fixCurrentAmountInWalletAfterDelete(CashFlow cashFlow) throws SQLException {
+        Wallet fromWallet = cashFlow.getFromWallet();
+        if (fromWallet != null) {
+            fromWallet.setCurrentAmount(fromWallet.getCurrentAmount() + cashFlow.getAmount());
+            walletDao.update(fromWallet);
+        }
 
-            Wallet toWallet = cashFlow.getToWallet();
-            if (toWallet != null) {
-                toWallet.setCurrentAmount(toWallet.getCurrentAmount() - cashFlow.getAmount());
-                walletDao.update(toWallet);
-            }
-
-        } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+        Wallet toWallet = cashFlow.getToWallet();
+        if (toWallet != null) {
+            toWallet.setCurrentAmount(toWallet.getCurrentAmount() - cashFlow.getAmount());
+            walletDao.update(toWallet);
         }
     }
 }

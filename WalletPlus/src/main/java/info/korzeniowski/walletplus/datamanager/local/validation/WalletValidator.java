@@ -3,7 +3,7 @@ package info.korzeniowski.walletplus.datamanager.local.validation;
 import com.google.common.base.Objects;
 
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeEmptyException;
+import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeNullOrEmptyException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletNameAndTypeMustBeUniqueException;
 import info.korzeniowski.walletplus.datamanager.exception.WalletTypeCannotBeChangedException;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -29,13 +29,13 @@ public class WalletValidator implements Validator<Wallet>{
 
     private void validateIfTypeIsNotNull(Wallet wallet) {
         if (wallet.getType() == null) {
-            throw new EntityPropertyCannotBeEmptyException(wallet.getClass().getSimpleName(), "Type");
+            throw new EntityPropertyCannotBeNullOrEmptyException(wallet.getClass().getSimpleName(), "Type");
         }
     }
 
     private void validateIfInitialAmountIsNotNull(Wallet wallet) {
         if (wallet.getInitialAmount() == null) {
-            throw new EntityPropertyCannotBeEmptyException(wallet.getClass().getSimpleName(), "InitialAmount");
+            throw new EntityPropertyCannotBeNullOrEmptyException(wallet.getClass().getSimpleName(), "InitialAmount");
         }
     }
 
@@ -47,7 +47,8 @@ public class WalletValidator implements Validator<Wallet>{
     }
 
     @Override
-    public void validateUpdate(Wallet newWallet, Wallet oldWallet) {
+    public void validateUpdate(Wallet newWallet) {
+        Wallet oldWallet = walletDataManager.findById(newWallet.getId());
         validateIfNewNameIsUnique(newWallet, oldWallet);
         validateIfWalletTypeNotChanged(newWallet, oldWallet);
     }
@@ -66,7 +67,7 @@ public class WalletValidator implements Validator<Wallet>{
     }
 
     @Override
-    public void validateDelete(Wallet wallet) {
+    public void validateDelete(Long id) {
 
     }
 }

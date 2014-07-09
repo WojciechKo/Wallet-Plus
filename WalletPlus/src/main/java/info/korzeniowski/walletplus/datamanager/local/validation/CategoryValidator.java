@@ -7,9 +7,9 @@ import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.datamanager.exception.CategoryNameMustBeUniqueException;
 import info.korzeniowski.walletplus.datamanager.exception.EntityAlreadyExistsException;
-import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeEmptyException;
+import info.korzeniowski.walletplus.datamanager.exception.EntityPropertyCannotBeNullOrEmptyException;
 import info.korzeniowski.walletplus.datamanager.exception.ParentCategoryIsNotMainCategoryException;
-import info.korzeniowski.walletplus.datamanager.exception.SubCategoryCantHaveTypeDifferentThanParentException;
+import info.korzeniowski.walletplus.datamanager.exception.SubCategoryCantHaveTypeException;
 import info.korzeniowski.walletplus.model.Category;
 
 public class CategoryValidator implements Validator<Category> {
@@ -24,7 +24,7 @@ public class CategoryValidator implements Validator<Category> {
         validateIfNameIsNotNullOrEmpty(category);
         validateIfNameIsUnique(category);
         validateIfIdIsUnique(category);
-        if (category.getParent().getId() == null) {
+        if (category.getParent() == null) {
             validateInsertMain(category);
         } else {
             validateInsertSub(category);
@@ -37,46 +37,13 @@ public class CategoryValidator implements Validator<Category> {
 
     private void validateInsertSub(Category category) {
         validateIfParentCategoryIsMain(category);
-        validateIfCategoryHaveTypeLikeParentOrNone(category);
+        validateIfCategoryHaveNoType(category);
     }
 
     @Override
-    public void validateUpdate(Category newValue, Category toUpdate) {
-        validateIfNameIsNotNullOrEmpty(newValue);
-        validateIfNewNameIsUnique(newValue, toUpdate);
-        validateIfNewIdIsUnique(newValue, toUpdate);
-        if(newValue.getParent().getId() == null && toUpdate.getParent().getId() == null) {
-            validateUpdateMainToMain(newValue);
-        } else if (toUpdate.getParent().getId() == null) {
-            validateUpdateMainToSub(newValue, toUpdate);
-        } else if(newValue.getParent().getId() == null) {
-            validateUpdateSubToMain(newValue, toUpdate);
-        } else {
-            validateSubToSub(newValue);
-        }
-    }
-
-    private void validateUpdateMainToMain(Category newValue) {
-        validateInsertMain(newValue);
-    }
-
-    private void validateUpdateMainToSub(Category newValue, Category toUpdate) {
-        validateIfCategoryHaveTypeLikeParentOrNone(newValue);
-        validateIfCategoryHaveNoChildren(toUpdate);
-    }
-
-    private void validateUpdateSubToMain(Category newValue, Category toUpdate) {
-        validateIfCategoryTypeIsNotNullOrEmpty(newValue);
-    }
-
-    private void validateSubToSub(Category newValue) {
-        validateIfCategoryHaveTypeLikeParentOrNone(newValue);
-        validateIfParentCategoryIsMain(newValue);
-    }
-
-    @Override
-    public void validateDelete(Category category) {
-        if (category.getParent().getId() == null) {
+    public void validateDelete(Long id) {
+        Category category = categoryDataManager.findById(id);
+        if (category.getParent() == null) {
             validateDeleteMain(category);
         } else {
             validateDeleteSub(category);
@@ -91,13 +58,50 @@ public class CategoryValidator implements Validator<Category> {
 
     }
 
-    /*******************************
+    @Override
+    public void validateUpdate(Category newCategory) {
+        Category oldCategory = categoryDataManager.findById(newCategory.getId());
+        validateIfNameIsNotNullOrEmpty(newCategory);
+        validateIfNewNameIsUnique(newCategory, oldCategory);
+        validateIfNewIdIsUnique(newCategory, oldCategory);
+        if (newCategory.getParent() == null && oldCategory.getParent() == null) {
+            validateUpdateMainToMain(newCategory);
+        } else if (oldCategory.getParent() == null) {
+            validateUpdateMainToSub(newCategory, oldCategory);
+        } else if (newCategory.getParent() == null) {
+            validateUpdateSubToMain(newCategory, oldCategory);
+        } else {
+            validateSubToSub(newCategory);
+        }
+    }
+
+    private void validateUpdateMainToMain(Category newValue) throws EntityPropertyCannotBeNullOrEmptyException {
+        validateInsertMain(newValue);
+    }
+
+    private void validateUpdateMainToSub(Category newValue, Category toUpdate) {
+        validateIfCategoryHaveNoType(newValue);
+        validateIfCategoryHaveNoChildren(toUpdate);
+    }
+
+    private void validateUpdateSubToMain(Category newValue, Category toUpdate) {
+        validateIfCategoryTypeIsNotNullOrEmpty(newValue);
+    }
+
+    private void validateSubToSub(Category newValue) {
+        validateIfCategoryHaveNoType(newValue);
+        validateIfParentCategoryIsMain(newValue);
+    }
+
+    /**
+     * ****************************
      * Unit validations
-     *******************************/
+     * *****************************
+     */
 
     private void validateIfNameIsNotNullOrEmpty(Category category) {
         if (Strings.isNullOrEmpty(category.getName())) {
-            throw new EntityPropertyCannotBeEmptyException(Category.class.getSimpleName(), "Name");
+            throw new EntityPropertyCannotBeNullOrEmptyException(Category.class.getSimpleName(), "Name");
         }
     }
 
@@ -108,42 +112,21 @@ public class CategoryValidator implements Validator<Category> {
     }
 
     private void validateIfIdIsUnique(Category category) {
-        if (categoryDataManager.findById(category.getId()) != null) {
+        if (category.getId() != null && categoryDataManager.findById(category.getId()) != null) {
             throw new EntityAlreadyExistsException(Category.class.getSimpleName(), category.getId());
         }
     }
 
-    private void validateIfNewNameIsUnique(Category newValue, Category toUpdate) {
-        if (!Objects.equal(newValue.getName(), toUpdate.getName())) {
-            validateIfNameIsUnique(newValue);
-        }
-    }
-
-    private void validateIfCategoryHaveNoChildren(Category category) {
-        if(!categoryDataManager.getSubCategoriesOf(category.getId()).isEmpty()) {
-            throw new CategoryHaveSubsException();
-        }
-    }
-
-    private void validateIfCategoryHaveTypeLikeParentOrNone(Category category) {
+    private void validateIfCategoryHaveNoType(Category category) {
         if (category.getType() == null) {
             return;
         }
-        Category parent = categoryDataManager.findById(category.getParent().getId());
-        if (!parent.getType().equals(category.getType())) {
-            throw new SubCategoryCantHaveTypeDifferentThanParentException();
-        }
+        throw new SubCategoryCantHaveTypeException();
     }
 
     private void validateIfCategoryTypeIsNotNullOrEmpty(Category category) {
         if (category.getType() == null) {
-            throw new EntityPropertyCannotBeEmptyException(category.getClass().getSimpleName(), "Type");
-        }
-    }
-
-    private void validateIfNewIdIsUnique(Category newValue, Category toUpdate) {
-        if (!Objects.equal(newValue.getId(), toUpdate.getId())) {
-            validateIfIdIsUnique(newValue);
+            throw new EntityPropertyCannotBeNullOrEmptyException(Category.class.getSimpleName(), "Type");
         }
     }
 
@@ -154,6 +137,24 @@ public class CategoryValidator implements Validator<Category> {
     private void validateIfParentCategoryIsMain(Category category) {
         if (!isMainCategory(category.getParent().getId())) {
             throw new ParentCategoryIsNotMainCategoryException();
+        }
+    }
+
+    private void validateIfCategoryHaveNoChildren(Category category) {
+        if (!categoryDataManager.getSubCategoriesOf(category.getId()).isEmpty()) {
+            throw new CategoryHaveSubsException();
+        }
+    }
+
+    private void validateIfNewIdIsUnique(Category newValue, Category toUpdate) {
+        if (!Objects.equal(newValue.getId(), toUpdate.getId())) {
+            validateIfIdIsUnique(newValue);
+        }
+    }
+
+    private void validateIfNewNameIsUnique(Category newValue, Category toUpdate) {
+        if (!Objects.equal(newValue.getName(), toUpdate.getName())) {
+            validateIfNameIsUnique(newValue);
         }
     }
 }

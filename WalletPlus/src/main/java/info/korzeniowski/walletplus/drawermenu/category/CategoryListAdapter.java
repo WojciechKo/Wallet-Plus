@@ -40,7 +40,7 @@ public class CategoryListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Category getChild(int groupPosition, int childPosition) {
-        return getGroup(groupPosition).getChildren().iterator(childPosition).next();
+        return getGroup(groupPosition).getChildren().get(childPosition);
     }
 
     @Override

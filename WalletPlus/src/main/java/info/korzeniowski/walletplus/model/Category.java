@@ -1,10 +1,12 @@
 package info.korzeniowski.walletplus.model;
 
+import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 
 import java.util.Comparator;
+import java.util.List;
 
 public class Category implements Comparable<Category> {
     public enum Type {INCOME, EXPENSE, INCOME_EXPENSE}
@@ -18,19 +20,18 @@ public class Category implements Comparable<Category> {
     @DatabaseField(canBeNull = false, uniqueIndex = true)
     private String name;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField
     private Type type;
 
-    @ForeignCollectionField
+    @ForeignCollectionField(orderColumnName = "name")
     private ForeignCollection<Category> children;
 
     public Category() {
 
     }
 
-    public Category(String name, Type type) {
+    public Category(String name) {
         this.name = name;
-        this.type = type;
     }
 
     public Long getId() {
@@ -77,8 +78,8 @@ public class Category implements Comparable<Category> {
         return Type.EXPENSE.equals(getType()) || Type.INCOME_EXPENSE.equals(getType());
     }
 
-    public ForeignCollection<Category> getChildren() {
-        return children;
+    public List<Category> getChildren() {
+        return Lists.newArrayList(children);
     }
 
     @Override

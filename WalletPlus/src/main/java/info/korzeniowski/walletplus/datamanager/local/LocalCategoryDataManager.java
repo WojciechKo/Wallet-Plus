@@ -8,7 +8,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.SqlExceptionRuntime;
+import info.korzeniowski.walletplus.datamanager.exception.DatabaseException;
 import info.korzeniowski.walletplus.datamanager.local.validation.CategoryValidator;
 import info.korzeniowski.walletplus.model.Category;
 
@@ -23,9 +23,17 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         this.categoryDao = categoryDao;
         this.categoryValidator = new CategoryValidator(this);
     }
-    /*************
+
+    public LocalCategoryDataManager(Dao<Category, Long> categoryDao, CategoryValidator categoryValidator) {
+        this.categoryDao = categoryDao;
+        this.categoryValidator = categoryValidator;
+    }
+
+    /**
+     * **********
      * CREATE
-     *************/
+     * ***********
+     */
     @Override
     public Long insert(Category category) {
         try {
@@ -34,19 +42,21 @@ public class LocalCategoryDataManager implements CategoryDataManager {
             categoryDao.create(category);
             return category.getId();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
-    /*************
+    /**
+     * **********
      * READ
-     *************/
+     * ***********
+     */
     @Override
     public Category findById(final Long id) {
         try {
             return categoryDao.queryForId(id);
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -55,7 +65,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         try {
             return categoryDao.queryBuilder().where().eq("name", name).queryForFirst();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -64,7 +74,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         try {
             return categoryDao.queryForAll();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -73,7 +83,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         try {
             return categoryDao.countOf();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -82,7 +92,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         try {
             return categoryDao.queryBuilder().where().isNull("parent_id").query();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -98,9 +108,9 @@ public class LocalCategoryDataManager implements CategoryDataManager {
 
     private List<Category> getMainCategoriesOfType(final Category.Type type) {
         try {
-            return  categoryDao.queryBuilder().where().eq("type", type).or().eq("type", Category.Type.INCOME_EXPENSE).query();
+            return categoryDao.queryBuilder().where().eq("type", type).or().eq("type", Category.Type.INCOME_EXPENSE).query();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
@@ -109,47 +119,49 @@ public class LocalCategoryDataManager implements CategoryDataManager {
         try {
             return categoryDao.queryBuilder().where().eq("parent_id", id).query();
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
-    /*************
+    /**
+     * **********
      * UPDATE
-     *************/
+     * ***********
+     */
     @Override
     public void update(final Category newValue) {
         try {
-            Category toUpdate = findById(newValue.getId());
-            categoryValidator.validateUpdate(newValue, toUpdate);
+            categoryValidator.validateUpdate(newValue);
             categoryDao.update(newValue);
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
-    /*************
+    /**
+     * **********
      * DELETE
-     *************/
+     * ***********
+     */
     @Override
     public void deleteById(Long id) {
         try {
-            Category categoryToDelete = findById(id);
-            categoryValidator.validateDelete(categoryToDelete);
-            categoryDao.delete(categoryToDelete);
+            categoryValidator.validateDelete(id);
+            categoryDao.deleteById(id);
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 
     @Override
     public void deleteByIdWithSubcategories(Long id) {
         try {
+            categoryValidator.validateDelete(id);
             Category main = findById(id);
-            //TODO: walidacja
             categoryDao.deleteBuilder().where().eq("parent", main).query();
             categoryDao.delete(main);
         } catch (SQLException e) {
-            throw new SqlExceptionRuntime(e);
+            throw new DatabaseException(e);
         }
     }
 }
