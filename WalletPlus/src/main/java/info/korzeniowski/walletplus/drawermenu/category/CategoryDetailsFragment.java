@@ -6,14 +6,17 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.ToggleButton;
+import android.widget.Toast;
+
+import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -30,12 +33,16 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
+import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveSubsException;
+import info.korzeniowski.walletplus.datamanager.exception.CategoryNameMustBeUniqueException;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton;
 
 @OptionsMenu(R.menu.action_save)
 @EFragment(R.layout.category_details_fragment)
 public class CategoryDetailsFragment extends Fragment {
     private enum DetailsType {ADD, EDIT}
+
     static final public String CATEGORY_ID = "CATEGORY_ID";
 
     @ViewById
@@ -45,29 +52,24 @@ public class CategoryDetailsFragment extends Fragment {
     EditText categoryName;
 
     @ViewById
-    CheckBox isMainCategory;
+    RadioGroup categoryType;
 
     @ViewById
-    TextView parentCategoryLabel;
+    ListenWhenDisabledToggleButton categoryIncomeType;
+
+    @ViewById
+    ListenWhenDisabledToggleButton categoryExpenseType;
 
     @ViewById
     Spinner parentCategory;
 
-    @ViewById
-    ToggleButton categoryIncomeType;
-
-    @ViewById
-    ToggleButton categoryExpenseType;
-
-    @ViewById
-    RadioGroup categoryTypes;
-
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     CategoryDataManager localCategoryDataManager;
 
-    private Long categoryId;
-    private Category category;
-    private DetailsType type;
+    private DetailsType mType;
+    private Category mCategory;
+    private Category mParent;
 
     @AfterInject
     void daggerInject() {
@@ -76,10 +78,18 @@ public class CategoryDetailsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        categoryId = getArguments().getLong(CATEGORY_ID);
-        type = categoryId == 0L ? DetailsType.ADD : DetailsType.EDIT;
-        category = getCategory();
+        Long categoryId = getArguments().getLong(CATEGORY_ID);
+        mType = categoryId == 0L ? DetailsType.ADD : DetailsType.EDIT;
+        mCategory = getCategory(categoryId);
+        mParent = mCategory.getParent();
         return null;
+    }
+
+    private Category getCategory(Long categoryId) {
+        if (mType.equals(DetailsType.EDIT)) {
+            return localCategoryDataManager.findById(categoryId);
+        }
+        return new Category().setType(Category.Type.INCOME_EXPENSE);
     }
 
     @AfterViews
@@ -89,134 +99,206 @@ public class CategoryDetailsFragment extends Fragment {
         fillViewsWithData();
     }
 
-    private Category getCategory() {
-        if (type.equals(DetailsType.EDIT)) {
-            return localCategoryDataManager.findById(categoryId);
-        }
-        return new Category();
-    }
-
     private void setupAdapters() {
-        parentCategory.setAdapter(
-                new ParentCategorySpinnerAdapter(
-                        getActivity(),
-                        android.R.layout.simple_spinner_item,
-                        localCategoryDataManager.getMainCategories()
-                )
-        );
+        parentCategory.setAdapter(new ParentCategoryAdapter(getActivity(), localCategoryDataManager.getMainCategories()));
     }
 
     private void setupListeners() {
-        isMainCategory.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ListenWhenDisabledToggleButton.OnClickWhenDisabledListener typeButtonClickedListener = new ListenWhenDisabledToggleButton.OnClickWhenDisabledListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    parentCategoryLabel.setVisibility(View.INVISIBLE);
-                    parentCategory.setVisibility(View.INVISIBLE);
+            public void onClickWhenDisable() {
+                Toast.makeText(getActivity(), "Can't change type of subcategory.", Toast.LENGTH_SHORT).show();
+            }
+        };
+        categoryIncomeType.setOnClickWhenDisabledListener(typeButtonClickedListener);
+        categoryExpenseType.setOnClickWhenDisabledListener(typeButtonClickedListener);
+
+        parentCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (position == 0) {
+                    noParentSelected();
                 } else {
-                    parentCategoryLabel.setVisibility(View.VISIBLE);
-                    parentCategory.setVisibility(View.VISIBLE);
+                    parentSelected((Category) parentView.getSelectedItem());
                 }
             }
-        });
 
-        categoryIncomeType.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                categoryTypesChecked((RadioGroup) compoundButton.getParent(), compoundButton.getId());
+            private void noParentSelected() {
+                if (mParent != null) {
+                    categoryIncomeType.setChecked(mParent.isIncomeType());
+                    categoryExpenseType.setChecked(mParent.isExpenseType());
+                    mParent = null;
+                }
+                categoryIncomeType.setEnabled(true);
+                categoryExpenseType.setEnabled(true);
             }
-        });
 
-        categoryExpenseType.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            private void parentSelected(Category selectedParent) {
+                mParent = selectedParent;
+                categoryIncomeType.setChecked(selectedParent.isIncomeType());
+                categoryExpenseType.setChecked(selectedParent.isExpenseType());
+                categoryIncomeType.setEnabled(false);
+                categoryExpenseType.setEnabled(false);
+            }
+
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                categoryTypesChecked((RadioGroup) compoundButton.getParent(), compoundButton.getId());
+            public void onNothingSelected(AdapterView<?> parentView) {
+
             }
         });
     }
 
-    private void categoryTypesChecked(RadioGroup radioGroup, int id) {
-        int checked = 0;
-        ToggleButton changed = null;
+    private void fillViewsWithData() {
+        categoryName.setText(mCategory.getName());
+        if (mCategory.getParent() != null) {
+            ParentCategoryAdapter parentCategoryAdapter= (ParentCategoryAdapter) parentCategory.getAdapter();
+            parentCategory.setSelection(parentCategoryAdapter.getPosition(mParent));
+        }
+        categoryIncomeType.setChecked(mCategory.isIncomeType());
+        categoryExpenseType.setChecked(mCategory.isExpenseType());
+    }
 
-        for (int i = 0; i < radioGroup.getChildCount(); i++) {
-            ToggleButton iteratedButton = (ToggleButton) radioGroup.getChildAt(i);
-            if (iteratedButton.isChecked()) {
-                checked++;
-            }
-            if (iteratedButton.getId() == id) {
-                changed = iteratedButton;
-            }
+    private void getDataFromViews() {
+        mCategory.setName(categoryName.getText().toString());
+        if (mParent == null) {
+            mCategory.setParent(null);
+            mCategory.setType(getTypeFromView());
+        } else {
+            mCategory.setParent(mParent);
+            mCategory.setType(null);
         }
-        if (checked == 0) {
-            changed.toggle();
+    }
+
+    private Category.Type getTypeFromView() {
+        if (categoryExpenseType.isChecked() && categoryIncomeType.isChecked()) {
+            return Category.Type.INCOME_EXPENSE;
+        } else if (categoryIncomeType.isChecked()) {
+            return Category.Type.INCOME;
+        } else if (categoryExpenseType.isChecked()) {
+            return Category.Type.EXPENSE;
         }
+        return null;
     }
 
     @OptionsItem(R.id.menu_save)
     void actionSave() {
-        getDataFromViews();
-        if (DetailsType.ADD.equals(type)) {
-            localCategoryDataManager.insert(category);
-        } else if (DetailsType.EDIT.equals(type)) {
-            localCategoryDataManager.update(category);
-        }
-        getActivity().getSupportFragmentManager().popBackStack();
-    }
-
-    private void fillViewsWithData() {
-        if (type.equals(DetailsType.EDIT)) {
-            categoryName.setText(category.getName());
-            if (category.getParent() != null) {
-                Category parent = localCategoryDataManager.findById(category.getParent().getId());
-                isMainCategory.setChecked(false);
-                parentCategory.setSelection(localCategoryDataManager.getMainCategories().indexOf(parent));
+        if (preValidation()) {
+            getDataFromViews();
+            boolean success = false;
+            if (DetailsType.ADD.equals(mType)) {
+                success = tryInsert();
+            } else if (DetailsType.EDIT.equals(mType)) {
+                success = tryUpdate();
             }
-            categoryIncomeType.setChecked(category.isIncomeType());
-            categoryExpenseType.setChecked(category.isExpenseType());
+            if (success) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
         }
     }
 
-    public void getDataFromViews() {
-        category.setName(categoryName.getText().toString());
-
-        if (categoryExpenseType.isChecked() && categoryIncomeType.isChecked()) {
-            category.setType(Category.Type.INCOME_EXPENSE);
-        } else if (categoryIncomeType.isChecked()) {
-            category.setType(Category.Type.INCOME);
-        } else if (categoryExpenseType.isChecked()) {
-            category.setType(Category.Type.EXPENSE);
-        }
-
-        if (!isMainCategory.isChecked()) {
-            category.setParent(((Category) parentCategory.getSelectedItem()));
-        }
+    private boolean preValidation() {
+        return validateName() && validateType();
     }
 
-    private class ParentCategorySpinnerAdapter extends ArrayAdapter<Category> {
-
-        public ParentCategorySpinnerAdapter(Context context, int resource, List<Category> objects) {
-            super(context, resource, objects);
+    private boolean validateName() {
+        if (Strings.isNullOrEmpty(categoryName.getText().toString())) {
+            categoryName.setError("Category must have name.");
+            return false;
+        } else if (isContainLeadingOrTrailingSpaces(categoryName.getText().toString())) {
+            categoryName.setError("Category name can't contain leading or trailing spaces.");
+            return false;
         }
+        return true;
+    }
+
+    private boolean isContainLeadingOrTrailingSpaces(String string) {
+        return !string.trim().equals(string);
+    }
+
+    private boolean validateType() {
+        if (mParent == null && !isTypeChosen()) {
+            showToast("Main category must have any type.");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isTypeChosen() {
+        return categoryIncomeType.isChecked() || categoryExpenseType.isChecked();
+    }
+
+    private boolean tryInsert() {
+        try {
+            localCategoryDataManager.insert(mCategory);
+            return true;
+        } catch (CategoryNameMustBeUniqueException e) {
+            categoryName.setError("Category name need to be unique");
+        }
+        return false;
+    }
+
+    private boolean tryUpdate() {
+        try {
+            if (mCategory.getParent() != null) {
+                mCategory.setType(null);
+            }
+            localCategoryDataManager.update(mCategory);
+            return true;
+        } catch (CategoryNameMustBeUniqueException e) {
+            categoryName.setError("Category name need to be unique");
+        } catch (CategoryHaveSubsException e) {
+            showToast("Subcategory cannot have subcategories.");
+        }
+        return false;
+    }
+
+    private void showToast(String msg) {
+        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private class ParentCategoryAdapter extends BaseAdapter {
+        private Context context;
+        private List<Category> mainCategories;
+
+        private ParentCategoryAdapter(Context context, List<Category> mainCategories) {
+            mainCategories.add(0, new Category().setName("No parent (main category)"));
+            this.context = context;
+            this.mainCategories = mainCategories;
+        }
+
+        @Override
+        public int getCount() {
+            return mainCategories.size();
+        }
+
+        @Override
+        public Category getItem(int position) {
+            return mainCategories.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        public int getPosition(final Category category) {
+            return Iterables.indexOf(mainCategories, new Predicate<Category>() {
+                @Override
+                public boolean apply(Category categoryIt) {
+                    return category.getId().equals(categoryIt.getId());
+                }
+            });
+        }
+
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(android.R.layout.simple_spinner_item, null);
+                convertView = LayoutInflater.from(context).inflate(android.R.layout.simple_spinner_item, parent, false);
             }
             TextView categoryNameView = (TextView) convertView.findViewById(android.R.id.text1);
-            categoryNameView.setText(getItem(position).getName());
-            return convertView;
-        }
 
-        @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(android.R.layout.simple_spinner_item, null);
-            }
-            TextView categoryNameView = (TextView) convertView.findViewById(android.R.id.text1);
             categoryNameView.setText(getItem(position).getName());
+
             return convertView;
         }
 

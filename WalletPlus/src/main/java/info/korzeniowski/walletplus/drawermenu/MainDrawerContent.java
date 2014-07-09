@@ -26,22 +26,22 @@ public class MainDrawerContent {
         mainDrawerItems = new LinkedList<MainDrawerItem>();
 
         mainDrawerItems.add(new MainDrawerItem(
-                                context.getString(R.string.app_name),
+                                context.getString(R.string.appName),
                                 R.drawable.ic_menu_dashboard,
                                 DashboardFragment_.class));
 
         mainDrawerItems.add(new MainDrawerItem(
-                                context.getString(R.string.cashflow_title),
+                                context.getString(R.string.cashflowMenu),
                                 R.drawable.ic_menu_cashflow,
                                 CashFlowFragment_.class));
 
         mainDrawerItems.add(new MainDrawerItem(
-                                context.getString(R.string.categories_title),
+                                context.getString(R.string.categoryMenu),
                                 R.drawable.ic_menu_categories,
                                 CategoryFragment.class));
 
         mainDrawerItems.add(new MainDrawerItem(
-                                context.getString(R.string.wallets_title),
+                                context.getString(R.string.walletMenu),
                                 R.drawable.ic_menu_wallets,
                                 WalletFragment_.class));
     }

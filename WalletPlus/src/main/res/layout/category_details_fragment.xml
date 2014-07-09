@@ -1,80 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/categoryNameLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/categoryName"
-        android:gravity="center_vertical"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignBottom="@+id/categoryName" />
-
-    <EditText
-        android:id="@+id/categoryName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/categoryNameLabel" />
-
-    <RadioGroup
-        android:id="@+id/categoryTypes"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_gravity="top"
+        android:layout_margin="15dp"
+        android:background="@drawable/card_background"
         android:gravity="center"
-        android:layout_below="@+id/categoryNameLabel"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentLeft="true" >
-        <ToggleButton
-            android:id="@+id/categoryIncomeType"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textOn="Income"
-            android:textOff="Income"
-            android:checked="true" />
-        <ToggleButton
-            android:id="@+id/categoryExpenseType"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textOn="Expense"
-            android:textOff="Expense"
-            android:checked="true" />
-    </RadioGroup>
+        android:padding="15dp">
 
-    <CheckBox
-        android:id="@+id/isMainCategory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/is_main_category"
-        android:checked="true"
-        android:layout_below="@+id/categoryTypes"
-        android:layout_alignLeft="@+id/parentCategoryLabel"
-        android:layout_alignRight="@+id/parentCategory" />
+        <TextView
+            android:id="@+id/categoryNameLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="@string/categoryNameLabel"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <TextView
-        android:id="@+id/parentCategoryLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/parentCategory"
-        android:gravity="center_vertical"
-        android:visibility="invisible"
-        android:layout_below="@+id/isMainCategory"
-        android:layout_alignParentLeft="true"
-        android:layout_alignBottom="@+id/parentCategory" />
+        <EditText
+            android:id="@+id/categoryName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/categoryNameLabel"
+            android:hint="@string/categoryNameHint"
+            android:inputType="textAutoCorrect"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <Spinner
-        android:id="@+id/parentCategory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        android:layout_below="@+id/isMainCategory"
-        android:layout_toRightOf="@+id/parentCategoryLabel"
-        android:layout_alignParentRight="true"/>
+        <TextView
+            android:id="@+id/CategoryParentLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/categoryName"
+            android:text="@string/categoryParentLabel" />
 
-</RelativeLayout>
+        <Spinner
+            android:id="@+id/parentCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/CategoryParentLabel"
+            android:prompt="@string/categoryParentPrompt" />
+
+        <TextView
+            android:id="@+id/categoryTypeLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/parentCategory"
+            android:text="@string/categoryTypeLabel"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <RadioGroup
+            android:id="@+id/categoryType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/categoryTypeLabel"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton
+                android:id="@+id/categoryIncomeType"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textOff="Income"
+                android:textOn="Income" />
+
+            <info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton
+                android:id="@+id/categoryExpenseType"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textOff="Expense"
+                android:textOn="Expense" />
+        </RadioGroup>
+
+    </RelativeLayout>
+</ScrollView>

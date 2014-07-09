@@ -47,7 +47,7 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.drawermenu.category.CategoryListAdapter;
+import info.korzeniowski.walletplus.drawermenu.category.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -169,7 +169,7 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
     @Click
     void categoryClicked() {
         ExpandableListView expandableListView = new ExpandableListView(getActivity());
-        expandableListView.setAdapter(new CategoryListAdapter(getActivity(), categoryList));
+        expandableListView.setAdapter(new CategoryExpandableListAdapter(getActivity(), categoryList));
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle("Choose category:")

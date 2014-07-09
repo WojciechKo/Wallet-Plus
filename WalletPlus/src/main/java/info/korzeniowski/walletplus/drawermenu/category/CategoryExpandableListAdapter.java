@@ -13,12 +13,12 @@ import java.util.List;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.Category;
 
-public class CategoryListAdapter extends BaseExpandableListAdapter {
+public class CategoryExpandableListAdapter extends BaseExpandableListAdapter {
 
     private final Context context;
     private final List<Category> categoryList;
 
-    public CategoryListAdapter(Context context, List<Category> categories) {
+    public CategoryExpandableListAdapter(Context context, List<Category> categories) {
         this.context = context;
         this.categoryList = categories;
     }

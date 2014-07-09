@@ -41,6 +41,8 @@ public class CategoryListFragment extends Fragment {
     public static final int ONLY_EXPENSE = ONLY_INCOME + 1;
     public static final int ALL = ONLY_EXPENSE + 1;
 
+    private int categoryType;
+
     @ViewById(R.id.superList)
     ExpandableListView superList;
 
@@ -55,8 +57,8 @@ public class CategoryListFragment extends Fragment {
     @AfterViews
     void setupViews() {
         setHasOptionsMenu(true);
-        int type = getArguments().getInt(CATEGORY_TYPE);
-        superList.setAdapter(new CategoryListAdapter(getActivity(), getCategoryList(type)));
+        categoryType = getArguments().getInt(CATEGORY_TYPE);
+        resetCategoryListAdapter();
         superList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -64,17 +66,21 @@ public class CategoryListFragment extends Fragment {
                 int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
                 int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
 
-                ExpandableListAdapter expandableListAdapter = ((ExpandableListView) parent).getExpandableListAdapter();
-                long categoryId;
+                CategoryExpandableListAdapter categoryAdapter = (CategoryExpandableListAdapter) ((ExpandableListView) parent).getExpandableListAdapter();
+                Category longClickedCategory;
                 if (childPosition == -1)
-                    categoryId = expandableListAdapter.getGroupId(groupPosition);
+                    longClickedCategory = categoryAdapter.getGroup(groupPosition);
                 else
-                    categoryId = expandableListAdapter.getChildId(groupPosition, childPosition);
+                    longClickedCategory = categoryAdapter.getChild(groupPosition, childPosition);
 
-                ((ActionBarActivity) getActivity()).startSupportActionMode(new CategoryLongPressCallback(categoryId));
+                ((ActionBarActivity) getActivity()).startSupportActionMode(new CategoryLongPressCallback(longClickedCategory));
                 return true;
             }
         });
+    }
+
+    private void resetCategoryListAdapter() {
+        superList.setAdapter(new CategoryExpandableListAdapter(getActivity(), getCategoryList(categoryType)));
     }
 
     @OptionsItem(R.id.menu_new)
@@ -107,10 +113,10 @@ public class CategoryListFragment extends Fragment {
     }
 
     private final class CategoryLongPressCallback implements ActionMode.Callback {
-        private final Long id;
+        private final Category category;
 
-        public CategoryLongPressCallback(Long id) {
-            this.id = id;
+        public CategoryLongPressCallback(Category category) {
+            this.category = category;
         }
 
         @Override
@@ -128,11 +134,12 @@ public class CategoryListFragment extends Fragment {
         public boolean onActionItemClicked(ActionMode actionMode, android.view.MenuItem menuItem) {
             switch(menuItem.getItemId()) {
                 case R.id.menu_edit:
-                    startCategoryDetailsFragment(id);
+                    startCategoryDetailsFragment(category.getId());
                     break;
                 case R.id.menu_delete:
                     try {
-                        localCategoryDataManager.deleteById(id);
+                        localCategoryDataManager.deleteById(category.getId());
+                        resetCategoryListAdapter();
                     } catch (CategoryHaveSubsException e) {
                         buildIfDeleteWithSubcategoryAlertDialog().show();
                     }
@@ -144,12 +151,12 @@ public class CategoryListFragment extends Fragment {
 
         private AlertDialog buildIfDeleteWithSubcategoryAlertDialog() {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(localCategoryDataManager.findById(id).getName());
+            builder.setTitle(category.getName());
             builder.setMessage(R.string.category_have_children + "\n\n" + R.string.do_you_want_to_delete_with_subcategories);
             builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    localCategoryDataManager.deleteByIdWithSubcategories(id);
+                    localCategoryDataManager.deleteByIdWithSubcategories(category.getId());
                 }
             });
             builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
