@@ -1,83 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<info.korzeniowski.walletplus.widget.ScrollableCardRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content" >
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <TextView
+        android:id="@+id/categoryNameLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:layout_margin="15dp"
-        android:background="@drawable/card_background"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/categoryNameLabel"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <EditText
+        android:id="@+id/categoryName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/categoryNameLabel"
+        android:hint="@string/categoryNameHint"
+        android:inputType="textAutoCorrect"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/CategoryParentLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/categoryName"
+        android:text="@string/categoryParentLabel" />
+
+    <Spinner
+        android:id="@+id/parentCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/CategoryParentLabel"
+        android:prompt="@string/categoryParentPrompt" />
+
+    <TextView
+        android:id="@+id/categoryTypeLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/parentCategory"
+        android:text="@string/categoryTypeLabel"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <RadioGroup
+        android:id="@+id/categoryType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/categoryTypeLabel"
         android:gravity="center"
-        android:padding="15dp">
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/categoryNameLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:text="@string/categoryNameLabel"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+        <info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton
+            android:id="@+id/categoryIncomeType"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textOff="Income"
+            android:textOn="Income" />
 
-        <EditText
-            android:id="@+id/categoryName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/categoryNameLabel"
-            android:hint="@string/categoryNameHint"
-            android:inputType="textAutoCorrect"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/CategoryParentLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/categoryName"
-            android:text="@string/categoryParentLabel" />
-
-        <Spinner
-            android:id="@+id/parentCategory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/CategoryParentLabel"
-            android:prompt="@string/categoryParentPrompt" />
-
-        <TextView
-            android:id="@+id/categoryTypeLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/parentCategory"
-            android:text="@string/categoryTypeLabel"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <RadioGroup
-            android:id="@+id/categoryType"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/categoryTypeLabel"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton
-                android:id="@+id/categoryIncomeType"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textOff="Income"
-                android:textOn="Income" />
-
-            <info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton
-                android:id="@+id/categoryExpenseType"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textOff="Expense"
-                android:textOn="Expense" />
-        </RadioGroup>
-
-    </RelativeLayout>
-</ScrollView>
+        <info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton
+            android:id="@+id/categoryExpenseType"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textOff="Expense"
+            android:textOn="Expense" />
+    </RadioGroup>
+</info.korzeniowski.walletplus.widget.ScrollableCardRelativeLayout>
