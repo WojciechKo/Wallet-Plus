@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 
 import info.korzeniowski.walletplus.R;
 
-public class CategoryFragment extends Fragment{
+public class CategoryFragment extends Fragment {
     FragmentTabHost tabHost;
 
     @Override

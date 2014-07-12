@@ -2,15 +2,15 @@ package info.korzeniowski.walletplus.drawermenu.wallet;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
-import android.view.View;
 import android.widget.ListView;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.ViewById;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,11 +21,14 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
 
 @OptionsMenu(R.menu.action_new)
-@EFragment
-public class WalletFragment extends ListFragment {
+@EFragment(R.layout.card_list)
+public class WalletListFragment extends Fragment {
     @Inject
     @Named("local")
     WalletDataManager localWalletDataManager;
+
+    @ViewById
+    ListView list;
 
     @AfterInject
     void daggerInject() {
@@ -35,12 +38,12 @@ public class WalletFragment extends ListFragment {
     @AfterViews
     void setupViews() {
         setHasOptionsMenu(true);
-        setListAdapter(new WalletListAdapter(getActivity(), localWalletDataManager.getMyWallets()));
+        list.setAdapter(new WalletListAdapter(getActivity(), localWalletDataManager.getMyWallets()));
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        startWalletDetailsFragment(id);
+    @ItemClick
+    void listItemClicked(int position) {
+        startWalletDetailsFragment(list.getAdapter().getItemId(position));
     }
 
     @OptionsItem(R.id.menu_new)

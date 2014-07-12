@@ -42,7 +42,7 @@ public class WalletListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.wallet_list_item, parent, false);
+            convertView = inflater.inflate(R.layout.wallet_item_list, parent, false);
         }
         Wallet wallet = getItem(position);
 

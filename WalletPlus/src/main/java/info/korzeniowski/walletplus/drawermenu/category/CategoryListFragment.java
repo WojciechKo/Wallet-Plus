@@ -8,7 +8,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.view.ActionMode;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 
 import org.androidannotations.annotations.AfterInject;
@@ -41,13 +40,13 @@ public class CategoryListFragment extends Fragment {
     public static final int ONLY_EXPENSE = ONLY_INCOME + 1;
     public static final int ALL = ONLY_EXPENSE + 1;
 
-    private int categoryType;
-
     @ViewById(R.id.superList)
     ExpandableListView superList;
 
     @Inject @Named("local")
     CategoryDataManager localCategoryDataManager;
+
+    private int categoryType;
 
     @AfterInject
     void daggerInject() {
@@ -93,7 +92,7 @@ public class CategoryListFragment extends Fragment {
     }
 
     private void startCategoryDetailsFragment(Long id) {
-        Fragment fragment= new CategoryDetailsFragment_();
+        Fragment fragment = new CategoryDetailsFragment_();
         Bundle bundle = new Bundle();
         bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, id);
         fragment.setArguments(bundle);
@@ -132,7 +131,7 @@ public class CategoryListFragment extends Fragment {
 
         @Override
         public boolean onActionItemClicked(ActionMode actionMode, android.view.MenuItem menuItem) {
-            switch(menuItem.getItemId()) {
+            switch (menuItem.getItemId()) {
                 case R.id.menu_edit:
                     startCategoryDetailsFragment(category.getId());
                     break;

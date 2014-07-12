@@ -12,7 +12,8 @@
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@color/background"/>
 
     <!-- Content of left drawer -->
     <!-- Must specify horizontal gravity, "start" to support RTL languages-->

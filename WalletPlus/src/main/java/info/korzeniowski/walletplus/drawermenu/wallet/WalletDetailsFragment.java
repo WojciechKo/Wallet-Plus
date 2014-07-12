@@ -28,9 +28,10 @@ import info.korzeniowski.walletplus.datamanager.exception.WalletNameAndTypeMustB
 import info.korzeniowski.walletplus.model.Wallet;
 
 @OptionsMenu(R.menu.action_save)
-@EFragment(R.layout.wallet_details_fragment)
+@EFragment(R.layout.wallet_details)
 public class WalletDetailsFragment extends Fragment {
     private enum DetailsType {ADD, EDIT}
+
     static final String WALLET_ID = "WALLET_ID";
 
     @ViewById
@@ -39,14 +40,12 @@ public class WalletDetailsFragment extends Fragment {
     @ViewById
     TextView walletInitialAmount;
 
-    @Inject
-    @Named("local")
+    @Inject @Named("local")
     WalletDataManager localWalletDataManager;
 
     private Long walletId;
     private Wallet wallet;
     private DetailsType type;
-
     private String originalName;
 
     @AfterInject

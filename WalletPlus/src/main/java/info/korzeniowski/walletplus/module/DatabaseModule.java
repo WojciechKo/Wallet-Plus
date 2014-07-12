@@ -28,7 +28,7 @@ import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
 import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment_;
 import info.korzeniowski.walletplus.drawermenu.wallet.WalletDetailsFragment_;
-import info.korzeniowski.walletplus.drawermenu.wallet.WalletFragment_;
+import info.korzeniowski.walletplus.drawermenu.wallet.WalletListFragment_;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
@@ -51,7 +51,7 @@ import info.korzeniowski.walletplus.model.Wallet;
                 CashFlowFragment_.class,
 
                 WalletDetailsFragment_.class,
-                WalletFragment_.class
+                WalletListFragment_.class
         }
 )
 public class DatabaseModule {

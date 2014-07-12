@@ -39,7 +39,7 @@ import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton;
 
 @OptionsMenu(R.menu.action_save)
-@EFragment(R.layout.category_details_fragment)
+@EFragment(R.layout.category_details)
 public class CategoryDetailsFragment extends Fragment {
     private enum DetailsType {ADD, EDIT}
 
@@ -151,7 +151,7 @@ public class CategoryDetailsFragment extends Fragment {
     private void fillViewsWithData() {
         categoryName.setText(mCategory.getName());
         if (mCategory.getParent() != null) {
-            ParentCategoryAdapter parentCategoryAdapter= (ParentCategoryAdapter) parentCategory.getAdapter();
+            ParentCategoryAdapter parentCategoryAdapter = (ParentCategoryAdapter) parentCategory.getAdapter();
             parentCategory.setSelection(parentCategoryAdapter.getPosition(mParent));
         }
         categoryIncomeType.setChecked(mCategory.isIncomeType());

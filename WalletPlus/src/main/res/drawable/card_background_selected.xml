@@ -14,7 +14,7 @@
         android:right="0dp"
         android:top="0dp">
         <shape android:shape="rectangle">
-            <solid android:color="@color/cardColor" />
+            <solid android:color="@color/cardSelectedColor" />
             <corners android:radius="2dp" />
         </shape>
     </item>
