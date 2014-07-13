@@ -22,7 +22,7 @@ import info.korzeniowski.walletplus.datamanager.local.LocalAccountDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCashFlowDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalWalletDataManager;
-import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowFragment_;
+import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
 import info.korzeniowski.walletplus.drawermenu.cashflow.DetailsOfRegularCashFlowFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
@@ -48,7 +48,7 @@ import info.korzeniowski.walletplus.model.Wallet;
                 LocalCategoryDataManager.class,
 
                 DetailsOfRegularCashFlowFragment_.class,
-                CashFlowFragment_.class,
+                CashFlowListFragment_.class,
 
                 WalletDetailsFragment_.class,
                 WalletListFragment_.class

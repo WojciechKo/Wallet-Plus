@@ -27,19 +27,21 @@ public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View cashFlowRowView = inflater.inflate(R.layout.cashflow_list_item, parent, false);
-        TextView fromWallet = (TextView) cashFlowRowView.findViewById(R.id.fromWallet);
-        TextView toWallet = (TextView) cashFlowRowView.findViewById(R.id.toWallet);
-        TextView amount = (TextView) cashFlowRowView.findViewById(R.id.amount);
-        TextView category = (TextView) cashFlowRowView.findViewById(R.id.category);
-        TextView comment = (TextView) cashFlowRowView.findViewById(R.id.comment);
-        TextView date = (TextView) cashFlowRowView.findViewById(R.id.date);
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.cashflow_list_item, parent, false);
+        }
+        TextView fromWallet = (TextView) convertView.findViewById(R.id.fromWallet);
+        TextView toWallet = (TextView) convertView.findViewById(R.id.toWallet);
+        TextView amount = (TextView) convertView.findViewById(R.id.amount);
+        TextView category = (TextView) convertView.findViewById(R.id.category);
+        TextView comment = (TextView) convertView.findViewById(R.id.comment);
+        TextView date = (TextView) convertView.findViewById(R.id.date);
 
         CashFlow selectedItem = getItem(position);
-        amount.setText(new DecimalFormat(",####.00").format(selectedItem.getAmount()));
+        amount.setText(new DecimalFormat(getContext().getString(R.string.amountFormat)).format(selectedItem.getAmount()));
         comment.setText(selectedItem.getComment());
-        date.setText(new SimpleDateFormat("dd/MM/yyyy").format(selectedItem.getDateTime()));
+        date.setText(new SimpleDateFormat(getContext().getString(R.string.dateFormat)).format(selectedItem.getDateTime()));
 
         if (selectedItem.getFromWallet() != null) {
             fromWallet.setText(selectedItem.getFromWallet().getName());
@@ -51,6 +53,6 @@ public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
             category.setText(selectedItem.getCategory().getName());
         }
 
-        return cashFlowRowView;
+        return convertView;
     }
 }

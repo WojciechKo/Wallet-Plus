@@ -6,7 +6,6 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,8 +55,8 @@ import info.korzeniowski.walletplus.model.Wallet;
 @OptionsMenu(R.menu.action_save)
 public class DetailsOfRegularCashFlowFragment extends Fragment {
 
-    private enum DetailsType {ADD, EDIT}
     static final public String CASH_FLOW_ID = "CASH_FLOW_ID";
+
     @ViewById
     Spinner fromWallet;
 
@@ -89,14 +88,13 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
     CategoryDataManager localCategoryDataManager;
 
     private CashFlow cashFlow;
-
     private Long cashFlowId;
-
     private DetailsType type;
     private Calendar calendar;
     private DateFormat dateFormat;
     private DateFormat timeFormat;
     private Category selectedCategory;
+    private Category previousCategory;
 
     private List<Wallet> fromWalletList = Lists.newArrayList();
     private List<Wallet> toWalletList = Lists.newArrayList();
@@ -117,14 +115,13 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
             cashFlow = localCashFlowDataManager.findById(cashFlowId);
         }
         calendar = Calendar.getInstance();
-        dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        timeFormat = new SimpleDateFormat("HH:mm");
+        dateFormat = new SimpleDateFormat(getActivity().getString(R.string.dateFormat));
+        timeFormat = new SimpleDateFormat(getActivity().getString(R.string.timeFormat));
         return null;
     }
 
     @AfterViews
     void setupViews() {
-        Log.d("WalletPlus", "CategoryDetails.setupViews");
         setupAdapters();
         setupListeners();
         fillViewsWithData();
@@ -133,6 +130,14 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
     @CheckedChange
     void recordTypeCheckedChanged() {
         refreshDataInLists();
+        Category temp = previousCategory;
+        previousCategory = selectedCategory;
+        selectedCategory = temp;
+        if (selectedCategory == null) {
+            category.setText(R.string.cashflowCategoryHint);
+        } else {
+            category.setText(selectedCategory.getName());
+        }
     }
 
     private void setupAdapters() {
@@ -202,7 +207,7 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
         refreshDatePicker();
         refreshTimePicker();
         if (cashFlow.getAmount() != null) {
-            amount.setText(new DecimalFormat(",####.00").format(cashFlow.getAmount()));
+            amount.setText(new DecimalFormat(getActivity().getString(R.string.amountFormat)).format(cashFlow.getAmount()));
         }
         fromWallet.setSelection(fromWalletList.indexOf(cashFlow.getFromWallet()));
         toWallet.setSelection(toWalletList.indexOf(cashFlow.getToWallet()));
@@ -268,7 +273,6 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
 
     @OptionsItem(R.id.menu_save)
     void actionSave() {
-        Log.d("WalletPlus", "CategoryDetails.actionSave");
         cashFlow = getDataFromViews();
         if (DetailsType.ADD.equals(type)) {
             localCashFlowDataManager.insert(cashFlow);
@@ -277,6 +281,8 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
         }
         getActivity().getSupportFragmentManager().popBackStack();
     }
+
+    private enum DetailsType {ADD, EDIT}
 
     private class WalletAdapter extends ArrayAdapter<Wallet> {
 

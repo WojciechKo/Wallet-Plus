@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import info.korzeniowski.walletplus.R;
-import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowFragment_;
+import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryFragment;
 import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment_;
 import info.korzeniowski.walletplus.drawermenu.wallet.WalletListFragment_;
@@ -33,7 +33,7 @@ public class MainDrawerContent {
         mainDrawerItems.add(new MainDrawerItem(
                                 context.getString(R.string.cashflowMenu),
                                 R.drawable.ic_menu_cashflow,
-                                CashFlowFragment_.class));
+                                CashFlowListFragment_.class));
 
         mainDrawerItems.add(new MainDrawerItem(
                                 context.getString(R.string.categoryMenu),

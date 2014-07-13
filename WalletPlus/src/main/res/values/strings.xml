@@ -11,6 +11,10 @@
     <string name="income">Income</string>
     <string name="expanse">Expanse</string>
 
+    <string name="amountFormat">,####.00</string>
+    <string name="timeFormat">HH:mm</string>
+    <string name="dateFormat">dd/MM/yyyy</string>
+
     <!-- Navigation drawer -->
     <string name="dashboardMenu">Dashboard</string>
     <string name="categoryMenu">Categories</string>
@@ -33,7 +37,12 @@
     <string name="walletInitialAmount">Initial amount</string>
 
     <!-- Cashflow details fragment -->
-
+    <string name="cashflowFromWalletLabel">From:</string>
+    <string name="cashflowToWalletLabel">To:</string>
+    <string name="cashflowAmountLabel">Amount:</string>
+    <string name="cashflowAmountHint">amount</string>
+    <string name="cashflowCategoryLabel">Category:</string>
+    <string name="cashflowCategoryHint">Choose category…</string>
 
     <!-- Todo -->
     <string name="main_drawer_item_ic_description">Drawer menu icon</string>
@@ -49,6 +58,5 @@
     <string name="walletInitialAmountCantBeEmpty">Initial amount can\'t be empty.</string>
     <string name="walletNameHaveToBeUnique">Wallet name have to be unique.</string>
 
-    <string name="chooseCategory">Choose category...</string>
 
 </resources>

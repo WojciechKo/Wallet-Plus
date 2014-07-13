@@ -1,73 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:stretchColumns="1">
+    android:clipToPadding="false"
+    android:padding="@dimen/cardPadding">
 
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+    <RelativeLayout style="@style/Card">
+
+        <Switch
+            android:id="@+id/recordType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:checked="true"
+
+            android:textOff="@string/income"
+            android:textOn="@string/expanse" />
+
         <TextView
             android:id="@+id/fromWalletLabel"
-            android:text="Money source:"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/recordType"
+            android:text="@string/cashflowFromWalletLabel"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <Spinner
             android:id="@+id/fromWallet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/fromWalletLabel"
             android:spinnerMode="dropdown" />
-    </TableRow>
 
-    <TableRow>
-        <TextView
-            android:id="@+id/amountLabel"
-            android:text="Amount:"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <EditText
-            android:id="@+id/amount"
-            android:inputType="numberDecimal"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    </TableRow>
-
-    <TableRow>
-        <Switch
-            android:id="@+id/recordType"
-            android:checked="true"
-            android:textOff="@string/income"
-            android:textOn="@string/expanse"
-            android:layout_span="2"/>
-    </TableRow>
-
-    <TableRow>
-        <TextView
-            android:id="@+id/categoryLabel"
-            android:text="Category:"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <Button
-            android:id="@+id/category"
-            android:text="@string/chooseCategory"/>
-    </TableRow>
-
-    <TableRow>
         <TextView
             android:id="@+id/toWalletLabel"
-            android:text="Contractor:"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/fromWallet"
+            android:text="@string/cashflowToWalletLabel"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <Spinner
             android:id="@+id/toWallet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/toWalletLabel"
             android:spinnerMode="dropdown" />
-    </TableRow>
 
-    <TableRow>
+        <TextView
+            android:id="@+id/amountLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/toWallet"
+            android:text="@string/cashflowAmountLabel"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <EditText
+            android:id="@+id/amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/amountLabel"
+            android:hint="@string/cashflowAmountHint"
+            android:inputType="numberDecimal"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/categoryLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/amount"
+            android:text="@string/cashflowCategoryLabel"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
 
         <Button
-            android:id="@+id/datePicker" />
+            android:id="@+id/category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/categoryLabel"
+            android:layout_centerInParent="true"
+            android:text="@string/cashflowCategoryHint" />
 
-        <Button
-            android:id="@+id/timePicker" />
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/category"
+            android:layout_centerInParent="true"
+            android:stretchColumns="*">
 
-    </TableRow>
-</TableLayout>
+            <TableRow>
+
+                <Button
+                    android:id="@+id/datePicker"
+                    android:layout_marginRight="40dp" />
+
+                <Button android:id="@+id/timePicker" />
+            </TableRow>
+        </TableLayout>
+    </RelativeLayout>
+</ScrollView>
