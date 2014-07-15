@@ -1,4 +1,6 @@
 <resources>
+    <!-- Style colors -->
+    <color name="actionBarBackground">#33B5E5</color>
     <!--Card colors -->
     <color name="cardShadow">#DBDBDB</color>
     <color name="cardColor">#FFFFFF</color>

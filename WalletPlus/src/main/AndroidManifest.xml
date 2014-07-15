@@ -12,7 +12,7 @@
             android:allowBackup="true"
             android:icon="@drawable/ic_launcher_walletplus"
             android:label="@string/appName"
-            android:theme="@style/Theme.AppCompat.Light" >
+            android:theme="@style/WalletPlusStyle" >
         <activity
                 android:name=".MainActivity_"
                 android:label="@string/appName">
