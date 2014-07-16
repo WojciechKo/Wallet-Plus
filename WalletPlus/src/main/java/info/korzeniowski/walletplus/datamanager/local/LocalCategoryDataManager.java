@@ -72,7 +72,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     @Override
     public List<Category> getAll() {
         try {
-            return categoryDao.queryForAll();
+            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -90,7 +90,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     @Override
     public List<Category> getMainCategories() {
         try {
-            return categoryDao.queryBuilder().where().isNull("parent_id").query();
+            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().isNull("parent_id").query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -108,7 +108,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
 
     private List<Category> getMainCategoriesOfType(final Category.Type type) {
         try {
-            return categoryDao.queryBuilder().where().eq("type", type).or().eq("type", Category.Type.INCOME_EXPENSE).query();
+            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().eq("type", type).or().eq("type", Category.Type.INCOME_EXPENSE).query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -117,7 +117,7 @@ public class LocalCategoryDataManager implements CategoryDataManager {
     @Override
     public List<Category> getSubCategoriesOf(Long id) {
         try {
-            return categoryDao.queryBuilder().where().eq("parent_id", id).query();
+            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().eq("parent_id", id).query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

@@ -43,7 +43,7 @@ public class LocalCashFlowDataManager implements CashFlowDataManager {
     @Override
     public List<CashFlow> getAll() {
         try {
-            return cashFlowDao.queryForAll();
+            return cashFlowDao.queryBuilder().orderBy("dateTime", false).query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

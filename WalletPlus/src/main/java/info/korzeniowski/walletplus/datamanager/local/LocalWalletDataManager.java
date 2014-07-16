@@ -56,7 +56,7 @@ public class LocalWalletDataManager implements WalletDataManager {
     @Override
     public List<Wallet> getAll() {
         try {
-            return walletDao.queryForAll();
+            return walletDao.queryBuilder().orderByRaw("name COLLATE NOCASE").query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -85,7 +85,7 @@ public class LocalWalletDataManager implements WalletDataManager {
     @Override
     public List<Wallet> getMyWallets() {
         try {
-            return walletDao.queryBuilder().where().eq("type", Wallet.Type.MY_WALLET).query();
+            return walletDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().eq("type", Wallet.Type.MY_WALLET).query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -94,7 +94,7 @@ public class LocalWalletDataManager implements WalletDataManager {
     @Override
     public List<Wallet> getContractors() {
         try {
-            return walletDao.queryBuilder().where().eq("type", Wallet.Type.CONTRACTOR).query();
+            return walletDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().eq("type", Wallet.Type.CONTRACTOR).query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
