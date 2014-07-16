@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="appName" translatable="false">WalletPlus</string>
+    <string name="appName" translatable="false">Wallet Plus</string>
 
     <!-- Common strings -->
     <string name="add">Add</string>
@@ -11,9 +11,9 @@
     <string name="income">Income</string>
     <string name="expanse">Expanse</string>
 
-    <string name="amountFormat">,####.00</string>
-    <string name="timeFormat">HH:mm</string>
-    <string name="dateFormat">dd/MM/yyyy</string>
+    <string name="amountFormat" translatable="false">,####.00</string>
+    <string name="timeFormat" translatable="false">HH:mm</string>
+    <string name="dateFormat" translatable="false">dd/MM/yyyy</string>
 
     <!-- Navigation drawer -->
     <string name="dashboardMenu">Dashboard</string>
@@ -28,7 +28,6 @@
     <string name="categoryNameHint">name</string>
     <string name="categoryTypeLabel">Type:</string>
     <string name="categoryParentLabel">Parent:</string>
-    <string name="categoryParentPrompt">No parent</string>
 
     <!-- Wallet details fragment -->
     <string name="walletNameLabel">Name:</string>

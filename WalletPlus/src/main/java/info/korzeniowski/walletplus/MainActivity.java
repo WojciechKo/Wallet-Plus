@@ -10,6 +10,9 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 
 import org.androidannotations.annotations.AfterInject;
@@ -17,17 +20,15 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
-import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.ViewById;
 
 import javax.inject.Inject;
 
-import info.korzeniowski.walletplus.drawermenu.MainDrawerContent;
+import info.korzeniowski.walletplus.drawermenu.DrawerListAdapter;
 import info.korzeniowski.walletplus.drawermenu.MainDrawerItem;
-import info.korzeniowski.walletplus.drawermenu.MainDrawerListAdapter;
 
 @EActivity(R.layout.activity_main)
-public class MainActivity extends ActionBarActivity{
+public class MainActivity extends ActionBarActivity {
 
     @App
     WalletPlus application;
@@ -36,15 +37,14 @@ public class MainActivity extends ActionBarActivity{
     DrawerLayout drawerLayout;
 
     @ViewById
-    ListView mainDrawer;
+    ListView drawer;
 
     @Inject
-    MainDrawerContent mMainDrawerContent;
+    DrawerListAdapter drawerListAdapter;
 
-    @Inject
-    MainDrawerListAdapter mMainDrawerListAdapter;
-
-    private ActionBarDrawerToggle mainDrawerToggle;
+    private ActionBarDrawerToggle drawerToggle;
+    private CharSequence appName;
+    private CharSequence fragmentTitle;
 
     @AfterInject
     void daggerInject() {
@@ -56,86 +56,101 @@ public class MainActivity extends ActionBarActivity{
         initMemberVariables();
 
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        drawerLayout.setDrawerListener(mainDrawerToggle);
+        drawerLayout.setDrawerListener(drawerToggle);
 
-        mainDrawer.setAdapter(mMainDrawerListAdapter);
+        drawer.setAdapter(drawerListAdapter);
 
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        int defaultMainDrawerItemSelected = 0;
-        mainDrawerItemClicked(defaultMainDrawerItemSelected);
+        drawerItemClicked(0);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        mainDrawerToggle.syncState();
+        drawerToggle.syncState();
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        // Pass any configuration change to the drawer toggles
-        mainDrawerToggle.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    /**
-     * Without (andorid.R.id.home) not working.
-     * Don't know why.
-     */
-    @OptionsItem(android.R.id.home)
-    void homeSelected() {
-        toggleDrawer(mainDrawer);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_MENU) {
-            toggleDrawer(mainDrawer);
+            toggleDrawer();
             return true;
         }
         return super.onKeyUp(keyCode, event);
     }
 
     @ItemClick
-    void mainDrawerItemClicked(int position) {
-        MainDrawerItem selectedMainDrawerItem = mMainDrawerContent.getDrawerItem(position);
+    void drawerItemClicked(int position) {
+        MainDrawerItem selectedMainDrawerItem = (MainDrawerItem) drawer.getAdapter().getItem(position);
         setContentFragment(selectedMainDrawerItem.getFragment(), false);
-        mainDrawer.setItemChecked(position, true);
-        drawerLayout.closeDrawer(mainDrawer);
-        setActionBarTitle(selectedMainDrawerItem.getTitle());
+        drawer.setItemChecked(position, true);
+        fragmentTitle = selectedMainDrawerItem.getTitle();
+        drawerLayout.closeDrawer(drawer);
     }
 
     public void setContentFragment(Fragment fragment, Boolean addToBackStack) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.content_frame, fragment);
-        if (addToBackStack)
+        if (addToBackStack) {
             fragmentTransaction.addToBackStack(null);
-        else
+        } else {
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
         fragmentTransaction.commit();
     }
 
     private void initMemberVariables() {
-        mainDrawerToggle = new ActionBarDrawerToggle(
+        appName = getString(R.string.appName);
+        drawerToggle = new ActionBarDrawerToggle(
                 this,
                 drawerLayout,
                 R.drawable.ic_drawer,
                 R.string.main_drawer_open,
-                R.string.main_drawer_close);
+                R.string.main_drawer_close) {
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                setTitle(appName);
+                super.onDrawerOpened(drawerView);
+                invalidateOptionsMenu();
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                setTitle(fragmentTitle);
+                super.onDrawerClosed(drawerView);
+                invalidateOptionsMenu();
+            }
+        };
     }
 
-    private void toggleDrawer(ListView drawerMenu) {
-        if (drawerLayout.isDrawerOpen(drawerMenu)) {
-            drawerLayout.closeDrawer(drawerMenu);
+    private void toggleDrawer() {
+        if (drawerLayout.isDrawerOpen(drawer)) {
+            drawerLayout.closeDrawer(drawer);
         } else {
-            drawerLayout.openDrawer(drawerMenu);
+            drawerLayout.openDrawer(drawer);
         }
     }
 
-    private void setActionBarTitle(CharSequence title) {
-        getSupportActionBar().setTitle(title);
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (drawerLayout.isDrawerOpen(drawer)) {
+            for (int i = 0; i < menu.size(); i++) {
+                menu.getItem(i).setVisible(false);
+            }
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 }

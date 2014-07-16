@@ -38,8 +38,7 @@
             android:id="@+id/parentCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/CategoryParentLabel"
-            android:prompt="@string/categoryParentPrompt" />
+            android:layout_below="@+id/CategoryParentLabel" />
 
         <TextView
             android:id="@+id/categoryTypeLabel"

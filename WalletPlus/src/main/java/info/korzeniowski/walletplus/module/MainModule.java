@@ -2,14 +2,12 @@ package info.korzeniowski.walletplus.module;
 
 import android.content.Context;
 
-import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.MainActivity_;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.drawermenu.MainDrawerContent;
-import info.korzeniowski.walletplus.drawermenu.MainDrawerListAdapter;
+import info.korzeniowski.walletplus.drawermenu.DrawerListAdapter;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
 
 /**
@@ -19,7 +17,7 @@ import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
         injects = {
                 MainActivity_.class,
                 MainDrawerContent.class,
-                MainDrawerListAdapter.class,
+                DrawerListAdapter.class,
                 CategoryListFragment_.class
         },
         complete = false
@@ -32,13 +30,6 @@ public class MainModule {
     }
 
     @Provides
-    @Singleton
-    WalletPlus provideWalletPlus() {
-        return application;
-    }
-
-    @Provides
-    @Singleton
     Context provideContext() {
         return application.getApplicationContext();
     }
