@@ -23,9 +23,6 @@ public class DrawerListAdapter extends BaseAdapter {
     @Inject
     Context context;
 
-    @Inject
-    WalletPlus app;
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;

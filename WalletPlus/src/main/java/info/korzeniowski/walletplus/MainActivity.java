@@ -11,15 +11,16 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.ViewById;
 
 import javax.inject.Inject;
@@ -28,10 +29,7 @@ import info.korzeniowski.walletplus.drawermenu.DrawerListAdapter;
 import info.korzeniowski.walletplus.drawermenu.MainDrawerItem;
 
 @EActivity(R.layout.activity_main)
-public class MainActivity extends ActionBarActivity {
-
-    @App
-    WalletPlus application;
+public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
 
     @ViewById
     DrawerLayout drawerLayout;
@@ -48,7 +46,7 @@ public class MainActivity extends ActionBarActivity {
 
     @AfterInject
     void daggerInject() {
-        application.inject(this);
+        ((WalletPlus) getApplication()).inject(this);
     }
 
     @AfterViews
@@ -60,8 +58,10 @@ public class MainActivity extends ActionBarActivity {
 
         drawer.setAdapter(drawerListAdapter);
 
-        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
         drawerItemClicked(0);
     }
 
@@ -77,9 +77,11 @@ public class MainActivity extends ActionBarActivity {
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+    @OptionsItem(android.R.id.home)
+    void homeSelected(MenuItem item) {
+        if (!drawerToggle.onOptionsItemSelected(item)) {
+            getSupportFragmentManager().popBackStack();
+        }
     }
 
     @Override
@@ -152,5 +154,20 @@ public class MainActivity extends ActionBarActivity {
             }
         }
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public void onBackStackChanged() {
+        drawerToggle.setDrawerIndicatorEnabled(isTopFragment());
+    }
+
+    private boolean isTopFragment() {
+        return getSupportFragmentManager().getBackStackEntryCount() == 0;
+    }
+
+    @Override
+    protected void onDestroy() {
+        getSupportFragmentManager().removeOnBackStackChangedListener(this);
+        super.onDestroy();
     }
 }
