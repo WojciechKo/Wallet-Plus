@@ -1,1 +1,4 @@
-Wallet Plus
+Wallet-Plus
+===========
+
+Aplikacja do zarządzania finansami.
