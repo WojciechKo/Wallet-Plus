@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.drawermenu.cashflow;
 
 import android.content.Context;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +47,9 @@ public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
             amount.setTextColor(getContext().getResources().getColor(R.color.green));
         }
         comment.setText(selectedItem.getComment());
-        date.setText(new SimpleDateFormat(getContext().getString(R.string.dateFormat)).format(selectedItem.getDateTime()));
+        String timeString = DateFormat.getTimeFormat(getContext()).format(selectedItem.getDateTime());
+        String dateString = DateFormat.getDateFormat(getContext()).format(selectedItem.getDateTime());
+        date.setText(timeString + " " + dateString);
 
         if (selectedItem.getFromWallet() != null) {
             fromWallet.setText(selectedItem.getFromWallet().getName());

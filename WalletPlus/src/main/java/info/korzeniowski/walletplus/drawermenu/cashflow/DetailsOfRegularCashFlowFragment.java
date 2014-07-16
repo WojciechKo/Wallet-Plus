@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,9 +33,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
-import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -91,8 +90,6 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
     private Long cashFlowId;
     private DetailsType type;
     private Calendar calendar;
-    private DateFormat dateFormat;
-    private DateFormat timeFormat;
     private Category selectedCategory;
     private Category previousCategory;
 
@@ -115,8 +112,6 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
             cashFlow = localCashFlowDataManager.findById(cashFlowId);
         }
         calendar = Calendar.getInstance();
-        dateFormat = new SimpleDateFormat(getActivity().getString(R.string.dateFormat));
-        timeFormat = new SimpleDateFormat(getActivity().getString(R.string.timeFormat));
         return null;
     }
 
@@ -217,11 +212,11 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
     }
 
     private void refreshDatePicker() {
-        datePicker.setText(dateFormat.format(calendar.getTime()));
+        datePicker.setText(DateFormat.getDateFormat(getActivity()).format(calendar.getTime()));
     }
 
     private void refreshTimePicker() {
-        timePicker.setText(timeFormat.format(calendar.getTime()));
+        timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(calendar.getTime()));
     }
 
     public CashFlow getDataFromViews() {
@@ -267,7 +262,7 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
                 },
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE),
-                true
+                DateFormat.is24HourFormat(getActivity())
         ).show();
     }
 
