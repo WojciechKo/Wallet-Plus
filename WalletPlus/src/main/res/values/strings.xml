@@ -21,6 +21,10 @@
     <string name="cashflowMenu">Cash flow</string>
     <string name="walletMenu">Wallets</string>
 
+
+    <!-- Dashboard fragment -->
+    <string name="totalAmountLabel">Total:</string>
+
     <!-- Category list fragment -->
 
     <!-- Category details fragment -->
@@ -56,6 +60,4 @@
     <string name="walletNameCantBeEmpty">Wallet name can\'t be empty.</string>
     <string name="walletInitialAmountCantBeEmpty">Initial amount can\'t be empty.</string>
     <string name="walletNameHaveToBeUnique">Wallet name have to be unique.</string>
-
-
 </resources>

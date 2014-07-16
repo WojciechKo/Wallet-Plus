@@ -1,6 +1,11 @@
 package info.korzeniowski.walletplus.drawermenu.dashboard;
 
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.TextAppearanceSpan;
 import android.widget.TextView;
 
 import org.androidannotations.annotations.AfterInject;
@@ -23,7 +28,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 public class DashboardFragment extends Fragment {
 
     @ViewById
-    TextView sum;
+    TextView totalAmount;
 
     @Inject
     @Named("local")
@@ -36,8 +41,22 @@ public class DashboardFragment extends Fragment {
 
     @AfterViews
     void setupViews() {
+        totalAmount.setText(getTotalAmountText());
+    }
+
+    private CharSequence getTotalAmountText() {
         Double currentAmountSumFromMyWallets = getCurrentAmountSumFromMyWallets();
-        sum.setText(new DecimalFormat(",####.00").format(currentAmountSumFromMyWallets));
+        String totalAmountString = new DecimalFormat(",####.00").format(currentAmountSumFromMyWallets);
+
+        SpannableStringBuilder spanTxt = new SpannableStringBuilder(getString(R.string.totalAmountLabel) + "\n");
+        spanTxt.append(totalAmountString);
+        spanTxt.setSpan(new RelativeSizeSpan(2f), spanTxt.length() - totalAmountString.length(), spanTxt.length(), 0);
+        if (currentAmountSumFromMyWallets < 0) {
+            spanTxt.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.red)), spanTxt.length() - totalAmountString.length(), spanTxt.length(), 0);
+        } else {
+            spanTxt.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.green)), spanTxt.length() - totalAmountString.length(), spanTxt.length(), 0);
+        }
+        return spanTxt;
     }
 
     private Double getCurrentAmountSumFromMyWallets() {
@@ -47,8 +66,5 @@ public class DashboardFragment extends Fragment {
             sum += wallet.getCurrentAmount();
         }
         return sum;
-
-
     }
-
 }
