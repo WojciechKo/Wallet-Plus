@@ -50,10 +50,15 @@ public class WalletListAdapter extends BaseAdapter {
         walletName.setText(wallet.getName());
 
         TextView initialAmount = (TextView) convertView.findViewById(R.id.initialAmount);
-        initialAmount.setText(context.getString(R.string.initialValue) + " " + new DecimalFormat(",####.00").format(wallet.getInitialAmount()));
+        initialAmount.setText(context.getString(R.string.initialValue) + " " + new DecimalFormat(context.getString(R.string.amountFormat)).format(wallet.getInitialAmount()));
 
         TextView currentAmount = (TextView) convertView.findViewById(R.id.currentAmount);
-        currentAmount.setText(new DecimalFormat(",####.00").format(wallet.getCurrentAmount()));
+        currentAmount.setText(new DecimalFormat(context.getString(R.string.amountFormat)).format(wallet.getCurrentAmount()));
+        if (wallet.getCurrentAmount() < 0) {
+            currentAmount.setTextColor(context.getResources().getColor(R.color.red));
+        } else {
+            currentAmount.setTextColor(context.getResources().getColor(R.color.green));
+        }
 
         return convertView;
     }

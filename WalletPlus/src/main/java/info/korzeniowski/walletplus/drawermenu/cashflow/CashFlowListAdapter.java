@@ -40,6 +40,11 @@ public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
 
         CashFlow selectedItem = getItem(position);
         amount.setText(new DecimalFormat(getContext().getString(R.string.amountFormat)).format(selectedItem.getAmount()));
+        if (selectedItem.getAmount() < 0) {
+            amount.setTextColor(getContext().getResources().getColor(R.color.red));
+        } else {
+            amount.setTextColor(getContext().getResources().getColor(R.color.green));
+        }
         comment.setText(selectedItem.getComment());
         date.setText(new SimpleDateFormat(getContext().getString(R.string.dateFormat)).format(selectedItem.getDateTime()));
 
