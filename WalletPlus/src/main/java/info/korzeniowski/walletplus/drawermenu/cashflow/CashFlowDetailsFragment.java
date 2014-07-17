@@ -4,14 +4,12 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -22,6 +20,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import org.androidannotations.annotations.AfterInject;
@@ -52,7 +51,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 
 @EFragment(R.layout.cashflow_details_fragment)
 @OptionsMenu(R.menu.action_save)
-public class DetailsOfRegularCashFlowFragment extends Fragment {
+public class CashFlowDetailsFragment extends Fragment {
 
     static final public String CASH_FLOW_ID = "CASH_FLOW_ID";
 
@@ -60,22 +59,25 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
     Spinner fromWallet;
 
     @ViewById
-    EditText amount;
+    Spinner toWallet;
 
     @ViewById
-    Switch recordType;
+    EditText amount;
 
     @ViewById
     Button category;
 
     @ViewById
-    Spinner toWallet;
+    EditText comment;
 
     @ViewById
     Button datePicker;
 
     @ViewById
     Button timePicker;
+
+    @ViewById
+    Switch recordType;
 
     @Inject @Named("local")
     CashFlowDataManager localCashFlowDataManager;
@@ -93,17 +95,26 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
     private Category selectedCategory;
     private Category previousCategory;
 
-    private List<Wallet> fromWalletList = Lists.newArrayList();
-    private List<Wallet> toWalletList = Lists.newArrayList();
-    private List<Category> categoryList = Lists.newArrayList();
+    private List<Wallet> fromWalletList;
+    private List<Wallet> toWalletList;
+    private List<Category> categoryList;
+    private Wallet selectedFromWallet;
+    private Wallet selectedToWallet;
 
     @AfterInject
     void daggerInject() {
         ((WalletPlus) getActivity().getApplication()).inject(this);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    @AfterViews
+    void setupViews() {
+        initFields();
+        setupAdapters();
+        setupListeners();
+        fillViewsWithData();
+    }
+
+    private void initFields() {
         cashFlowId = getArguments().getLong(CASH_FLOW_ID);
         type = cashFlowId == 0L ? DetailsType.ADD : DetailsType.EDIT;
         if (type.equals(DetailsType.ADD)) {
@@ -112,39 +123,18 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
             cashFlow = localCashFlowDataManager.findById(cashFlowId);
         }
         calendar = Calendar.getInstance();
-        return null;
-    }
-
-    @AfterViews
-    void setupViews() {
-        setupAdapters();
-        setupListeners();
-        fillViewsWithData();
-    }
-
-    @CheckedChange
-    void recordTypeCheckedChanged() {
-        refreshDataInLists();
-        Category temp = previousCategory;
-        previousCategory = selectedCategory;
-        selectedCategory = temp;
-        if (selectedCategory == null) {
-            category.setText(R.string.cashflowCategoryHint);
-        } else {
-            category.setText(selectedCategory.getName());
-        }
     }
 
     private void setupAdapters() {
+        fillListsWithData();
         toWallet.setAdapter(new WalletAdapter(getActivity(), toWalletList));
         fromWallet.setAdapter(new WalletAdapter(getActivity(), fromWalletList));
-        refreshDataInLists();
     }
 
-    private void refreshDataInLists() {
-        fromWalletList.clear();
-        toWalletList.clear();
-        categoryList.clear();
+    private void fillListsWithData() {
+        fromWalletList = Lists.newArrayList();
+        toWalletList = Lists.newArrayList();
+        categoryList = Lists.newArrayList();
         if (isExpanseType()) {
             fromWalletList.addAll(localWalletDataManager.getMyWallets());
             toWalletList.addAll(localWalletDataManager.getContractors());
@@ -154,16 +144,63 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
             toWalletList.addAll(localWalletDataManager.getMyWallets());
             categoryList.addAll(localCategoryDataManager.getMainIncomeTypeCategories());
         }
-        ((ArrayAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
-        ((ArrayAdapter) toWallet.getAdapter()).notifyDataSetChanged();
+    }
+
+    private void setupListeners() {
+    }
+
+    private void fillViewsWithData() {
+        refreshDatePicker();
+        refreshTimePicker();
+        if (cashFlow.getAmount() != null) {
+            amount.setText(new DecimalFormat(getActivity().getString(R.string.amountFormat)).format(cashFlow.getAmount()));
+        }
+        fromWallet.setSelection(fromWalletList.indexOf(cashFlow.getFromWallet()));
+        toWallet.setSelection(toWalletList.indexOf(cashFlow.getToWallet()));
+        if (cashFlow.getCategory() != null) {
+            category.setText(cashFlow.getCategory().getName());
+        }
+        comment.setText(cashFlow.getComment());
+    }
+
+
+    @CheckedChange
+    void recordTypeCheckedChanged() {
+        swapWalletLists();
+        handleCategoryWhenSwapType();
+        ((WalletAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
+        ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
+    }
+
+    private void handleCategoryWhenSwapType() {
+        Category temp = previousCategory;
+        previousCategory = selectedCategory;
+        selectedCategory = temp;
+
+        if (selectedCategory == null) {
+            category.setText(R.string.cashflowCategoryHint);
+        } else {
+            category.setText(selectedCategory.getName());
+        }
+    }
+
+    private void swapWalletLists() {
+        int selectedFromWalletPosition = fromWallet.getSelectedItemPosition();
+        int selectedToWalletPosition = toWallet.getSelectedItemPosition();
+
+        List<Wallet> tempList = Lists.newArrayList(fromWalletList);
+        fromWalletList.clear();
+        fromWalletList.addAll(toWalletList);
+        toWalletList.clear();
+        toWalletList.addAll(tempList);
+
+        toWallet.setSelection(selectedFromWalletPosition);
+        fromWallet.setSelection(selectedToWalletPosition);
     }
 
     public boolean isExpanseType() {
         //TODO: do it better
         return recordType.isChecked();
-    }
-
-    private void setupListeners() {
     }
 
     @Click
@@ -198,19 +235,6 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void fillViewsWithData() {
-        refreshDatePicker();
-        refreshTimePicker();
-        if (cashFlow.getAmount() != null) {
-            amount.setText(new DecimalFormat(getActivity().getString(R.string.amountFormat)).format(cashFlow.getAmount()));
-        }
-        fromWallet.setSelection(fromWalletList.indexOf(cashFlow.getFromWallet()));
-        toWallet.setSelection(toWalletList.indexOf(cashFlow.getToWallet()));
-        if (cashFlow.getCategory() != null) {
-            category.setText(cashFlow.getCategory().getName());
-        }
-    }
-
     private void refreshDatePicker() {
         datePicker.setText(DateFormat.getDateFormat(getActivity()).format(calendar.getTime()));
     }
@@ -219,14 +243,14 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
         timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(calendar.getTime()));
     }
 
-    public CashFlow getDataFromViews() {
+    public void getDataFromViews() {
         cashFlow.setAmount(Float.parseFloat(amount.getText().toString()));
         cashFlow.setId(cashFlowId);
         cashFlow.setDateTime(calendar.getTime());
         cashFlow.setCategory(selectedCategory);
         cashFlow.setFromWallet((Wallet) fromWallet.getSelectedItem());
         cashFlow.setToWallet((Wallet) toWallet.getSelectedItem());
-        return cashFlow;
+        cashFlow.setComment(comment.getText().toString());
     }
 
     @Click
@@ -268,29 +292,80 @@ public class DetailsOfRegularCashFlowFragment extends Fragment {
 
     @OptionsItem(R.id.menu_save)
     void actionSave() {
-        cashFlow = getDataFromViews();
-        if (DetailsType.ADD.equals(type)) {
-            localCashFlowDataManager.insert(cashFlow);
-        } else if (DetailsType.EDIT.equals(type)) {
-            localCashFlowDataManager.update(cashFlow);
+        if (preValidations()) {
+            getDataFromViews();
+            boolean success = false;
+            if (DetailsType.ADD.equals(type)) {
+                success = tryInsert();
+            } else if (DetailsType.EDIT.equals(type)) {
+                success = tryUpdate();
+            }
+            if (success) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
         }
-        getActivity().getSupportFragmentManager().popBackStack();
+    }
+
+    private boolean tryInsert() {
+        localCashFlowDataManager.insert(cashFlow);
+        return true;
+    }
+
+    private boolean tryUpdate() {
+        localCashFlowDataManager.update(cashFlow);
+        return true;
+    }
+
+    private boolean preValidations() {
+        return validateAmount();
+    }
+
+    private boolean validateAmount() {
+        if (Strings.isNullOrEmpty(amount.getText().toString())) {
+            amount.setError("Amount can't be empty.");
+            return false;
+        }
+        return true;
     }
 
     private enum DetailsType {ADD, EDIT}
 
-    private class WalletAdapter extends ArrayAdapter<Wallet> {
+    private class WalletAdapter extends BaseAdapter {
+        List<Wallet> wallets;
+        Context context;
 
         private WalletAdapter(Context context, List<Wallet> list) {
-            super(context, android.R.layout.simple_list_item_1, list);
+            super();
+            this.context = context;
+            wallets = list;
+        }
+
+        @Override
+        public int getCount() {
+            return wallets.size();
+        }
+
+        @Override
+        public Wallet getItem(int position) {
+            return wallets.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-            TextView textView = (TextView) view.findViewById(android.R.id.text1);
+            TextView textView;
+            if (convertView == null) {
+                textView = new TextView(context);
+                textView.setTextSize(getResources().getDimension(R.dimen.smallFontSize));
+            } else {
+                textView = (TextView) convertView;
+            }
             textView.setText(getItem(position).getName());
-            return view;
+            return textView;
         }
 
         @Override

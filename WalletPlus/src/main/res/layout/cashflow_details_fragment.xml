@@ -15,7 +15,6 @@
             android:layout_alignParentTop="true"
             android:layout_centerInParent="true"
             android:checked="true"
-
             android:textOff="@string/income"
             android:textOn="@string/expanse" />
 
@@ -23,16 +22,14 @@
             android:id="@+id/fromWalletLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_below="@id/recordType"
             android:text="@string/cashflowFromWalletLabel"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textSize="@dimen/smallFontSize" />
 
         <Spinner
             android:id="@+id/fromWallet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_below="@id/fromWalletLabel"
             android:spinnerMode="dropdown" />
 
@@ -40,16 +37,14 @@
             android:id="@+id/toWalletLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_below="@id/fromWallet"
             android:text="@string/cashflowToWalletLabel"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textSize="@dimen/smallFontSize" />
 
         <Spinner
             android:id="@+id/toWallet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_below="@id/toWalletLabel"
             android:spinnerMode="dropdown" />
 
@@ -57,29 +52,43 @@
             android:id="@+id/amountLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_below="@id/toWallet"
             android:text="@string/cashflowAmountLabel"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textSize="@dimen/smallFontSize" />
 
         <EditText
             android:id="@+id/amount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_below="@+id/amountLabel"
             android:hint="@string/cashflowAmountHint"
             android:inputType="numberDecimal"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textSize="@dimen/mediumFontSize" />
+
+        <TextView
+            android:id="@+id/commentLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/amount"
+            android:text="@string/cashflowCommentLabel"
+            android:textSize="@dimen/smallFontSize" />
+
+        <EditText
+            android:id="@+id/comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/commentLabel"
+            android:hint="@string/cashflowCommentHint"
+            android:inputType="textAutoCorrect"
+            android:textSize="@dimen/mediumFontSize" />
 
         <TextView
             android:id="@+id/categoryLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/amount"
+            android:layout_below="@id/comment"
             android:text="@string/cashflowCategoryLabel"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textSize="@dimen/smallFontSize" />
 
         <Button
             android:id="@+id/category"

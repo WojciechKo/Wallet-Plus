@@ -123,12 +123,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         categoryDao.create(main3);
 
         Dao<CashFlow, Long> cashFlowDao = getCashFlowDao();
-        cashFlowDao.create(new CashFlow(11f, new Date()).setCategory(mainDom).setFromWallet(portfel));
+        cashFlowDao.create(new CashFlow(11f, new Date()).setCategory(mainDom).setFromWallet(portfel).setComment("Środki czystości"));
         cashFlowDao.create(new CashFlow(22f, new Date()).setCategory(mainDom).setFromWallet(portfel));
         categoryDao.refresh(mainDom);
         cashFlowDao.create(new CashFlow(33f, new Date()).setCategory(mainDom.getChildren().iterator().next()).setFromWallet(portfel));
 
-        cashFlowDao.create(new CashFlow(44f, new Date()).setCategory(mainInternet).setToWallet(skarpeta));
+        cashFlowDao.create(new CashFlow(44f, new Date()).setCategory(mainInternet).setToWallet(skarpeta).setComment("AdSense"));
         cashFlowDao.create(new CashFlow(55f, new Date()).setCategory(mainInternet).setToWallet(portfel));
 
         cashFlowDao.create(new CashFlow(66f, new Date()).setFromWallet(portfel).setToWallet(skarpeta));

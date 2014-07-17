@@ -86,4 +86,26 @@ public class Wallet {
         }
         return null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Wallet wallet = (Wallet) o;
+
+        if (id != null ? !id.equals(wallet.id) : wallet.id != null) return false;
+        if (name != null ? !name.equals(wallet.name) : wallet.name != null) return false;
+        if (type != wallet.type) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
+    }
 }

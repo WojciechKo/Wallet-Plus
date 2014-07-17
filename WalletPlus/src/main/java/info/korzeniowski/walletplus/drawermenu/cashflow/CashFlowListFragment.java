@@ -66,9 +66,9 @@ public class CashFlowListFragment extends Fragment {
     }
 
     private void startCashFlowDetailsFragment(Long id) {
-        Fragment fragment = new DetailsOfRegularCashFlowFragment_();
+        Fragment fragment = new CashFlowDetailsFragment_();
         Bundle bundle = new Bundle();
-        bundle.putLong(DetailsOfRegularCashFlowFragment_.CASH_FLOW_ID, id);
+        bundle.putLong(CashFlowDetailsFragment_.CASH_FLOW_ID, id);
         fragment.setArguments(bundle);
         ((MainActivity) getActivity()).setContentFragment(fragment, true);
     }

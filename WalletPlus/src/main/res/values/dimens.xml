@@ -4,4 +4,14 @@
     <dimen name="navigation_drawer_width">240dp</dimen>
     <dimen name="cardContentPadding">15dp</dimen>
     <dimen name="cardPadding">15dp</dimen>
+
+    <!-- font size -->
+    <dimen name="verySmallFontSize">9sp</dimen>
+    <dimen name="smallFontSize">11sp</dimen>
+    <dimen name="mediumFontSize">16sp</dimen>
+    <dimen name="bigFontSize">16sp</dimen>
+    <dimen name="veryBigFontSize">22sp</dimen>
+
+    <dimen name="cashflowListLabelPadding">3dp</dimen>
+
 </resources>
