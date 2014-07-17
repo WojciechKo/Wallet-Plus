@@ -98,4 +98,32 @@ public class CashFlow {
         this.dateTime = dateTime;
         return this;
     }
+
+    public boolean isExpanse() {
+        if (getFromWallet() != null && getFromWallet().getType() == Wallet.Type.MY_WALLET) {
+            if (getToWallet() == null) {
+                return true;
+            } else if (getToWallet().getType() == Wallet.Type.CONTRACTOR) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isIncome() {
+        if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
+            if (getFromWallet() == null) {
+                return true;
+            } else if (getFromWallet().getType() == Wallet.Type.CONTRACTOR) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isTransfer() {
+        return getFromWallet() != null && getFromWallet().getType() == Wallet.Type.MY_WALLET &&
+                getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET;
+    }
+
 }

@@ -9,7 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import info.korzeniowski.walletplus.R;
@@ -41,11 +40,15 @@ public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
 
         CashFlow selectedItem = getItem(position);
         amount.setText(new DecimalFormat(getContext().getString(R.string.amountFormat)).format(selectedItem.getAmount()));
-        if (selectedItem.getAmount() < 0) {
+
+        if (selectedItem.isExpanse()) {
             amount.setTextColor(getContext().getResources().getColor(R.color.red));
-        } else {
+        } else if (selectedItem.isIncome()) {
             amount.setTextColor(getContext().getResources().getColor(R.color.green));
+        } else if (selectedItem.isTransfer()) {
+            amount.setTextColor(getContext().getResources().getColor(R.color.blue));
         }
+
         comment.setText(selectedItem.getComment());
         String timeString = DateFormat.getTimeFormat(getContext()).format(selectedItem.getDateTime());
         String dateString = DateFormat.getDateFormat(getContext()).format(selectedItem.getDateTime());
