@@ -74,9 +74,6 @@ dependencies {
     apt "com.squareup.dagger:dagger-compiler:$daggerVersion"
     compile "com.squareup.dagger:dagger:$daggerVersion"
 
-    // Commons-lang3
-    compile "org.apache.commons:commons-lang3:3.3.+"
-
     // Guava
     compile "com.google.guava:guava:17.0"
 

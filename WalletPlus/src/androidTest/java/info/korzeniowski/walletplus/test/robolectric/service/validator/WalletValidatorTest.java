@@ -1,40 +1,34 @@
 package info.korzeniowski.walletplus.test.robolectric.service.validator;
 
-import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.j256.ormlite.dao.Dao;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.sql.SQLException;
-
+import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
-import info.korzeniowski.walletplus.service.local.DatabaseHelper;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
-import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.service.local.validation.WalletValidator;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.mock;
 
-@Ignore
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class WalletValidatorTest {
     WalletService walletService;
+    private WalletService validatorService;
 
     @Before
     public void setUp() {
-        DatabaseHelper databaseHelper = OpenHelperManager.getHelper(Robolectric.application, DatabaseHelper.class);
-        try {
-            walletService = new LocalWalletService(databaseHelper.getWalletDao());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        Dao<Wallet, Long> walletDao = mock(Dao.class);
+        validatorService = mock(WalletService.class);
+        walletService = new LocalWalletService(walletDao, new WalletValidator(validatorService));
     }
 
     @Test

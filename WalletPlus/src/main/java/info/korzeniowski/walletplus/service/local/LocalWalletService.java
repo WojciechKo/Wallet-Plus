@@ -14,13 +14,18 @@ import info.korzeniowski.walletplus.service.local.validation.WalletValidator;
 import info.korzeniowski.walletplus.model.Wallet;
 
 public class LocalWalletService implements WalletService {
-    Validator<Wallet> walletValidator;
+    WalletValidator walletValidator;
     private final Dao<Wallet, Long> walletDao;
 
     @Inject
     public LocalWalletService(Dao<Wallet, Long> walletDao) {
         this.walletDao = walletDao;
         this.walletValidator = new WalletValidator(this);
+    }
+
+    public LocalWalletService(Dao<Wallet, Long> walletDao, WalletValidator walletValidator) {
+        this.walletDao = walletDao;
+        this.walletValidator = walletValidator;
     }
 
     @Override

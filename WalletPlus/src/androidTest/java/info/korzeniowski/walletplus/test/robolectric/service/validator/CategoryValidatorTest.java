@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 @RunWith(RobolectricTestRunner.class)
 public class CategoryValidatorTest {
     private CategoryService categoryService;
-    private CategoryService validatorDM;
+    private CategoryService validatorService;
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -39,8 +39,8 @@ public class CategoryValidatorTest {
     @Before
     public void setUp() {
         Dao<Category, Long> categoryDao = mock(Dao.class);
-        validatorDM = mock(CategoryService.class);
-        categoryService = new LocalCategoryService(categoryDao, new CategoryValidator(validatorDM));
+        validatorService = mock(CategoryService.class);
+        categoryService = new LocalCategoryService(categoryDao, new CategoryValidator(validatorService));
     }
 
     /*************************************
@@ -55,7 +55,7 @@ public class CategoryValidatorTest {
     @Test
     public void shouldInsertSubOfMainCategory() {
         Category main = getSimpleMainIncomeCategory();
-        when(validatorDM.findById(main.getId())).thenReturn(main);
+        when(validatorService.findById(main.getId())).thenReturn(main);
 
         categoryService.insert(getSimpleMainIncomeCategory().setParent(main).setType(null));
     }
@@ -77,7 +77,7 @@ public class CategoryValidatorTest {
     @Test
     public void shouldThrowExceptionWhenInsertWithDuplicatedId() {
         Category toInsert = getSimpleMainIncomeCategory();
-        when(validatorDM.findById(toInsert.getId())).thenReturn(toInsert);
+        when(validatorService.findById(toInsert.getId())).thenReturn(toInsert);
 
         exception.expect(EntityAlreadyExistsException.class);
         categoryService.insert(getSimpleMainIncomeCategory().setId(toInsert.getId()));
@@ -86,7 +86,7 @@ public class CategoryValidatorTest {
     @Test
     public void shouldThrowExceptionWhenInsertWithDuplicatedName() {
         Category toInsert = getSimpleMainIncomeCategory();
-        when(validatorDM.findByName(toInsert.getName())).thenReturn(toInsert);
+        when(validatorService.findByName(toInsert.getName())).thenReturn(toInsert);
 
         exception.expect(CategoryNameMustBeUniqueException.class);
         categoryService.insert(getSimpleMainIncomeCategory().setName(toInsert.getName()));
@@ -96,7 +96,7 @@ public class CategoryValidatorTest {
     public void shouldThrowExceptionWhenInsertSubOfSub() {
         Category subOfMain = getSimpleMainIncomeCategory().setParent(getSimpleMainIncomeCategory());
         Category subOfSub = getSimpleMainIncomeCategory().setParent(subOfMain);
-        when(validatorDM.findById(subOfMain.getId())).thenReturn(subOfMain);
+        when(validatorService.findById(subOfMain.getId())).thenReturn(subOfMain);
 
         exception.expect(ParentCategoryIsNotMainCategoryException.class);
         categoryService.insert(subOfSub);
@@ -105,7 +105,7 @@ public class CategoryValidatorTest {
     @Test
     public void shouldThrowExceptionWhenInsertSubWithTypeDifferentThanParent() {
         Category parent = getSimpleMainIncomeCategory();
-        when(validatorDM.findById(parent.getId())).thenReturn(parent);
+        when(validatorService.findById(parent.getId())).thenReturn(parent);
 
         exception.expect(SubCategoryCantHaveTypeException.class);
         categoryService.insert(getSimpleMainIncomeCategory().setParent(parent));
@@ -117,7 +117,7 @@ public class CategoryValidatorTest {
     @Test
     public void shouldDeleteMainCategory() {
         Category main = getSimpleMainIncomeCategory();
-        when(validatorDM.findById(main.getId())).thenReturn(main);
+        when(validatorService.findById(main.getId())).thenReturn(main);
 
         categoryService.deleteById(main.getId());
     }
@@ -126,7 +126,7 @@ public class CategoryValidatorTest {
     public void shouldDeleteSubCategory() {
         Category main = getSimpleMainIncomeCategory();
         Category sub = getSimpleMainIncomeCategory().setParent(main);
-        when(validatorDM.findById(sub.getId())).thenReturn(sub);
+        when(validatorService.findById(sub.getId())).thenReturn(sub);
 
         categoryService.deleteById(sub.getId());
     }
@@ -134,8 +134,8 @@ public class CategoryValidatorTest {
     @Test
     public void shouldThrowExceptionWhenDeleteMainCategoryWithSub() {
         Category main = getSimpleMainIncomeCategory();
-        when(validatorDM.findById(main.getId())).thenReturn(main);
-        when(validatorDM.getSubCategoriesOf(main.getId())).thenReturn(Lists.newArrayList(getSimpleMainIncomeCategory().setParent(main)));
+        when(validatorService.findById(main.getId())).thenReturn(main);
+        when(validatorService.getSubCategoriesOf(main.getId())).thenReturn(Lists.newArrayList(getSimpleMainIncomeCategory().setParent(main)));
 
         exception.expect(CategoryHaveSubsException.class);
         categoryService.deleteById(main.getId());
@@ -148,8 +148,8 @@ public class CategoryValidatorTest {
     public void shouldUpdateNameAndTypeOfMainCategory() {
         Category category = getSimpleMainIncomeCategory();
         String newName = "NewName";
-        when(validatorDM.findById(category.getId())).thenReturn(category);
-        when(validatorDM.findByName(newName)).thenReturn(null);
+        when(validatorService.findById(category.getId())).thenReturn(category);
+        when(validatorService.findByName(newName)).thenReturn(null);
 
         categoryService.update(category.setName(newName).setType(Category.Type.EXPENSE));
     }
@@ -158,8 +158,8 @@ public class CategoryValidatorTest {
     public void shouldUpdateCategoryFromSubToMain() {
         Category main = getSimpleMainIncomeCategory();
         Category sub = getSimpleMainIncomeCategory().setType(null).setParent(main);
-        when(validatorDM.findById(main.getId())).thenReturn(main);
-        when(validatorDM.findById(sub.getId())).thenReturn(sub);
+        when(validatorService.findById(main.getId())).thenReturn(main);
+        when(validatorService.findById(sub.getId())).thenReturn(sub);
 
         sub.setType(sub.getParent().getType());
         sub.setParent(null);
@@ -171,8 +171,8 @@ public class CategoryValidatorTest {
     public void shouldUpdateCategoryFromMainToSub() {
         Category main1 = getSimpleMainIncomeCategory();
         Category main2 = getSimpleMainIncomeCategory();
-        when(validatorDM.findById(main1.getId())).thenReturn(main1);
-        when(validatorDM.findById(main2.getId())).thenReturn(main2);
+        when(validatorService.findById(main1.getId())).thenReturn(main1);
+        when(validatorService.findById(main2.getId())).thenReturn(main2);
 
         main1.setParent(main2);
         categoryService.update(main2);
@@ -183,8 +183,8 @@ public class CategoryValidatorTest {
         Category mainWithSub = getSimpleMainIncomeCategory();
         Category subOfMain = getSimpleMainIncomeCategory().setParent(mainWithSub);
         Category main2 = getSimpleMainIncomeCategory();
-        when(validatorDM.findById(mainWithSub.getId())).thenReturn(mainWithSub);
-        when(validatorDM.findById(main2.getId())).thenReturn(main2);
+        when(validatorService.findById(mainWithSub.getId())).thenReturn(mainWithSub);
+        when(validatorService.findById(main2.getId())).thenReturn(main2);
 
         mainWithSub.setParent(main2);
         categoryService.update(main2);
