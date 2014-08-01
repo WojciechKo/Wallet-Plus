@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 import info.korzeniowski.walletplus.R;
@@ -50,10 +51,10 @@ public class WalletListAdapter extends BaseAdapter {
         walletName.setText(wallet.getName());
 
         TextView initialAmount = (TextView) convertView.findViewById(R.id.initialAmount);
-        initialAmount.setText(context.getString(R.string.initialValue) + " " + new DecimalFormat(context.getString(R.string.amountFormat)).format(wallet.getInitialAmount()));
+        initialAmount.setText(context.getString(R.string.initialValue) + " " + NumberFormat.getCurrencyInstance().format(wallet.getInitialAmount()));
 
         TextView currentAmount = (TextView) convertView.findViewById(R.id.currentAmount);
-        currentAmount.setText(new DecimalFormat(context.getString(R.string.amountFormat)).format(wallet.getCurrentAmount()));
+        currentAmount.setText(NumberFormat.getCurrencyInstance().format(wallet.getCurrentAmount()));
         if (wallet.getCurrentAmount() < 0) {
             currentAmount.setTextColor(context.getResources().getColor(R.color.red));
         } else {

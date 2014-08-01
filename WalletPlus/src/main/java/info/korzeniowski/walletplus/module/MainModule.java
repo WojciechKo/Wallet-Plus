@@ -2,25 +2,30 @@ package info.korzeniowski.walletplus.module;
 
 import android.content.Context;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.MainActivity_;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.drawermenu.MainDrawerContent;
 import info.korzeniowski.walletplus.drawermenu.DrawerListAdapter;
-import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
+import info.korzeniowski.walletplus.drawermenu.MainDrawerContent;
 
 /**
  * Module for common objects.
  */
 @Module(
+        includes = DatabaseModule.class,
         injects = {
                 MainActivity_.class,
-                MainDrawerContent.class,
                 DrawerListAdapter.class,
-                CategoryListFragment_.class
-        },
-        complete = false
+                MainDrawerContent.class
+        }
 )
 public class MainModule {
     private final WalletPlus application;
@@ -32,5 +37,14 @@ public class MainModule {
     @Provides
     Context provideContext() {
         return application.getApplicationContext();
+    }
+
+    @Provides
+    @Named("amount")
+    @Singleton
+    NumberFormat provideNumberFormat() {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator('.');
+        return new DecimalFormat("0.00", symbols);
     }
 }

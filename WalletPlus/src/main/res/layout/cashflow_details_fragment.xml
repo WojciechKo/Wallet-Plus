@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/amountLabel"
             android:hint="@string/cashflowAmountHint"
-            android:inputType="numberDecimal"
+            android:inputType="number|numberDecimal"
             android:textSize="@dimen/mediumFontSize" />
 
         <TextView

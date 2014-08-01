@@ -18,6 +18,8 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
+import java.text.NumberFormat;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -42,6 +44,9 @@ public class WalletDetailsFragment extends Fragment {
 
     @Inject @Named("local")
     WalletDataManager localWalletDataManager;
+
+    @Inject @Named("amount")
+    NumberFormat amountFormat;
 
     private Long walletId;
     private Wallet wallet;
@@ -122,7 +127,7 @@ public class WalletDetailsFragment extends Fragment {
     private void fillViewsWithData() {
         if (type.equals(DetailsType.EDIT)) {
             walletName.setText(wallet.getName());
-            walletInitialAmount.setText(wallet.getInitialAmount().toString());
+            walletInitialAmount.setText(amountFormat.format(wallet.getInitialAmount()));
         }
     }
 

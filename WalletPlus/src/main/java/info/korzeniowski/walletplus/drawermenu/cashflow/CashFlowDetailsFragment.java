@@ -5,6 +5,8 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +34,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -88,6 +90,9 @@ public class CashFlowDetailsFragment extends Fragment {
     @Inject @Named("local")
     CategoryDataManager localCategoryDataManager;
 
+    @Inject @Named("amount")
+    NumberFormat amountFormat;
+
     private CashFlow cashFlow;
     private Long cashFlowId;
     private DetailsType type;
@@ -98,8 +103,6 @@ public class CashFlowDetailsFragment extends Fragment {
     private List<Wallet> fromWalletList;
     private List<Wallet> toWalletList;
     private List<Category> categoryList;
-    private Wallet selectedFromWallet;
-    private Wallet selectedToWallet;
 
     @AfterInject
     void daggerInject() {
@@ -147,13 +150,46 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private void setupListeners() {
+        amount.addTextChangedListener(new TextWatcher() {
+                  @Override
+                  public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                  }
+
+                  @Override
+                  public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                  }
+
+                  @Override
+                  public void afterTextChanged(Editable s) {
+                      if (isDecimal(s)) {
+                          int numberOfDigitsToDelete = getNumberOfDigitsToDelete(s);
+                          s.delete(s.length() - numberOfDigitsToDelete, s.length());
+                      }
+                  }
+
+                  private int getNumberOfDigitsToDelete(Editable s) {
+                      int allowedNumberOfDigitsAfterComa = 2;
+                      int indexOfComa = s.toString().indexOf('.');
+                      if (indexOfComa < s.length() - 1 - allowedNumberOfDigitsAfterComa) {
+                          return s.length() - indexOfComa - 1 - allowedNumberOfDigitsAfterComa;
+                      }
+                      return 0;
+                  }
+
+                  private boolean isDecimal(Editable s) {
+                      return s.toString().contains(".");
+                  }
+             }
+        );
     }
 
     private void fillViewsWithData() {
         refreshDatePicker();
         refreshTimePicker();
         if (cashFlow.getAmount() != null) {
-            amount.setText(new DecimalFormat(getActivity().getString(R.string.amountFormat)).format(cashFlow.getAmount()));
+            amount.setText(amountFormat.format(cashFlow.getAmount()));
         }
         fromWallet.setSelection(fromWalletList.indexOf(cashFlow.getFromWallet()));
         toWallet.setSelection(toWalletList.indexOf(cashFlow.getToWallet()));

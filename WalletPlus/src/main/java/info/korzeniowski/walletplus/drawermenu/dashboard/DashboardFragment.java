@@ -14,6 +14,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -46,7 +47,7 @@ public class DashboardFragment extends Fragment {
 
     private CharSequence getTotalAmountText() {
         Double currentAmountSumFromMyWallets = getCurrentAmountSumFromMyWallets();
-        String totalAmountString = new DecimalFormat(",####.00").format(currentAmountSumFromMyWallets);
+        String totalAmountString = NumberFormat.getCurrencyInstance().format(currentAmountSumFromMyWallets);
 
         SpannableStringBuilder spanTxt = new SpannableStringBuilder(getString(R.string.totalAmountLabel) + "\n");
         spanTxt.append(totalAmountString);

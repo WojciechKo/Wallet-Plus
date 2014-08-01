@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.google.common.base.Strings;
 
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 import info.korzeniowski.walletplus.R;
@@ -57,7 +57,6 @@ public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
     }
 
     private void fillViewWithItem(ViewHolder holder, CashFlow item) {
-
         if (Strings.isNullOrEmpty(item.getComment())) {
             holder.commentLabel.setVisibility(View.GONE);
             holder.comment.setVisibility(View.GONE);
@@ -67,7 +66,7 @@ public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
             holder.comment.setText(item.getComment());
         }
 
-        holder.amount.setText(new DecimalFormat(getContext().getString(R.string.amountFormat)).format(item.getAmount()));
+        holder.amount.setText(NumberFormat.getCurrencyInstance().format(item.getAmount()));
 
         if (item.isExpanse()) {
             holder.amount.setTextColor(getContext().getResources().getColor(R.color.red));

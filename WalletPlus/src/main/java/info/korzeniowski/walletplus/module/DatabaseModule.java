@@ -13,23 +13,20 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.AccountDataManager;
 import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
 import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.WalletDataManager;
 import info.korzeniowski.walletplus.datamanager.local.DatabaseHelper;
-import info.korzeniowski.walletplus.datamanager.local.LocalAccountDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCashFlowDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
 import info.korzeniowski.walletplus.datamanager.local.LocalWalletDataManager;
-import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
 import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowDetailsFragment_;
+import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
 import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment_;
 import info.korzeniowski.walletplus.drawermenu.wallet.WalletDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.wallet.WalletListFragment_;
-import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -39,20 +36,19 @@ import info.korzeniowski.walletplus.model.Wallet;
  */
 //TODO: usunąć library = true
 @Module(
-        library = true,
         injects = {
                 DashboardFragment_.class,
 
                 CategoryDetailsFragment_.class,
                 CategoryListFragment_.class,
-                LocalCategoryDataManager.class,
 
                 CashFlowDetailsFragment_.class,
                 CashFlowListFragment_.class,
 
                 WalletDetailsFragment_.class,
                 WalletListFragment_.class
-        }
+        },
+        complete = false
 )
 public class DatabaseModule {
 
@@ -69,25 +65,25 @@ public class DatabaseModule {
         return databaseHelper;
     }
 
-    /****************
-     * ACCOUNT
-     ***************/
-    @Provides
-    public Dao<Account, Long> provideAccountDao() {
-        try {
-            return databaseHelper.getAccountDao();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Provides
-    @Named("local")
-    @Singleton
-    public AccountDataManager provideAccountDataManager(LocalAccountDataManager localAccountDataManager) {
-        return localAccountDataManager;
-    }
+//    /****************
+//     * ACCOUNT
+//     ***************/
+//    @Provides
+//    public Dao<Account, Long> provideAccountDao() {
+//        try {
+//            return databaseHelper.getAccountDao();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+//
+//    @Provides
+//    @Named("local")
+//    @Singleton
+//    public AccountDataManager provideAccountDataManager(LocalAccountDataManager localAccountDataManager) {
+//        return localAccountDataManager;
+//    }
 
     /****************
      * CATEGORY

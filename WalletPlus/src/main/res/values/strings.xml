@@ -11,8 +11,6 @@
     <string name="income">Income</string>
     <string name="expanse">Expanse</string>
 
-    <string name="amountFormat" translatable="false">,####.00</string>
-
     <!-- Navigation drawer -->
     <string name="dashboardMenu">Dashboard</string>
     <string name="categoryMenu">Categories</string>
