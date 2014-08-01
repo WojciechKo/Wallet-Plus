@@ -25,8 +25,8 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.WalletNameAndTypeMustBeUniqueException;
+import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.service.exception.WalletNameAndTypeMustBeUniqueException;
 import info.korzeniowski.walletplus.model.Wallet;
 
 @OptionsMenu(R.menu.action_save)
@@ -43,7 +43,7 @@ public class WalletDetailsFragment extends Fragment {
     TextView walletInitialAmount;
 
     @Inject @Named("local")
-    WalletDataManager localWalletDataManager;
+    WalletService localWalletService;
 
     @Inject @Named("amount")
     NumberFormat amountFormat;
@@ -71,7 +71,7 @@ public class WalletDetailsFragment extends Fragment {
 
     private Wallet getWallet() {
         if (type.equals(DetailsType.EDIT)) {
-            return localWalletDataManager.findById(walletId);
+            return localWalletService.findById(walletId);
         }
         return new Wallet();
     }
@@ -145,9 +145,9 @@ public class WalletDetailsFragment extends Fragment {
             wallet.setType(Wallet.Type.MY_WALLET);
             try {
                 if (DetailsType.ADD.equals(type)) {
-                    localWalletDataManager.insert(wallet);
+                    localWalletService.insert(wallet);
                 } else if (DetailsType.EDIT.equals(type)) {
-                    localWalletDataManager.update(wallet);
+                    localWalletService.update(wallet);
                 }
                 getActivity().getSupportFragmentManager().popBackStack();
             } catch (WalletNameAndTypeMustBeUniqueException e) {
@@ -169,7 +169,7 @@ public class WalletDetailsFragment extends Fragment {
     }
 
     private void validateIfNameIsUnique() {
-        Wallet found = localWalletDataManager.findByNameAndType(walletName.getText().toString(), Wallet.Type.MY_WALLET);
+        Wallet found = localWalletService.findByNameAndType(walletName.getText().toString(), Wallet.Type.MY_WALLET);
         if (found != null && !found.getName().equals(originalName)) {
             walletName.setError(getString(R.string.walletNameHaveToBeUnique));
         }

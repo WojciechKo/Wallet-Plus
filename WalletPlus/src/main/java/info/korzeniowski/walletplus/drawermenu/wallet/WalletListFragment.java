@@ -18,14 +18,14 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.WalletDataManager;
+import info.korzeniowski.walletplus.service.WalletService;
 
 @OptionsMenu(R.menu.action_new)
 @EFragment(R.layout.card_list)
 public class WalletListFragment extends Fragment {
     @Inject
     @Named("local")
-    WalletDataManager localWalletDataManager;
+    WalletService localWalletService;
 
     @ViewById
     ListView list;
@@ -38,7 +38,7 @@ public class WalletListFragment extends Fragment {
     @AfterViews
     void setupViews() {
         setHasOptionsMenu(true);
-        list.setAdapter(new WalletListAdapter(getActivity(), localWalletDataManager.getMyWallets()));
+        list.setAdapter(new WalletListAdapter(getActivity(), localWalletService.getMyWallets()));
     }
 
     @ItemClick

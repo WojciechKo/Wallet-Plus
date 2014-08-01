@@ -25,8 +25,8 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveSubsException;
+import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.model.Category;
 
 /**
@@ -44,7 +44,7 @@ public class CategoryListFragment extends Fragment {
     ExpandableListView superList;
 
     @Inject @Named("local")
-    CategoryDataManager localCategoryDataManager;
+    CategoryService localCategoryService;
 
     private int categoryType;
 
@@ -102,11 +102,11 @@ public class CategoryListFragment extends Fragment {
     private List<Category> getCategoryList(int type) {
         switch (type) {
             case ONLY_INCOME:
-                return localCategoryDataManager.getMainIncomeTypeCategories();
+                return localCategoryService.getMainIncomeTypeCategories();
             case ONLY_EXPENSE:
-                return localCategoryDataManager.getMainExpenseTypeCategories();
+                return localCategoryService.getMainExpenseTypeCategories();
             case ALL:
-                return localCategoryDataManager.getMainCategories();
+                return localCategoryService.getMainCategories();
         }
         throw new RuntimeException("Inacceptable category type: " + type);
     }
@@ -137,7 +137,7 @@ public class CategoryListFragment extends Fragment {
                     break;
                 case R.id.menu_delete:
                     try {
-                        localCategoryDataManager.deleteById(category.getId());
+                        localCategoryService.deleteById(category.getId());
                         resetCategoryListAdapter();
                     } catch (CategoryHaveSubsException e) {
                         buildIfDeleteWithSubcategoryAlertDialog().show();
@@ -155,7 +155,7 @@ public class CategoryListFragment extends Fragment {
             builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    localCategoryDataManager.deleteByIdWithSubcategories(category.getId());
+                    localCategoryService.deleteByIdWithSubcategories(category.getId());
                 }
             });
             builder.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {

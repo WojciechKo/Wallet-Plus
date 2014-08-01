@@ -1,11 +1,9 @@
 package info.korzeniowski.walletplus.drawermenu.dashboard;
 
-import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
-import android.text.style.TextAppearanceSpan;
 import android.widget.TextView;
 
 import org.androidannotations.annotations.AfterInject;
@@ -13,7 +11,6 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 
@@ -22,7 +19,7 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.WalletDataManager;
+import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.model.Wallet;
 
 @EFragment(R.layout.dashboard_fragment)
@@ -33,7 +30,7 @@ public class DashboardFragment extends Fragment {
 
     @Inject
     @Named("local")
-    WalletDataManager localWalletDataManager;
+    WalletService localWalletService;
 
     @AfterInject
     void daggerInject() {
@@ -61,7 +58,7 @@ public class DashboardFragment extends Fragment {
     }
 
     private Double getCurrentAmountSumFromMyWallets() {
-        List<Wallet> myWallets = localWalletDataManager.getMyWallets();
+        List<Wallet> myWallets = localWalletService.getMyWallets();
         Double sum = (double) 0;
         for (Wallet wallet : myWallets) {
             sum += wallet.getCurrentAmount();

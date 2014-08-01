@@ -23,7 +23,7 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
+import info.korzeniowski.walletplus.service.CashFlowService;
 
 /**
  * Fragment with list of cash flows.
@@ -36,7 +36,7 @@ public class CashFlowListFragment extends Fragment {
     ListView list;
 
     @Inject @Named("local")
-    CashFlowDataManager localCashFlowDataManager;
+    CashFlowService localCashFlowService;
 
     @AfterInject
     void daggerInject() {
@@ -46,7 +46,7 @@ public class CashFlowListFragment extends Fragment {
     @AfterViews
     void setupView() {
         setHasOptionsMenu(true);
-        list.setAdapter((new CashFlowListAdapter(getActivity(), localCashFlowDataManager.getAll())));
+        list.setAdapter((new CashFlowListAdapter(getActivity(), localCashFlowService.getAll())));
         list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -99,8 +99,8 @@ public class CashFlowListFragment extends Fragment {
                     startCashFlowDetailsFragment(id);
                     break;
                 case R.id.menu_delete:
-                    localCashFlowDataManager.deleteById(id);
-                    list.setAdapter((new CashFlowListAdapter(getActivity(), localCashFlowDataManager.getAll())));
+                    localCashFlowService.deleteById(id);
+                    list.setAdapter((new CashFlowListAdapter(getActivity(), localCashFlowService.getAll())));
                     break;
             }
             actionMode.finish();

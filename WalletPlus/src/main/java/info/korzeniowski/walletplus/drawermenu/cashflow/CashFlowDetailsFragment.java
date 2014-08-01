@@ -43,9 +43,9 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
-import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.WalletDataManager;
+import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
@@ -82,13 +82,13 @@ public class CashFlowDetailsFragment extends Fragment {
     Switch recordType;
 
     @Inject @Named("local")
-    CashFlowDataManager localCashFlowDataManager;
+    CashFlowService localCashFlowService;
 
     @Inject @Named("local")
-    WalletDataManager localWalletDataManager;
+    WalletService localWalletService;
 
     @Inject @Named("local")
-    CategoryDataManager localCategoryDataManager;
+    CategoryService localCategoryService;
 
     @Inject @Named("amount")
     NumberFormat amountFormat;
@@ -123,7 +123,7 @@ public class CashFlowDetailsFragment extends Fragment {
         if (type.equals(DetailsType.ADD)) {
             cashFlow = new CashFlow();
         } else if (type.equals(DetailsType.EDIT)) {
-            cashFlow = localCashFlowDataManager.findById(cashFlowId);
+            cashFlow = localCashFlowService.findById(cashFlowId);
         }
         calendar = Calendar.getInstance();
     }
@@ -139,13 +139,13 @@ public class CashFlowDetailsFragment extends Fragment {
         toWalletList = Lists.newArrayList();
         categoryList = Lists.newArrayList();
         if (isExpanseType()) {
-            fromWalletList.addAll(localWalletDataManager.getMyWallets());
-            toWalletList.addAll(localWalletDataManager.getContractors());
-            categoryList.addAll(localCategoryDataManager.getMainExpenseTypeCategories());
+            fromWalletList.addAll(localWalletService.getMyWallets());
+            toWalletList.addAll(localWalletService.getContractors());
+            categoryList.addAll(localCategoryService.getMainExpenseTypeCategories());
         } else {
-            fromWalletList.addAll(localWalletDataManager.getContractors());
-            toWalletList.addAll(localWalletDataManager.getMyWallets());
-            categoryList.addAll(localCategoryDataManager.getMainIncomeTypeCategories());
+            fromWalletList.addAll(localWalletService.getContractors());
+            toWalletList.addAll(localWalletService.getMyWallets());
+            categoryList.addAll(localCategoryService.getMainIncomeTypeCategories());
         }
     }
 
@@ -343,12 +343,12 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private boolean tryInsert() {
-        localCashFlowDataManager.insert(cashFlow);
+        localCashFlowService.insert(cashFlow);
         return true;
     }
 
     private boolean tryUpdate() {
-        localCashFlowDataManager.update(cashFlow);
+        localCashFlowService.update(cashFlow);
         return true;
     }
 

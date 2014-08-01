@@ -32,9 +32,9 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryHaveSubsException;
-import info.korzeniowski.walletplus.datamanager.exception.CategoryNameMustBeUniqueException;
+import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
+import info.korzeniowski.walletplus.service.exception.CategoryNameMustBeUniqueException;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton;
 
@@ -65,7 +65,7 @@ public class CategoryDetailsFragment extends Fragment {
 
     @Inject
     @Named("local")
-    CategoryDataManager localCategoryDataManager;
+    CategoryService localCategoryService;
 
     private DetailsType mType;
     private Category mCategory;
@@ -87,7 +87,7 @@ public class CategoryDetailsFragment extends Fragment {
 
     private Category getCategory(Long categoryId) {
         if (mType.equals(DetailsType.EDIT)) {
-            return localCategoryDataManager.findById(categoryId);
+            return localCategoryService.findById(categoryId);
         }
         return new Category().setType(Category.Type.INCOME_EXPENSE);
     }
@@ -100,7 +100,7 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     private void setupAdapters() {
-        parentCategory.setAdapter(new ParentCategoryAdapter(getActivity(), localCategoryDataManager.getMainCategories()));
+        parentCategory.setAdapter(new ParentCategoryAdapter(getActivity(), localCategoryService.getMainCategories()));
     }
 
     private void setupListeners() {
@@ -229,7 +229,7 @@ public class CategoryDetailsFragment extends Fragment {
 
     private boolean tryInsert() {
         try {
-            localCategoryDataManager.insert(mCategory);
+            localCategoryService.insert(mCategory);
             return true;
         } catch (CategoryNameMustBeUniqueException e) {
             categoryName.setError("Category name need to be unique");
@@ -242,7 +242,7 @@ public class CategoryDetailsFragment extends Fragment {
             if (mCategory.getParent() != null) {
                 mCategory.setType(null);
             }
-            localCategoryDataManager.update(mCategory);
+            localCategoryService.update(mCategory);
             return true;
         } catch (CategoryNameMustBeUniqueException e) {
             categoryName.setError("Category name need to be unique");

@@ -13,13 +13,13 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.datamanager.CashFlowDataManager;
-import info.korzeniowski.walletplus.datamanager.CategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.WalletDataManager;
-import info.korzeniowski.walletplus.datamanager.local.DatabaseHelper;
-import info.korzeniowski.walletplus.datamanager.local.LocalCashFlowDataManager;
-import info.korzeniowski.walletplus.datamanager.local.LocalCategoryDataManager;
-import info.korzeniowski.walletplus.datamanager.local.LocalWalletDataManager;
+import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.service.local.DatabaseHelper;
+import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
+import info.korzeniowski.walletplus.service.local.LocalCategoryService;
+import info.korzeniowski.walletplus.service.local.LocalWalletService;
 import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowDetailsFragment_;
 import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
@@ -101,8 +101,8 @@ public class DatabaseModule {
     @Provides
     @Named("local")
     @Singleton
-    public CategoryDataManager provideCategoryDataManager(LocalCategoryDataManager localCategoryDataManager) {
-        return localCategoryDataManager;
+    public CategoryService provideCategoryService(LocalCategoryService localCategoryService) {
+        return localCategoryService;
     }
 
     /****************
@@ -121,8 +121,8 @@ public class DatabaseModule {
     @Provides
     @Named("local")
     @Singleton
-    public CashFlowDataManager provideCashFlowDataManager(LocalCashFlowDataManager localCashFlowDataManager) {
-        return localCashFlowDataManager;
+    public CashFlowService provideCashFlowService(LocalCashFlowService localCashFlowService) {
+        return localCashFlowService;
     }
 
     /****************
@@ -141,7 +141,7 @@ public class DatabaseModule {
     @Provides
     @Named("local")
     @Singleton
-    public WalletDataManager provideWalletDataManager(LocalWalletDataManager localWalletDataManager) {
-        return localWalletDataManager;
+    public WalletService provideWalletService(LocalWalletService localWalletService) {
+        return localWalletService;
     }
 }
