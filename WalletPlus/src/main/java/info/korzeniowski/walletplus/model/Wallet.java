@@ -22,73 +22,46 @@ public class Wallet {
     @DatabaseField(canBeNull = false)
     private Double currentAmount;
 
+    /** ORMLite requirement **/
     public Wallet() {
 
     }
 
-    public Wallet(String name, Type type, Double initialAmount, Double currentAmount) {
-        this.name = name;
-        this.type = type;
-        this.initialAmount = initialAmount;
-        this.currentAmount = currentAmount;
+    private Wallet(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.type = builder.type;
+        this.initialAmount = builder.initialAmount;
+
+        if (builder.currentAmount == null) {
+            this.currentAmount = builder.initialAmount;
+        } else {
+            this.currentAmount = builder.currentAmount;
+        }
     }
 
     public Long getId() {
         return id;
     }
 
-    public Wallet setId(Long id) {
-        this.id = id;
-        return this;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public Wallet setName(String name) {
-        this.name = name;
-        return this;
     }
 
     public Double getInitialAmount() {
         return initialAmount;
     }
 
-    public Wallet setInitialAmount(Double initialAmount) {
-        this.initialAmount = initialAmount;
-        return this;
-    }
-
     public Double getCurrentAmount() {
         return currentAmount;
-    }
-
-    public Wallet setCurrentAmount(Double currentAmount) {
-        this.currentAmount = currentAmount;
-        return this;
     }
 
     public Type getType() {
         return type;
     }
 
-    public Wallet setType(Type type) {
-        this.type = type;
-        return this;
-    }
-
-    public static Wallet findById(List<Wallet> wallets, Long id) {
-        for (Wallet wallet : wallets) {
-            if (id.equals(wallet.getId())) {
-                return wallet;
-            }
-        }
-        return null;
-    }
-
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -102,10 +75,72 @@ public class Wallet {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Wallet{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", type=" + type +
+                ", initialAmount=" + initialAmount +
+                ", currentAmount=" + currentAmount +
+                '}';
+    }
+
+    public static class Builder {
+        private Long id;
+        private String name;
+        private Type type;
+        private Double initialAmount;
+        private Double currentAmount;
+
+        public Builder() {
+
+        }
+
+        public Builder(Wallet wallet) {
+            if (wallet != null) {
+                id = wallet.getId();
+                name = wallet.getName();
+                type = wallet.getType();
+                initialAmount = wallet.getInitialAmount();
+                currentAmount = wallet.getCurrentAmount();
+            }
+        }
+
+        public Builder setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder setType(Type type) {
+            this.type = type;
+            return this;
+        }
+
+        public Builder setInitialAmount(Double initialAmount) {
+            this.initialAmount = initialAmount;
+            return this;
+        }
+
+        public Builder setCurrentAmount(Double currentAmount) {
+            this.currentAmount = currentAmount;
+            return this;
+        }
+
+        public Wallet build() {
+            return new Wallet(this);
+        }
     }
 }

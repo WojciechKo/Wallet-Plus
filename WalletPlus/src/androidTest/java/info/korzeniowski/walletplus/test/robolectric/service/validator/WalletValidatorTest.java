@@ -34,7 +34,7 @@ public class WalletValidatorTest {
     @Test
     public void walletMustHaveType() {
         try {
-            walletService.insert(new Wallet().setName("TestName").setInitialAmount(11.1));
+            walletService.insert(new Wallet.Builder().setName("TestName").setInitialAmount(11.1).build());
             failBecauseExceptionWasNotThrown(EntityPropertyCannotBeNullOrEmptyException.class);
         } catch (EntityPropertyCannotBeNullOrEmptyException e) {
             assertThat(e.getProperty().equals("Type"));
@@ -44,7 +44,7 @@ public class WalletValidatorTest {
     @Test
     public void myWalletShouldHaveInitialAmount() {
         try {
-            walletService.insert(new Wallet().setType(Wallet.Type.MY_WALLET).setName("TestName"));
+            walletService.insert(new Wallet.Builder().setType(Wallet.Type.MY_WALLET).setName("TestName").build());
             failBecauseExceptionWasNotThrown(EntityPropertyCannotBeNullOrEmptyException.class);
         } catch (EntityPropertyCannotBeNullOrEmptyException e) {
             assertThat(e.getProperty().equals("InitialAmount"));

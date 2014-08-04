@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.WalletPlus_;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
@@ -37,6 +38,8 @@ import info.korzeniowski.walletplus.model.Wallet;
 //TODO: usunąć library = true
 @Module(
         injects = {
+                WalletPlus_.class,
+
                 DashboardFragment_.class,
 
                 CategoryDetailsFragment_.class,

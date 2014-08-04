@@ -70,21 +70,16 @@ public class Category implements Comparable<Category> {
         return this;
     }
 
-    public boolean isIncomeType() {
+    public final boolean isIncomeType() {
         return Type.INCOME.equals(getType()) || Type.INCOME_EXPENSE.equals(getType());
     }
 
-    public boolean isExpenseType() {
+    public final boolean isExpenseType() {
         return Type.EXPENSE.equals(getType()) || Type.INCOME_EXPENSE.equals(getType());
     }
 
     public List<Category> getChildren() {
         return Lists.newArrayList(children);
-    }
-
-    @Override
-    public int compareTo(Category other) {
-        return Comparators.NAME.compare(this, other);
     }
 
     @Override
@@ -104,13 +99,27 @@ public class Category implements Comparable<Category> {
     }
 
     @Override
-    public String toString() {
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (parent != null ? parent.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public final String toString() {
         return "Category{" +
                 "id=" + id +
                 ", parent=" + parent +
                 ", name='" + name + '\'' +
                 ", type=" + type +
                 '}';
+    }
+
+    @Override
+    public final int compareTo(Category other) {
+        return Comparators.NAME.compare(this, other);
     }
 
     public static class Comparators {

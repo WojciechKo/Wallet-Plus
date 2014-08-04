@@ -87,14 +87,16 @@ public class LocalCashFlowService implements CashFlowService {
     private void fixCurrentAmountInWalletsAfterInsert(CashFlow cashFlow) throws SQLException {
         Wallet fromWallet = cashFlow.getFromWallet();
         if (fromWallet != null) {
-            fromWallet.setCurrentAmount(fromWallet.getCurrentAmount() - cashFlow.getAmount());
-            walletDao.update(fromWallet);
+            Wallet.Builder builder = new Wallet.Builder(fromWallet);
+            builder.setCurrentAmount(fromWallet.getCurrentAmount() - cashFlow.getAmount());
+            walletDao.update(builder.build());
         }
 
         Wallet toWallet = cashFlow.getToWallet();
         if (toWallet != null) {
-            toWallet.setCurrentAmount(toWallet.getCurrentAmount() + cashFlow.getAmount());
-            walletDao.update(toWallet);
+            Wallet.Builder builder = new Wallet.Builder(toWallet);
+            builder.setCurrentAmount(toWallet.getCurrentAmount() + cashFlow.getAmount());
+            walletDao.update(builder.build());
         }
     }
 
@@ -117,14 +119,16 @@ public class LocalCashFlowService implements CashFlowService {
     private void fixCurrentAmountInWalletAfterDelete(CashFlow cashFlow) throws SQLException {
         Wallet fromWallet = cashFlow.getFromWallet();
         if (fromWallet != null) {
-            fromWallet.setCurrentAmount(fromWallet.getCurrentAmount() + cashFlow.getAmount());
-            walletDao.update(fromWallet);
+            Wallet.Builder builder = new Wallet.Builder(fromWallet);
+            builder.setCurrentAmount(fromWallet.getCurrentAmount() + cashFlow.getAmount());
+            walletDao.update(builder.build());
         }
 
         Wallet toWallet = cashFlow.getToWallet();
         if (toWallet != null) {
-            toWallet.setCurrentAmount(toWallet.getCurrentAmount() - cashFlow.getAmount());
-            walletDao.update(toWallet);
+            Wallet.Builder builder = new Wallet.Builder(toWallet);
+            builder.setCurrentAmount(toWallet.getCurrentAmount() - cashFlow.getAmount());
+            walletDao.update(builder.build());
         }
     }
 }

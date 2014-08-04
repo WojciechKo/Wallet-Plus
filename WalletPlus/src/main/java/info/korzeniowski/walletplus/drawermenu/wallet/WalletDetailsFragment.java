@@ -25,6 +25,7 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.WalletNameAndTypeMustBeUniqueException;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -48,9 +49,9 @@ public class WalletDetailsFragment extends Fragment {
     @Inject @Named("amount")
     NumberFormat amountFormat;
 
-    private Long walletId;
-    private Wallet wallet;
     private DetailsType type;
+    private Wallet.Builder walletBuilder;
+    private Wallet wallet;
     private String originalName;
 
     @AfterInject
@@ -60,20 +61,14 @@ public class WalletDetailsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        walletId = getArguments().getLong(WALLET_ID);
+        Long walletId = getArguments().getLong(WALLET_ID);
         type = walletId == 0L ? DetailsType.ADD : DetailsType.EDIT;
-        wallet = getWallet();
-        if (type.equals(DetailsType.EDIT)) {
+        if (type == DetailsType.EDIT) {
+            wallet = localWalletService.findById(walletId);
             originalName = wallet.getName();
         }
+        walletBuilder = new Wallet.Builder(wallet);
         return null;
-    }
-
-    private Wallet getWallet() {
-        if (type.equals(DetailsType.EDIT)) {
-            return localWalletService.findById(walletId);
-        }
-        return new Wallet();
     }
 
     @AfterViews
@@ -125,29 +120,33 @@ public class WalletDetailsFragment extends Fragment {
     }
 
     private void fillViewsWithData() {
-        if (type.equals(DetailsType.EDIT)) {
+        if (type == DetailsType.EDIT) {
             walletName.setText(wallet.getName());
             walletInitialAmount.setText(amountFormat.format(wallet.getInitialAmount()));
         }
     }
 
     private void getDataFromViews() {
-        wallet.setName(walletName.getText().toString());
-        String initialAmount = walletInitialAmount.getText().toString();
-        wallet.setInitialAmount(Double.parseDouble(initialAmount));
-        wallet.setCurrentAmount(wallet.getInitialAmount());
+        walletBuilder.setName(walletName.getText().toString());
+        Double initialAmount = Double.parseDouble(walletInitialAmount.getText().toString());
+        if (type == DetailsType.ADD) {
+            walletBuilder.setCurrentAmount(wallet.getInitialAmount());
+        } else if (type == DetailsType.EDIT) {
+            walletBuilder.setCurrentAmount(wallet.getCurrentAmount() + initialAmount - wallet.getInitialAmount());
+        }
+        walletBuilder.setInitialAmount(initialAmount);
     }
 
     @OptionsItem(R.id.menu_save)
     void actionSave() {
         if (validateIfEmptyFields()) {
             getDataFromViews();
-            wallet.setType(Wallet.Type.MY_WALLET);
+            walletBuilder.setType(Wallet.Type.MY_WALLET);
             try {
-                if (DetailsType.ADD.equals(type)) {
-                    localWalletService.insert(wallet);
-                } else if (DetailsType.EDIT.equals(type)) {
-                    localWalletService.update(wallet);
+                if (type == DetailsType.ADD) {
+                    localWalletService.insert(walletBuilder.build());
+                } else if (type == DetailsType.EDIT) {
+                    localWalletService.update(walletBuilder.build());
                 }
                 getActivity().getSupportFragmentManager().popBackStack();
             } catch (WalletNameAndTypeMustBeUniqueException e) {
