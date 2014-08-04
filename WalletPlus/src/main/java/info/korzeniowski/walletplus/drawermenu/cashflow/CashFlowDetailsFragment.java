@@ -97,7 +97,6 @@ public class CashFlowDetailsFragment extends Fragment {
     private Long cashFlowId;
     private DetailsType type;
     private Calendar calendar;
-    private Category selectedCategory;
     private Category previousCategory;
 
     private List<Wallet> fromWalletList;
@@ -203,28 +202,16 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
 
-    @CheckedChange
-    void recordTypeCheckedChanged() {
-        swapWalletLists();
-        handleCategoryWhenSwapType();
-        notifyWalletAdapters();
-    }
-
     private void notifyWalletAdapters() {
         ((WalletAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
         ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
     }
 
-    private void handleCategoryWhenSwapType() {
-        Category temp = previousCategory;
-        previousCategory = selectedCategory;
-        selectedCategory = temp;
-
-        if (selectedCategory == null) {
-            category.setText(R.string.cashflowCategoryHint);
-        } else {
-            category.setText(selectedCategory.getName());
-        }
+    @CheckedChange
+    void recordTypeCheckedChanged() {
+        swapWalletLists();
+        handleCategoryWhenSwapType();
+        notifyWalletAdapters();
     }
 
     private void swapWalletLists() {
@@ -239,6 +226,18 @@ public class CashFlowDetailsFragment extends Fragment {
 
         toWallet.setSelection(selectedFromWalletPosition);
         fromWallet.setSelection(selectedToWalletPosition);
+    }
+
+    private void handleCategoryWhenSwapType() {
+        Category temp = previousCategory;
+        previousCategory = cashFlow.getCategory();
+        cashFlow.setCategory(temp);
+
+        if (cashFlow.getCategory() == null) {
+            category.setText(R.string.cashflowCategoryHint);
+        } else {
+            category.setText(cashFlow.getCategory().getName());
+        }
     }
 
     public boolean isExpanseType() {
@@ -265,11 +264,11 @@ public class CashFlowDetailsFragment extends Fragment {
 
                 ExpandableListAdapter expandableListAdapter = ((ExpandableListView) parent).getExpandableListAdapter();
                 if (childPosition == -1)
-                    selectedCategory = (Category) expandableListAdapter.getGroup(groupPosition);
+                    cashFlow.setCategory((Category) expandableListAdapter.getGroup(groupPosition));
                 else
-                    selectedCategory = (Category) expandableListAdapter.getChild(groupPosition, childPosition);
+                    cashFlow.setCategory((Category) expandableListAdapter.getChild(groupPosition, childPosition));
 
-                category.setText(selectedCategory.getName());
+                category.setText(cashFlow.getCategory().getName());
                 alertDialog.dismiss();
                 return true;
             }
@@ -290,7 +289,6 @@ public class CashFlowDetailsFragment extends Fragment {
         cashFlow.setAmount(Float.parseFloat(amount.getText().toString()));
         cashFlow.setId(cashFlowId);
         cashFlow.setDateTime(calendar.getTime());
-        cashFlow.setCategory(selectedCategory);
         cashFlow.setFromWallet((Wallet) fromWallet.getSelectedItem());
         cashFlow.setToWallet((Wallet) toWallet.getSelectedItem());
         cashFlow.setComment(comment.getText().toString());
