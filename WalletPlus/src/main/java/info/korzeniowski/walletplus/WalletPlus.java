@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import org.androidannotations.annotations.EApplication;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -78,8 +79,8 @@ public class WalletPlus extends Application {
         localWalletService.insert(wardrobe);
         Wallet sock = walletBuilder.setName("Sock").setInitialAmount(500.0).build();
         localWalletService.insert(sock);
-        Wallet savingsAccount = walletBuilder.setName("Savings account").setInitialAmount(2500.0).build();
-        localWalletService.insert(savingsAccount);
+        Wallet bankAccount = walletBuilder.setName("Bank account").setInitialAmount(2500.0).build();
+        localWalletService.insert(bankAccount);
 
         /** Init other wallets **/
         walletBuilder.setType(Wallet.Type.CONTRACTOR).setInitialAmount(0.0);
@@ -98,9 +99,13 @@ public class WalletPlus extends Application {
         Category mainHouse = categoryBuilder.setName("House").setType(Category.Type.EXPENSE).build();
         localCategoryService.insert(mainHouse);
         categoryBuilder.setParent(mainHouse).setType(null);
-        localCategoryService.insert(categoryBuilder.setName("Energy").build());
-        localCategoryService.insert(categoryBuilder.setName("Water").build());
-        localCategoryService.insert(categoryBuilder.setName("Gas").build());
+
+        Category energy = categoryBuilder.setName("Energy").build();
+        localCategoryService.insert(energy);
+        Category water = categoryBuilder.setName("Water").build();
+        localCategoryService.insert(water);
+        Category gas = categoryBuilder.setName("Gas").build();
+        localCategoryService.insert(gas);
 
         Category mainInternet = categoryBuilder.setName("Internet").setType(Category.Type.INCOME).setParent(null).build();
         localCategoryService.insert(mainInternet);
@@ -112,16 +117,26 @@ public class WalletPlus extends Application {
         localCategoryService.insert(mainPartner);
 
         /** Init cashflows **/
-        localCashFlowService.insert(new CashFlow(100.0f, new Date()).setCategory(mainHouse).setFromWallet(personalWallet).setComment("Cleaning products").setToWallet(walMart));
-        localCashFlowService.insert(new CashFlow(150.0f, new Date()).setCategory(mainHouse).setFromWallet(personalWallet));
-        localCashFlowService.insert(new CashFlow(200.0f, new Date()).setCategory(mainHouse).setFromWallet(personalWallet));
+        Calendar date = Calendar.getInstance();
 
-        localCashFlowService.insert(new CashFlow(150.0f, new Date()).setCategory(mainInternet).setToWallet(sock).setComment("AdSense"));
-        localCashFlowService.insert(new CashFlow(50.0f, new Date()).setCategory(mainInternet).setToWallet(personalWallet));
+        CashFlow.Builder cashFlowBuilder = new CashFlow.Builder();
+        localCashFlowService.insert(cashFlowBuilder.setAmount(100.0f).setCategory(mainHouse).setFromWallet(personalWallet).setToWallet(walMart).setDateTime(date.getTime()).setComment("Food").build());
 
-        localCashFlowService.insert(new CashFlow(250.0f, new Date()).setFromWallet(personalWallet).setToWallet(sock));
-        localCashFlowService.insert(new CashFlow(50.0f, new Date()).setFromWallet(personalWallet).setToWallet(walMart));
+        date.add(Calendar.DATE, -1);
+        localCashFlowService.insert(cashFlowBuilder.setAmount(150.0f).setCategory(mainHouse).setFromWallet(personalWallet).setToWallet(walMart).setDateTime(date.getTime()).setComment("Cleaning products").build());
 
+        date.add(Calendar.HOUR_OF_DAY, -1);
+        localCashFlowService.insert(cashFlowBuilder.setAmount(100.0f).setCategory(null).setFromWallet(sock).setToWallet(personalWallet).setDateTime(date.getTime()).setComment("Transfer to personal wallet").build());
+
+        date.add(Calendar.HOUR_OF_DAY, -1);
+        localCashFlowService.insert(cashFlowBuilder.setAmount(75.0f).setCategory(energy).setFromWallet(bankAccount).setToWallet(null).setComment(null).build());
+        localCashFlowService.insert(cashFlowBuilder.setAmount(100.0f).setCategory(water).setFromWallet(bankAccount).setToWallet(null).setComment(null).build());
+        localCashFlowService.insert(cashFlowBuilder.setAmount(50.0f).setCategory(gas).setFromWallet(bankAccount).setToWallet(null).setComment(null).build());
+
+        date.add(Calendar.DATE, -1);
+        localCashFlowService.insert(cashFlowBuilder.setAmount(500.0f).setCategory(null).setFromWallet(bankAccount).setToWallet(personalWallet).setComment(null).build());
+        localCashFlowService.insert(cashFlowBuilder.setAmount(1000.0f).setCategory(null).setFromWallet(bankAccount).setToWallet(wardrobe).setComment("Savings").build());
+        localCashFlowService.insert(cashFlowBuilder.setAmount(3000.0f).setCategory(null).setFromWallet(amazon).setToWallet(bankAccount).setComment("Payment").build());
     }
 
     public void inject(Object object) {

@@ -93,9 +93,9 @@ public class CashFlowDetailsFragment extends Fragment {
     @Inject @Named("amount")
     NumberFormat amountFormat;
 
-    private CashFlow cashFlow;
-    private Long cashFlowId;
     private DetailsType type;
+    private CashFlow.Builder cashFlowBuilder;
+
     private Calendar calendar;
     private Category previousCategory;
 
@@ -117,14 +117,12 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private void initFields() {
-        cashFlowId = getArguments().getLong(CASH_FLOW_ID);
+        Long cashFlowId = getArguments().getLong(CASH_FLOW_ID);
         type = cashFlowId == 0L ? DetailsType.ADD : DetailsType.EDIT;
         calendar = Calendar.getInstance();
-        if (type.equals(DetailsType.ADD)) {
-            cashFlow = new CashFlow();
-        } else if (type.equals(DetailsType.EDIT)) {
-            cashFlow = localCashFlowService.findById(cashFlowId);
-            calendar.setTime(cashFlow.getDateTime());
+        cashFlowBuilder = new CashFlow.Builder(localCashFlowService.findById(cashFlowId));
+        if (type.equals(DetailsType.EDIT)) {
+            calendar.setTime(cashFlowBuilder.getDateTime());
         }
         fromWalletList = Lists.newArrayList();
         toWalletList = Lists.newArrayList();
@@ -175,17 +173,17 @@ public class CashFlowDetailsFragment extends Fragment {
     private void fillViewsWithData() {
         refreshDatePicker();
         refreshTimePicker();
-        if (cashFlow.getAmount() != null) {
-            amount.setText(amountFormat.format(cashFlow.getAmount()));
+        if (cashFlowBuilder.getAmount() != null) {
+            amount.setText(amountFormat.format(cashFlowBuilder.getAmount()));
         }
-        comment.setText(cashFlow.getComment());
-        recordType.setChecked(cashFlow.isExpanse());
+        comment.setText(cashFlowBuilder.getComment());
+        recordType.setChecked(cashFlowBuilder.build().isExpanse());
         fillListsWithData();
-        fromWallet.setSelection(fromWalletList.indexOf(cashFlow.getFromWallet()));
-        toWallet.setSelection(toWalletList.indexOf(cashFlow.getToWallet()));
+        fromWallet.setSelection(fromWalletList.indexOf(cashFlowBuilder.getFromWallet()));
+        toWallet.setSelection(toWalletList.indexOf(cashFlowBuilder.getToWallet()));
         notifyWalletAdapters();
-        if (cashFlow.getCategory() != null) {
-            category.setText(cashFlow.getCategory().getName());
+        if (cashFlowBuilder.getCategory() != null) {
+            category.setText(cashFlowBuilder.getCategory().getName());
         }
     }
 
@@ -230,13 +228,13 @@ public class CashFlowDetailsFragment extends Fragment {
 
     private void handleCategoryWhenSwapType() {
         Category temp = previousCategory;
-        previousCategory = cashFlow.getCategory();
-        cashFlow.setCategory(temp);
+        previousCategory = cashFlowBuilder.getCategory();
+        cashFlowBuilder.setCategory(temp);
 
-        if (cashFlow.getCategory() == null) {
+        if (cashFlowBuilder.getCategory() == null) {
             category.setText(R.string.cashflowCategoryHint);
         } else {
-            category.setText(cashFlow.getCategory().getName());
+            category.setText(cashFlowBuilder.getCategory().getName());
         }
     }
 
@@ -264,11 +262,11 @@ public class CashFlowDetailsFragment extends Fragment {
 
                 ExpandableListAdapter expandableListAdapter = ((ExpandableListView) parent).getExpandableListAdapter();
                 if (childPosition == -1)
-                    cashFlow.setCategory((Category) expandableListAdapter.getGroup(groupPosition));
+                    cashFlowBuilder.setCategory((Category) expandableListAdapter.getGroup(groupPosition));
                 else
-                    cashFlow.setCategory((Category) expandableListAdapter.getChild(groupPosition, childPosition));
+                    cashFlowBuilder.setCategory((Category) expandableListAdapter.getChild(groupPosition, childPosition));
 
-                category.setText(cashFlow.getCategory().getName());
+                category.setText(cashFlowBuilder.getCategory().getName());
                 alertDialog.dismiss();
                 return true;
             }
@@ -286,12 +284,11 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     public void getDataFromViews() {
-        cashFlow.setAmount(Float.parseFloat(amount.getText().toString()));
-        cashFlow.setId(cashFlowId);
-        cashFlow.setDateTime(calendar.getTime());
-        cashFlow.setFromWallet((Wallet) fromWallet.getSelectedItem());
-        cashFlow.setToWallet((Wallet) toWallet.getSelectedItem());
-        cashFlow.setComment(comment.getText().toString());
+        cashFlowBuilder.setAmount(Float.parseFloat(amount.getText().toString()));
+        cashFlowBuilder.setDateTime(calendar.getTime());
+        cashFlowBuilder.setFromWallet((Wallet) fromWallet.getSelectedItem());
+        cashFlowBuilder.setToWallet((Wallet) toWallet.getSelectedItem());
+        cashFlowBuilder.setComment(comment.getText().toString());
     }
 
     @Click
@@ -348,12 +345,12 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private boolean tryInsert() {
-        localCashFlowService.insert(cashFlow);
+        localCashFlowService.insert(cashFlowBuilder.build());
         return true;
     }
 
     private boolean tryUpdate() {
-        localCashFlowService.update(cashFlow);
+        localCashFlowService.update(cashFlowBuilder.build());
         return true;
     }
 
