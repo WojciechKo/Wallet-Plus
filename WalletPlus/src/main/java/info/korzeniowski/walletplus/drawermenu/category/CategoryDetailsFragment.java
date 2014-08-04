@@ -67,36 +67,26 @@ public class CategoryDetailsFragment extends Fragment {
     @Named("local")
     CategoryService localCategoryService;
 
-    private DetailsType mType;
-    private Category mCategory;
-    private Category mParent;
+    private DetailsType type;
+    private Category.Builder categoryBuilder;
 
     @AfterInject
     void daggerInject() {
         ((WalletPlus) getActivity().getApplication()).inject(this);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Long categoryId = getArguments().getLong(CATEGORY_ID);
-        mType = categoryId == 0L ? DetailsType.ADD : DetailsType.EDIT;
-        mCategory = getCategory(categoryId);
-        mParent = mCategory.getParent();
-        return null;
-    }
-
-    private Category getCategory(Long categoryId) {
-        if (mType.equals(DetailsType.EDIT)) {
-            return localCategoryService.findById(categoryId);
-        }
-        return new Category().setType(Category.Type.INCOME_EXPENSE);
-    }
-
     @AfterViews
     void setupViews() {
+        initFields();
         setupAdapters();
         setupListeners();
         fillViewsWithData();
+    }
+
+    private void initFields() {
+        Long categoryId = getArguments().getLong(CATEGORY_ID);
+        type = categoryId == 0L ? DetailsType.ADD : DetailsType.EDIT;
+        categoryBuilder = new Category.Builder(localCategoryService.findById(categoryId));
     }
 
     private void setupAdapters() {
@@ -124,17 +114,18 @@ public class CategoryDetailsFragment extends Fragment {
             }
 
             private void noParentSelected() {
-                if (mParent != null) {
-                    categoryIncomeType.setChecked(mParent.isIncomeType());
-                    categoryExpenseType.setChecked(mParent.isExpenseType());
-                    mParent = null;
+                Category parent = categoryBuilder.getParent();
+                if (parent != null) {
+                    categoryIncomeType.setChecked(parent.isIncomeType());
+                    categoryExpenseType.setChecked(parent.isExpenseType());
+                    categoryBuilder.setParent(null);
                 }
                 categoryIncomeType.setEnabled(true);
                 categoryExpenseType.setEnabled(true);
             }
 
             private void parentSelected(Category selectedParent) {
-                mParent = selectedParent;
+                categoryBuilder.setParent(selectedParent);
                 categoryIncomeType.setChecked(selectedParent.isIncomeType());
                 categoryExpenseType.setChecked(selectedParent.isExpenseType());
                 categoryIncomeType.setEnabled(false);
@@ -149,23 +140,23 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     private void fillViewsWithData() {
-        categoryName.setText(mCategory.getName());
-        if (mCategory.getParent() != null) {
+        categoryName.setText(categoryBuilder.getName());
+        Category.Type type = categoryBuilder.getType();
+        if (categoryBuilder.getParent() != null) {
             ParentCategoryAdapter parentCategoryAdapter = (ParentCategoryAdapter) parentCategory.getAdapter();
-            parentCategory.setSelection(parentCategoryAdapter.getPosition(mParent));
+            parentCategory.setSelection(parentCategoryAdapter.getPosition(categoryBuilder.getParent()));
+            type = categoryBuilder.getParent().getType();
         }
-        categoryIncomeType.setChecked(mCategory.isIncomeType());
-        categoryExpenseType.setChecked(mCategory.isExpenseType());
+        categoryIncomeType.setChecked(type.isIncome());
+        categoryExpenseType.setChecked(type.isExpense());
     }
 
     private void getDataFromViews() {
-        mCategory.setName(categoryName.getText().toString());
-        if (mParent == null) {
-            mCategory.setParent(null);
-            mCategory.setType(getTypeFromView());
+        categoryBuilder.setName(categoryName.getText().toString());
+        if (categoryBuilder.getParent() == null) {
+            categoryBuilder.setType(getTypeFromView());
         } else {
-            mCategory.setParent(mParent);
-            mCategory.setType(null);
+            categoryBuilder.setType(null);
         }
     }
 
@@ -185,9 +176,9 @@ public class CategoryDetailsFragment extends Fragment {
         if (preValidation()) {
             getDataFromViews();
             boolean success = false;
-            if (DetailsType.ADD.equals(mType)) {
+            if (type == DetailsType.ADD) {
                 success = tryInsert();
-            } else if (DetailsType.EDIT.equals(mType)) {
+            } else if (type == DetailsType.EDIT) {
                 success = tryUpdate();
             }
             if (success) {
@@ -216,7 +207,7 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     private boolean validateType() {
-        if (mParent == null && !isTypeChosen()) {
+        if (categoryBuilder.getParent() == null && !isTypeChosen()) {
             showToast("Main category must have any type.");
             return false;
         }
@@ -229,7 +220,7 @@ public class CategoryDetailsFragment extends Fragment {
 
     private boolean tryInsert() {
         try {
-            localCategoryService.insert(mCategory);
+            localCategoryService.insert(categoryBuilder.build());
             return true;
         } catch (CategoryNameMustBeUniqueException e) {
             categoryName.setError("Category name need to be unique");
@@ -239,10 +230,10 @@ public class CategoryDetailsFragment extends Fragment {
 
     private boolean tryUpdate() {
         try {
-            if (mCategory.getParent() != null) {
-                mCategory.setType(null);
+            if (categoryBuilder.getParent() != null) {
+                categoryBuilder.setType(null);
             }
-            localCategoryService.update(mCategory);
+            localCategoryService.update(categoryBuilder.build());
             return true;
         } catch (CategoryNameMustBeUniqueException e) {
             categoryName.setError("Category name need to be unique");
@@ -261,7 +252,7 @@ public class CategoryDetailsFragment extends Fragment {
         private List<Category> mainCategories;
 
         private ParentCategoryAdapter(Context context, List<Category> mainCategories) {
-            mainCategories.add(0, new Category().setName("No parent (main category)"));
+            mainCategories.add(0, new Category.Builder().setName("No parent (main category)").build());
             this.context = context;
             this.mainCategories = mainCategories;
         }

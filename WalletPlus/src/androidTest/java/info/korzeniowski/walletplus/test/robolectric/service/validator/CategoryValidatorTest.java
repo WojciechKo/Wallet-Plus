@@ -13,6 +13,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.UUID;
 
+import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.CategoryNameMustBeUniqueException;
@@ -22,7 +23,6 @@ import info.korzeniowski.walletplus.service.exception.ParentCategoryIsNotMainCat
 import info.korzeniowski.walletplus.service.exception.SubCategoryCantHaveTypeException;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.validation.CategoryValidator;
-import info.korzeniowski.walletplus.model.Category;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -192,6 +192,10 @@ public class CategoryValidatorTest {
 
     private Category getSimpleMainIncomeCategory() {
         UUID id = UUID.randomUUID();
-        return new Category("Simple category-" + id.getLeastSignificantBits()).setType(Category.Type.INCOME).setId(id.getLeastSignificantBits());
+        return new Category.Builder()
+                .setName("Simple category-" + id.getLeastSignificantBits())
+                .setType(Category.Type.INCOME)
+                .setId(id.getLeastSignificantBits())
+                .build();
     }
 }

@@ -94,18 +94,21 @@ public class WalletPlus extends Application {
 
 
         /** Init categories **/
-        Category mainHouse = new Category().setName("House").setType(Category.Type.EXPENSE);
+        Category.Builder categoryBuilder = new Category.Builder();
+        Category mainHouse = categoryBuilder.setName("House").setType(Category.Type.EXPENSE).build();
         localCategoryService.insert(mainHouse);
-        localCategoryService.insert(new Category().setParent(mainHouse).setName("Energy"));
-        localCategoryService.insert(new Category().setParent(mainHouse).setName("Water"));
-        localCategoryService.insert(new Category().setParent(mainHouse).setName("Gas"));
+        categoryBuilder.setParent(mainHouse).setType(null);
+        localCategoryService.insert(categoryBuilder.setName("Energy").build());
+        localCategoryService.insert(categoryBuilder.setName("Water").build());
+        localCategoryService.insert(categoryBuilder.setName("Gas").build());
 
-        Category mainInternet = new Category().setName("Internet").setType(Category.Type.INCOME);
+        Category mainInternet = categoryBuilder.setName("Internet").setType(Category.Type.INCOME).setParent(null).build();
         localCategoryService.insert(mainInternet);
-        localCategoryService.insert(new Category().setParent(mainInternet).setName("Music forum"));
-        localCategoryService.insert(new Category().setParent(mainInternet).setName("News Service"));
+        categoryBuilder.setParent(mainInternet).setType(null);
+        localCategoryService.insert(categoryBuilder.setName("Music forum").build());
+        localCategoryService.insert(categoryBuilder.setName("News Service").build());
 
-        Category mainPartner = new Category().setName("Partner").setType(Category.Type.INCOME_EXPENSE);
+        Category mainPartner = categoryBuilder.setName("Partner").setType(Category.Type.INCOME_EXPENSE).setParent(null).build();
         localCategoryService.insert(mainPartner);
 
         /** Init cashflows **/

@@ -9,7 +9,19 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Category implements Comparable<Category> {
-    public enum Type {INCOME, EXPENSE, INCOME_EXPENSE}
+    public enum Type {
+        INCOME,
+        EXPENSE,
+        INCOME_EXPENSE;
+
+        public boolean isIncome() {
+            return this.equals(INCOME) || this.equals(INCOME_EXPENSE);
+        }
+
+        public boolean isExpense() {
+            return this.equals(EXPENSE) || this.equals(INCOME_EXPENSE);
+        }
+    }
 
     @DatabaseField(generatedId = true)
     private Long id;
@@ -26,56 +38,40 @@ public class Category implements Comparable<Category> {
     @ForeignCollectionField(orderColumnName = "name")
     private ForeignCollection<Category> children;
 
+    /** ORMLite requirement **/
     public Category() {
 
     }
 
-    public Category(String name) {
-        this.name = name;
+    public Category(Builder builder) {
+        id = builder.id;
+        parent = builder.parent;
+        name = builder.name;
+        type = builder.type;
     }
 
     public Long getId() {
         return id;
     }
 
-    public Category setId(Long id) {
-        this.id = id;
-        return this;
-    }
-
     public Category getParent() {
         return parent;
-    }
-
-    public Category setParent(Category parent) {
-        this.parent = parent;
-        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public Category setName(String name) {
-        this.name = name;
-        return this;
-    }
-
     public Type getType() {
         return type;
     }
 
-    public Category setType(Type type) {
-        this.type = type;
-        return this;
-    }
-
     public final boolean isIncomeType() {
-        return Type.INCOME.equals(getType()) || Type.INCOME_EXPENSE.equals(getType());
+        return getType() != null && getType().isIncome();
     }
 
     public final boolean isExpenseType() {
-        return Type.EXPENSE.equals(getType()) || Type.INCOME_EXPENSE.equals(getType());
+        return getType() != null && getType().isExpense();
     }
 
     public List<Category> getChildren() {
@@ -131,5 +127,65 @@ public class Category implements Comparable<Category> {
                 return categoryName1.compareTo(categoryName2);
             }
         };
+    }
+
+    public static class Builder {
+        private Long id;
+        private Category parent;
+        private String name;
+        private Type type;
+
+        public Builder() {
+
+        }
+
+        public Builder(Category category) {
+            if (category != null) {
+                id = category.getId();
+                parent = category.getParent();
+                name = category.getName();
+                type = category.getType();
+            }
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public Builder setId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Category getParent() {
+            return parent;
+        }
+
+        public Builder setParent(Category parent) {
+            this.parent = parent;
+            return this;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Builder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Type getType() {
+            return type;
+        }
+
+        public Builder setType(Type type) {
+            this.type = type;
+            return this;
+        }
+
+        public Category build() {
+            return new Category(this);
+        }
     }
 }
