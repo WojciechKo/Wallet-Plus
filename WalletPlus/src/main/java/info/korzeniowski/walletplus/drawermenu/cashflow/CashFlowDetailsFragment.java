@@ -120,33 +120,21 @@ public class CashFlowDetailsFragment extends Fragment {
     private void initFields() {
         cashFlowId = getArguments().getLong(CASH_FLOW_ID);
         type = cashFlowId == 0L ? DetailsType.ADD : DetailsType.EDIT;
+        calendar = Calendar.getInstance();
         if (type.equals(DetailsType.ADD)) {
             cashFlow = new CashFlow();
         } else if (type.equals(DetailsType.EDIT)) {
             cashFlow = localCashFlowService.findById(cashFlowId);
+            calendar.setTime(cashFlow.getDateTime());
         }
-        calendar = Calendar.getInstance();
-    }
-
-    private void setupAdapters() {
-        fillListsWithData();
-        toWallet.setAdapter(new WalletAdapter(getActivity(), toWalletList));
-        fromWallet.setAdapter(new WalletAdapter(getActivity(), fromWalletList));
-    }
-
-    private void fillListsWithData() {
         fromWalletList = Lists.newArrayList();
         toWalletList = Lists.newArrayList();
         categoryList = Lists.newArrayList();
-        if (isExpanseType()) {
-            fromWalletList.addAll(localWalletService.getMyWallets());
-            toWalletList.addAll(localWalletService.getContractors());
-            categoryList.addAll(localCategoryService.getMainExpenseTypeCategories());
-        } else {
-            fromWalletList.addAll(localWalletService.getContractors());
-            toWalletList.addAll(localWalletService.getMyWallets());
-            categoryList.addAll(localCategoryService.getMainIncomeTypeCategories());
-        }
+    }
+
+    private void setupAdapters() {
+        toWallet.setAdapter(new WalletAdapter(getActivity(), toWalletList));
+        fromWallet.setAdapter(new WalletAdapter(getActivity(), fromWalletList));
     }
 
     private void setupListeners() {
@@ -191,12 +179,27 @@ public class CashFlowDetailsFragment extends Fragment {
         if (cashFlow.getAmount() != null) {
             amount.setText(amountFormat.format(cashFlow.getAmount()));
         }
+        comment.setText(cashFlow.getComment());
+        recordType.setChecked(cashFlow.isExpanse());
+        fillListsWithData();
         fromWallet.setSelection(fromWalletList.indexOf(cashFlow.getFromWallet()));
         toWallet.setSelection(toWalletList.indexOf(cashFlow.getToWallet()));
+        notifyWalletAdapters();
         if (cashFlow.getCategory() != null) {
             category.setText(cashFlow.getCategory().getName());
         }
-        comment.setText(cashFlow.getComment());
+    }
+
+    private void fillListsWithData() {
+        if (isExpanseType()) {
+            fromWalletList.addAll(localWalletService.getMyWallets());
+            toWalletList.addAll(localWalletService.getContractors());
+            categoryList.addAll(localCategoryService.getMainExpenseTypeCategories());
+        } else {
+            fromWalletList.addAll(localWalletService.getContractors());
+            toWalletList.addAll(localWalletService.getMyWallets());
+            categoryList.addAll(localCategoryService.getMainIncomeTypeCategories());
+        }
     }
 
 
@@ -204,6 +207,10 @@ public class CashFlowDetailsFragment extends Fragment {
     void recordTypeCheckedChanged() {
         swapWalletLists();
         handleCategoryWhenSwapType();
+        notifyWalletAdapters();
+    }
+
+    private void notifyWalletAdapters() {
         ((WalletAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
         ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
     }

@@ -55,9 +55,17 @@ public class LocalCashFlowService implements CashFlowService {
             CashFlow toUpdate = findById(cashFlow.getId());
             validateUpdate(toUpdate, cashFlow);
             cashFlowDao.update(cashFlow);
+            fixCurrentAmountInWalletsAfterUpdate(toUpdate, cashFlow);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    private void fixCurrentAmountInWalletsAfterUpdate(CashFlow oldCashFlow, CashFlow newCashFlow) throws SQLException {
+        fixCurrentAmountInWalletAfterDelete(oldCashFlow);
+        newCashFlow.setToWallet(walletDao.queryForId(newCashFlow.getToWallet().getId()));
+        newCashFlow.setFromWallet(walletDao.queryForId(newCashFlow.getFromWallet().getId()));
+        fixCurrentAmountInWalletsAfterInsert(newCashFlow);
     }
 
     private void validateUpdate(CashFlow old, CashFlow newValue) {
@@ -69,35 +77,24 @@ public class LocalCashFlowService implements CashFlowService {
         try {
             validateInsert(cashFlow);
             cashFlowDao.create(cashFlow);
-            fixCurrentAmountInWalletAfterInsert(cashFlow);
+            fixCurrentAmountInWalletsAfterInsert(cashFlow);
             return cashFlow.getId();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private void fixCurrentAmountInWalletAfterInsert(CashFlow cashFlow) {
-        try {
-            Wallet fromWallet = cashFlow.getFromWallet();
-            Double newFromWalletCurrentAmount = fromWallet.getCurrentAmount();
-            if (fromWallet.getType().equals(Wallet.Type.MY_WALLET)) {
-                newFromWalletCurrentAmount -= cashFlow.getAmount();
-            } else if (fromWallet.getType().equals(Wallet.Type.CONTRACTOR)) {
-                newFromWalletCurrentAmount += cashFlow.getAmount();
-            }
-            walletDao.update(fromWallet.setCurrentAmount(newFromWalletCurrentAmount));
+    private void fixCurrentAmountInWalletsAfterInsert(CashFlow cashFlow) throws SQLException {
+        Wallet fromWallet = cashFlow.getFromWallet();
+        if (fromWallet != null) {
+            fromWallet.setCurrentAmount(fromWallet.getCurrentAmount() - cashFlow.getAmount());
+            walletDao.update(fromWallet);
+        }
 
-            Wallet toWallet = cashFlow.getToWallet();
-            Double newToWalletCurrentAmount = toWallet.getCurrentAmount();
-            if (toWallet.getType().equals(Wallet.Type.MY_WALLET)) {
-                newToWalletCurrentAmount += cashFlow.getAmount();
-            } else if (toWallet.getType().equals(Wallet.Type.CONTRACTOR)) {
-                newToWalletCurrentAmount -= cashFlow.getAmount();
-            }
-            walletDao.update(toWallet.setCurrentAmount(newToWalletCurrentAmount));
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        Wallet toWallet = cashFlow.getToWallet();
+        if (toWallet != null) {
+            toWallet.setCurrentAmount(toWallet.getCurrentAmount() + cashFlow.getAmount());
+            walletDao.update(toWallet);
         }
     }
 
