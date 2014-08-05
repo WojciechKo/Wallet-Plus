@@ -13,58 +13,31 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/fromWalletLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/fromWallet"
-        android:layout_alignParentLeft="true"
-        android:paddingRight="@dimen/cashflowListLabelPadding"
-        android:text="@string/cashflowListFromWalletLabel"
-        android:textSize="@dimen/smallFontSize" />
-
-    <TextView
         android:id="@+id/fromWallet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/category"
-        android:layout_toRightOf="@id/fromWalletLabel"
-        android:textSize="@dimen/mediumFontSize" />
-
-    <TextView
-        android:id="@+id/toWalletLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/toWallet"
         android:layout_alignParentLeft="true"
-        android:paddingRight="@dimen/cashflowListLabelPadding"
-        android:text="@string/cashflowListToWalletLabel"
+        android:layout_below="@id/category"
+        android:layout_toLeftOf="@+id/date"
         android:textSize="@dimen/smallFontSize" />
 
     <TextView
         android:id="@+id/toWallet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/fromWallet"
-        android:layout_toRightOf="@id/toWalletLabel"
-        android:textSize="@dimen/mediumFontSize" />
-
-    <TextView
-        android:id="@+id/commentLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/comment"
         android:layout_alignParentLeft="true"
-        android:paddingRight="@dimen/cashflowListLabelPadding"
-        android:text="@string/cashflowListCommentLabel"
+        android:layout_below="@id/fromWallet"
+        android:layout_toLeftOf="@+id/date"
         android:textSize="@dimen/smallFontSize" />
 
     <TextView
         android:id="@id/comment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_below="@id/toWallet"
-        android:layout_toRightOf="@id/commentLabel"
-        android:textSize="@dimen/mediumFontSize" />
+        android:layout_toLeftOf="@+id/date"
+        android:textSize="@dimen/smallFontSize" />
 
     <TextView
         android:id="@+id/amount"
