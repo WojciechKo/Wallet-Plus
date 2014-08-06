@@ -32,7 +32,6 @@ import info.korzeniowski.walletplus.model.Category;
 /**
  * Fragment with list of categories.
  */
-@OptionsMenu(R.menu.action_new)
 @EFragment(R.layout.category_list)
 public class CategoryListFragment extends Fragment {
     public static final String CATEGORY_TYPE = "categoryType";
@@ -80,15 +79,6 @@ public class CategoryListFragment extends Fragment {
 
     private void resetCategoryListAdapter() {
         superList.setAdapter(new CategoryExpandableListAdapter(getActivity(), getCategoryList(categoryType)));
-    }
-
-    @OptionsItem(R.id.menu_new)
-    void actionAdd() {
-        startCategoryDetailsFragment();
-    }
-
-    private void startCategoryDetailsFragment() {
-        startCategoryDetailsFragment(0L);
     }
 
     private void startCategoryDetailsFragment(Long id) {

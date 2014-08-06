@@ -2,35 +2,88 @@ package info.korzeniowski.walletplus.drawermenu.category;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTabHost;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 
+import com.astuetz.PagerSlidingTabStrip;
+
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.ViewById;
+
+import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 
+@OptionsMenu(R.menu.action_new)
+@EFragment(R.layout.tab_layout)
 public class CategoryFragment extends Fragment {
-    FragmentTabHost tabHost;
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.tab_host_fragment, container, false);
-        tabHost = (FragmentTabHost) rootView.findViewById(android.R.id.tabhost);
-        tabHost.setup(getActivity(), getChildFragmentManager(), android.R.id.tabcontent);
+    @ViewById
+    PagerSlidingTabStrip tabs;
 
-        Bundle incomeBundle = new Bundle();
-        incomeBundle.putInt(CategoryListFragment.CATEGORY_TYPE, CategoryListFragment.ONLY_INCOME);
-        tabHost.addTab(tabHost.newTabSpec("income").setIndicator("Income"), CategoryListFragment_.class, incomeBundle);
+    @ViewById
+    ViewPager pager;
 
-        Bundle expenseBundle = new Bundle();
-        expenseBundle.putInt(CategoryListFragment.CATEGORY_TYPE, CategoryListFragment.ONLY_EXPENSE);
-        tabHost.addTab(tabHost.newTabSpec("expence").setIndicator("Expence"), CategoryListFragment_.class, expenseBundle);
-        return rootView;
+    @AfterViews
+    public void setupViews() {
+        pager.setAdapter(new MyPagerAdapter(getChildFragmentManager()));
+        tabs.setViewPager(pager);
+        tabs.setTextColorResource(R.color.black);
+        tabs.setIndicatorColorResource(R.color.actionBarBackground);
+        tabs.setUnderlineColorResource(android.R.color.transparent);
+        tabs.setShouldExpand(true);
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        tabHost = null;
+    @OptionsItem(R.id.menu_new)
+    void actionAdd() {
+        startCategoryDetailsFragment();
+    }
+
+    private void startCategoryDetailsFragment() {
+        Fragment fragment = new CategoryDetailsFragment_();
+        Bundle bundle = new Bundle();
+        bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, 0L);
+        fragment.setArguments(bundle);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true);
+    }
+
+    public class MyPagerAdapter extends FragmentPagerAdapter {
+
+        private final String[] TITLES = { "INCOME", "EXPENSE"};
+
+        public MyPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return TITLES[position];
+        }
+
+        @Override
+        public int getCount() {
+            return TITLES.length;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            CategoryListFragment fragment = new CategoryListFragment_();
+            Bundle bundle = new Bundle();
+            bundle.putInt(CategoryListFragment.CATEGORY_TYPE, getCategoryType(position));
+            fragment.setArguments(bundle);
+            return fragment;
+        }
+
+        private int getCategoryType(int position) {
+            if (position == 0) {
+                return CategoryListFragment.ONLY_INCOME;
+            } else if(position == 1) {
+                return CategoryListFragment.ONLY_EXPENSE;
+            }
+            throw new RuntimeException("OutOfBound.");
+        }
     }
 }
