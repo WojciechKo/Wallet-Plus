@@ -146,13 +146,15 @@ public class CashFlow {
         }
 
         public Builder(CashFlow cashFlow) {
-            id = cashFlow.getId();
-            fromWallet = cashFlow.getFromWallet();
-            toWallet = cashFlow.getToWallet();
-            category = cashFlow.getCategory();
-            amount = cashFlow.getAmount();
-            dateTime = cashFlow.getDateTime();
-            comment = cashFlow.getComment();
+            if (cashFlow != null) {
+                id = cashFlow.getId();
+                fromWallet = cashFlow.getFromWallet();
+                toWallet = cashFlow.getToWallet();
+                category = cashFlow.getCategory();
+                amount = cashFlow.getAmount();
+                dateTime = cashFlow.getDateTime();
+                comment = cashFlow.getComment();
+            }
         }
 
         public Long getId() {

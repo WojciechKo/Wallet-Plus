@@ -147,8 +147,9 @@ public class CategoryDetailsFragment extends Fragment {
             parentCategory.setSelection(parentCategoryAdapter.getPosition(categoryBuilder.getParent()));
             type = categoryBuilder.getParent().getType();
         }
-        categoryIncomeType.setChecked(type.isIncome());
-        categoryExpenseType.setChecked(type.isExpense());
+
+        categoryIncomeType.setChecked(type == null || type.isIncome());
+        categoryExpenseType.setChecked(type == null || type.isExpense());
     }
 
     private void getDataFromViews() {
