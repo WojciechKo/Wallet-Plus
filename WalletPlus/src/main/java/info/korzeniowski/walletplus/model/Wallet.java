@@ -4,7 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 
 import java.util.List;
 
-public class Wallet {
+public class Wallet implements Identityable{
     public enum Type {MY_WALLET, CONTRACTOR}
 
     @DatabaseField(generatedId = true)
@@ -40,6 +40,7 @@ public class Wallet {
         }
     }
 
+    @Override
     public Long getId() {
         return id;
     }

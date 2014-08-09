@@ -2,6 +2,9 @@ package info.korzeniowski.walletplus.drawermenu.wallet;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.View;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import org.androidannotations.annotations.AfterInject;
@@ -18,13 +21,14 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.widget.IdentityableMultiChoiceModeListener;
 
 @OptionsMenu(R.menu.action_new)
 @EFragment(R.layout.card_list)
 public class WalletListFragment extends Fragment {
-    @Inject
-    @Named("local")
+    @Inject @Named("local")
     WalletService localWalletService;
 
     @ViewById
@@ -39,6 +43,8 @@ public class WalletListFragment extends Fragment {
     void setupViews() {
         setHasOptionsMenu(true);
         list.setAdapter(new WalletListAdapter(getActivity(), localWalletService.getMyWallets()));
+        list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        list.setMultiChoiceModeListener(new IdentityableMultiChoiceModeListener<Wallet>(list, localWalletService, getActivity()));
     }
 
     @ItemClick
@@ -48,10 +54,6 @@ public class WalletListFragment extends Fragment {
 
     @OptionsItem(R.id.menu_new)
     void actionAdd() {
-        startWalletDetailsFragment();
-    }
-
-    private void startWalletDetailsFragment() {
         startWalletDetailsFragment(0L);
     }
 
