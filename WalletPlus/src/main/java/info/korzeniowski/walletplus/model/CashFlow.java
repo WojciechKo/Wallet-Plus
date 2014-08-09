@@ -4,7 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 
 import java.util.Date;
 
-public class CashFlow {
+public class CashFlow implements Identityable {
 
     @DatabaseField(generatedId = true)
     private Long id;
@@ -27,7 +27,9 @@ public class CashFlow {
     @DatabaseField
     private String comment;
 
-    /** ORMLite requirement **/
+    /**
+     * ORMLite requirement *
+     */
     public CashFlow() {
 
     }
@@ -42,6 +44,7 @@ public class CashFlow {
         comment = builder.comment;
     }
 
+    @Override
     public Long getId() {
         return id;
     }

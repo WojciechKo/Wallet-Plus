@@ -2,17 +2,15 @@ package info.korzeniowski.walletplus.drawermenu.cashflow;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.view.ActionMode;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
@@ -23,7 +21,9 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.widget.IdentityableMultiChoiceModeListener;
 
 /**
  * Fragment with list of cash flows.
@@ -46,22 +46,18 @@ public class CashFlowListFragment extends Fragment {
     @AfterViews
     void setupView() {
         setHasOptionsMenu(true);
-        list.setAdapter((new CashFlowListAdapter(getActivity(), localCashFlowService.getAll())));
-        list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                ((ActionBarActivity) getActivity()).startSupportActionMode(new ActionModeAfterLongPress(id));
-                return true;
-            }
-        });
+        list.setAdapter(new CashFlowListAdapter(getActivity(), localCashFlowService.getAll()));
+        list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        list.setMultiChoiceModeListener(new IdentityableMultiChoiceModeListener<CashFlow>(list, localCashFlowService, getActivity()));
+    }
+
+    @ItemClick
+    void listItemClicked(int position) {
+        startCashFlowDetailsFragment(list.getAdapter().getItemId(position));
     }
 
     @OptionsItem(R.id.menu_new)
     void actionAdd() {
-        startCashFlowDetailsFragment();
-    }
-
-    private void startCashFlowDetailsFragment() {
         startCashFlowDetailsFragment(0L);
     }
 
@@ -71,46 +67,5 @@ public class CashFlowListFragment extends Fragment {
         bundle.putLong(CashFlowDetailsFragment_.CASH_FLOW_ID, id);
         fragment.setArguments(bundle);
         ((MainActivity) getActivity()).setContentFragment(fragment, true);
-    }
-
-    private final class ActionModeAfterLongPress implements ActionMode.Callback {
-
-        private final Long id;
-
-        public ActionModeAfterLongPress(Long id) {
-            this.id = id;
-        }
-
-        @Override
-        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-            actionMode.getMenuInflater().inflate(R.menu.action_edit_delete, menu);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-            switch (menuItem.getItemId()) {
-                case R.id.menu_edit:
-                    startCashFlowDetailsFragment(id);
-                    break;
-                case R.id.menu_delete:
-                    localCashFlowService.deleteById(id);
-                    list.setAdapter((new CashFlowListAdapter(getActivity(), localCashFlowService.getAll())));
-                    break;
-            }
-            actionMode.finish();
-            return true;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode actionMode) {
-
-        }
-
     }
 }

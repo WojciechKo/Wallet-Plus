@@ -4,10 +4,7 @@ import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.text.format.DateFormat;
 import android.text.style.AbsoluteSizeSpan;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.google.common.base.Strings;
@@ -17,38 +14,17 @@ import java.util.List;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.widget.IdentityableListAdapter;
 
-public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
+public class CashFlowListAdapter extends IdentityableListAdapter<CashFlow> {
 
-    public CashFlowListAdapter(Context context, List<CashFlow> objects) {
-        super(context, android.R.layout.simple_list_item_1, objects);
+    public CashFlowListAdapter(Context context, List<CashFlow> casFlows) {
+        super(context, casFlows, R.layout.cashflow_list_item);
     }
 
     @Override
-    public long getItemId(int position) {
-        return getItem(position).getId();
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
-
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.cashflow_list_item, null);
-            holder = createHolder(convertView);
-            convertView.setTag(holder);
-        } else {
-            holder = (ViewHolder) convertView.getTag();
-        }
-
-        fillViewWithItem(holder, getItem(position));
-
-        return convertView;
-    }
-
-    private ViewHolder createHolder(View convertView) {
-        ViewHolder holder = new ViewHolder();
+    protected MyBaseViewHolder createHolder(View convertView) {
+        CashFlowViewHolder holder = new CashFlowViewHolder();
         holder.fromWallet = (TextView) convertView.findViewById(R.id.fromWallet);
         holder.toWallet = (TextView) convertView.findViewById(R.id.toWallet);
         holder.amount = (TextView) convertView.findViewById(R.id.amount);
@@ -58,7 +34,9 @@ public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
         return holder;
     }
 
-    private void fillViewWithItem(ViewHolder holder, CashFlow item) {
+    @Override
+    protected void fillViewWithItem(MyBaseViewHolder baseHolder, CashFlow item) {
+        CashFlowViewHolder holder = (CashFlowViewHolder) baseHolder;
         holder.category.setText(getCategoryText(item));
         holder.fromWallet.setText(getFromWalletText(item));
         holder.toWallet.setText(getToWalletText(item));
@@ -123,7 +101,7 @@ public class CashFlowListAdapter extends ArrayAdapter<CashFlow> {
         return spanTxt;
     }
 
-    private class ViewHolder {
+    class CashFlowViewHolder extends MyBaseViewHolder {
         protected TextView fromWallet;
         protected TextView toWallet;
         protected TextView amount;
