@@ -10,12 +10,10 @@ import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -43,13 +41,14 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.service.CategoryService;
-import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 @EFragment(R.layout.cashflow_details_fragment)
 @OptionsMenu(R.menu.action_save)
@@ -136,49 +135,48 @@ public class CashFlowDetailsFragment extends Fragment {
 
     private void setupListeners() {
         amount.addTextChangedListener(new TextWatcher() {
-                  @Override
-                  public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                  }
+            }
 
-                  @Override
-                  public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                  }
+            }
 
-                  @Override
-                  public void afterTextChanged(Editable s) {
-                      if (isDecimal(s)) {
-                          int numberOfDigitsToDelete = getNumberOfDigitsToDelete(s);
-                          s.delete(s.length() - numberOfDigitsToDelete, s.length());
-                      }
-                  }
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (isDecimal(s)) {
+                    int numberOfDigitsToDelete = getNumberOfDigitsToDelete(s);
+                    s.delete(s.length() - numberOfDigitsToDelete, s.length());
+                }
+            }
 
-                  private int getNumberOfDigitsToDelete(Editable s) {
-                      int allowedNumberOfDigitsAfterComa = 2;
-                      int indexOfComa = s.toString().indexOf('.');
-                      if (indexOfComa < s.length() - 1 - allowedNumberOfDigitsAfterComa) {
-                          return s.length() - indexOfComa - 1 - allowedNumberOfDigitsAfterComa;
-                      }
-                      return 0;
-                  }
+            private int getNumberOfDigitsToDelete(Editable s) {
+                int allowedNumberOfDigitsAfterComa = 2;
+                int indexOfComa = s.toString().indexOf('.');
+                if (indexOfComa < s.length() - 1 - allowedNumberOfDigitsAfterComa) {
+                    return s.length() - indexOfComa - 1 - allowedNumberOfDigitsAfterComa;
+                }
+                return 0;
+            }
 
-                  private boolean isDecimal(Editable s) {
-                      return s.toString().contains(".");
-                  }
-             }
-        );
+            private boolean isDecimal(Editable s) {
+                return s.toString().contains(".");
+            }
+        });
     }
 
     private void fillViewsWithData() {
-        refreshDatePicker();
-        refreshTimePicker();
+        resetDatePicker();
+        resetTimePicker();
         if (cashFlowBuilder.getAmount() != null) {
             amount.setText(amountFormat.format(cashFlowBuilder.getAmount()));
         }
         comment.setText(cashFlowBuilder.getComment());
         recordType.setChecked(cashFlowBuilder.build().isExpanse());
-        fillListsWithData();
+        refillLists();
         fromWallet.setSelection(fromWalletList.indexOf(cashFlowBuilder.getFromWallet()));
         toWallet.setSelection(toWalletList.indexOf(cashFlowBuilder.getToWallet()));
         notifyWalletAdapters();
@@ -187,108 +185,100 @@ public class CashFlowDetailsFragment extends Fragment {
         }
     }
 
-    private void fillListsWithData() {
+    @CheckedChange
+    void recordTypeCheckedChanged() {
+        handleChangeCategory();
+        notifyWalletAdapters();
+    }
+
+    private void handleChangeCategory() {
+        swapCategoryWithPrevious();
+        category.setText(getCategoryText(cashFlowBuilder.getCategory()));
+
+        int selectedFromWalletPosition = fromWallet.getSelectedItemPosition();
+        int selectedToWalletPosition = toWallet.getSelectedItemPosition();
+
+        refillLists();
+
+        toWallet.setSelection(selectedFromWalletPosition);
+        fromWallet.setSelection(selectedToWalletPosition);
+    }
+
+    private void swapCategoryWithPrevious() {
+        Category temp = previousCategory;
+        previousCategory = cashFlowBuilder.getCategory();
+        cashFlowBuilder.setCategory(temp);
+    }
+
+    private String getCategoryText(Category category) {
+        if (category == null) {
+            return getString(R.string.cashflowCategoryHint);
+        }
+        return category.getName();
+    }
+
+    private void refillLists() {
+        fromWalletList.clear();
+        toWalletList.clear();
+        categoryList.clear();
+        fillWalletLists();
+        fillCategoryList();
+    }
+
+    private void fillWalletLists() {
         if (isExpanseType()) {
             fromWalletList.addAll(localWalletService.getMyWallets());
             toWalletList.addAll(localWalletService.getContractors());
-            categoryList.addAll(localCategoryService.getMainExpenseTypeCategories());
         } else {
             fromWalletList.addAll(localWalletService.getContractors());
             toWalletList.addAll(localWalletService.getMyWallets());
+        }
+    }
+
+    private void fillCategoryList() {
+        if (isExpanseType()) {
+            categoryList.addAll(localCategoryService.getMainExpenseTypeCategories());
+        } else {
             categoryList.addAll(localCategoryService.getMainIncomeTypeCategories());
         }
     }
 
+    public boolean isExpanseType() {
+        return recordType.isChecked();
+    }
 
     private void notifyWalletAdapters() {
         ((WalletAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
         ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
     }
 
-    @CheckedChange
-    void recordTypeCheckedChanged() {
-        swapWalletLists();
-        handleCategoryWhenSwapType();
-        notifyWalletAdapters();
-    }
-
-    private void swapWalletLists() {
-        int selectedFromWalletPosition = fromWallet.getSelectedItemPosition();
-        int selectedToWalletPosition = toWallet.getSelectedItemPosition();
-
-        List<Wallet> tempList = Lists.newArrayList(fromWalletList);
-        fromWalletList.clear();
-        fromWalletList.addAll(toWalletList);
-        toWalletList.clear();
-        toWalletList.addAll(tempList);
-
-        toWallet.setSelection(selectedFromWalletPosition);
-        fromWallet.setSelection(selectedToWalletPosition);
-    }
-
-    private void handleCategoryWhenSwapType() {
-        Category temp = previousCategory;
-        previousCategory = cashFlowBuilder.getCategory();
-        cashFlowBuilder.setCategory(temp);
-
-        if (cashFlowBuilder.getCategory() == null) {
-            category.setText(R.string.cashflowCategoryHint);
-        } else {
-            category.setText(cashFlowBuilder.getCategory().getName());
-        }
-    }
-
-    public boolean isExpanseType() {
-        //TODO: do it better
-        return recordType.isChecked();
-    }
-
     @Click
     void categoryClicked() {
         ExpandableListView expandableListView = new ExpandableListView(getActivity());
-        expandableListView.setAdapter(new CategoryExpandableListAdapter(getActivity(), categoryList));
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setTitle("Choose category:")
+                .setTitle(getString(R.string.cashflowCategoryChooseAlertTitle))
                 .setView(expandableListView)
                 .create();
 
-        expandableListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        expandableListView.setAdapter(new CategoryExpandableListAdapter(getActivity(), categoryList, new OnContentClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                long packedPosition = ((ExpandableListView) parent).getExpandableListPosition(position);
-                int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
-                int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-
-                ExpandableListAdapter expandableListAdapter = ((ExpandableListView) parent).getExpandableListAdapter();
-                if (childPosition == -1)
-                    cashFlowBuilder.setCategory((Category) expandableListAdapter.getGroup(groupPosition));
-                else
-                    cashFlowBuilder.setCategory((Category) expandableListAdapter.getChild(groupPosition, childPosition));
-
+            public void onContentClick(Long id) {
+                cashFlowBuilder.setCategory(localCategoryService.findById(id));
                 category.setText(cashFlowBuilder.getCategory().getName());
                 alertDialog.dismiss();
-                return true;
             }
-        });
+        }));
 
         alertDialog.show();
     }
 
-    private void refreshDatePicker() {
+    private void resetDatePicker() {
         datePicker.setText(DateFormat.getDateFormat(getActivity()).format(calendar.getTime()));
     }
 
-    private void refreshTimePicker() {
+    private void resetTimePicker() {
         timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(calendar.getTime()));
-    }
-
-    public void getDataFromViews() {
-        cashFlowBuilder.setAmount(Float.parseFloat(amount.getText().toString()));
-        cashFlowBuilder.setDateTime(calendar.getTime());
-        cashFlowBuilder.setFromWallet((Wallet) fromWallet.getSelectedItem());
-        cashFlowBuilder.setToWallet((Wallet) toWallet.getSelectedItem());
-        cashFlowBuilder.setComment(comment.getText().toString());
     }
 
     @Click
@@ -301,7 +291,7 @@ public class CashFlowDetailsFragment extends Fragment {
                         calendar.set(Calendar.YEAR, year);
                         calendar.set(Calendar.MONTH, monthOfYear);
                         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        refreshDatePicker();
+                        resetDatePicker();
                     }
                 },
                 calendar.get(Calendar.YEAR),
@@ -319,7 +309,7 @@ public class CashFlowDetailsFragment extends Fragment {
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         calendar.set(Calendar.MINUTE, minute);
-                        refreshTimePicker();
+                        resetTimePicker();
                     }
                 },
                 calendar.get(Calendar.HOUR_OF_DAY),
@@ -342,6 +332,14 @@ public class CashFlowDetailsFragment extends Fragment {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         }
+    }
+
+    public void getDataFromViews() {
+        cashFlowBuilder.setAmount(Float.parseFloat(amount.getText().toString()));
+        cashFlowBuilder.setDateTime(calendar.getTime());
+        cashFlowBuilder.setFromWallet((Wallet) fromWallet.getSelectedItem());
+        cashFlowBuilder.setToWallet((Wallet) toWallet.getSelectedItem());
+        cashFlowBuilder.setComment(comment.getText().toString());
     }
 
     private boolean tryInsert() {

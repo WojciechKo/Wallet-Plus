@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="0dp"
+    android:paddingLeft="@dimen/doubleCardPadding"
+    android:paddingRight="@dimen/doubleCardPadding"
+    android:paddingTop="0dp">
+
+    <FrameLayout
+        android:id="@+id/content"
+        style="@style/Card">
+
+        <ViewStub
+            android:id="@+id/contentStub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+</FrameLayout>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="afterDescendants"
+    android:paddingBottom="0dp"
+    android:paddingLeft="@dimen/cardPadding"
+    android:paddingRight="@dimen/cardPadding"
+    android:paddingTop="@dimen/cardPadding">
+
+    <LinearLayout
+        style="@style/Card"
+        android:orientation="horizontal"
+        android:padding="0dp">
+
+        <FrameLayout
+            android:id="@+id/content"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingBottom="@dimen/cardContentPadding"
+            android:paddingLeft="@dimen/cardContentPadding"
+            android:paddingTop="@dimen/cardContentPadding">
+
+            <ViewStub
+                android:id="@+id/contentStub"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/group_indicator_frame"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0"
+            android:padding="5dp">
+
+            <ImageView
+                android:id="@+id/group_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:scaleType="fitCenter" />
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

@@ -49,6 +49,7 @@
     <string name="cashflowCommentHint">comment</string>
     <string name="cashflowCategoryLabel">Category:</string>
     <string name="cashflowCategoryHint">Choose category…</string>
+    <string name="cashflowCategoryChooseAlertTitle">Choose category:</string>
 
     <!-- Todo -->
     <string name="main_drawer_item_ic_description">Drawer menu icon</string>
