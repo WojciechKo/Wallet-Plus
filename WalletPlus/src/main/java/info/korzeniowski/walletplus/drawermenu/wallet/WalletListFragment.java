@@ -43,8 +43,7 @@ public class WalletListFragment extends Fragment {
     void setupViews() {
         setHasOptionsMenu(true);
         list.setAdapter(new WalletListAdapter(getActivity(), localWalletService.getMyWallets()));
-        list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-        list.setMultiChoiceModeListener(new IdentityableMultiChoiceModeListener<Wallet>(list, localWalletService, getActivity()));
+        list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
     }
 
     @ItemClick

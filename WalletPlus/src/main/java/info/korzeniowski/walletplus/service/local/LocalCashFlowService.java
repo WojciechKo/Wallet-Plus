@@ -131,4 +131,13 @@ public class LocalCashFlowService implements CashFlowService {
             walletDao.update(builder.build());
         }
     }
+
+    @Override
+    public long countAssignedToWallet(Long walletId) {
+        try {
+            return cashFlowDao.queryBuilder().where().eq("fromWallet_id", walletId).or().eq("toWallet_id", walletId).countOf();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
 }

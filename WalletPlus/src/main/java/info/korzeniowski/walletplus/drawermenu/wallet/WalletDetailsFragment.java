@@ -1,5 +1,7 @@
 package info.korzeniowski.walletplus.drawermenu.wallet;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -18,6 +20,7 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
+import java.text.MessageFormat;
 import java.text.NumberFormat;
 
 import javax.inject.Inject;
@@ -25,13 +28,13 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.WalletNameAndTypeMustBeUniqueException;
-import info.korzeniowski.walletplus.model.Wallet;
 
-@OptionsMenu(R.menu.action_save)
 @EFragment(R.layout.wallet_details)
+@OptionsMenu({R.menu.action_delete, R.menu.action_save})
 public class WalletDetailsFragment extends Fragment {
     private enum DetailsType {ADD, EDIT}
 
@@ -46,12 +49,14 @@ public class WalletDetailsFragment extends Fragment {
     @Inject @Named("local")
     WalletService localWalletService;
 
+    @Inject @Named("local")
+    CashFlowService localCashFlowService;
+
     @Inject @Named("amount")
     NumberFormat amountFormat;
 
     private DetailsType type;
     private Wallet.Builder walletBuilder;
-    private Wallet wallet;
     private String originalName;
 
     @AfterInject
@@ -63,6 +68,7 @@ public class WalletDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Long walletId = getArguments().getLong(WALLET_ID);
         type = walletId == 0L ? DetailsType.ADD : DetailsType.EDIT;
+        Wallet wallet = null;
         if (type == DetailsType.EDIT) {
             wallet = localWalletService.findById(walletId);
             originalName = wallet.getName();
@@ -121,8 +127,8 @@ public class WalletDetailsFragment extends Fragment {
 
     private void fillViewsWithData() {
         if (type == DetailsType.EDIT) {
-            walletName.setText(wallet.getName());
-            walletInitialAmount.setText(amountFormat.format(wallet.getInitialAmount()));
+            walletName.setText(walletBuilder.getName());
+            walletInitialAmount.setText(amountFormat.format(walletBuilder.getInitialAmount()));
         }
     }
 
@@ -130,9 +136,9 @@ public class WalletDetailsFragment extends Fragment {
         walletBuilder.setName(walletName.getText().toString());
         Double initialAmount = Double.parseDouble(walletInitialAmount.getText().toString());
         if (type == DetailsType.ADD) {
-            walletBuilder.setCurrentAmount(wallet.getInitialAmount());
+            walletBuilder.setCurrentAmount(walletBuilder.getInitialAmount());
         } else if (type == DetailsType.EDIT) {
-            walletBuilder.setCurrentAmount(wallet.getCurrentAmount() + initialAmount - wallet.getInitialAmount());
+            walletBuilder.setCurrentAmount(walletBuilder.getCurrentAmount() + initialAmount - walletBuilder.getInitialAmount());
         }
         walletBuilder.setInitialAmount(initialAmount);
     }
@@ -153,6 +159,42 @@ public class WalletDetailsFragment extends Fragment {
                 walletName.setError(getString(R.string.walletNameHaveToBeUnique));
             }
         }
+    }
+
+    @OptionsItem(R.id.menu_delete)
+    void actionDelete() {
+        showConfirmationAlert();
+    }
+
+    private void showConfirmationAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setMessage(getConfirmationMessage())
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        tryDelete(walletBuilder.getId());
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void tryDelete(Long id) {
+        localWalletService.deleteById(id);
+    }
+
+    private String getConfirmationMessage() {
+        int count = (int) getNumberOfCashFlowsConnectedWithWallet(walletBuilder.getId());
+        return MessageFormat.format(getActivity().getString(R.string.walletDeleteConfirmation), count);
+    }
+
+    private long getNumberOfCashFlowsConnectedWithWallet(Long id) {
+        return localCashFlowService.countAssignedToWallet(id);
     }
 
     private boolean validateIfEmptyFields() {
