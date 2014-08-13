@@ -19,7 +19,6 @@ import info.korzeniowski.walletplus.model.Wallet;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
-    public static final String DATABASE_NAME = "WalletPlus.db";
     public static final int DATABASE_VERSION = 1;
     private Dao<Wallet, Long> walletDao;
     private Dao<Category, Long> categoryDao;
@@ -27,9 +26,12 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Dao<Account, Long> accountDao;
 
     public DatabaseHelper(Context context) {
-        super(context,DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, "WalletPlus.db", null, DATABASE_VERSION);
     }
 
+    public DatabaseHelper(Context context, String databaseName) {
+        super(context, databaseName, null, DATABASE_VERSION);
+    }
     public Dao<Wallet, Long> getWalletDao() throws SQLException {
         if (walletDao == null) {
             walletDao = getDao(Wallet.class);
