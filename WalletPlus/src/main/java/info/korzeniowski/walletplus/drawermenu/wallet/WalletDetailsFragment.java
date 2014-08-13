@@ -7,18 +7,14 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.common.base.Strings;
-
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.ViewById;
 
 import java.text.MessageFormat;
 import java.text.NumberFormat;
@@ -26,6 +22,8 @@ import java.text.NumberFormat;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -33,17 +31,15 @@ import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.WalletNameAndTypeMustBeUniqueException;
 
-@EFragment(R.layout.wallet_details)
-@OptionsMenu({R.menu.action_delete, R.menu.action_save})
 public class WalletDetailsFragment extends Fragment {
     private enum DetailsType {ADD, EDIT}
 
     static final String WALLET_ID = "WALLET_ID";
 
-    @ViewById
+    @InjectView(R.id.walletName)
     TextView walletName;
 
-    @ViewById
+    @InjectView(R.id.walletInitialAmount)
     TextView walletInitialAmount;
 
     @Inject @Named("local")
@@ -59,13 +55,10 @@ public class WalletDetailsFragment extends Fragment {
     private Wallet.Builder walletBuilder;
     private String originalName;
 
-    @AfterInject
-    void daggerInject() {
-        ((WalletPlus) getActivity().getApplication()).inject(this);
-    }
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ((WalletPlus) getActivity().getApplication()).inject(this);
         Long walletId = getArguments().getLong(WALLET_ID);
         type = walletId == 0L ? DetailsType.ADD : DetailsType.EDIT;
         Wallet wallet = null;
@@ -74,11 +67,43 @@ public class WalletDetailsFragment extends Fragment {
             originalName = wallet.getName();
         }
         walletBuilder = new Wallet.Builder(wallet);
-        return null;
     }
 
-    @AfterViews
-    void setupViews() {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.wallet_details, container, false);
+        setHasOptionsMenu(true);
+        ButterKnife.inject(this, view);
+        setupViews();
+        return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_delete, menu);
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_save, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean handled = super.onOptionsItemSelected(item);
+        if (handled) {
+            return true;
+        }
+        int itemId_ = item.getItemId();
+        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_save) {
+            actionSave();
+            return true;
+        }
+        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_delete) {
+            actionDelete();
+            return true;
+        }
+        return false;
+    }
+
+    private void setupViews() {
         setupAdapters();
         setupListeners();
         fillViewsWithData();
@@ -143,8 +168,7 @@ public class WalletDetailsFragment extends Fragment {
         walletBuilder.setInitialAmount(initialAmount);
     }
 
-    @OptionsItem(R.id.menu_save)
-    void actionSave() {
+    private void actionSave() {
         if (validateIfEmptyFields()) {
             getDataFromViews();
             walletBuilder.setType(Wallet.Type.MY_WALLET);
@@ -161,8 +185,7 @@ public class WalletDetailsFragment extends Fragment {
         }
     }
 
-    @OptionsItem(R.id.menu_delete)
-    void actionDelete() {
+    private void actionDelete() {
         showConfirmationAlert();
     }
 

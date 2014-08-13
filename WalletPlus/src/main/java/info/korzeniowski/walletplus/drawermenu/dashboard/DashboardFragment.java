@@ -1,15 +1,15 @@
 package info.korzeniowski.walletplus.drawermenu.dashboard;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
-
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.ViewById;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -17,27 +17,37 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.service.WalletService;
 
-@EFragment(R.layout.dashboard_fragment)
 public class DashboardFragment extends Fragment {
 
-    @ViewById
+    @InjectView(R.id.totalAmount)
     TextView totalAmount;
 
     @Inject
     @Named("local")
     WalletService localWalletService;
 
-    @AfterInject
-    void daggerInject() {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
     }
 
-    @AfterViews
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        View view = View.inflate(getActivity(), R.layout.dashboard_fragment, null);
+        ButterKnife.inject(this, view);
+        setupViews();
+        return view;
+    }
+
     void setupViews() {
         totalAmount.setText(getTotalAmountText());
     }

@@ -1,33 +1,48 @@
 package info.korzeniowski.walletplus.drawermenu.category;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.astuetz.PagerSlidingTabStrip;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.ViewById;
-
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 
-@OptionsMenu(R.menu.action_new)
-@EFragment(R.layout.tab_layout)
 public class CategoryFragment extends Fragment {
 
-    @ViewById
+    @InjectView(R.id.tabs)
     PagerSlidingTabStrip tabs;
 
-    @ViewById
+    @InjectView(R.id.pager)
     ViewPager pager;
 
-    @AfterViews
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.tab_layout, container, false);
+        ButterKnife.inject(this, view);
+        setupViews();
+        return view;
+    }
+
     public void setupViews() {
         pager.setAdapter(new MyPagerAdapter(getChildFragmentManager()));
         tabs.setViewPager(pager);
@@ -37,13 +52,32 @@ public class CategoryFragment extends Fragment {
         tabs.setShouldExpand(true);
     }
 
-    @OptionsItem(R.id.menu_new)
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_new, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean handled = super.onOptionsItemSelected(item);
+        if (handled) {
+            return true;
+        }
+        int itemId_ = item.getItemId();
+        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_new) {
+            actionAdd();
+            return true;
+        }
+        return false;
+    }
+
     void actionAdd() {
         startCategoryDetailsFragment();
     }
 
     private void startCategoryDetailsFragment() {
-        Fragment fragment = new CategoryDetailsFragment_();
+        Fragment fragment = new CategoryDetailsFragment();
         Bundle bundle = new Bundle();
         bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, 0L);
         fragment.setArguments(bundle);
@@ -52,7 +86,7 @@ public class CategoryFragment extends Fragment {
 
     public class MyPagerAdapter extends FragmentPagerAdapter {
 
-        private final String[] TITLES = { "INCOME", "EXPENSE"};
+        private final String[] TITLES = {"INCOME", "EXPENSE"};
 
         public MyPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -70,7 +104,7 @@ public class CategoryFragment extends Fragment {
 
         @Override
         public Fragment getItem(int position) {
-            CategoryListFragment fragment = new CategoryListFragment_();
+            CategoryListFragment fragment = new CategoryListFragment();
             Bundle bundle = new Bundle();
             bundle.putInt(CategoryListFragment.CATEGORY_TYPE, getCategoryType(position));
             fragment.setArguments(bundle);
@@ -80,7 +114,7 @@ public class CategoryFragment extends Fragment {
         private int getCategoryType(int position) {
             if (position == 0) {
                 return CategoryListFragment.ONLY_INCOME;
-            } else if(position == 1) {
+            } else if (position == 1) {
                 return CategoryListFragment.ONLY_EXPENSE;
             }
             throw new RuntimeException("OutOfBound.");

@@ -4,11 +4,8 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import org.androidannotations.annotations.EApplication;
-
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -27,7 +24,6 @@ import info.korzeniowski.walletplus.service.WalletService;
 /**
  * Main Application class.
  */
-@EApplication
 public class WalletPlus extends Application {
     public static final String DATABASE_NAME = "wallet-plus.db";
     public static final String LOG_TAG = "WalletPlus";

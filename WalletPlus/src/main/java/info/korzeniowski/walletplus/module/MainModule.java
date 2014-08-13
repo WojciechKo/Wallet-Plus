@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import info.korzeniowski.walletplus.MainActivity_;
+import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.drawermenu.DrawerListAdapter;
 import info.korzeniowski.walletplus.drawermenu.MainDrawerContent;
@@ -22,7 +22,7 @@ import info.korzeniowski.walletplus.drawermenu.MainDrawerContent;
 @Module(
         includes = DatabaseModule.class,
         injects = {
-                MainActivity_.class,
+                MainActivity.class,
                 DrawerListAdapter.class,
                 MainDrawerContent.class
         }

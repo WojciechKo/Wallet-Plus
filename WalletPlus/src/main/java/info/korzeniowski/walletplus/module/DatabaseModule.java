@@ -13,7 +13,16 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.WalletPlus_;
+import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowDetailsFragment;
+import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment;
+import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment;
+import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment;
+import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment;
+import info.korzeniowski.walletplus.drawermenu.wallet.WalletDetailsFragment;
+import info.korzeniowski.walletplus.drawermenu.wallet.WalletListFragment;
+import info.korzeniowski.walletplus.model.CashFlow;
+import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
@@ -21,35 +30,24 @@ import info.korzeniowski.walletplus.service.local.DatabaseHelper;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
-import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowDetailsFragment_;
-import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
-import info.korzeniowski.walletplus.drawermenu.category.CategoryDetailsFragment_;
-import info.korzeniowski.walletplus.drawermenu.category.CategoryListFragment_;
-import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment_;
-import info.korzeniowski.walletplus.drawermenu.wallet.WalletDetailsFragment_;
-import info.korzeniowski.walletplus.drawermenu.wallet.WalletListFragment_;
-import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.Wallet;
 
 /**
  * Module for Database objects.
  */
-//TODO: usunąć library = true
 @Module(
         injects = {
-                WalletPlus_.class,
+                WalletPlus.class,
 
-                DashboardFragment_.class,
+                DashboardFragment.class,
 
-                CategoryDetailsFragment_.class,
-                CategoryListFragment_.class,
+                CategoryDetailsFragment.class,
+                CategoryListFragment.class,
 
-                CashFlowDetailsFragment_.class,
-                CashFlowListFragment_.class,
+                CashFlowDetailsFragment.class,
+                CashFlowListFragment.class,
 
-                WalletDetailsFragment_.class,
-                WalletListFragment_.class
+                WalletDetailsFragment.class,
+                WalletListFragment.class
         },
         complete = false
 )

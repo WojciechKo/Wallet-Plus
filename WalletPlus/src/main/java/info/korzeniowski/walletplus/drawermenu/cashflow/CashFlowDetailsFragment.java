@@ -4,14 +4,21 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -23,15 +30,6 @@ import android.widget.TimePicker;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.CheckedChange;
-import org.androidannotations.annotations.Click;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.ViewById;
-
 import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -39,6 +37,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.drawermenu.category.CategoryExpandableListAdapter;
@@ -50,46 +50,49 @@ import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
-@EFragment(R.layout.cashflow_details_fragment)
-@OptionsMenu(R.menu.action_save)
+
 public class CashFlowDetailsFragment extends Fragment {
 
     static final public String CASH_FLOW_ID = "CASH_FLOW_ID";
 
-    @ViewById
+    @InjectView(R.id.fromWallet)
     Spinner fromWallet;
 
-    @ViewById
+    @InjectView(R.id.toWallet)
     Spinner toWallet;
 
-    @ViewById
+    @InjectView(R.id.amount)
     EditText amount;
 
-    @ViewById
+    @InjectView(R.id.category)
     Button category;
 
-    @ViewById
+    @InjectView(R.id.comment)
     EditText comment;
 
-    @ViewById
+    @InjectView(R.id.datePicker)
     Button datePicker;
 
-    @ViewById
+    @InjectView(R.id.timePicker)
     Button timePicker;
 
-    @ViewById
+    @InjectView(R.id.recordType)
     Switch recordType;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     CashFlowService localCashFlowService;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     WalletService localWalletService;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     CategoryService localCategoryService;
 
-    @Inject @Named("amount")
+    @Inject
+    @Named("amount")
     NumberFormat amountFormat;
 
     private DetailsType type;
@@ -102,12 +105,51 @@ public class CashFlowDetailsFragment extends Fragment {
     private List<Wallet> toWalletList;
     private List<Category> categoryList;
 
-    @AfterInject
-    void daggerInject() {
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
+        setHasOptionsMenu(true);
     }
 
-    @AfterViews
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.cashflow_details_fragment, container, false);
+        ButterKnife.inject(this, view);
+        setupViews();
+
+        recordType.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                recordTypeCheckedChanged();
+            }
+        });
+
+        datePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                datePickerClicked();
+            }
+        });
+
+        category.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                categoryClicked();
+            }
+        });
+
+        timePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                timePickerClicked();
+            }
+        });
+        return view;
+    }
+
     void setupViews() {
         initFields();
         setupAdapters();
@@ -168,6 +210,26 @@ public class CashFlowDetailsFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_save, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean handled = super.onOptionsItemSelected(item);
+        if (handled) {
+            return true;
+        }
+        int itemId_ = item.getItemId();
+        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_save) {
+            actionSave();
+            return true;
+        }
+        return false;
+    }
+
     private void fillViewsWithData() {
         resetDatePicker();
         resetTimePicker();
@@ -185,7 +247,6 @@ public class CashFlowDetailsFragment extends Fragment {
         }
     }
 
-    @CheckedChange
     void recordTypeCheckedChanged() {
         handleChangeCategory();
         notifyWalletAdapters();
@@ -252,7 +313,6 @@ public class CashFlowDetailsFragment extends Fragment {
         ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
     }
 
-    @Click
     void categoryClicked() {
         ExpandableListView expandableListView = new ExpandableListView(getActivity());
 
@@ -281,7 +341,6 @@ public class CashFlowDetailsFragment extends Fragment {
         timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(calendar.getTime()));
     }
 
-    @Click
     void datePickerClicked() {
         new DatePickerDialog(
                 getActivity(),
@@ -300,7 +359,6 @@ public class CashFlowDetailsFragment extends Fragment {
         ).show();
     }
 
-    @Click
     void timePickerClicked() {
         new TimePickerDialog(
                 getActivity(),
@@ -318,7 +376,6 @@ public class CashFlowDetailsFragment extends Fragment {
         ).show();
     }
 
-    @OptionsItem(R.id.menu_save)
     void actionSave() {
         if (preValidations()) {
             getDataFromViews();

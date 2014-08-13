@@ -1,8 +1,13 @@
 package info.korzeniowski.walletplus.drawermenu.category;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -17,18 +22,13 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.ViewById;
-
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
@@ -37,48 +37,83 @@ import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.CategoryNameMustBeUniqueException;
 import info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton;
 
-@EFragment(R.layout.category_details)
-@OptionsMenu({R.menu.action_delete, R.menu.action_save})
 public class CategoryDetailsFragment extends Fragment {
     private enum DetailsType {ADD, EDIT}
 
     static final public String CATEGORY_ID = "CATEGORY_ID";
 
-    @ViewById
+    @InjectView(R.id.categoryNameLabel)
     TextView categoryNameLabel;
 
-    @ViewById
+    @InjectView(R.id.categoryName)
     EditText categoryName;
 
-    @ViewById
+    @InjectView(R.id.categoryType)
     RadioGroup categoryType;
 
-    @ViewById
+    @InjectView(R.id.categoryIncomeType)
     ListenWhenDisabledToggleButton categoryIncomeType;
 
-    @ViewById
+    @InjectView(R.id.categoryExpenseType)
     ListenWhenDisabledToggleButton categoryExpenseType;
 
-    @ViewById
+    @InjectView(R.id.parentCategory)
     Spinner parentCategory;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     CategoryService localCategoryService;
 
     private DetailsType type;
     private Category.Builder categoryBuilder;
 
-    @AfterInject
-    void daggerInject() {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         ((WalletPlus) getActivity().getApplication()).inject(this);
+
     }
 
-    @AfterViews
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.category_details, container, false);
+        ButterKnife.inject(this, view);
+        setupViews();
+        return view;
+    }
+
     void setupViews() {
         initFields();
         setupAdapters();
         setupListeners();
         fillViewsWithData();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_delete, menu);
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_save, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean handled = super.onOptionsItemSelected(item);
+        if (handled) {
+            return true;
+        }
+        int itemId_ = item.getItemId();
+        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_delete) {
+            actionDelete();
+            return true;
+        }
+        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_save) {
+            actionSave();
+            return true;
+        }
+        return false;
     }
 
     private void initFields() {
@@ -170,7 +205,6 @@ public class CategoryDetailsFragment extends Fragment {
         return null;
     }
 
-    @OptionsItem(R.id.menu_save)
     void actionSave() {
         if (preValidation()) {
             getDataFromViews();
@@ -245,7 +279,6 @@ public class CategoryDetailsFragment extends Fragment {
         return false;
     }
 
-    @OptionsItem(R.id.menu_delete)
     void actionDelete() {
         if (handleDeleteAction()) {
             getActivity().getSupportFragmentManager().popBackStack();

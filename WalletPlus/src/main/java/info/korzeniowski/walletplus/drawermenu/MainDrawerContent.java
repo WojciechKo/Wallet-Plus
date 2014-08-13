@@ -9,10 +9,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import info.korzeniowski.walletplus.R;
-import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment_;
-import info.korzeniowski.walletplus.drawermenu.category.CategoryFragment_;
-import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment_;
-import info.korzeniowski.walletplus.drawermenu.wallet.WalletListFragment_;
+import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment;
+import info.korzeniowski.walletplus.drawermenu.category.CategoryFragment;
+import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment;
+import info.korzeniowski.walletplus.drawermenu.wallet.WalletListFragment;
 
 /**
  * Content of Main Drawer Menu.
@@ -28,22 +28,22 @@ public class MainDrawerContent {
         mainDrawerItems.add(new MainDrawerItem(
                                 context.getString(R.string.appName),
                                 R.drawable.ic_menu_dashboard,
-                                DashboardFragment_.class));
+                                DashboardFragment.class));
 
         mainDrawerItems.add(new MainDrawerItem(
                                 context.getString(R.string.cashflowMenu),
                                 R.drawable.ic_menu_cashflow,
-                                CashFlowListFragment_.class));
+                                CashFlowListFragment.class));
 
         mainDrawerItems.add(new MainDrawerItem(
                                 context.getString(R.string.categoryMenu),
                                 R.drawable.ic_menu_categories,
-                                CategoryFragment_.class));
+                                CategoryFragment.class));
 
         mainDrawerItems.add(new MainDrawerItem(
                                 context.getString(R.string.walletMenu),
                                 R.drawable.ic_menu_wallets,
-                                WalletListFragment_.class));
+                                WalletListFragment.class));
     }
 
     public MainDrawerItem getDrawerItem(int position) {

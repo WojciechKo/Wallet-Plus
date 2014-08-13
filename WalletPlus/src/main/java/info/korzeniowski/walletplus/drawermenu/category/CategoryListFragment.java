@@ -1,20 +1,20 @@
 package info.korzeniowski.walletplus.drawermenu.category;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EFragment;
-import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
@@ -26,25 +26,33 @@ import info.korzeniowski.walletplus.widget.OnContentClickListener;
  * Fragment with list of categories.
  */
 
-@EFragment(R.layout.category_list)
 public class CategoryListFragment extends Fragment {
     public static final String CATEGORY_TYPE = "categoryType";
     public static final int ONLY_INCOME = 1;
     public static final int ONLY_EXPENSE = ONLY_INCOME + 1;
     public static final int ALL = ONLY_EXPENSE + 1;
 
-    @ViewById(R.id.superList)
+    @InjectView(R.id.superList)
     ExpandableListView superList;
 
     @Inject @Named("local")
     CategoryService localCategoryService;
 
-    @AfterInject
-    void daggerInject() {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
     }
 
-    @AfterViews
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.category_list, container, false);
+        ButterKnife.inject(this, view);
+        setupViews();
+        return view;
+    }
+
     void setupViews() {
         setHasOptionsMenu(true);
         int categoryType = getArguments().getInt(CATEGORY_TYPE);
@@ -70,7 +78,7 @@ public class CategoryListFragment extends Fragment {
     }
 
     private void startCategoryDetailsFragment(Long id) {
-        Fragment fragment = new CategoryDetailsFragment_();
+        Fragment fragment = new CategoryDetailsFragment();
         Bundle bundle = new Bundle();
         bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, id);
         fragment.setArguments(bundle);

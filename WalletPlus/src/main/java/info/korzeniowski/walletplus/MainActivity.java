@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus;
 
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -13,27 +14,22 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
-
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ItemClick;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.ViewById;
 
 import javax.inject.Inject;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import info.korzeniowski.walletplus.drawermenu.DrawerListAdapter;
 import info.korzeniowski.walletplus.drawermenu.MainDrawerItem;
 
-@EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
 
-    @ViewById
+    @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
 
-    @ViewById
+    @InjectView(R.id.drawer)
     ListView drawer;
 
     @Inject
@@ -43,12 +39,15 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     private CharSequence appName;
     private CharSequence fragmentTitle;
 
-    @AfterInject
-    void daggerInject() {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         ((WalletPlus) getApplication()).inject(this);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.inject(this);
+        setupViews();
     }
 
-    @AfterViews
     void setupViews() {
         initMemberVariables();
 
@@ -62,6 +61,35 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
         drawerItemClicked(0);
+
+        drawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                drawerItemClicked(position);
+            }
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean handled = super.onOptionsItemSelected(item);
+        if (handled) {
+            return true;
+        }
+        int itemId_ = item.getItemId();
+        if (itemId_ == android.R.id.home) {
+            homeSelected(item);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (((Build.VERSION.SDK_INT < 5) && (keyCode == KeyEvent.KEYCODE_BACK)) && (event.getRepeatCount() == 0)) {
+            onBackPressed();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
@@ -76,8 +104,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    @OptionsItem(android.R.id.home)
-    void homeSelected(MenuItem item) {
+    private void homeSelected(MenuItem item) {
         if (!drawerToggle.onOptionsItemSelected(item)) {
             getSupportFragmentManager().popBackStack();
         }
@@ -92,7 +119,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         return super.onKeyUp(keyCode, event);
     }
 
-    @ItemClick
     void drawerItemClicked(int position) {
         MainDrawerItem selectedMainDrawerItem = (MainDrawerItem) drawer.getAdapter().getItem(position);
         setContentFragment(selectedMainDrawerItem.getFragment(), false);
