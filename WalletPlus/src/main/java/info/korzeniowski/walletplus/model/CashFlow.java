@@ -4,7 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 
 import java.util.Date;
 
-public class CashFlow {
+public class CashFlow implements Identityable {
 
     @DatabaseField(generatedId = true)
     private Long id;
@@ -27,7 +27,9 @@ public class CashFlow {
     @DatabaseField
     private String comment;
 
-    /** ORMLite requirement **/
+    /**
+     * ORMLite requirement *
+     */
     public CashFlow() {
 
     }
@@ -42,6 +44,7 @@ public class CashFlow {
         comment = builder.comment;
     }
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -146,13 +149,15 @@ public class CashFlow {
         }
 
         public Builder(CashFlow cashFlow) {
-            id = cashFlow.getId();
-            fromWallet = cashFlow.getFromWallet();
-            toWallet = cashFlow.getToWallet();
-            category = cashFlow.getCategory();
-            amount = cashFlow.getAmount();
-            dateTime = cashFlow.getDateTime();
-            comment = cashFlow.getComment();
+            if (cashFlow != null) {
+                id = cashFlow.getId();
+                fromWallet = cashFlow.getFromWallet();
+                toWallet = cashFlow.getToWallet();
+                category = cashFlow.getCategory();
+                amount = cashFlow.getAmount();
+                dateTime = cashFlow.getDateTime();
+                comment = cashFlow.getComment();
+            }
         }
 
         public Long getId() {

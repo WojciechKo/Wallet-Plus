@@ -1,66 +1,53 @@
 package info.korzeniowski.walletplus.drawermenu.wallet;
 
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
+import com.google.common.base.Strings;
+
 import java.text.NumberFormat;
 import java.util.List;
 
 import info.korzeniowski.walletplus.R;
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.widget.IdentityableListAdapter;
 
-public class WalletListAdapter extends BaseAdapter {
-    private List<Wallet> myWallets;
-    private Context context;
+public class WalletListAdapter extends IdentityableListAdapter<Wallet> {
 
-    public WalletListAdapter(FragmentActivity activity, List<Wallet> myWallets) {
-        this.myWallets = myWallets;
-        this.context = activity;
+    public WalletListAdapter(Context context, List<Wallet> myWallets) {
+        super(context, myWallets, R.layout.wallet_item_list);
     }
 
     @Override
-    public int getCount() {
-        return myWallets.size();
+    protected MyBaseViewHolder createHolder(View convertView) {
+        WalletViewHolder holder = new WalletViewHolder();
+        holder.walletName = (TextView) convertView.findViewById(R.id.walletName);
+        holder.initialAmount = (TextView) convertView.findViewById(R.id.initialAmount);
+        holder.currentAmount = (TextView) convertView.findViewById(R.id.currentAmount);
+        return holder;
     }
 
     @Override
-    public Wallet getItem(int position) {
-        return myWallets.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return getItem(position).getId();
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.wallet_item_list, parent, false);
-        }
-        Wallet wallet = getItem(position);
-
-        TextView walletName = (TextView) convertView.findViewById(R.id.walletName);
-        walletName.setText(wallet.getName());
-
-        TextView initialAmount = (TextView) convertView.findViewById(R.id.initialAmount);
-        initialAmount.setText(context.getString(R.string.initialValue) + " " + NumberFormat.getCurrencyInstance().format(wallet.getInitialAmount()));
-
-        TextView currentAmount = (TextView) convertView.findViewById(R.id.currentAmount);
-        currentAmount.setText(NumberFormat.getCurrencyInstance().format(wallet.getCurrentAmount()));
-        if (wallet.getCurrentAmount() < 0) {
-            currentAmount.setTextColor(context.getResources().getColor(R.color.red));
+    protected void fillViewWithItem(MyBaseViewHolder baseHolder, Wallet item) {
+        WalletViewHolder holder = (WalletViewHolder) baseHolder;
+        holder.walletName.setText(item.getName());
+        holder.initialAmount.setText(getContext().getString(R.string.initialValue) + " " + NumberFormat.getCurrencyInstance().format(item.getInitialAmount()));
+        holder.currentAmount.setText(NumberFormat.getCurrencyInstance().format(item.getCurrentAmount()));
+        if (item.getCurrentAmount() < 0) {
+            holder.currentAmount.setTextColor(getContext().getResources().getColor(R.color.red));
         } else {
-            currentAmount.setTextColor(context.getResources().getColor(R.color.green));
+            holder.currentAmount.setTextColor(getContext().getResources().getColor(R.color.green));
         }
+    }
 
-        return convertView;
+
+    class WalletViewHolder extends MyBaseViewHolder {
+        protected TextView walletName;
+        protected TextView initialAmount;
+        protected TextView currentAmount;
     }
 }

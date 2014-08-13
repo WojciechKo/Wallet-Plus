@@ -1,7 +1,6 @@
 package info.korzeniowski.walletplus.drawermenu.category;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,14 +31,14 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.CategoryNameMustBeUniqueException;
-import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton;
 
-@OptionsMenu(R.menu.action_save)
 @EFragment(R.layout.category_details)
+@OptionsMenu({R.menu.action_delete, R.menu.action_save})
 public class CategoryDetailsFragment extends Fragment {
     private enum DetailsType {ADD, EDIT}
 
@@ -63,8 +62,7 @@ public class CategoryDetailsFragment extends Fragment {
     @ViewById
     Spinner parentCategory;
 
-    @Inject
-    @Named("local")
+    @Inject @Named("local")
     CategoryService localCategoryService;
 
     private DetailsType type;
@@ -147,8 +145,9 @@ public class CategoryDetailsFragment extends Fragment {
             parentCategory.setSelection(parentCategoryAdapter.getPosition(categoryBuilder.getParent()));
             type = categoryBuilder.getParent().getType();
         }
-        categoryIncomeType.setChecked(type.isIncome());
-        categoryExpenseType.setChecked(type.isExpense());
+
+        categoryIncomeType.setChecked(type == null || type.isIncome());
+        categoryExpenseType.setChecked(type == null || type.isExpense());
     }
 
     private void getDataFromViews() {
@@ -175,16 +174,19 @@ public class CategoryDetailsFragment extends Fragment {
     void actionSave() {
         if (preValidation()) {
             getDataFromViews();
-            boolean success = false;
-            if (type == DetailsType.ADD) {
-                success = tryInsert();
-            } else if (type == DetailsType.EDIT) {
-                success = tryUpdate();
-            }
-            if (success) {
+            if (handleActionSave()) {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         }
+    }
+
+    private boolean handleActionSave() {
+        if (type == DetailsType.ADD) {
+            return tryInsert();
+        } else if (type == DetailsType.EDIT) {
+            return tryUpdate();
+        }
+        return false;
     }
 
     private boolean preValidation() {
@@ -239,6 +241,31 @@ public class CategoryDetailsFragment extends Fragment {
             categoryName.setError("Category name need to be unique");
         } catch (CategoryHaveSubsException e) {
             showToast("Subcategory cannot have subcategories.");
+        }
+        return false;
+    }
+
+    @OptionsItem(R.id.menu_delete)
+    void actionDelete() {
+        if (handleDeleteAction()) {
+            getActivity().getSupportFragmentManager().popBackStack();
+        }
+    }
+
+    private boolean handleDeleteAction() {
+        if (type == DetailsType.EDIT) {
+            return tryDelete();
+        }
+        return type == DetailsType.ADD;
+    }
+
+    private boolean tryDelete() {
+        try {
+            // show warning alert about number of cashflows to be deleted
+            localCategoryService.deleteById(categoryBuilder.getId());
+            return true;
+        } catch (CategoryHaveSubsException e) {
+            showToast("Cannot delete category which have subcategories.");
         }
         return false;
     }

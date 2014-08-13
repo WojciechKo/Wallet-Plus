@@ -8,7 +8,7 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import java.util.Comparator;
 import java.util.List;
 
-public class Category implements Comparable<Category> {
+public class Category implements Comparable<Category>, Identityable, Childable<Category> {
     public enum Type {
         INCOME,
         EXPENSE,
@@ -74,6 +74,7 @@ public class Category implements Comparable<Category> {
         return getType() != null && getType().isExpense();
     }
 
+    @Override
     public List<Category> getChildren() {
         return Lists.newArrayList(children);
     }

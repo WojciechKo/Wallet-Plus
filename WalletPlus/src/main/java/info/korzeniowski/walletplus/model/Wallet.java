@@ -4,7 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 
 import java.util.List;
 
-public class Wallet {
+public class Wallet implements Identityable{
     public enum Type {MY_WALLET, CONTRACTOR}
 
     @DatabaseField(generatedId = true)
@@ -40,6 +40,7 @@ public class Wallet {
         }
     }
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -114,9 +115,17 @@ public class Wallet {
             }
         }
 
+        public Long getId() {
+            return id;
+        }
+
         public Builder setId(Long id) {
             this.id = id;
             return this;
+        }
+
+        public String getName() {
+            return name;
         }
 
         public Builder setName(String name) {
@@ -124,14 +133,26 @@ public class Wallet {
             return this;
         }
 
+        public Type getType() {
+            return type;
+        }
+
         public Builder setType(Type type) {
             this.type = type;
             return this;
         }
 
+        public Double getInitialAmount() {
+            return initialAmount;
+        }
+
         public Builder setInitialAmount(Double initialAmount) {
             this.initialAmount = initialAmount;
             return this;
+        }
+
+        public Double getCurrentAmount() {
+            return currentAmount;
         }
 
         public Builder setCurrentAmount(Double currentAmount) {
