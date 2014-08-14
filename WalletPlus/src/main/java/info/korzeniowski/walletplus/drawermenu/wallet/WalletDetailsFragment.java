@@ -4,8 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +22,7 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnTextChanged;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -59,14 +58,22 @@ public class WalletDetailsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
+        init();
+    }
+
+    private void init() {
         Long walletId = getArguments().getLong(WALLET_ID);
         type = walletId == 0L ? DetailsType.ADD : DetailsType.EDIT;
-        Wallet wallet = null;
+        walletBuilder = new Wallet.Builder(getWallet(walletId));
+    }
+
+    private Wallet getWallet(Long walletId) {
         if (type == DetailsType.EDIT) {
-            wallet = localWalletService.findById(walletId);
+            Wallet wallet = localWalletService.findById(walletId);
             originalName = wallet.getName();
+            return wallet;
         }
-        walletBuilder = new Wallet.Builder(wallet);
+        return null;
     }
 
     @Override
@@ -78,76 +85,8 @@ public class WalletDetailsFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_delete, menu);
-        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_save, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean handled = super.onOptionsItemSelected(item);
-        if (handled) {
-            return true;
-        }
-        int itemId_ = item.getItemId();
-        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_save) {
-            actionSave();
-            return true;
-        }
-        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_delete) {
-            actionDelete();
-            return true;
-        }
-        return false;
-    }
-
     private void setupViews() {
-        setupAdapters();
-        setupListeners();
         fillViewsWithData();
-    }
-
-    private void setupAdapters() {
-
-    }
-
-    private void setupListeners() {
-        walletName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                walletName.setError(null);
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validateIfEmpty(walletName, getString(R.string.walletNameCantBeEmpty));
-                validateIfNameIsUnique();
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-
-        walletInitialAmount.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                walletInitialAmount.setError(null);
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validateIfEmpty(walletInitialAmount, getString(R.string.walletInitialAmountCantBeEmpty));
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
     }
 
     private void fillViewsWithData() {
@@ -157,19 +96,55 @@ public class WalletDetailsFragment extends Fragment {
         }
     }
 
-    private void getDataFromViews() {
-        walletBuilder.setName(walletName.getText().toString());
-        Double initialAmount = Double.parseDouble(walletInitialAmount.getText().toString());
-        if (type == DetailsType.ADD) {
-            walletBuilder.setCurrentAmount(walletBuilder.getInitialAmount());
-        } else if (type == DetailsType.EDIT) {
-            walletBuilder.setCurrentAmount(walletBuilder.getCurrentAmount() + initialAmount - walletBuilder.getInitialAmount());
-        }
-        walletBuilder.setInitialAmount(initialAmount);
+    @OnTextChanged(value = R.id.walletName, callback = OnTextChanged.Callback.BEFORE_TEXT_CHANGED)
+    void walletNameBeforeTextChanged() {
+        walletName.setError(null);
     }
 
-    private void actionSave() {
-        if (validateIfEmptyFields()) {
+    @OnTextChanged(value = R.id.walletName, callback = OnTextChanged.Callback.TEXT_CHANGED)
+    void walletNameTextChanged() {
+        validateIfEmpty(walletName, getString(R.string.walletNameCantBeEmpty));
+        validateIfNameIsUnique();
+    }
+
+    private void validateIfNameIsUnique() {
+        Wallet found = localWalletService.findByNameAndType(walletName.getText().toString(), Wallet.Type.MY_WALLET);
+        if (found != null && !found.getName().equals(originalName)) {
+            walletName.setError(getString(R.string.walletNameHaveToBeUnique));
+        }
+    }
+
+    @OnTextChanged(value = R.id.walletInitialAmount, callback = OnTextChanged.Callback.BEFORE_TEXT_CHANGED)
+    void walletInitialAmountBeforeTextChanged() {
+        walletInitialAmount.setError(null);
+    }
+
+    @OnTextChanged(value = R.id.walletInitialAmount, callback = OnTextChanged.Callback.TEXT_CHANGED)
+    void walletInitialAmountTextChanged() {
+        validateIfEmpty(walletInitialAmount, getString(R.string.walletInitialAmountCantBeEmpty));
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_delete, menu);
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_save, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_save) {
+            selectedOptionSave();
+            return true;
+        } else if (item.getItemId() == R.id.menu_delete) {
+            selectedOptionDelete();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void selectedOptionSave() {
+        if (validateIfNoEmptyFields()) {
             getDataFromViews();
             walletBuilder.setType(Wallet.Type.MY_WALLET);
             try {
@@ -185,7 +160,33 @@ public class WalletDetailsFragment extends Fragment {
         }
     }
 
-    private void actionDelete() {
+    private boolean validateIfNoEmptyFields() {
+        validateIfEmpty(walletName, getString(R.string.walletNameCantBeEmpty));
+        validateIfEmpty(walletInitialAmount, getString(R.string.walletInitialAmountCantBeEmpty));
+        return !isAnyErrorsAppear();
+    }
+
+    private void validateIfEmpty(TextView textView, String errorMsg) {
+        if (Strings.isNullOrEmpty(textView.getText().toString())) {
+            textView.setError(errorMsg);
+        }
+    }
+
+    private boolean isAnyErrorsAppear() {
+        return walletName.getError() != null || walletInitialAmount.getError() != null;
+    }
+
+    private void getDataFromViews() {
+        walletBuilder.setName(walletName.getText().toString());
+        walletBuilder.setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()));
+        if (type == DetailsType.ADD) {
+            walletBuilder.setCurrentAmount(walletBuilder.getInitialAmount());
+        } else if (type == DetailsType.EDIT) {
+            walletBuilder.setCurrentAmount(walletBuilder.getCurrentAmount() + walletBuilder.getInitialAmount() - walletBuilder.getInitialAmount());
+        }
+    }
+
+    private void selectedOptionDelete() {
         showConfirmationAlert();
     }
 
@@ -207,44 +208,13 @@ public class WalletDetailsFragment extends Fragment {
         builder.create().show();
     }
 
+    private String getConfirmationMessage() {
+        int count = (int) localCashFlowService.countAssignedToWallet(walletBuilder.getId());
+        String msg = getActivity().getString(R.string.walletDeleteConfirmation);
+        return MessageFormat.format(msg, count);
+    }
+
     private void tryDelete(Long id) {
         localWalletService.deleteById(id);
-    }
-
-    private String getConfirmationMessage() {
-        int count = (int) getNumberOfCashFlowsConnectedWithWallet(walletBuilder.getId());
-        return MessageFormat.format(getActivity().getString(R.string.walletDeleteConfirmation), count);
-    }
-
-    private long getNumberOfCashFlowsConnectedWithWallet(Long id) {
-        return localCashFlowService.countAssignedToWallet(id);
-    }
-
-    private boolean validateIfEmptyFields() {
-        validateIfEmpty(walletName, getString(R.string.walletNameCantBeEmpty));
-        validateIfEmpty(walletInitialAmount, getString(R.string.walletInitialAmountCantBeEmpty));
-        return !isAnyErrorsAppear();
-    }
-
-    private void validateIfEmpty(TextView textView, String errorMsg) {
-        if (Strings.isNullOrEmpty(textView.getText().toString())) {
-            textView.setError(errorMsg);
-        }
-    }
-
-    private void validateIfNameIsUnique() {
-        Wallet found = localWalletService.findByNameAndType(walletName.getText().toString(), Wallet.Type.MY_WALLET);
-        if (found != null && !found.getName().equals(originalName)) {
-            walletName.setError(getString(R.string.walletNameHaveToBeUnique));
-        }
-    }
-
-    private boolean isAnyErrorsAppear() {
-        if (walletName.getError() != null) {
-            return true;
-        } else if (walletInitialAmount.getError() != null) {
-            return true;
-        }
-        return false;
     }
 }

@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.test;
+package info.korzeniowski.walletplus.test.service;
 
 import android.content.Context;
 

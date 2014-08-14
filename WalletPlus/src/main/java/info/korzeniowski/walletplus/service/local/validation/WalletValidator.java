@@ -40,8 +40,8 @@ public class WalletValidator implements Validator<Wallet>{
     }
 
     private void validateIfNameAndTypeAreUnique(Wallet wallet) {
-        Wallet wal = walletService.findByNameAndType(wallet.getName(), wallet.getType());
-        if (walletService.findByNameAndType(wallet.getName(), wallet.getType()) != null) {
+        Wallet found = walletService.findByNameAndType(wallet.getName(), wallet.getType());
+        if (found != null) {
             throw new WalletNameAndTypeMustBeUniqueException(wallet.getName());
         }
     }

@@ -9,8 +9,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import javax.inject.Inject;
@@ -18,6 +16,7 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnItemClick;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
@@ -30,7 +29,6 @@ public class WalletListFragment extends Fragment {
 
     @Inject @Named("local")
     WalletService localWalletService;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,16 +46,12 @@ public class WalletListFragment extends Fragment {
     }
 
     void setupViews() {
-        setHasOptionsMenu(true);
         list.setAdapter(new WalletListAdapter(getActivity(), localWalletService.getMyWallets()));
-        list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+    }
 
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                listItemClicked(position);
-            }
-        });
+    @OnItemClick(R.id.list)
+    void listItemClicked(int position) {
+        startWalletDetailsFragment(list.getAdapter().getItemId(position));
     }
 
     @Override
@@ -68,23 +62,14 @@ public class WalletListFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        boolean handled = super.onOptionsItemSelected(item);
-        if (handled) {
+        if (item.getItemId() == R.id.menu_new) {
+            selectedOptionNew();
             return true;
         }
-        int itemId_ = item.getItemId();
-        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_new) {
-            actionAdd();
-            return true;
-        }
-        return false;
+        return super.onOptionsItemSelected(item);
     }
 
-    void listItemClicked(int position) {
-        startWalletDetailsFragment(list.getAdapter().getItemId(position));
-    }
-
-    void actionAdd() {
+    void selectedOptionNew() {
         startWalletDetailsFragment(0L);
     }
 

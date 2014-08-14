@@ -1,18 +1,15 @@
 package info.korzeniowski.walletplus.drawermenu.wallet;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.google.common.base.Strings;
 
 import java.text.NumberFormat;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
-import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.widget.IdentityableListAdapter;
 
@@ -25,9 +22,7 @@ public class WalletListAdapter extends IdentityableListAdapter<Wallet> {
     @Override
     protected MyBaseViewHolder createHolder(View convertView) {
         WalletViewHolder holder = new WalletViewHolder();
-        holder.walletName = (TextView) convertView.findViewById(R.id.walletName);
-        holder.initialAmount = (TextView) convertView.findViewById(R.id.initialAmount);
-        holder.currentAmount = (TextView) convertView.findViewById(R.id.currentAmount);
+        ButterKnife.inject(holder, convertView);
         return holder;
     }
 
@@ -46,8 +41,13 @@ public class WalletListAdapter extends IdentityableListAdapter<Wallet> {
 
 
     class WalletViewHolder extends MyBaseViewHolder {
+        @InjectView(R.id.walletName)
         protected TextView walletName;
+
+        @InjectView(R.id.initialAmount)
         protected TextView initialAmount;
+
+        @InjectView(R.id.currentAmount)
         protected TextView currentAmount;
     }
 }

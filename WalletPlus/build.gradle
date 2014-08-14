@@ -107,8 +107,8 @@ dependencies {
         exclude module: 'wagon-provider-api'
     }
 
-    // Fest-android
-    androidTestCompile "com.squareup:fest-android:1.0.+"
+    //AssertJ Android
+    androidTestCompile 'com.squareup.assertj:assertj-android:1.0.0-SNAPSHOT'
 }
 
 apply plugin: "jacoco"
