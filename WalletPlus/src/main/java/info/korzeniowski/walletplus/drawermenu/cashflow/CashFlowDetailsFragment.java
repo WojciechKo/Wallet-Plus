@@ -243,7 +243,7 @@ public class CashFlowDetailsFragment extends Fragment {
         toWallet.setSelection(toWalletList.indexOf(cashFlowBuilder.getToWallet()));
         notifyWalletAdapters();
         if (cashFlowBuilder.getCategory() != null) {
-            category.setText(cashFlowBuilder.getCategory().getName());
+            category.setText(getCategoryText(cashFlowBuilder.getCategory()));
         }
     }
 
@@ -275,7 +275,10 @@ public class CashFlowDetailsFragment extends Fragment {
         if (category == null) {
             return getString(R.string.cashflowCategoryHint);
         }
-        return category.getName();
+        if (category.getParent() == null) {
+            return category.getName();
+        }
+        return category.getName() + " (" + category.getParent().getName() + ")";
     }
 
     private void refillLists() {
@@ -314,7 +317,8 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     void categoryClicked() {
-        ExpandableListView expandableListView = new ExpandableListView(getActivity());
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.category_list, null);
+        ExpandableListView expandableListView = (ExpandableListView) view.findViewById(R.id.superList);
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.cashflowCategoryChooseAlertTitle))
@@ -325,7 +329,7 @@ public class CashFlowDetailsFragment extends Fragment {
             @Override
             public void onContentClick(Long id) {
                 cashFlowBuilder.setCategory(localCategoryService.findById(id));
-                category.setText(cashFlowBuilder.getCategory().getName());
+                category.setText(getCategoryText(cashFlowBuilder.getCategory()));
                 alertDialog.dismiss();
             }
         }));
