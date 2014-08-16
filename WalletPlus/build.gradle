@@ -80,6 +80,9 @@ dependencies {
     // PagerSlidingTabStrip
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
 
+    // FButton
+    compile 'info.hoang8f:fbutton:1.0.5'
+
     // JUnit
     androidTestCompile "junit:junit:4.11"
 

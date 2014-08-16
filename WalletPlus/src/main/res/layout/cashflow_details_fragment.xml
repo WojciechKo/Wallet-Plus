@@ -6,7 +6,8 @@
     android:clipToPadding="false"
     android:padding="@dimen/cardPadding">
 
-    <RelativeLayout style="@style/Card">
+    <RelativeLayout xmlns:fbutton="http://schemas.android.com/apk/res-auto"
+        style="@style/Card">
 
         <Switch
             android:id="@+id/recordType"
@@ -90,29 +91,65 @@
             android:text="@string/cashflowCategoryLabel"
             android:textSize="@dimen/smallFontSize" />
 
-        <Button
+        <info.hoang8f.widget.FButton
             android:id="@+id/category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/categoryLabel"
-            android:layout_centerInParent="true"
-            android:text="@string/cashflowCategoryHint" />
-
-        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/category"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/categoryLabel"
+            android:layout_margin="5dp"
+            android:layout_toLeftOf="@+id/removeCategory"
+            android:text="@string/cashflowCategoryHint"
+            fbutton:buttonColor="@color/background"
+            fbutton:cornerRadius="4dp"
+            fbutton:shadowHeight="3dp" />
+
+        <ImageButton
+            android:id="@+id/removeCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/category"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/category"
+            android:layout_below="@id/categoryLabel"
             android:layout_centerInParent="true"
-            android:stretchColumns="*">
+            android:background="@null"
+            android:src="@drawable/ic_remove" />
 
-            <TableRow>
+        <info.hoang8f.widget.FButton
+            android:id="@+id/datePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/category"
+            android:layout_margin="5dp"
+            android:layout_toLeftOf="@+id/timePicker"
+            android:drawableLeft="@drawable/ic_calendar"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:singleLine="true"
+            fbutton:buttonColor="@color/background"
+            fbutton:cornerRadius="4dp"
+            fbutton:shadowHeight="3dp" />
 
-                <Button
-                    android:id="@+id/datePicker"
-                    android:layout_marginRight="40dp" />
+        <info.hoang8f.widget.FButton
+            android:id="@+id/timePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/category"
+            android:layout_margin="5dp"
+            android:drawableLeft="@drawable/ic_clock"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:singleLine="true"
+            fbutton:buttonColor="@color/background"
+            fbutton:cornerRadius="4dp"
+            fbutton:shadowHeight="3dp" />
 
-                <Button android:id="@+id/timePicker" />
-            </TableRow>
-        </TableLayout>
     </RelativeLayout>
 </ScrollView>

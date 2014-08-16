@@ -18,10 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -39,15 +39,16 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.ui.category.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.ui.category.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 
@@ -66,6 +67,9 @@ public class CashFlowDetailsFragment extends Fragment {
 
     @InjectView(R.id.category)
     Button category;
+
+    @InjectView(R.id.removeCategory)
+    ImageButton removeCategory;
 
     @InjectView(R.id.comment)
     EditText comment;
@@ -119,35 +123,33 @@ public class CashFlowDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.cashflow_details_fragment, container, false);
         ButterKnife.inject(this, view);
         setupViews();
-
-        recordType.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                recordTypeCheckedChanged();
-            }
-        });
-
-        datePicker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePickerClicked();
-            }
-        });
-
-        category.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                categoryClicked();
-            }
-        });
-
-        timePicker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                timePickerClicked();
-            }
-        });
         return view;
+    }
+
+    @OnClick(R.id.recordType)
+    public void onClickRecordType() {
+        recordTypeCheckedChanged();
+    }
+
+    @OnClick(R.id.datePicker)
+    public void onClickDatePicker() {
+        datePickerClicked();
+    }
+
+    @OnClick(R.id.category)
+    public void onClickCategory() {
+        categoryClicked();
+    }
+
+    @OnClick(R.id.timePicker)
+    public void onClickTimePicker() {
+        timePickerClicked();
+    }
+
+    @OnClick(R.id.removeCategory)
+    public void onClickRemoveCategory() {
+        cashFlowBuilder.setCategory(null);
+        category.setText(getCategoryText(null));
     }
 
     void setupViews() {
