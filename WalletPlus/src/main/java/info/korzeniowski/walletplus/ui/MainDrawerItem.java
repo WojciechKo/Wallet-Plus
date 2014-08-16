@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu;
+package info.korzeniowski.walletplus.ui;
 
 import android.support.v4.app.Fragment;
 import android.util.Log;

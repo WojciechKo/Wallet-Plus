@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu.dashboard;
+package info.korzeniowski.walletplus.ui.dashboard;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

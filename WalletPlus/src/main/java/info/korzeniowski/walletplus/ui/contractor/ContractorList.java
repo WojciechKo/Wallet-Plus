@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu.contractor;
+package info.korzeniowski.walletplus.ui.contractor;
 
 import android.app.ListFragment;
 

@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu;
+package info.korzeniowski.walletplus.ui;
 
 import android.content.Context;
 
@@ -9,10 +9,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import info.korzeniowski.walletplus.R;
-import info.korzeniowski.walletplus.drawermenu.cashflow.CashFlowListFragment;
-import info.korzeniowski.walletplus.drawermenu.category.CategoryFragment;
-import info.korzeniowski.walletplus.drawermenu.dashboard.DashboardFragment;
-import info.korzeniowski.walletplus.drawermenu.wallet.WalletListFragment;
+import info.korzeniowski.walletplus.ui.cashflow.CashFlowListFragment;
+import info.korzeniowski.walletplus.ui.category.CategoryFragment;
+import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
+import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
 
 /**
  * Content of Main Drawer Menu.

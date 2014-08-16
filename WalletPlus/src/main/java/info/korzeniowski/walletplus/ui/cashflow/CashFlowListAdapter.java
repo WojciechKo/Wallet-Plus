@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu.cashflow;
+package info.korzeniowski.walletplus.ui.cashflow;
 
 import android.content.Context;
 import android.text.SpannableStringBuilder;

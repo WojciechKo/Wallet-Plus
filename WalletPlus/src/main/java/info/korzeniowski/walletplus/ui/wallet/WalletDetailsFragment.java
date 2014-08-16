@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu.wallet;
+package info.korzeniowski.walletplus.ui.wallet;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

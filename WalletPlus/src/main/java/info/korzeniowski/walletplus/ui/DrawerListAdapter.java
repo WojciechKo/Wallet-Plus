@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu;
+package info.korzeniowski.walletplus.ui;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,7 +10,6 @@ import android.widget.TextView;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.R;
-import info.korzeniowski.walletplus.WalletPlus;
 
 /**
  * Adapter for items from Main Drawer Menu

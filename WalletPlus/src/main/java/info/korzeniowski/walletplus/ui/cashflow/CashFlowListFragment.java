@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu.cashflow;
+package info.korzeniowski.walletplus.ui.cashflow;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

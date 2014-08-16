@@ -21,8 +21,8 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import info.korzeniowski.walletplus.drawermenu.DrawerListAdapter;
-import info.korzeniowski.walletplus.drawermenu.MainDrawerItem;
+import info.korzeniowski.walletplus.ui.DrawerListAdapter;
+import info.korzeniowski.walletplus.ui.MainDrawerItem;
 
 public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
 

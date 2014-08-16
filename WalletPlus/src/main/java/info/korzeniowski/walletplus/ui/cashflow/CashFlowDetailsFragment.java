@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.drawermenu.cashflow;
+package info.korzeniowski.walletplus.ui.cashflow;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -41,7 +41,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.drawermenu.category.CategoryExpandableListAdapter;
+import info.korzeniowski.walletplus.ui.category.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;

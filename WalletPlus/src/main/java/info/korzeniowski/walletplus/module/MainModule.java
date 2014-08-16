@@ -13,8 +13,8 @@ import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.drawermenu.DrawerListAdapter;
-import info.korzeniowski.walletplus.drawermenu.MainDrawerContent;
+import info.korzeniowski.walletplus.ui.DrawerListAdapter;
+import info.korzeniowski.walletplus.ui.MainDrawerContent;
 
 /**
  * Module for common objects.
