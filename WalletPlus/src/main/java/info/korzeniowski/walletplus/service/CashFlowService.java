@@ -7,4 +7,6 @@ public interface CashFlowService extends BaseService<CashFlow> {
     long countAssignedToWallet(Long walletId);
 
     public Category getOtherCategory();
+
+    public Category getTransferCategory();
 }

@@ -152,4 +152,12 @@ public class LocalCashFlowService implements CashFlowService {
             throw new DatabaseException(e);
         }
     }
+
+    @Override
+    public Category getTransferCategory() {
+        try {
+            return categoryDao.queryBuilder().where().eq("type", Category.Type.TRANSFER).queryForFirst();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }    }
 }
