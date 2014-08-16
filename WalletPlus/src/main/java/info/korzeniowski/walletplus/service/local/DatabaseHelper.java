@@ -10,7 +10,8 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
-import java.util.Date;
+
+import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
@@ -25,6 +26,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Dao<CashFlow, Long> cashFlowDao;
     private Dao<Account, Long> accountDao;
 
+    @Inject
     public DatabaseHelper(Context context) {
         super(context, "WalletPlus.db", null, DATABASE_VERSION);
     }
@@ -32,6 +34,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public DatabaseHelper(Context context, String databaseName) {
         super(context, databaseName, null, DATABASE_VERSION);
     }
+
     public Dao<Wallet, Long> getWalletDao() throws SQLException {
         if (walletDao == null) {
             walletDao = getDao(Wallet.class);
@@ -52,7 +55,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         }
         return cashFlowDao;
     }
-    
+
     public Dao<Account, Long> getAccountDao() throws SQLException {
         if (accountDao == null) {
             accountDao = getDao(Account.class);

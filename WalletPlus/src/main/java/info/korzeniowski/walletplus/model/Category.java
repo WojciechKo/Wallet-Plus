@@ -10,6 +10,7 @@ import java.util.List;
 
 public class Category implements Comparable<Category>, Identityable, Childable<Category> {
     public enum Type {
+        OTHER,
         INCOME,
         EXPENSE,
         INCOME_EXPENSE;

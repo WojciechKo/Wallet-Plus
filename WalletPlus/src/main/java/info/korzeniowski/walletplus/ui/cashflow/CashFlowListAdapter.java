@@ -53,9 +53,6 @@ public class CashFlowListAdapter extends IdentityableListAdapter<CashFlow> {
     }
 
     private String getCategoryText(CashFlow cashFlow) {
-        if (cashFlow.getCategory() == null) {
-            return "Other";
-        }
         if (cashFlow.getCategory().getParent() == null) {
             return cashFlow.getCategory().getName();
         }

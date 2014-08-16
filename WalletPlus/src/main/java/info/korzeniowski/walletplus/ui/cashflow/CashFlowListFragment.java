@@ -18,6 +18,7 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnItemClick;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
@@ -49,20 +50,18 @@ public class CashFlowListFragment extends Fragment {
         View view = inflater.inflate(R.layout.card_list, container, false);
         ButterKnife.inject(this, view);
         setupView();
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                listItemClicked(position);
-            }
-        });
         return view;
     }
 
     void setupView() {
-        setHasOptionsMenu(true);
         list.setAdapter(new CashFlowListAdapter(getActivity(), localCashFlowService.getAll()));
         list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
         list.setMultiChoiceModeListener(new IdentityableMultiChoiceModeListener<CashFlow>(list, localCashFlowService, getActivity()));
+    }
+
+    @OnItemClick(R.id.list)
+    void listItemClicked(int position) {
+        startCashFlowDetailsFragment(list.getAdapter().getItemId(position));
     }
 
     @Override
@@ -83,10 +82,6 @@ public class CashFlowListFragment extends Fragment {
             return true;
         }
         return false;
-    }
-
-    void listItemClicked(int position) {
-        startCashFlowDetailsFragment(list.getAdapter().getItemId(position));
     }
 
     void actionAdd() {

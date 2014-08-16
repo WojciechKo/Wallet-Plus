@@ -7,19 +7,22 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import info.korzeniowski.walletplus.model.CashFlow;
+import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
-import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Wallet;
 
 public class LocalCashFlowService implements CashFlowService {
     private final Dao<CashFlow, Long> cashFlowDao;
     private final Dao<Wallet, Long> walletDao;
+    private final Dao<Category, Long> categoryDao;
 
     @Inject
-    public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao, Dao<Wallet, Long> walletDao) {
+    public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao, Dao<Wallet, Long> walletDao, Dao<Category, Long> categoryDao) {
         this.cashFlowDao = cashFlowDao;
         this.walletDao = walletDao;
+        this.categoryDao = categoryDao;
     }
 
     @Override
@@ -136,6 +139,15 @@ public class LocalCashFlowService implements CashFlowService {
     public long countAssignedToWallet(Long walletId) {
         try {
             return cashFlowDao.queryBuilder().where().eq("fromWallet_id", walletId).or().eq("toWallet_id", walletId).countOf();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public Category getOtherCategory() {
+        try {
+            return categoryDao.queryBuilder().where().eq("type", Category.Type.OTHER).queryForFirst();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

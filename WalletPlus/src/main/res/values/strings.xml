@@ -18,6 +18,9 @@
     <string name="walletMenu">Wallets</string>
 
 
+    <!-- Commons -->
+    <string name="otherCategoryName">Other</string>
+
     <!-- Dashboard fragment -->
     <string name="totalAmountLabel">Total:</string>
 

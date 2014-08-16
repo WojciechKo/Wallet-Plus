@@ -3,22 +3,27 @@ package info.korzeniowski.walletplus;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.j256.ormlite.table.TableUtils;
+
+import java.sql.SQLException;
 import java.util.Calendar;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.service.exception.DatabaseException;
+import info.korzeniowski.walletplus.service.local.DatabaseHelper;
 
 public class DatabaseInitializer {
 
-    @Inject
-    @Named("local")
+    @Inject @Named("local")
     CashFlowService localCashFlowService;
 
     @Inject @Named("local")
@@ -26,6 +31,9 @@ public class DatabaseInitializer {
 
     @Inject @Named("local")
     CategoryService localCategoryService;
+
+    @Inject
+    DatabaseHelper databaseHelper;
 
     private WalletPlus walletPlus;
 
@@ -38,11 +46,28 @@ public class DatabaseInitializer {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(walletPlus);
         boolean isFirstRun = sharedPreferences.getBoolean("firstRun", true);
         if (isFirstRun) {
+            clearDatabase();
+            initDatabase();
             initExampleDatabase();
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean("firstRun", false);
             editor.commit();
         }
+    }
+
+    private void clearDatabase() {
+        try {
+            TableUtils.clearTable(databaseHelper.getConnectionSource(), Account.class);
+            TableUtils.clearTable(databaseHelper.getConnectionSource(), CashFlow.class);
+            TableUtils.clearTable(databaseHelper.getConnectionSource(), Category.class);
+            TableUtils.clearTable(databaseHelper.getConnectionSource(), Wallet.class);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    private void initDatabase() {
+        localCategoryService.insert(new Category.Builder().setType(Category.Type.OTHER).setName(walletPlus.getString(R.string.otherCategoryName)).build());
     }
 
     private void initExampleDatabase() {
@@ -101,7 +126,7 @@ public class DatabaseInitializer {
         localCashFlowService.insert(cashFlowBuilder.setAmount(150.0f).setCategory(mainHouse).setFromWallet(personalWallet).setToWallet(walMart).setDateTime(date.getTime()).setComment("Cleaning products").build());
 
         date.add(Calendar.HOUR_OF_DAY, -1);
-        localCashFlowService.insert(cashFlowBuilder.setAmount(100.0f).setCategory(null).setFromWallet(sock).setToWallet(personalWallet).setDateTime(date.getTime()).setComment("Transfer to personal wallet").build());
+        localCashFlowService.insert(cashFlowBuilder.setAmount(100.0f).setCategory(localCashFlowService.getOtherCategory()).setFromWallet(sock).setToWallet(personalWallet).setDateTime(date.getTime()).setComment("Transfer to personal wallet").build());
 
         date.add(Calendar.HOUR_OF_DAY, -1);
         localCashFlowService.insert(cashFlowBuilder.setAmount(75.0f).setCategory(energy).setFromWallet(bankAccount).setToWallet(null).setComment(null).build());
@@ -109,9 +134,9 @@ public class DatabaseInitializer {
         localCashFlowService.insert(cashFlowBuilder.setAmount(50.0f).setCategory(gas).setFromWallet(bankAccount).setToWallet(null).setComment(null).build());
 
         date.add(Calendar.DATE, -1);
-        localCashFlowService.insert(cashFlowBuilder.setAmount(500.0f).setCategory(null).setFromWallet(bankAccount).setToWallet(personalWallet).setComment(null).build());
-        localCashFlowService.insert(cashFlowBuilder.setAmount(1000.0f).setCategory(null).setFromWallet(bankAccount).setToWallet(wardrobe).setComment("Savings").build());
-        localCashFlowService.insert(cashFlowBuilder.setAmount(3000.0f).setCategory(null).setFromWallet(amazon).setToWallet(bankAccount).setComment("Payment").build());
+        localCashFlowService.insert(cashFlowBuilder.setAmount(500.0f).setCategory(localCashFlowService.getOtherCategory()).setFromWallet(bankAccount).setToWallet(personalWallet).setComment(null).build());
+        localCashFlowService.insert(cashFlowBuilder.setAmount(1000.0f).setCategory(localCashFlowService.getOtherCategory()).setFromWallet(bankAccount).setToWallet(wardrobe).setComment("Savings").build());
+        localCashFlowService.insert(cashFlowBuilder.setAmount(3000.0f).setCategory(localCashFlowService.getOtherCategory()).setFromWallet(amazon).setToWallet(bankAccount).setComment("Payment").build());
     }
 
 }

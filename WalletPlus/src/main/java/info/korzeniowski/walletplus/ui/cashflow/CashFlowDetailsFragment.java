@@ -83,20 +83,16 @@ public class CashFlowDetailsFragment extends Fragment {
     @InjectView(R.id.recordType)
     Switch recordType;
 
-    @Inject
-    @Named("local")
+    @Inject @Named("local")
     CashFlowService localCashFlowService;
 
-    @Inject
-    @Named("local")
+    @Inject @Named("local")
     WalletService localWalletService;
 
-    @Inject
-    @Named("local")
+    @Inject @Named("local")
     CategoryService localCategoryService;
 
-    @Inject
-    @Named("amount")
+    @Inject @Named("amount")
     NumberFormat amountFormat;
 
     private DetailsType type;
@@ -148,8 +144,8 @@ public class CashFlowDetailsFragment extends Fragment {
 
     @OnClick(R.id.removeCategory)
     public void onClickRemoveCategory() {
-        cashFlowBuilder.setCategory(null);
-        category.setText(getCategoryText(null));
+        cashFlowBuilder.setCategory(localCashFlowService.getOtherCategory());
+        category.setText(getCategoryText(cashFlowBuilder.getCategory()));
     }
 
     void setupViews() {
@@ -160,13 +156,17 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private void initFields() {
+        Category other = localCashFlowService.getOtherCategory();
         Long cashFlowId = getArguments().getLong(CASH_FLOW_ID);
         type = cashFlowId == 0L ? DetailsType.ADD : DetailsType.EDIT;
         calendar = Calendar.getInstance();
         cashFlowBuilder = new CashFlow.Builder(localCashFlowService.findById(cashFlowId));
         if (type.equals(DetailsType.EDIT)) {
             calendar.setTime(cashFlowBuilder.getDateTime());
+        } else if (type.equals(DetailsType.ADD)) {
+            cashFlowBuilder.setCategory(other);
         }
+        previousCategory = other;
         fromWalletList = Lists.newArrayList();
         toWalletList = Lists.newArrayList();
         categoryList = Lists.newArrayList();
@@ -212,6 +212,23 @@ public class CashFlowDetailsFragment extends Fragment {
         });
     }
 
+    private void fillViewsWithData() {
+        resetDatePicker();
+        resetTimePicker();
+        if (cashFlowBuilder.getAmount() != null) {
+            amount.setText(amountFormat.format(cashFlowBuilder.getAmount()));
+        }
+        comment.setText(cashFlowBuilder.getComment());
+        recordType.setChecked(cashFlowBuilder.build().isExpanse());
+        refillLists();
+        fromWallet.setSelection(fromWalletList.indexOf(cashFlowBuilder.getFromWallet()));
+        toWallet.setSelection(toWalletList.indexOf(cashFlowBuilder.getToWallet()));
+        notifyWalletAdapters();
+        if (cashFlowBuilder.getCategory() != null) {
+            category.setText(getCategoryText(cashFlowBuilder.getCategory()));
+        }
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(info.korzeniowski.walletplus.R.menu.action_save, menu);
@@ -230,23 +247,6 @@ public class CashFlowDetailsFragment extends Fragment {
             return true;
         }
         return false;
-    }
-
-    private void fillViewsWithData() {
-        resetDatePicker();
-        resetTimePicker();
-        if (cashFlowBuilder.getAmount() != null) {
-            amount.setText(amountFormat.format(cashFlowBuilder.getAmount()));
-        }
-        comment.setText(cashFlowBuilder.getComment());
-        recordType.setChecked(cashFlowBuilder.build().isExpanse());
-        refillLists();
-        fromWallet.setSelection(fromWalletList.indexOf(cashFlowBuilder.getFromWallet()));
-        toWallet.setSelection(toWalletList.indexOf(cashFlowBuilder.getToWallet()));
-        notifyWalletAdapters();
-        if (cashFlowBuilder.getCategory() != null) {
-            category.setText(getCategoryText(cashFlowBuilder.getCategory()));
-        }
     }
 
     void recordTypeCheckedChanged() {
@@ -274,9 +274,6 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private String getCategoryText(Category category) {
-        if (category == null) {
-            return getString(R.string.cashflowCategoryHint);
-        }
         if (category.getParent() == null) {
             return category.getName();
         }
