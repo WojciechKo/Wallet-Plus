@@ -12,14 +12,8 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import info.korzeniowski.walletplus.DatabaseInitializer;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.ui.cashflow.CashFlowDetailsFragment;
-import info.korzeniowski.walletplus.ui.cashflow.CashFlowListFragment;
-import info.korzeniowski.walletplus.ui.category.CategoryDetailsFragment;
-import info.korzeniowski.walletplus.ui.category.CategoryListFragment;
-import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
-import info.korzeniowski.walletplus.ui.wallet.WalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -30,13 +24,20 @@ import info.korzeniowski.walletplus.service.local.DatabaseHelper;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
+import info.korzeniowski.walletplus.ui.cashflow.CashFlowDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.CashFlowListFragment;
+import info.korzeniowski.walletplus.ui.category.CategoryDetailsFragment;
+import info.korzeniowski.walletplus.ui.category.CategoryListFragment;
+import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
+import info.korzeniowski.walletplus.ui.wallet.WalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
 
 /**
  * Module for Database objects.
  */
 @Module(
         injects = {
-                WalletPlus.class,
+                DatabaseInitializer.class,
 
                 DashboardFragment.class,
 
@@ -86,9 +87,11 @@ public class DatabaseModule {
 //        return localAccountDataManager;
 //    }
 
-    /****************
+    /**
+     * *************
      * CATEGORY
-     ***************/
+     * *************
+     */
     @Provides
     public Dao<Category, Long> provideCategoryDao() {
         try {
@@ -106,9 +109,11 @@ public class DatabaseModule {
         return localCategoryService;
     }
 
-    /****************
+    /**
+     * *************
      * CASH_FLOW
-     ***************/
+     * *************
+     */
     @Provides
     public Dao<CashFlow, Long> provideCashFlowDao() {
         try {
@@ -126,9 +131,11 @@ public class DatabaseModule {
         return localCashFlowService;
     }
 
-    /****************
+    /**
+     * *************
      * WALLET
-     ***************/
+     * *************
+     */
     @Provides
     public Dao<Wallet, Long> provideWalletDao() {
         try {
