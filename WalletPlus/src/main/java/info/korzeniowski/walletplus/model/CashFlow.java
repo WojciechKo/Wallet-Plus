@@ -4,6 +4,8 @@ import com.j256.ormlite.field.DatabaseField;
 
 import java.util.Date;
 
+import info.korzeniowski.walletplus.ui.cashflow.CashFlowDetailsParcelableState;
+
 public class CashFlow implements Identityable {
 
     @DatabaseField(generatedId = true)
@@ -32,6 +34,28 @@ public class CashFlow implements Identityable {
      */
     public CashFlow() {
 
+    }
+
+    public enum Type {INCOME, EXPANSE, TRANSFER}
+
+    public CashFlow(CashFlowDetailsParcelableState parcelableState, Type type) {
+        id = parcelableState.getId();
+        amount = parcelableState.getAmount();
+        dateTime = new Date(parcelableState.getDate());
+        comment = parcelableState.getComment();
+
+        if (type == Type.INCOME) {
+            fromWallet = parcelableState.getIncomeFromWallet();
+            toWallet = parcelableState.getIncomeToWallet();
+            category = parcelableState.getIncomeCategory();
+        } else if (type == Type.EXPANSE) {
+            fromWallet = parcelableState.getExpanseFromWallet();
+            toWallet = parcelableState.getExpanseToWallet();
+            category = parcelableState.getExpanseCategory();
+        } else if (type == Type.TRANSFER) {
+            fromWallet = parcelableState.getExpanseFromWallet();
+            toWallet = parcelableState.getIncomeToWallet();
+        }
     }
 
     public CashFlow(Builder builder) {

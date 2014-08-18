@@ -9,21 +9,11 @@
     <RelativeLayout xmlns:fbutton="http://schemas.android.com/apk/res-auto"
         style="@style/Card">
 
-        <Switch
-            android:id="@+id/recordType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerInParent="true"
-            android:checked="true"
-            android:textOff="@string/income"
-            android:textOn="@string/expanse" />
-
         <TextView
             android:id="@+id/fromWalletLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/recordType"
+            android:layout_alignParentTop="true"
             android:text="@string/cashflowFromWalletLabel"
             android:textSize="@dimen/smallFontSize" />
 

@@ -24,8 +24,8 @@ import info.korzeniowski.walletplus.service.local.DatabaseHelper;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
-import info.korzeniowski.walletplus.ui.cashflow.CashFlowDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.CashFlowListFragment;
+import info.korzeniowski.walletplus.ui.cashflow.CashFlowBaseDetailsFragment;
 import info.korzeniowski.walletplus.ui.category.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.ui.category.CategoryListFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
@@ -44,7 +44,7 @@ import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
                 CategoryDetailsFragment.class,
                 CategoryListFragment.class,
 
-                CashFlowDetailsFragment.class,
+                CashFlowBaseDetailsFragment.class,
                 CashFlowListFragment.class,
 
                 WalletDetailsFragment.class,

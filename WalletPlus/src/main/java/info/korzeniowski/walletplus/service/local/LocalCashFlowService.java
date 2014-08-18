@@ -17,6 +17,8 @@ public class LocalCashFlowService implements CashFlowService {
     private final Dao<CashFlow, Long> cashFlowDao;
     private final Dao<Wallet, Long> walletDao;
     private final Dao<Category, Long> categoryDao;
+    private Category other;
+    private Category transfer;
 
     @Inject
     public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao, Dao<Wallet, Long> walletDao, Dao<Category, Long> categoryDao) {
@@ -147,7 +149,10 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public Category getOtherCategory() {
         try {
-            return categoryDao.queryBuilder().where().eq("type", Category.Type.OTHER).queryForFirst();
+            if (other == null) {
+                other = categoryDao.queryBuilder().where().eq("type", Category.Type.OTHER).queryForFirst();
+            }
+            return other;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -156,7 +161,10 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public Category getTransferCategory() {
         try {
-            return categoryDao.queryBuilder().where().eq("type", Category.Type.TRANSFER).queryForFirst();
+            if (transfer == null) {
+                transfer = categoryDao.queryBuilder().where().eq("type", Category.Type.TRANSFER).queryForFirst();
+            }
+            return transfer;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }    }

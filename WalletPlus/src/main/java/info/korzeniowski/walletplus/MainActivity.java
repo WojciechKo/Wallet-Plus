@@ -17,14 +17,19 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.ui.DrawerListAdapter;
 import info.korzeniowski.walletplus.ui.MainDrawerItem;
+import info.korzeniowski.walletplus.ui.cashflow.OnCashFlowDetailsChangedListener;
 
-public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener, OnCashFlowDetailsChangedListener {
 
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
@@ -38,6 +43,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     private ActionBarDrawerToggle drawerToggle;
     private CharSequence appName;
     private CharSequence fragmentTitle;
+    List<OnCashFlowDetailsChangedListener> cashFlowDetailsChangedListeners;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,6 +51,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
+        cashFlowDetailsChangedListeners = Lists.newArrayList();
         setupViews();
     }
 
@@ -128,8 +135,12 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     public void setContentFragment(Fragment fragment, Boolean addToBackStack) {
+        setContentFragment(fragment, addToBackStack, null);
+    }
+
+    public void setContentFragment(Fragment fragment, Boolean addToBackStack, String tag) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.content_frame, fragment);
+        fragmentTransaction.replace(R.id.content_frame, fragment, tag);
         if (addToBackStack) {
             fragmentTransaction.addToBackStack(null);
         } else {
@@ -194,5 +205,66 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     protected void onDestroy() {
         getSupportFragmentManager().removeOnBackStackChangedListener(this);
         super.onDestroy();
+    }
+
+    @Override
+    public void onFromWalletChanged() {
+        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+            listener.onFromWalletChanged();
+        }
+    }
+
+    @Override
+    public void onToWalletChanged() {
+        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+            listener.onToWalletChanged();
+        }
+    }
+
+    @Override
+    public void onAmountChanged() {
+        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+            listener.onAmountChanged();
+        }
+    }
+
+    @Override
+    public void onCommentChanged() {
+        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+            listener.onCommentChanged();
+        }
+    }
+
+    @Override
+    public void onCategoryChanged() {
+        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+            listener.onCategoryChanged();
+        }
+    }
+
+    @Override
+    public void onDateChanged() {
+        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+            listener.onDateChanged();
+        }
+    }
+
+    @Override
+    public void onTimeChanged() {
+        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+            listener.onTimeChanged();
+        }
+    }
+
+    private List<OnCashFlowDetailsChangedListener> getCashFlowDetailsChangedListeners() {
+        return cashFlowDetailsChangedListeners;
+    }
+
+    public void addOnCashFlowDetailsChangedListener(OnCashFlowDetailsChangedListener listener) {
+        cashFlowDetailsChangedListeners.add(listener);
+    }
+
+    public void removeOnCashFlowDetailsChangedListeners(OnCashFlowDetailsChangedListener listener) {
+        cashFlowDetailsChangedListeners.remove(listener);
     }
 }

@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import javax.inject.Inject;
@@ -72,12 +71,10 @@ public class CashFlowListFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        boolean handled = super.onOptionsItemSelected(item);
-        if (handled) {
+        if (super.onOptionsItemSelected(item)) {
             return true;
         }
-        int itemId_ = item.getItemId();
-        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_new) {
+        if (item.getItemId() == info.korzeniowski.walletplus.R.id.menu_new) {
             actionAdd();
             return true;
         }
@@ -93,6 +90,6 @@ public class CashFlowListFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putLong(CashFlowDetailsFragment.CASH_FLOW_ID, id);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true, CashFlowDetailsFragment.TAG);
     }
 }

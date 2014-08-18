@@ -1,5 +1,8 @@
 package info.korzeniowski.walletplus.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
@@ -8,7 +11,7 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import java.util.Comparator;
 import java.util.List;
 
-public class Category implements Comparable<Category>, Identityable, Childable<Category> {
+public class Category implements Comparable<Category>, Identityable, Childable<Category>, Parcelable {
     public enum Type {
         TRANSFER,
         OTHER,
@@ -40,7 +43,9 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
     @ForeignCollectionField(orderColumnName = "name")
     private ForeignCollection<Category> children;
 
-    /** ORMLite requirement **/
+    /**
+     * ORMLite requirement *
+     */
     public Category() {
 
     }
@@ -50,6 +55,19 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
         parent = builder.parent;
         name = builder.name;
         type = builder.type;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeParcelable(parent, flags);
+        dest.writeString(name);
+        dest.writeInt(type.ordinal());
     }
 
     public Long getId() {
