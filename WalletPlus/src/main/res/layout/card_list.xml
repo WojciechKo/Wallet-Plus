@@ -9,4 +9,5 @@
     android:dividerHeight="10dp"
     android:padding="@dimen/cardPadding"
     android:scrollbars="none"
+    android:choiceMode="none"
     android:listSelector="@drawable/selector_card_background"/>

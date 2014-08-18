@@ -1,10 +1,11 @@
 package info.korzeniowski.walletplus.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.j256.ormlite.field.DatabaseField;
 
-import java.util.List;
-
-public class Wallet implements Identityable{
+public class Wallet implements Identityable, Parcelable {
     public enum Type {MY_WALLET, CONTRACTOR}
 
     @DatabaseField(generatedId = true)
@@ -22,7 +23,9 @@ public class Wallet implements Identityable{
     @DatabaseField(canBeNull = false)
     private Double currentAmount;
 
-    /** ORMLite requirement **/
+    /**
+     * ORMLite requirement *
+     */
     public Wallet() {
 
     }
@@ -38,6 +41,28 @@ public class Wallet implements Identityable{
         } else {
             this.currentAmount = builder.currentAmount;
         }
+    }
+
+    public Wallet(Parcel parcel) {
+        id = parcel.readLong();
+        name = parcel.readString();
+        type = Type.values()[parcel.readInt()];
+        initialAmount = parcel.readDouble();
+        currentAmount = parcel.readDouble();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeString(name);
+        dest.writeInt(type.ordinal());
+        dest.writeDouble(initialAmount);
+        dest.writeDouble(currentAmount);
     }
 
     @Override

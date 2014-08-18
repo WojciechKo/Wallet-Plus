@@ -28,6 +28,7 @@ android {
 
     lintOptions {
         abortOnError false
+        disable 'InvalidPackage'
     }
 
     packagingOptions {
@@ -35,6 +36,7 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
 
     sourceSets {
@@ -64,10 +66,8 @@ dependencies {
     compile "com.j256.ormlite:ormlite-android:$ormLiteVersion"
     compile "com.j256.ormlite:ormlite-core:$ormLiteVersion"
 
-    // Android Annotations
-    def androidAnnotationsVersion = '3.0.1'
-    apt "org.androidannotations:androidannotations:$androidAnnotationsVersion"
-    compile "org.androidannotations:androidannotations-api:$androidAnnotationsVersion"
+    // Butter Knife
+    compile 'com.jakewharton:butterknife:5.1.2'
 
     // Dagger
     def daggerVersion = '1.2.+'
@@ -79,6 +79,9 @@ dependencies {
 
     // PagerSlidingTabStrip
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+
+    // FButton
+    compile 'info.hoang8f:fbutton:1.0.5'
 
     // JUnit
     androidTestCompile "junit:junit:4.11"
@@ -107,8 +110,8 @@ dependencies {
         exclude module: 'wagon-provider-api'
     }
 
-    // Fest-android
-    androidTestCompile "com.squareup:fest-android:1.0.+"
+    //AssertJ Android
+    androidTestCompile 'com.squareup.assertj:assertj-android:1.0.0-SNAPSHOT'
 }
 
 apply plugin: "jacoco"

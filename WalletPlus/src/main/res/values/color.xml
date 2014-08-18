@@ -2,12 +2,12 @@
     <!-- Style colors -->
     <color name="actionBarBackground">#FF9909</color>
     <color name="drawerBackground">#FF818181</color>
+    <color name="background">#EEEEEE</color>
 
     <!--Card colors -->
     <color name="cardShadow">#DBDBDB</color>
     <color name="cardColor">#FFFFFF</color>
     <color name="cardSelectedColor">#F8F8F8</color>
-    <color name="background">#EEEEEE</color>
 
     <!-- My colors -->
     <color name="green">#99CC00</color>

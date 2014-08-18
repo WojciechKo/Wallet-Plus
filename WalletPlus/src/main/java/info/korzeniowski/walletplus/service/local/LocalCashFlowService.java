@@ -7,19 +7,24 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import info.korzeniowski.walletplus.model.CashFlow;
+import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
-import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Wallet;
 
 public class LocalCashFlowService implements CashFlowService {
     private final Dao<CashFlow, Long> cashFlowDao;
     private final Dao<Wallet, Long> walletDao;
+    private final Dao<Category, Long> categoryDao;
+    private Category other;
+    private Category transfer;
 
     @Inject
-    public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao, Dao<Wallet, Long> walletDao) {
+    public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao, Dao<Wallet, Long> walletDao, Dao<Category, Long> categoryDao) {
         this.cashFlowDao = cashFlowDao;
         this.walletDao = walletDao;
+        this.categoryDao = categoryDao;
     }
 
     @Override
@@ -140,4 +145,27 @@ public class LocalCashFlowService implements CashFlowService {
             throw new DatabaseException(e);
         }
     }
+
+    @Override
+    public Category getOtherCategory() {
+        try {
+            if (other == null) {
+                other = categoryDao.queryBuilder().where().eq("type", Category.Type.OTHER).queryForFirst();
+            }
+            return other;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public Category getTransferCategory() {
+        try {
+            if (transfer == null) {
+                transfer = categoryDao.queryBuilder().where().eq("type", Category.Type.TRANSFER).queryForFirst();
+            }
+            return transfer;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }    }
 }

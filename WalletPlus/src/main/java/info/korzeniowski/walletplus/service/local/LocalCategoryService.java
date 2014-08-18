@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.service.local;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.local.validation.CategoryValidator;
 import info.korzeniowski.walletplus.model.Category;
@@ -156,9 +158,15 @@ public class LocalCategoryService implements CategoryService {
     @Override
     public void deleteByIdWithSubcategories(Long id) {
         try {
-            categoryValidator.validateDelete(id);
+            try {
+                categoryValidator.validateDelete(id);
+            } catch (CategoryHaveSubsException e) {
+                // Here we want to delete category with subs
+            }
             Category main = findById(id);
-            categoryDao.deleteBuilder().where().eq("parent", main).query();
+            DeleteBuilder builder = categoryDao.deleteBuilder();
+            builder.where().eq("parent_id", main.getId());
+            builder.delete();
             categoryDao.delete(main);
         } catch (SQLException e) {
             throw new DatabaseException(e);
