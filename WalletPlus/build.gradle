@@ -111,7 +111,7 @@ dependencies {
     }
 
     //AssertJ Android
-    androidTestCompile 'com.squareup.assertj:assertj-android:1.0.0-SNAPSHOT'
+    androidTestCompile 'com.squareup.assertj:assertj-android:1.0.+'
 }
 
 apply plugin: "jacoco"
