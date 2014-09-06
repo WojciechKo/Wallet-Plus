@@ -89,7 +89,7 @@ public class Wallet implements Identityable, Parcelable {
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Wallet)) return false;
 
         Wallet wallet = (Wallet) o;
 

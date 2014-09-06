@@ -102,7 +102,7 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Category)) return false;
 
         Category category = (Category) o;
 
