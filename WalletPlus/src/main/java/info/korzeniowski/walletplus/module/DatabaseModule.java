@@ -24,8 +24,11 @@ import info.korzeniowski.walletplus.service.local.DatabaseHelper;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
+import info.korzeniowski.walletplus.ui.cashflow.CashFlowExpanseDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.CashFlowIncomeDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.CashFlowListFragment;
 import info.korzeniowski.walletplus.ui.cashflow.CashFlowBaseDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.CashFlowTransferDetailsFragment;
 import info.korzeniowski.walletplus.ui.category.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.ui.category.CategoryListFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
@@ -45,6 +48,9 @@ import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
                 CategoryListFragment.class,
 
                 CashFlowBaseDetailsFragment.class,
+                CashFlowIncomeDetailsFragment.class,
+                CashFlowTransferDetailsFragment.class,
+                CashFlowExpanseDetailsFragment.class,
                 CashFlowListFragment.class,
 
                 WalletDetailsFragment.class,
@@ -66,26 +72,6 @@ public class DatabaseModule {
         }
         return databaseHelper;
     }
-
-//    /****************
-//     * ACCOUNT
-//     ***************/
-//    @Provides
-//    public Dao<Account, Long> provideAccountDao() {
-//        try {
-//            return databaseHelper.getAccountDao();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//    @Provides
-//    @Named("local")
-//    @Singleton
-//    public AccountDataManager provideAccountDataManager(LocalAccountDataManager localAccountDataManager) {
-//        return localAccountDataManager;
-//    }
 
     /**
      * *************

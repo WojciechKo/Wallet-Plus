@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import com.astuetz.PagerSlidingTabStrip;
 import com.google.common.collect.Lists;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -94,6 +96,7 @@ public class CashFlowDetailsFragment extends Fragment {
 
     public class CashFlowPagerAdapter extends FragmentPagerAdapter {
         private List<CashFlowBaseDetailsFragment> fragmentList;
+        private String[] titles = {"income", "transfer", "expanse"};
         private CashFlowDetailsParcelableState state;
 
         public CashFlowPagerAdapter(FragmentManager fm, long id) {
@@ -112,7 +115,7 @@ public class CashFlowDetailsFragment extends Fragment {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return fragmentList.get(position).getCashFlowType().toString();
+            return titles[position];
         }
 
         @Override

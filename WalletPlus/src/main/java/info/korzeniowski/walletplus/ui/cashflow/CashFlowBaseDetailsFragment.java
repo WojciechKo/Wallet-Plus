@@ -56,7 +56,7 @@ import info.korzeniowski.walletplus.ui.category.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 
-public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowDetailsChangedListener {
+public abstract class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowDetailsChangedListener {
     public static final String CASH_FLOW_DETAILS_STATE = "cashFlowDetailsState";
 
     private enum DetailsMode {ADD, EDIT}
@@ -97,25 +97,24 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
     @Inject @Named("amount")
     NumberFormat amountFormat;
 
-    private CashFlow.Type cashFlowType;
     private DetailsMode detailsMode;
     protected List<Wallet> fromWalletList;
     protected List<Wallet> toWalletList;
-    private List<Category> categoryList;
-    private CashFlowDetailsParcelableState cashFlowDetailsState;
-    private OnCashFlowDetailsChangedListener onCashFlowDetailsChangedListener;
-
-    public void setCashFlowType(CashFlow.Type cashFlowType) {
-        this.cashFlowType = cashFlowType;
-    }
-
-    public CashFlow.Type getCashFlowType() {
-        return cashFlowType;
-    }
+    protected List<Category> categoryList;
+    protected CashFlowDetailsParcelableState cashFlowDetailsState;
+    protected OnCashFlowDetailsChangedListener onCashFlowDetailsChangedListener;
 
     public static CashFlowBaseDetailsFragment newInstance(CashFlow.Type type, Parcelable state) {
-        CashFlowBaseDetailsFragment fragment = new CashFlowBaseDetailsFragment();
-        fragment.setCashFlowType(type);
+        CashFlowBaseDetailsFragment fragment;
+        if (type == CashFlow.Type.EXPANSE) {
+            fragment = new CashFlowExpanseDetailsFragment();
+        } else if (type == CashFlow.Type.INCOME) {
+            fragment = new CashFlowIncomeDetailsFragment();
+        } else if (type == CashFlow.Type.TRANSFER) {
+            fragment = new CashFlowTransferDetailsFragment();
+        } else {
+            throw new RuntimeException("Unexpected cashflow type:" + type);
+        }
         Bundle bundle = new Bundle();
         bundle.putParcelable(CASH_FLOW_DETAILS_STATE, state);
         fragment.setArguments(bundle);
@@ -161,14 +160,7 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
         }
     }
 
-    private Wallet getFromWalletFromState() {
-        if (cashFlowType == CashFlow.Type.INCOME) {
-            return cashFlowDetailsState.getIncomeFromWallet();
-        } else if (cashFlowType == CashFlow.Type.EXPANSE || cashFlowType == CashFlow.Type.TRANSFER) {
-            return cashFlowDetailsState.getExpanseFromWallet();
-        }
-        return null;
-    }
+    abstract Wallet getFromWalletFromState();
 
     @Override
     public void onToWalletChanged() {
@@ -177,15 +169,7 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
             ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
         }
     }
-
-    private Wallet getToWalletFromState() {
-        if (cashFlowType == CashFlow.Type.INCOME || cashFlowType == CashFlow.Type.TRANSFER) {
-            return cashFlowDetailsState.getIncomeToWallet();
-        } else if (cashFlowType == CashFlow.Type.EXPANSE) {
-            return cashFlowDetailsState.getExpanseToWallet();
-        }
-        return null;
-    }
+    abstract Wallet getToWalletFromState();
 
     @Override
     public void onDateChanged() {
@@ -213,37 +197,13 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
         setHasOptionsMenu(true);
     }
 
-    private void initState(CashFlowDetailsParcelableState cashFlowDetailsState) {
-        if (cashFlowDetailsState.isInit()) {
-            return;
-        } else if (cashFlowDetailsState.getId() == 0) {
+    protected void initState(CashFlowDetailsParcelableState cashFlowDetailsState) {
+        if (!cashFlowDetailsState.isInit() && cashFlowDetailsState.getId() == 0) {
             cashFlowDetailsState.setDate(Calendar.getInstance().getTimeInMillis());
             cashFlowDetailsState.setIncomeCategory(localCashFlowService.getOtherCategory());
             cashFlowDetailsState.setExpanseCategory(localCashFlowService.getOtherCategory());
-        } else {
-            CashFlow cashFlow = localCashFlowService.findById(cashFlowDetailsState.getId());
-            cashFlowDetailsState.setAmount(cashFlow.getAmount());
-            cashFlowDetailsState.setComment(cashFlow.getComment());
-            cashFlowDetailsState.setDate(cashFlow.getDateTime().getTime());
-
-            if (cashFlow.isIncome()) {
-                cashFlowDetailsState.setIncomeCategory(cashFlow.getCategory());
-                cashFlowDetailsState.setExpanseCategory(localCashFlowService.getOtherCategory());
-                cashFlowDetailsState.setIncomeFromWallet(cashFlow.getFromWallet());
-                cashFlowDetailsState.setIncomeToWallet(cashFlow.getToWallet());
-            } else if (cashFlow.isExpanse()) {
-                cashFlowDetailsState.setIncomeCategory(localCashFlowService.getOtherCategory());
-                cashFlowDetailsState.setExpanseCategory(cashFlow.getCategory());
-                cashFlowDetailsState.setExpanseFromWallet(cashFlow.getFromWallet());
-                cashFlowDetailsState.setExpanseToWallet(cashFlow.getToWallet());
-            } else if (cashFlow.isTransfer()) {
-                cashFlowDetailsState.setIncomeCategory(localCashFlowService.getOtherCategory());
-                cashFlowDetailsState.setExpanseCategory(localCashFlowService.getOtherCategory());
-                cashFlowDetailsState.setExpanseFromWallet(cashFlow.getFromWallet());
-                cashFlowDetailsState.setIncomeToWallet(cashFlow.getToWallet());
-            }
+            cashFlowDetailsState.setInit(true);
         }
-        cashFlowDetailsState.setInit(true);
     }
 
     @Override
@@ -285,49 +245,20 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
         ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
         setDatePickerButtonTextFromState();
         setTimePickerButtonTextFromState();
-        if (cashFlowType == CashFlow.Type.TRANSFER) {
-            category.setVisibility(View.GONE);
-        }
     }
 
     private String getCategoryText(Category category) {
-        if (category.getParent() == null) {
+        if (category == null) {
+            return "";
+        } else if (category.getParent() == null) {
             return category.getName();
         }
         return category.getName() + " (" + category.getParent().getName() + ")";
     }
 
-    private Category getCategoryFromState() {
-        if (cashFlowType == CashFlow.Type.INCOME) {
-            return cashFlowDetailsState.getIncomeCategory();
-        } else if (cashFlowType == CashFlow.Type.EXPANSE) {
-            return cashFlowDetailsState.getExpanseCategory();
-        } else if (cashFlowType == CashFlow.Type.TRANSFER) {
-            return localCashFlowService.getTransferCategory();
-        }
-        return localCashFlowService.getOtherCategory();
-    }
-
-    protected void fillWalletLists() {
-        if (cashFlowType == CashFlow.Type.INCOME) {
-            fromWalletList.addAll(localWalletService.getContractors());
-            toWalletList.addAll(localWalletService.getMyWallets());
-        } else if (cashFlowType == CashFlow.Type.EXPANSE) {
-            fromWalletList.addAll(localWalletService.getMyWallets());
-            toWalletList.addAll(localWalletService.getContractors());
-        } else if (cashFlowType == CashFlow.Type.TRANSFER) {
-            fromWalletList.addAll(localWalletService.getMyWallets());
-            toWalletList.addAll(localWalletService.getMyWallets());
-        }
-    }
-
-    private void fillCategoryList() {
-        if (cashFlowType == CashFlow.Type.INCOME) {
-            categoryList.addAll(localCategoryService.getMainIncomeTypeCategories());
-        } else if (cashFlowType == CashFlow.Type.EXPANSE) {
-            categoryList.addAll(localCategoryService.getMainExpenseTypeCategories());
-        }
-    }
+    abstract Category getCategoryFromState();
+    abstract void fillWalletLists();
+    abstract void fillCategoryList();
 
     @Override
     public void onDestroy() {
@@ -336,26 +267,10 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
     }
 
     @OnItemSelected(R.id.fromWallet)
-    void onFromWalletItemSelected(int position) {
-        Wallet selected = (Wallet) fromWallet.getItemAtPosition(position);
-        if (cashFlowType == CashFlow.Type.INCOME) {
-            cashFlowDetailsState.setIncomeFromWallet(selected);
-        } else if (cashFlowType == CashFlow.Type.EXPANSE || cashFlowType == CashFlow.Type.TRANSFER) {
-            cashFlowDetailsState.setExpanseFromWallet(selected);
-        }
-        onCashFlowDetailsChangedListener.onFromWalletChanged();
-    }
+    abstract void onFromWalletItemSelected(int position);
 
     @OnItemSelected(R.id.toWallet)
-    void onToWalletItemSelected(int position) {
-        Wallet selected = (Wallet) toWallet.getItemAtPosition(position);
-        if (cashFlowType == CashFlow.Type.INCOME || cashFlowType == CashFlow.Type.TRANSFER) {
-            cashFlowDetailsState.setIncomeToWallet(selected);
-        } else if (cashFlowType == CashFlow.Type.EXPANSE) {
-            cashFlowDetailsState.setExpanseToWallet(selected);
-        }
-        onCashFlowDetailsChangedListener.onToWalletChanged();
-    }
+    abstract void onToWalletItemSelected(int position);
 
     @OnTextChanged(value = R.id.amount, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     void onAmountAfterTextChanged(Editable s) {
@@ -391,7 +306,7 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
     }
 
     @OnClick(R.id.category)
-    public void onClickCategory() {
+    public void onCategoryClick() {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.category_list, null);
         ExpandableListView expandableListView = (ExpandableListView) view.findViewById(R.id.superList);
 
@@ -403,12 +318,7 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
         expandableListView.setAdapter(new CategoryExpandableListAdapter(getActivity(), categoryList, new OnContentClickListener() {
             @Override
             public void onContentClick(Long id) {
-                Category category = localCategoryService.findById(id);
-                if (cashFlowType == CashFlow.Type.INCOME) {
-                    cashFlowDetailsState.setIncomeCategory(category);
-                } else if (cashFlowType == CashFlow.Type.EXPANSE) {
-                    cashFlowDetailsState.setExpanseCategory(category);
-                }
+                storeSelectedCategoryInState(localCategoryService.findById(id));
                 onCashFlowDetailsChangedListener.onCategoryChanged();
                 alertDialog.dismiss();
             }
@@ -417,18 +327,13 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
         alertDialog.show();
     }
 
+    abstract void storeSelectedCategoryInState(Category category);
+
     @OnClick(R.id.removeCategory)
-    public void onClickRemoveCategory() {
-        if (cashFlowType == CashFlow.Type.INCOME) {
-            cashFlowDetailsState.setIncomeCategory(localCashFlowService.getOtherCategory());
-        } else if (cashFlowType == CashFlow.Type.EXPANSE) {
-            cashFlowDetailsState.setExpanseCategory(localCashFlowService.getOtherCategory());
-        }
-        onCashFlowDetailsChangedListener.onCategoryChanged();
-    }
+    abstract void onRemoveCategoryClick();
 
     @OnClick(R.id.datePicker)
-    public void onClickDatePicker() {
+    public void onDatePickerClick() {
         final Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(cashFlowDetailsState.getDate());
         new DatePickerDialog(
@@ -450,7 +355,7 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
     }
 
     @OnClick(R.id.timePicker)
-    public void onClickTimePicker() {
+    public void onTimePickerClick() {
         final Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(cashFlowDetailsState.getDate());
 
@@ -490,7 +395,7 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
         if (super.onOptionsItemSelected(item)) {
             return true;
         }
-        if (item.getItemId() == info.korzeniowski.walletplus.R.id.menu_save) {
+        if (item.getItemId() == R.id.menu_save) {
             actionSave();
             return true;
         }
@@ -525,24 +430,19 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
     }
 
     private boolean tryInsert() {
-        CashFlow cashFlow = new CashFlow(cashFlowDetailsState, cashFlowType);
-        if (cashFlowType == CashFlow.Type.TRANSFER) {
-            cashFlow.setCategory(localCashFlowService.getTransferCategory());
-        }
-        localCashFlowService.insert(cashFlow);
+        localCashFlowService.insert(getCashFlowFromState());
         return true;
     }
 
     private boolean tryUpdate() {
-        CashFlow cashFlow = new CashFlow(cashFlowDetailsState, cashFlowType);
-        if (cashFlowType == CashFlow.Type.TRANSFER) {
-            cashFlow.setCategory(localCashFlowService.getTransferCategory());
-        }
-        localCashFlowService.update(cashFlow);
+        localCashFlowService.update(getCashFlowFromState());
         return true;
     }
 
-    private class WalletAdapter extends BaseAdapter {
+    abstract CashFlow getCashFlowFromState();
+
+
+    public static class WalletAdapter extends BaseAdapter {
         List<Wallet> wallets;
         Context context;
 
@@ -571,7 +471,7 @@ public class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowD
             TextView textView;
             if (convertView == null) {
                 textView = new TextView(context);
-                textView.setTextSize(getResources().getDimension(R.dimen.smallFontSize));
+                textView.setTextSize(context.getResources().getDimension(R.dimen.smallFontSize));
             } else {
                 textView = (TextView) convertView;
             }
