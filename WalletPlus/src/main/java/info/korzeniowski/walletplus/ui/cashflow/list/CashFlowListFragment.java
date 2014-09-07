@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.cashflow;
+package info.korzeniowski.walletplus.ui.cashflow.list;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,6 +23,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsMainFragment;
 import info.korzeniowski.walletplus.widget.IdentityableMultiChoiceModeListener;
 
 /**
@@ -86,10 +87,10 @@ public class CashFlowListFragment extends Fragment {
     }
 
     private void startCashFlowDetailsFragment(Long id) {
-        Fragment fragment = new CashFlowDetailsFragment();
+        Fragment fragment = new CashFlowDetailsMainFragment();
         Bundle bundle = new Bundle();
-        bundle.putLong(CashFlowDetailsFragment.CASH_FLOW_ID, id);
+        bundle.putLong(CashFlowDetailsMainFragment.CASH_FLOW_ID, id);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true, CashFlowDetailsFragment.TAG);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true, CashFlowDetailsMainFragment.TAG);
     }
 }

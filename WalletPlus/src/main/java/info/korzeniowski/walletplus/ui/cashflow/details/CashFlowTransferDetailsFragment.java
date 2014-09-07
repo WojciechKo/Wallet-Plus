@@ -1,12 +1,16 @@
-package info.korzeniowski.walletplus.ui.cashflow;
+package info.korzeniowski.walletplus.ui.cashflow.details;
 
-import android.widget.Toast;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
 
-public class CashFlowExpanseDetailsFragment extends CashFlowBaseDetailsFragment {
+public class CashFlowTransferDetailsFragment extends CashFlowBaseDetailsFragment {
 
     @Override
     Wallet getFromWalletFromState() {
@@ -15,28 +19,30 @@ public class CashFlowExpanseDetailsFragment extends CashFlowBaseDetailsFragment 
 
     @Override
     Wallet getToWalletFromState() {
-        return cashFlowDetailsState.getExpanseToWallet();
+        return cashFlowDetailsState.getIncomeToWallet();
     }
 
     @Override
     Category getCategoryFromState() {
-        return cashFlowDetailsState.getExpanseCategory();
+        return localCashFlowService.getTransferCategory();
     }
 
     @Override
     void fillWalletLists() {
         fromWalletList.addAll(localWalletService.getMyWallets());
-        toWalletList.addAll(localWalletService.getContractors());
+        toWalletList.addAll(localWalletService.getMyWallets());
     }
 
     @Override
     void fillCategoryList() {
-        categoryList.addAll(localCategoryService.getMainExpenseTypeCategories());
+        return;
     }
 
     @Override
     CashFlow getCashFlowFromState() {
-        return new CashFlow(cashFlowDetailsState, CashFlow.Type.EXPANSE);
+        CashFlow cashFlow = new CashFlow(cashFlowDetailsState, CashFlow.Type.TRANSFER);
+        cashFlow.setCategory(localCashFlowService.getTransferCategory());
+        return cashFlow;
     }
 
     @Override
@@ -49,19 +55,18 @@ public class CashFlowExpanseDetailsFragment extends CashFlowBaseDetailsFragment 
     @Override
     void onToWalletItemSelected(int position) {
         Wallet selected = (Wallet) toWallet.getItemAtPosition(position);
-        cashFlowDetailsState.setExpanseToWallet(selected);
+        cashFlowDetailsState.setIncomeToWallet(selected);
         onCashFlowDetailsChangedListener.onToWalletChanged();
     }
 
     @Override
     void storeSelectedCategoryInState(Category category) {
-        cashFlowDetailsState.setExpanseCategory(category);
+        return;
     }
 
     @Override
     void onRemoveCategoryClick() {
-        cashFlowDetailsState.setExpanseCategory(localCashFlowService.getOtherCategory());
-        onCashFlowDetailsChangedListener.onCategoryChanged();
+        return;
     }
 
     @Override
@@ -74,10 +79,17 @@ public class CashFlowExpanseDetailsFragment extends CashFlowBaseDetailsFragment 
             cashFlowDetailsState.setDate(cashFlow.getDateTime().getTime());
 
             cashFlowDetailsState.setIncomeCategory(localCashFlowService.getOtherCategory());
-            cashFlowDetailsState.setExpanseCategory(cashFlow.getCategory());
+            cashFlowDetailsState.setExpanseCategory(localCashFlowService.getOtherCategory());
             cashFlowDetailsState.setExpanseFromWallet(cashFlow.getFromWallet());
-            cashFlowDetailsState.setExpanseToWallet(cashFlow.getToWallet());
+            cashFlowDetailsState.setIncomeToWallet(cashFlow.getToWallet());
             cashFlowDetailsState.setInit(true);
         }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        category.setVisibility(View.GONE);
+        return view;
     }
 }

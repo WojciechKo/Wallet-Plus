@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.cashflow;
+package info.korzeniowski.walletplus.ui.cashflow.details;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,8 +16,6 @@ import android.view.ViewGroup;
 import com.astuetz.PagerSlidingTabStrip;
 import com.google.common.collect.Lists;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -27,7 +25,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.ui.category.CategoryDetailsFragment;
 
-public class CashFlowDetailsFragment extends Fragment {
+public class CashFlowDetailsMainFragment extends Fragment {
     static final public String TAG = "CashFlowDetailsFragment";
     static final public String CASH_FLOW_ID = "CASH_FLOW_ID";
 
@@ -53,7 +51,7 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     public void setupViews() {
-        Long cashFlowId = getArguments().getLong(CashFlowDetailsFragment.CASH_FLOW_ID);
+        Long cashFlowId = getArguments().getLong(CashFlowDetailsMainFragment.CASH_FLOW_ID);
         pager.setAdapter(new CashFlowPagerAdapter(getChildFragmentManager(), cashFlowId));
         tabs.setViewPager(pager);
         tabs.setTextColorResource(R.color.black);

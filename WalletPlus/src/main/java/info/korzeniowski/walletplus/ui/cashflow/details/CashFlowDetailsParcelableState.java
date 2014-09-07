@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.cashflow;
+package info.korzeniowski.walletplus.ui.cashflow.details;
 
 import android.os.Parcel;
 import android.os.Parcelable;

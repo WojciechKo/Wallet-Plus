@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.cashflow;
+package info.korzeniowski.walletplus.ui.cashflow.details;
 
 import android.app.Activity;
 import android.app.AlertDialog;

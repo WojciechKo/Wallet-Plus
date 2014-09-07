@@ -4,7 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 
 import java.util.Date;
 
-import info.korzeniowski.walletplus.ui.cashflow.CashFlowDetailsParcelableState;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsParcelableState;
 
 public class CashFlow implements Identityable {
 

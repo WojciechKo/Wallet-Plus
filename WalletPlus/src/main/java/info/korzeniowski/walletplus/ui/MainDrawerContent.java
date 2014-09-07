@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import info.korzeniowski.walletplus.R;
-import info.korzeniowski.walletplus.ui.cashflow.CashFlowListFragment;
+import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
 import info.korzeniowski.walletplus.ui.category.CategoryFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
 import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
