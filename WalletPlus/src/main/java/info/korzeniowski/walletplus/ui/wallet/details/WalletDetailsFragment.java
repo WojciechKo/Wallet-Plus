@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.wallet;
+package info.korzeniowski.walletplus.ui.wallet.details;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -32,10 +32,9 @@ import info.korzeniowski.walletplus.service.exception.WalletNameAndTypeMustBeUni
 
 public class WalletDetailsFragment extends Fragment {
     public static final String TAG = "walletDetails";
+    public static final String WALLET_ID = "WALLET_ID";
 
     private enum DetailsType {ADD, EDIT}
-
-    static final String WALLET_ID = "WALLET_ID";
 
     @InjectView(R.id.walletName)
     TextView walletName;

@@ -32,8 +32,8 @@ import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowTransferDetailsF
 import info.korzeniowski.walletplus.ui.category.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.ui.category.CategoryListFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
-import info.korzeniowski.walletplus.ui.wallet.WalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
+import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
 
 /**
  * Module for Database objects.

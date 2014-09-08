@@ -12,7 +12,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
 import info.korzeniowski.walletplus.ui.category.CategoryFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
-import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
+import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
 
 /**
  * Content of Main Drawer Menu.

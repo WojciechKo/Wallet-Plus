@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.wallet;
+package info.korzeniowski.walletplus.ui.wallet.list;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,6 +21,7 @@ import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
 
 public class WalletListFragment extends Fragment {
     public static final String TAG = "walletList";
