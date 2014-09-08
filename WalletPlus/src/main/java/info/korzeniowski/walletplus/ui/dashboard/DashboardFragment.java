@@ -30,8 +30,7 @@ public class DashboardFragment extends Fragment {
     @InjectView(R.id.totalAmount)
     TextView totalAmount;
 
-    @Inject
-    @Named("local")
+    @Inject @Named("local")
     WalletService localWalletService;
 
     @Override
