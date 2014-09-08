@@ -2,6 +2,8 @@ package info.korzeniowski.walletplus.module;
 
 import android.content.Context;
 
+import com.squareup.otto.Bus;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -46,5 +48,11 @@ public class MainModule {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setDecimalSeparator('.');
         return new DecimalFormat("0.00", symbols);
+    }
+
+    @Provides
+    @Singleton
+    Bus provideBus() {
+        return new Bus();
     }
 }

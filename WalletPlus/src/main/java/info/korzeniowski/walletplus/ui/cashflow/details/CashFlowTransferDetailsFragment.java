@@ -49,14 +49,16 @@ public class CashFlowTransferDetailsFragment extends CashFlowBaseDetailsFragment
     void onFromWalletItemSelected(int position) {
         Wallet selected = (Wallet) fromWallet.getItemAtPosition(position);
         cashFlowDetailsState.setExpanseFromWallet(selected);
-        onCashFlowDetailsChangedListener.onFromWalletChanged();
+        bus.post(new CashFlowDetailsEvent.FromWalletChanged());
+//        onCashFlowDetailsChangedListener.onFromWalletChanged();
     }
 
     @Override
     void onToWalletItemSelected(int position) {
         Wallet selected = (Wallet) toWallet.getItemAtPosition(position);
         cashFlowDetailsState.setIncomeToWallet(selected);
-        onCashFlowDetailsChangedListener.onToWalletChanged();
+        bus.post(new CashFlowDetailsEvent.ToWalletChanged());
+//        onCashFlowDetailsChangedListener.onToWalletChanged();
     }
 
     @Override

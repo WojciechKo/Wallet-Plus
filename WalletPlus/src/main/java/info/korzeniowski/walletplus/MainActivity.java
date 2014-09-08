@@ -1,8 +1,10 @@
 package info.korzeniowski.walletplus;
 
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,19 +19,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.google.common.collect.Lists;
-
-import java.util.List;
-
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.ui.DrawerListAdapter;
 import info.korzeniowski.walletplus.ui.MainDrawerItem;
-import info.korzeniowski.walletplus.ui.cashflow.details.OnCashFlowDetailsChangedListener;
 
-public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener, OnCashFlowDetailsChangedListener {
+public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
 
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
@@ -40,24 +37,32 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     @Inject
     DrawerListAdapter drawerListAdapter;
 
+    //    private List<OnCashFlowDetailsChangedListener> cashFlowDetailsChangedListeners = Lists.newArrayList();
     private ActionBarDrawerToggle drawerToggle;
-    private CharSequence appName;
-    private CharSequence fragmentTitle;
-    List<OnCashFlowDetailsChangedListener> cashFlowDetailsChangedListeners;
+    private MainActivityParcelableState state;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        ((WalletPlus) getApplication()).inject(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ((WalletPlus) getApplication()).inject(this);
         ButterKnife.inject(this);
-        cashFlowDetailsChangedListeners = Lists.newArrayList();
+        restoreOrInitState(savedInstanceState);
         setupViews();
     }
 
-    void setupViews() {
-        initMemberVariables();
+    private void restoreOrInitState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            state = savedInstanceState.getParcelable(MainActivityParcelableState.TAG);
+        } else {
+            state = new MainActivityParcelableState();
+            state.setAppName(getString(R.string.appName));
+            state.setSelectedDrawerPosition(0);
+        }
+        drawerToggle = new MainActivityDrawerToggle(this);
+    }
 
+    void setupViews() {
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         drawerLayout.setDrawerListener(drawerToggle);
 
@@ -67,14 +72,28 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
-        drawerItemClicked(0);
+        if (state.getFragmentTag() != null) {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            Fragment lastFragment = getSupportFragmentManager().findFragmentByTag(state.getFragmentTag());
+            fragmentTransaction.replace(R.id.content_frame, lastFragment, state.getFragmentTag());
+            fragmentTransaction.commit();
+        } else {
+            drawerItemClicked(state.getSelectedDrawerPosition());
+        }
 
         drawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                state.setSelectedDrawerPosition(position);
                 drawerItemClicked(position);
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(MainActivityParcelableState.TAG, state);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -118,7 +137,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
+    public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_MENU) {
             toggleDrawer();
             return true;
@@ -128,9 +147,10 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
     void drawerItemClicked(int position) {
         MainDrawerItem selectedMainDrawerItem = (MainDrawerItem) drawer.getAdapter().getItem(position);
-        setContentFragment(selectedMainDrawerItem.getFragment(), false);
+        setContentFragment(selectedMainDrawerItem.getFragment(), false, selectedMainDrawerItem.getTag());
         drawer.setItemChecked(position, true);
-        fragmentTitle = selectedMainDrawerItem.getTitle();
+        state.setSelectedFragmentTitle(selectedMainDrawerItem.getTitle());
+        state.setFragmentTag(selectedMainDrawerItem.getTag());
         drawerLayout.closeDrawer(drawer);
     }
 
@@ -141,37 +161,13 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     public void setContentFragment(Fragment fragment, Boolean addToBackStack, String tag) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.content_frame, fragment, tag);
+        state.setFragmentTag(tag);
         if (addToBackStack) {
             fragmentTransaction.addToBackStack(null);
         } else {
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
         fragmentTransaction.commit();
-    }
-
-    private void initMemberVariables() {
-        appName = getString(R.string.appName);
-        drawerToggle = new ActionBarDrawerToggle(
-                this,
-                drawerLayout,
-                R.drawable.ic_drawer,
-                R.string.main_drawer_open,
-                R.string.main_drawer_close) {
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                setTitle(appName);
-                super.onDrawerOpened(drawerView);
-                invalidateOptionsMenu();
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                setTitle(fragmentTitle);
-                super.onDrawerClosed(drawerView);
-                invalidateOptionsMenu();
-            }
-        };
     }
 
     private void toggleDrawer() {
@@ -204,67 +200,92 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     @Override
     protected void onDestroy() {
         getSupportFragmentManager().removeOnBackStackChangedListener(this);
+        drawerToggle = null;
         super.onDestroy();
     }
+//
+//    @Override
+//    public void onFromWalletChanged() {
+//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+//            listener.onFromWalletChanged();
+//        }
+//    }
+//
+//    @Override
+//    public void onToWalletChanged() {
+//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+//            listener.onToWalletChanged();
+//        }
+//    }
+//
+//    @Override
+//    public void onAmountChanged() {
+//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+//            listener.onAmountChanged();
+//        }
+//    }
+//
+//    @Override
+//    public void onCommentChanged() {
+//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+//            listener.onCommentChanged();
+//        }
+//    }
+//
+//    @Override
+//    public void onCategoryChanged() {
+//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+//            listener.onCategoryChanged();
+//        }
+//    }
+//
+//    @Override
+//    public void onDateChanged() {
+//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+//            listener.onDateChanged();
+//        }
+//    }
+//
+//    @Override
+//    public void onTimeChanged() {
+//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+//            listener.onTimeChanged();
+//        }
+//    }
+//
+//    private List<OnCashFlowDetailsChangedListener> getCashFlowDetailsChangedListeners() {
+//        return cashFlowDetailsChangedListeners;
+//    }
+//
+//    public void addOnCashFlowDetailsChangedListener(OnCashFlowDetailsChangedListener listener) {
+//        cashFlowDetailsChangedListeners.add(listener);
+//    }
+//
+//    public void removeOnCashFlowDetailsChangedListeners(OnCashFlowDetailsChangedListener listener) {
+//        cashFlowDetailsChangedListeners.remove(listener);
+//    }
 
-    @Override
-    public void onFromWalletChanged() {
-        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-            listener.onFromWalletChanged();
+    private class MainActivityDrawerToggle extends ActionBarDrawerToggle {
+        MainActivityDrawerToggle(Activity activity) {
+            super(activity,
+                    drawerLayout,
+                    R.drawable.ic_drawer,
+                    R.string.main_drawer_open,
+                    R.string.main_drawer_close);
         }
-    }
 
-    @Override
-    public void onToWalletChanged() {
-        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-            listener.onToWalletChanged();
+        @Override
+        public void onDrawerOpened(View drawerView) {
+            setTitle(state.getAppName());
+            super.onDrawerOpened(drawerView);
+            invalidateOptionsMenu();
         }
-    }
 
-    @Override
-    public void onAmountChanged() {
-        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-            listener.onAmountChanged();
+        @Override
+        public void onDrawerClosed(View drawerView) {
+            setTitle(state.getSelectedFragmentTitle());
+            super.onDrawerClosed(drawerView);
+            invalidateOptionsMenu();
         }
-    }
-
-    @Override
-    public void onCommentChanged() {
-        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-            listener.onCommentChanged();
-        }
-    }
-
-    @Override
-    public void onCategoryChanged() {
-        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-            listener.onCategoryChanged();
-        }
-    }
-
-    @Override
-    public void onDateChanged() {
-        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-            listener.onDateChanged();
-        }
-    }
-
-    @Override
-    public void onTimeChanged() {
-        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-            listener.onTimeChanged();
-        }
-    }
-
-    private List<OnCashFlowDetailsChangedListener> getCashFlowDetailsChangedListeners() {
-        return cashFlowDetailsChangedListeners;
-    }
-
-    public void addOnCashFlowDetailsChangedListener(OnCashFlowDetailsChangedListener listener) {
-        cashFlowDetailsChangedListeners.add(listener);
-    }
-
-    public void removeOnCashFlowDetailsChangedListeners(OnCashFlowDetailsChangedListener listener) {
-        cashFlowDetailsChangedListeners.remove(listener);
     }
 }

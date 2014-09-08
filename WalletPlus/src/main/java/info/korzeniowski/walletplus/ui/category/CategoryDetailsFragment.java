@@ -38,9 +38,10 @@ import info.korzeniowski.walletplus.service.exception.CategoryNameMustBeUniqueEx
 import info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton;
 
 public class CategoryDetailsFragment extends Fragment {
-    private enum DetailsType {ADD, EDIT}
+    public static final String TAG = "categoryDetails";
+    public static final String CATEGORY_ID = "CATEGORY_ID";
 
-    static final public String CATEGORY_ID = "CATEGORY_ID";
+    private enum DetailsType {ADD, EDIT}
 
     @InjectView(R.id.categoryNameLabel)
     TextView categoryNameLabel;

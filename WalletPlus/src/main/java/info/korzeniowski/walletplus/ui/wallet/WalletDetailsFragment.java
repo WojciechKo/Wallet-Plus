@@ -31,6 +31,8 @@ import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.WalletNameAndTypeMustBeUniqueException;
 
 public class WalletDetailsFragment extends Fragment {
+    public static final String TAG = "walletDetails";
+
     private enum DetailsType {ADD, EDIT}
 
     static final String WALLET_ID = "WALLET_ID";

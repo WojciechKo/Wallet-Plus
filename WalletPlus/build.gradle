@@ -74,6 +74,9 @@ dependencies {
     apt "com.squareup.dagger:dagger-compiler:$daggerVersion"
     compile "com.squareup.dagger:dagger:$daggerVersion"
 
+    // Otto
+    compile "com.squareup:otto:1.3.5"
+
     // Guava
     compile "com.google.guava:guava:17.0"
 

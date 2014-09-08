@@ -27,6 +27,7 @@ import info.korzeniowski.walletplus.widget.OnContentClickListener;
  */
 
 public class CategoryListFragment extends Fragment {
+    public static final String TAG = "categoryList";
     public static final String CATEGORY_TYPE = "categoryType";
     public static final int ONLY_INCOME = 1;
     public static final int ONLY_EXPENSE = ONLY_INCOME + 1;
@@ -82,7 +83,7 @@ public class CategoryListFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, id);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true, CategoryDetailsFragment.TAG);
     }
 
     private List<Category> getCategoryList(int type) {

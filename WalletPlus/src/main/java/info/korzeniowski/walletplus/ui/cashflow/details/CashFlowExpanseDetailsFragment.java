@@ -5,7 +5,6 @@ import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
 
 public class CashFlowExpanseDetailsFragment extends CashFlowBaseDetailsFragment {
-
     @Override
     Wallet getFromWalletFromState() {
         return cashFlowDetailsState.getExpanseFromWallet();
@@ -41,14 +40,16 @@ public class CashFlowExpanseDetailsFragment extends CashFlowBaseDetailsFragment 
     void onFromWalletItemSelected(int position) {
         Wallet selected = (Wallet) fromWallet.getItemAtPosition(position);
         cashFlowDetailsState.setExpanseFromWallet(selected);
-        onCashFlowDetailsChangedListener.onFromWalletChanged();
+//        onCashFlowDetailsChangedListener.onFromWalletChanged();
+        bus.post(new CashFlowDetailsEvent());
     }
 
     @Override
     void onToWalletItemSelected(int position) {
         Wallet selected = (Wallet) toWallet.getItemAtPosition(position);
         cashFlowDetailsState.setExpanseToWallet(selected);
-        onCashFlowDetailsChangedListener.onToWalletChanged();
+//        onCashFlowDetailsChangedListener.onToWalletChanged();
+        bus.post(new CashFlowDetailsEvent());
     }
 
     @Override
@@ -59,23 +60,29 @@ public class CashFlowExpanseDetailsFragment extends CashFlowBaseDetailsFragment 
     @Override
     void onRemoveCategoryClick() {
         cashFlowDetailsState.setExpanseCategory(localCashFlowService.getOtherCategory());
-        onCashFlowDetailsChangedListener.onCategoryChanged();
+//        onCashFlowDetailsChangedListener.onCategoryChanged();
+        bus.post(new CashFlowDetailsEvent());
     }
 
     @Override
     protected void initState(CashFlowDetailsParcelableState cashFlowDetailsState) {
         super.initState(cashFlowDetailsState);
         if (!cashFlowDetailsState.isInit()) {
-            CashFlow cashFlow = localCashFlowService.findById(cashFlowDetailsState.getId());
-            cashFlowDetailsState.setAmount(cashFlow.getAmount());
-            cashFlowDetailsState.setComment(cashFlow.getComment());
-            cashFlowDetailsState.setDate(cashFlow.getDateTime().getTime());
-
-            cashFlowDetailsState.setIncomeCategory(localCashFlowService.getOtherCategory());
-            cashFlowDetailsState.setExpanseCategory(cashFlow.getCategory());
-            cashFlowDetailsState.setExpanseFromWallet(cashFlow.getFromWallet());
-            cashFlowDetailsState.setExpanseToWallet(cashFlow.getToWallet());
+            initStateFromDatabase();
             cashFlowDetailsState.setInit(true);
         }
     }
+
+    private void initStateFromDatabase() {
+        CashFlow cashFlow = localCashFlowService.findById(cashFlowDetailsState.getId());
+        cashFlowDetailsState.setAmount(cashFlow.getAmount());
+        cashFlowDetailsState.setComment(cashFlow.getComment());
+        cashFlowDetailsState.setDate(cashFlow.getDateTime().getTime());
+
+        cashFlowDetailsState.setIncomeCategory(localCashFlowService.getOtherCategory());
+        cashFlowDetailsState.setExpanseCategory(cashFlow.getCategory());
+        cashFlowDetailsState.setExpanseFromWallet(cashFlow.getFromWallet());
+        cashFlowDetailsState.setExpanseToWallet(cashFlow.getToWallet());
+    }
+
 }

@@ -30,6 +30,7 @@ import info.korzeniowski.walletplus.widget.IdentityableMultiChoiceModeListener;
  * Fragment with list of cash flows.
  */
 public class CashFlowListFragment extends Fragment {
+    public static final String TAG = "cashFlowList";
 
     @InjectView(R.id.list)
     ListView list;

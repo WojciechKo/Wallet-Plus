@@ -1,5 +1,7 @@
 package info.korzeniowski.walletplus.ui.cashflow.details;
 
+import android.os.Bundle;
+
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -41,14 +43,16 @@ public class CashFlowIncomeDetailsFragment extends CashFlowBaseDetailsFragment {
     void onFromWalletItemSelected(int position) {
         Wallet selected = (Wallet) fromWallet.getItemAtPosition(position);
         cashFlowDetailsState.setIncomeFromWallet(selected);
-        onCashFlowDetailsChangedListener.onFromWalletChanged();
+        bus.post(new CashFlowDetailsEvent.FromWalletChanged());
+//        onCashFlowDetailsChangedListener.onFromWalletChanged();
     }
 
     @Override
     void onToWalletItemSelected(int position) {
         Wallet selected = (Wallet) toWallet.getItemAtPosition(position);
         cashFlowDetailsState.setIncomeToWallet(selected);
-        onCashFlowDetailsChangedListener.onToWalletChanged();
+        bus.post(new CashFlowDetailsEvent.ToWalletChanged());
+//        onCashFlowDetailsChangedListener.onToWalletChanged();
     }
 
     @Override
@@ -59,7 +63,8 @@ public class CashFlowIncomeDetailsFragment extends CashFlowBaseDetailsFragment {
     @Override
     void onRemoveCategoryClick() {
         cashFlowDetailsState.setIncomeCategory(localCashFlowService.getOtherCategory());
-        onCashFlowDetailsChangedListener.onCategoryChanged();
+        bus.post(new CashFlowDetailsEvent.CategoryChanged());
+//        onCashFlowDetailsChangedListener.onCategoryChanged();
     }
 
     @Override

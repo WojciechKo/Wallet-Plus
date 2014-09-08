@@ -25,25 +25,33 @@ public class MainDrawerContent {
     public MainDrawerContent(Context context) {
         mainDrawerItems = new LinkedList<MainDrawerItem>();
 
-        mainDrawerItems.add(new MainDrawerItem(
-                                context.getString(R.string.appName),
-                                R.drawable.ic_menu_dashboard,
-                                DashboardFragment.class));
+        mainDrawerItems.add(
+                new MainDrawerItem(
+                        context.getString(R.string.appName),
+                        R.drawable.ic_menu_dashboard,
+                        DashboardFragment.class,
+                        DashboardFragment.TAG));
 
-        mainDrawerItems.add(new MainDrawerItem(
-                                context.getString(R.string.cashflowMenu),
-                                R.drawable.ic_menu_cashflow,
-                                CashFlowListFragment.class));
+        mainDrawerItems.add(
+                new MainDrawerItem(
+                        context.getString(R.string.cashflowMenu),
+                        R.drawable.ic_menu_cashflow,
+                        CashFlowListFragment.class,
+                        CashFlowListFragment.TAG));
 
-        mainDrawerItems.add(new MainDrawerItem(
-                                context.getString(R.string.categoryMenu),
-                                R.drawable.ic_menu_categories,
-                                CategoryFragment.class));
+        mainDrawerItems.add(
+                new MainDrawerItem(
+                        context.getString(R.string.categoryMenu),
+                        R.drawable.ic_menu_categories,
+                        CategoryFragment.class,
+                        CategoryFragment.TAG));
 
-        mainDrawerItems.add(new MainDrawerItem(
-                                context.getString(R.string.walletMenu),
-                                R.drawable.ic_menu_wallets,
-                                WalletListFragment.class));
+        mainDrawerItems.add(
+                new MainDrawerItem(
+                        context.getString(R.string.walletMenu),
+                        R.drawable.ic_menu_wallets,
+                        WalletListFragment.class,
+                        WalletListFragment.TAG));
     }
 
     public MainDrawerItem getDrawerItem(int position) {

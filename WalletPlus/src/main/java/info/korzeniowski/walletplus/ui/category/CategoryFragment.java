@@ -21,6 +21,7 @@ import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 
 public class CategoryFragment extends Fragment {
+    public final static String TAG = "category";
 
     @InjectView(R.id.tabs)
     PagerSlidingTabStrip tabs;
@@ -81,7 +82,7 @@ public class CategoryFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, 0L);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true, CategoryDetailsFragment.TAG);
     }
 
     public class MyPagerAdapter extends FragmentPagerAdapter {

@@ -1,6 +1,5 @@
 package info.korzeniowski.walletplus.ui.cashflow.details;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -10,6 +9,7 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +17,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -29,6 +30,9 @@ import android.widget.TimePicker;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Produce;
+import com.squareup.otto.Subscribe;
 
 import java.text.NumberFormat;
 import java.util.Calendar;
@@ -43,7 +47,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import butterknife.OnTextChanged;
-import info.korzeniowski.walletplus.MainActivity;
+import dagger.Provides;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
@@ -56,8 +60,9 @@ import info.korzeniowski.walletplus.ui.category.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 
-public abstract class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowDetailsChangedListener {
+public abstract class CashFlowBaseDetailsFragment extends Fragment {
     public static final String CASH_FLOW_DETAILS_STATE = "cashFlowDetailsState";
+    private TextWatcher textWatcher;
 
     private enum DetailsMode {ADD, EDIT}
 
@@ -85,51 +90,42 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
     @InjectView(R.id.timePicker)
     Button timePicker;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     CashFlowService localCashFlowService;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     WalletService localWalletService;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     CategoryService localCategoryService;
 
-    @Inject @Named("amount")
+    @Inject
+    @Named("amount")
     NumberFormat amountFormat;
+
+    @Inject
+    Bus bus;
+
+    Object busEventHandler;
 
     private DetailsMode detailsMode;
     protected List<Wallet> fromWalletList;
     protected List<Wallet> toWalletList;
     protected List<Category> categoryList;
     protected CashFlowDetailsParcelableState cashFlowDetailsState;
-    protected OnCashFlowDetailsChangedListener onCashFlowDetailsChangedListener;
-
-    public static CashFlowBaseDetailsFragment newInstance(CashFlow.Type type, Parcelable state) {
-        CashFlowBaseDetailsFragment fragment;
-        if (type == CashFlow.Type.EXPANSE) {
-            fragment = new CashFlowExpanseDetailsFragment();
-        } else if (type == CashFlow.Type.INCOME) {
-            fragment = new CashFlowIncomeDetailsFragment();
-        } else if (type == CashFlow.Type.TRANSFER) {
-            fragment = new CashFlowTransferDetailsFragment();
-        } else {
-            throw new RuntimeException("Unexpected cashflow type:" + type);
-        }
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(CASH_FLOW_DETAILS_STATE, state);
-        fragment.setArguments(bundle);
-        return fragment;
-    }
 
     /////////////////////////////////////////
     // change handlers
-    @Override
-    public void onAmountChanged() {
-        String amountString = getAmountStringFromState();
-        if (!amount.getText().toString().equals(amountString)) {
-            amount.setText(amountString);
-        }
-    }
+//    @Subscribe
+//    public void onAmountChanged(CashFlowDetailsEvent.AmountChanged event) {
+//        String amountString = getAmountStringFromState();
+//        if (!amount.getText().toString().equals(amountString)) {
+//            amount.setText(amountString);
+//        }
+//    }
 
     private String getAmountStringFromState() {
         Float amount = cashFlowDetailsState.getAmount();
@@ -138,55 +134,49 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
         }
         return amountFormat.format(amount);
     }
-
-    @Override
-    public void onCommentChanged() {
-        String commentString = cashFlowDetailsState.getComment();
-        if (!comment.getText().toString().equals(commentString)) {
-            comment.setText(commentString);
-        }
-    }
-
-    @Override
-    public void onCategoryChanged() {
-        category.setText(getCategoryText(getCategoryFromState()));
-    }
-
-    @Override
-    public void onFromWalletChanged() {
-        if (fromWallet != null) {
-            fromWallet.setSelection(fromWalletList.indexOf(getFromWalletFromState()));
-            ((WalletAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
-        }
-    }
+//
+//    @Subscribe
+//    public void onCommentChanged(CashFlowDetailsEvent.CommentChanged event) {
+//        String commentString = cashFlowDetailsState.getComment();
+//        if (!comment.getText().toString().equals(commentString)) {
+//            comment.setText(commentString);
+//        }
+//    }
+//
+//    @Subscribe
+//    public void onCategoryChanged(CashFlowDetailsEvent.CategoryChanged event) {
+//        category.setText(getCategoryText(getCategoryFromState()));
+//    }
+//
+//    @Subscribe
+//    public void onFromWalletChanged(CashFlowDetailsEvent.FromWalletChanged event) {
+//        if (fromWallet != null) {
+//            fromWallet.setSelection(fromWalletList.indexOf(getFromWalletFromState()));
+//            ((WalletAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
+//        }
+//    }
 
     abstract Wallet getFromWalletFromState();
+//
+//    @Subscribe
+//    public void onToWalletChanged(CashFlowDetailsEvent.ToWalletChanged event) {
+//        if (toWallet != null) {
+//            toWallet.setSelection(toWalletList.indexOf(getToWalletFromState()));
+//            ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
+//        }
+//    }
 
-    @Override
-    public void onToWalletChanged() {
-        if (toWallet != null) {
-            toWallet.setSelection(toWalletList.indexOf(getToWalletFromState()));
-            ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
-        }
-    }
     abstract Wallet getToWalletFromState();
-
-    @Override
-    public void onDateChanged() {
-        setDatePickerButtonTextFromState();
-    }
-
-    @Override
-    public void onTimeChanged() {
-        setTimePickerButtonTextFromState();
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        onCashFlowDetailsChangedListener = (OnCashFlowDetailsChangedListener) activity;
-        ((MainActivity) activity).addOnCashFlowDetailsChangedListener(this);
-    }
+//
+//    @Subscribe
+//    public void onDateChanged(CashFlowDetailsEvent.DateChanged event) {
+//        setDatePickerButtonTextFromState();
+//    }
+//
+//    @Subscribe
+//    public void onTimeChanged(CashFlowDetailsEvent.TimeChanged event) {
+//        setTimePickerButtonTextFromState();
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -207,11 +197,49 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        busEventHandler = new CashFlowEventHandler();
+        bus.register(busEventHandler);
+    }
+
+    @Override
+    public void onPause() {
+        comment.removeTextChangedListener(textWatcher);
+        textWatcher = null;
+        bus.unregister(busEventHandler);
+        busEventHandler = null;
+        super.onPause();
+//        busEventHandler = null;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.cashflow_details_fragment, container, false);
         ButterKnife.inject(this, view);
         setupViews();
+
+        textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!s.toString().equals(cashFlowDetailsState.getComment())) {
+                    cashFlowDetailsState.setComment(s.toString());
+                    bus.post(new CashFlowDetailsEvent.CommentChanged(cashFlowDetailsState.getComment()));
+                }
+            }
+        };
+        comment.addTextChangedListener(textWatcher);
         return view;
     }
 
@@ -257,14 +285,10 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
     }
 
     abstract Category getCategoryFromState();
-    abstract void fillWalletLists();
-    abstract void fillCategoryList();
 
-    @Override
-    public void onDestroy() {
-        ((MainActivity) getActivity()).removeOnCashFlowDetailsChangedListeners(this);
-        super.onDestroy();
-    }
+    abstract void fillWalletLists();
+
+    abstract void fillCategoryList();
 
     @OnItemSelected(R.id.fromWallet)
     abstract void onFromWalletItemSelected(int position);
@@ -283,7 +307,8 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
         } else {
             cashFlowDetailsState.setAmount(Float.parseFloat(s.toString()));
         }
-        onCashFlowDetailsChangedListener.onAmountChanged();
+        bus.post(new CashFlowDetailsEvent.AmountChanged());
+//        onCashFlowDetailsChangedListener.onAmountChanged();
     }
 
     private boolean isDecimal(Editable s) {
@@ -299,11 +324,14 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
         return 0;
     }
 
-    @OnTextChanged(value = R.id.comment, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    void onCommentAfterTextChanged(Editable s) {
-        cashFlowDetailsState.setComment(s.toString());
-        onCashFlowDetailsChangedListener.onCommentChanged();
-    }
+//    @OnTextChanged(value = R.id.comment, callback = OnTextChanged.Callback.TEXT_CHANGED)
+//    void onCommentAfterTextChanged(CharSequence s) {
+//        if (!s.toString().equals(cashFlowDetailsState.getComment())) {
+//            cashFlowDetailsState.setComment(s.toString());
+//            bus.post(new CashFlowDetailsEvent.CommentChanged(cashFlowDetailsState.getComment()));
+//        }
+////        onCashFlowDetailsChangedListener.onCommentChanged();
+//    }
 
     @OnClick(R.id.category)
     public void onCategoryClick() {
@@ -319,7 +347,8 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
             @Override
             public void onContentClick(Long id) {
                 storeSelectedCategoryInState(localCategoryService.findById(id));
-                onCashFlowDetailsChangedListener.onCategoryChanged();
+                bus.post(new CashFlowDetailsEvent.CategoryChanged());
+//                onCashFlowDetailsChangedListener.onCategoryChanged();
                 alertDialog.dismiss();
             }
         }));
@@ -345,7 +374,8 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
                         calendar.set(Calendar.MONTH, monthOfYear);
                         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                         cashFlowDetailsState.setDate(calendar.getTimeInMillis());
-                        onCashFlowDetailsChangedListener.onDateChanged();
+                        bus.post(new CashFlowDetailsEvent.DateChanged());
+//                        onCashFlowDetailsChangedListener.onDateChanged();
                     }
                 },
                 calendar.get(Calendar.YEAR),
@@ -367,7 +397,8 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
                         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         calendar.set(Calendar.MINUTE, minute);
                         cashFlowDetailsState.setDate(calendar.getTimeInMillis());
-                        onCashFlowDetailsChangedListener.onTimeChanged();
+                        bus.post(new CashFlowDetailsEvent.TimeChanged());
+//                        onCashFlowDetailsChangedListener.onTimeChanged();
                     }
                 },
                 calendar.get(Calendar.HOUR_OF_DAY),
@@ -441,8 +472,7 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
 
     abstract CashFlow getCashFlowFromState();
 
-
-    public static class WalletAdapter extends BaseAdapter {
+    class WalletAdapter extends BaseAdapter {
         List<Wallet> wallets;
         Context context;
 
@@ -482,6 +512,56 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements On
         @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
             return getView(position, convertView, parent);
+        }
+    }
+
+    private class CashFlowEventHandler {
+
+        @Subscribe
+        public void onAmountChanged(CashFlowDetailsEvent.AmountChanged event) {
+            String amountString = getAmountStringFromState();
+            if (!amount.getText().toString().equals(amountString)) {
+                amount.setText(amountString);
+            }
+        }
+
+        @Subscribe
+        public void onCommentChanged(CashFlowDetailsEvent.CommentChanged event) {
+            String commentString = cashFlowDetailsState.getComment();
+            if (!comment.getText().toString().equals(commentString)) {
+                comment.setText(commentString);
+            }
+        }
+
+        @Subscribe
+        public void onCategoryChanged(CashFlowDetailsEvent.CategoryChanged event) {
+            category.setText(getCategoryText(getCategoryFromState()));
+        }
+
+        @Subscribe
+        public void onFromWalletChanged(CashFlowDetailsEvent.FromWalletChanged event) {
+            if (fromWallet != null) {
+                fromWallet.setSelection(fromWalletList.indexOf(getFromWalletFromState()));
+                ((WalletAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
+            }
+        }
+
+        @Subscribe
+        public void onToWalletChanged(CashFlowDetailsEvent.ToWalletChanged event) {
+            if (toWallet != null) {
+                toWallet.setSelection(toWalletList.indexOf(getToWalletFromState()));
+                ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
+            }
+        }
+
+        @Subscribe
+        public void onDateChanged(CashFlowDetailsEvent.DateChanged event) {
+            setDatePickerButtonTextFromState();
+        }
+
+        @Subscribe
+        public void onTimeChanged(CashFlowDetailsEvent.TimeChanged event) {
+            setTimePickerButtonTextFromState();
         }
     }
 }

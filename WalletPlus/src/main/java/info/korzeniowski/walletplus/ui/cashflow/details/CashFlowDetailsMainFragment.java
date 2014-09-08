@@ -26,8 +26,8 @@ import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.ui.category.CategoryDetailsFragment;
 
 public class CashFlowDetailsMainFragment extends Fragment {
-    static final public String TAG = "CashFlowDetailsFragment";
-    static final public String CASH_FLOW_ID = "CASH_FLOW_ID";
+    public static final String TAG = "CashFlowDetails";
+    public static final String CASH_FLOW_ID = "CASH_FLOW_ID";
 
     @InjectView(R.id.tabs)
     PagerSlidingTabStrip tabs;
@@ -89,7 +89,7 @@ public class CashFlowDetailsMainFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, 0L);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true, CategoryDetailsFragment.TAG);
     }
 
     public class CashFlowPagerAdapter extends FragmentPagerAdapter {
@@ -106,9 +106,17 @@ public class CashFlowDetailsMainFragment extends Fragment {
             super(fm);
             state = new CashFlowDetailsParcelableState();
             fragmentList = Lists.newArrayList();
-            fragmentList.add(CashFlowBaseDetailsFragment.newInstance(CashFlow.Type.INCOME, state));
-            fragmentList.add(CashFlowBaseDetailsFragment.newInstance(CashFlow.Type.TRANSFER, state));
-            fragmentList.add(CashFlowBaseDetailsFragment.newInstance(CashFlow.Type.EXPANSE, state));
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(CashFlowBaseDetailsFragment.CASH_FLOW_DETAILS_STATE, state);
+            CashFlowBaseDetailsFragment fragment = new CashFlowIncomeDetailsFragment();
+            fragment.setArguments(bundle);
+            fragmentList.add(fragment);
+            fragment = new CashFlowTransferDetailsFragment();
+            fragment.setArguments(bundle);
+            fragmentList.add(fragment);
+            fragment = new CashFlowExpanseDetailsFragment();
+            fragment.setArguments(bundle);
+            fragmentList.add(fragment);
         }
 
         @Override

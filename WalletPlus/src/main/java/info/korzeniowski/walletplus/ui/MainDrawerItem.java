@@ -10,11 +10,13 @@ public class MainDrawerItem {
     private final String title;
     private final int icon;
     private final Class<? extends Fragment> fragment;
+    private final String tag;
 
-    public MainDrawerItem(String title, int icon, Class<? extends Fragment> fragment) {
+    public MainDrawerItem(String title, int icon, Class<? extends Fragment> fragment, String tag) {
         this.title = title;
         this.icon = icon;
         this.fragment = fragment;
+        this.tag = tag;
     }
 
     public String getTitle() {
@@ -34,5 +36,9 @@ public class MainDrawerItem {
             Log.w("WalletPlus", "Nie można stworzyć obiektu Fragment");
         }
         return null;
+    }
+
+    public String getTag() {
+        return tag;
     }
 }

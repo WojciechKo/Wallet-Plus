@@ -19,6 +19,34 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     private Long date;
     private boolean init;
 
+    public static final Parcelable.Creator<CashFlowDetailsParcelableState> CREATOR = new Parcelable.Creator<CashFlowDetailsParcelableState>() {
+        public CashFlowDetailsParcelableState createFromParcel(Parcel in) {
+            return new CashFlowDetailsParcelableState(in);
+        }
+
+        public CashFlowDetailsParcelableState[] newArray(int size) {
+            return new CashFlowDetailsParcelableState[size];
+        }
+    };
+
+    public CashFlowDetailsParcelableState() {
+
+    }
+
+    public CashFlowDetailsParcelableState(Parcel in) {
+        id = in.readLong();
+        amount = in.readFloat();
+        comment = in.readString();
+        incomeFromWallet = in.readParcelable(Wallet.class.getClassLoader());
+        incomeToWallet = in.readParcelable(Wallet.class.getClassLoader());
+        expanseFromWallet = in.readParcelable(Wallet.class.getClassLoader());
+        expanseToWallet = in.readParcelable(Wallet.class.getClassLoader());
+        incomeCategory = in.readParcelable(Category.class.getClassLoader());
+        expanseCategory = in.readParcelable(Category.class.getClassLoader());
+        date = in.readLong();
+        init = in.readByte() == 1;
+    }
+
     @Override
     public int describeContents() {
         return 0;

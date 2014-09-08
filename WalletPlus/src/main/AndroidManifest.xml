@@ -15,7 +15,6 @@
 
         <activity
             android:name=".MainActivity"
-            android:configChanges="orientation|screenSize"
             android:label="@string/appName">
 
             <intent-filter>

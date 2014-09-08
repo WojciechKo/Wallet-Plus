@@ -23,6 +23,7 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.service.WalletService;
 
 public class WalletListFragment extends Fragment {
+    public static final String TAG = "walletList";
 
     @InjectView(R.id.list)
     ListView list;
@@ -78,6 +79,6 @@ public class WalletListFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putLong(WalletDetailsFragment.WALLET_ID, id);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true, WalletDetailsFragment.TAG);
     }
 }
