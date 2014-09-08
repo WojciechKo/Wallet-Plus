@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.category;
+package info.korzeniowski.walletplus.ui.category.details;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -61,8 +61,7 @@ public class CategoryDetailsFragment extends Fragment {
     @InjectView(R.id.parentCategory)
     Spinner parentCategory;
 
-    @Inject
-    @Named("local")
+    @Inject @Named("local")
     CategoryService localCategoryService;
 
     private DetailsType type;

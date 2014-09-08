@@ -5,7 +5,6 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -17,7 +16,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -31,7 +29,6 @@ import android.widget.TimePicker;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.squareup.otto.Bus;
-import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
 import java.text.NumberFormat;
@@ -47,7 +44,6 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import butterknife.OnTextChanged;
-import dagger.Provides;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
@@ -56,7 +52,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.ui.category.CategoryExpandableListAdapter;
+import info.korzeniowski.walletplus.ui.category.list.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 
@@ -336,7 +332,7 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
     @OnClick(R.id.category)
     public void onCategoryClick() {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.category_list, null);
-        ExpandableListView expandableListView = (ExpandableListView) view.findViewById(R.id.superList);
+        ExpandableListView expandableListView = (ExpandableListView) view.findViewById(R.id.list);
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.cashflowCategoryChooseAlertTitle))

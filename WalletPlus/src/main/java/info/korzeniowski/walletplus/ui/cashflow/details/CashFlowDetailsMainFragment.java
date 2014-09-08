@@ -22,8 +22,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
-import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.ui.category.CategoryDetailsFragment;
+import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 
 public class CashFlowDetailsMainFragment extends Fragment {
     public static final String TAG = "CashFlowDetails";

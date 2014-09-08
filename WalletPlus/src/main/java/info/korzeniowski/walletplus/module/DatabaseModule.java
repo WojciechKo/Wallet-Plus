@@ -29,8 +29,8 @@ import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowIncomeDetailsFra
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowBaseDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowTransferDetailsFragment;
-import info.korzeniowski.walletplus.ui.category.CategoryDetailsFragment;
-import info.korzeniowski.walletplus.ui.category.CategoryListFragment;
+import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
+import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
 import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;

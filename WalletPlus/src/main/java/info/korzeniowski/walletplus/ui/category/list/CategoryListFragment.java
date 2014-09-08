@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.category;
+package info.korzeniowski.walletplus.ui.category.list;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -20,12 +20,12 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 /**
  * Fragment with list of categories.
  */
-
 public class CategoryListFragment extends Fragment {
     public static final String TAG = "categoryList";
     public static final String CATEGORY_TYPE = "categoryType";
@@ -33,8 +33,8 @@ public class CategoryListFragment extends Fragment {
     public static final int ONLY_EXPENSE = ONLY_INCOME + 1;
     public static final int ALL = ONLY_EXPENSE + 1;
 
-    @InjectView(R.id.superList)
-    ExpandableListView superList;
+    @InjectView(R.id.list)
+    ExpandableListView list;
 
     @Inject @Named("local")
     CategoryService localCategoryService;
@@ -42,6 +42,7 @@ public class CategoryListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         ((WalletPlus) getActivity().getApplication()).inject(this);
     }
 
@@ -55,27 +56,40 @@ public class CategoryListFragment extends Fragment {
     }
 
     void setupViews() {
-        setHasOptionsMenu(true);
-        int categoryType = getArguments().getInt(CATEGORY_TYPE);
-        superList.setAdapter(new CategoryExpandableListAdapter(getActivity(), getCategoryList(categoryType), new OnContentClickListener() {
-            @Override
-            public void onContentClick(Long id) {
-                startCategoryDetailsFragment(id);
-            }
-        }));
+        setListAdapter(getArguments().getInt(CATEGORY_TYPE));
+        removeListListeners();
+    }
 
-        superList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-            @Override
-            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                return true;
-            }
-        });
-        superList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                return true;
-            }
-        });
+    private void setListAdapter(int categoryType) {
+        list.setAdapter(
+                new CategoryExpandableListAdapter(getActivity(), getCategoryList(categoryType),
+                        new OnContentClickListener() {
+                            @Override
+                            public void onContentClick(Long id) {
+                                startCategoryDetailsFragment(id);
+                            }
+                        }
+                )
+        );
+    }
+
+    private void removeListListeners() {
+        list.setOnGroupClickListener(
+                new ExpandableListView.OnGroupClickListener() {
+                    @Override
+                    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                        return true;
+                    }
+                }
+        );
+        list.setOnChildClickListener(
+                new ExpandableListView.OnChildClickListener() {
+                    @Override
+                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                        return true;
+                    }
+                }
+        );
     }
 
     private void startCategoryDetailsFragment(Long id) {

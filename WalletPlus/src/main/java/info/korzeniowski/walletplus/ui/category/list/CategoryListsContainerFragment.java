@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.category;
+package info.korzeniowski.walletplus.ui.category.list;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,13 +15,18 @@ import android.view.ViewGroup;
 
 import com.astuetz.PagerSlidingTabStrip;
 
+import java.util.AbstractMap;
+import java.util.LinkedList;
+import java.util.Map;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
+import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 
-public class CategoryFragment extends Fragment {
-    public final static String TAG = "category";
+public class CategoryListsContainerFragment extends Fragment {
+    public final static String TAG = "CategoryListsContainerFragment";
 
     @InjectView(R.id.tabs)
     PagerSlidingTabStrip tabs;
@@ -55,26 +60,17 @@ public class CategoryFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_new, menu);
         super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_new, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        boolean handled = super.onOptionsItemSelected(item);
-        if (handled) {
+        if (item.getItemId() == info.korzeniowski.walletplus.R.id.menu_new) {
+            startCategoryDetailsFragment();
             return true;
         }
-        int itemId_ = item.getItemId();
-        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_new) {
-            actionAdd();
-            return true;
-        }
-        return false;
-    }
-
-    void actionAdd() {
-        startCategoryDetailsFragment();
+        return super.onOptionsItemSelected(item);
     }
 
     private void startCategoryDetailsFragment() {
@@ -86,39 +82,32 @@ public class CategoryFragment extends Fragment {
     }
 
     public class MyPagerAdapter extends FragmentPagerAdapter {
-
-        private final String[] TITLES = {"INCOME", "EXPENSE"};
+        private LinkedList<Map.Entry<String, Integer>> list;
 
         public MyPagerAdapter(FragmentManager fm) {
             super(fm);
+            list = new LinkedList<Map.Entry<String, Integer>>();
+            list.add(new AbstractMap.SimpleEntry<String, Integer>("income", CategoryListFragment.ONLY_INCOME));
+            list.add(new AbstractMap.SimpleEntry<String, Integer>("expense", CategoryListFragment.ONLY_EXPENSE));
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return TITLES[position];
+            return list.get(position).getKey();
         }
 
         @Override
         public int getCount() {
-            return TITLES.length;
+            return list.size();
         }
 
         @Override
         public Fragment getItem(int position) {
             CategoryListFragment fragment = new CategoryListFragment();
             Bundle bundle = new Bundle();
-            bundle.putInt(CategoryListFragment.CATEGORY_TYPE, getCategoryType(position));
+            bundle.putInt(CategoryListFragment.CATEGORY_TYPE, list.get(position).getValue());
             fragment.setArguments(bundle);
             return fragment;
-        }
-
-        private int getCategoryType(int position) {
-            if (position == 0) {
-                return CategoryListFragment.ONLY_INCOME;
-            } else if (position == 1) {
-                return CategoryListFragment.ONLY_EXPENSE;
-            }
-            throw new RuntimeException("OutOfBound.");
         }
     }
 }

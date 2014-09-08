@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.category;
+package info.korzeniowski.walletplus.ui.category.list;
 
 import android.content.Context;
 import android.graphics.Typeface;
