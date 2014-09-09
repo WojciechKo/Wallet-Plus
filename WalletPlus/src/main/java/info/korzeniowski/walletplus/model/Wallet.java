@@ -11,7 +11,7 @@ public class Wallet implements Identityable, Parcelable {
     @DatabaseField(generatedId = true)
     private Long id;
 
-    @DatabaseField(uniqueIndex = true, canBeNull = false)
+    @DatabaseField(canBeNull = false)
     private String name;
 
     @DatabaseField(canBeNull = false)

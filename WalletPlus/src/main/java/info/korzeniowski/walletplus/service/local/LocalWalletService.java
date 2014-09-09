@@ -7,14 +7,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
-import info.korzeniowski.walletplus.service.local.validation.Validator;
 import info.korzeniowski.walletplus.service.local.validation.WalletValidator;
-import info.korzeniowski.walletplus.model.Wallet;
 
 public class LocalWalletService implements WalletService {
-    WalletValidator walletValidator;
+    private WalletValidator walletValidator;
     private final Dao<Wallet, Long> walletDao;
 
     @Inject
@@ -105,15 +104,6 @@ public class LocalWalletService implements WalletService {
     public List<Wallet> getContractors() {
         try {
             return walletDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().eq("type", Wallet.Type.CONTRACTOR).query();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public Wallet findByNameAndType(String name, Wallet.Type type) {
-        try {
-            return walletDao.queryBuilder().where().eq("name", name).and().eq("type", type).queryForFirst();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

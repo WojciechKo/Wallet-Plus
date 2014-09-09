@@ -29,7 +29,8 @@ public class WalletListFragment extends Fragment {
     @InjectView(R.id.list)
     ListView list;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     WalletService localWalletService;
 
     @Override

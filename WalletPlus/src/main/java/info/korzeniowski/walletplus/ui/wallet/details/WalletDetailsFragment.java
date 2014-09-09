@@ -22,13 +22,11 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnTextChanged;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.service.exception.WalletNameAndTypeMustBeUniqueException;
 
 public class WalletDetailsFragment extends Fragment {
     public static final String TAG = "walletDetails";
@@ -42,42 +40,42 @@ public class WalletDetailsFragment extends Fragment {
     @InjectView(R.id.walletInitialAmount)
     TextView walletInitialAmount;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     WalletService localWalletService;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     CashFlowService localCashFlowService;
 
-    @Inject @Named("amount")
+    @Inject
+    @Named("amount")
     NumberFormat amountFormat;
 
     private DetailsType type;
-    private WalletDetailsParcelableState walletDetailsState;
+    private Wallet wallet;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
-        init();
+        setHasOptionsMenu(true);
+        initState();
     }
 
-    private void init() {
-        Long walletId = getArguments().getLong(WALLET_ID);
-        type = walletId == 0L ? DetailsType.ADD : DetailsType.EDIT;
-        walletDetailsState = new WalletDetailsParcelableState(getWallet(walletId));
-    }
-
-    private Wallet getWallet(Long walletId) {
-        if (type == DetailsType.EDIT) {
-            return localWalletService.findById(walletId);
+    private void initState() {
+        wallet = localWalletService.findById(getArguments().getLong(WALLET_ID));
+        if (wallet == null) {
+            wallet = new Wallet();
+            type = DetailsType.ADD;
+        } else {
+            type = DetailsType.EDIT;
         }
-        return null;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.wallet_details, container, false);
-        setHasOptionsMenu(true);
         ButterKnife.inject(this, view);
         setupViews();
         return view;
@@ -89,37 +87,9 @@ public class WalletDetailsFragment extends Fragment {
 
     private void fillViewsWithData() {
         if (type == DetailsType.EDIT) {
-            walletName.setText(walletDetailsState.getName());
-            walletInitialAmount.setText(amountFormat.format(walletDetailsState.getInitialAmount()));
+            walletName.setText(wallet.getName());
+            walletInitialAmount.setText(amountFormat.format(wallet.getInitialAmount()));
         }
-    }
-
-    @OnTextChanged(value = R.id.walletName, callback = OnTextChanged.Callback.BEFORE_TEXT_CHANGED)
-    void walletNameBeforeTextChanged() {
-        walletName.setError(null);
-    }
-
-    @OnTextChanged(value = R.id.walletName, callback = OnTextChanged.Callback.TEXT_CHANGED)
-    void walletNameTextChanged() {
-        validateIfEmpty(walletName, getString(R.string.walletNameCantBeEmpty));
-        validateIfNameIsUnique();
-    }
-
-    private void validateIfNameIsUnique() {
-        Wallet found = localWalletService.findByNameAndType(walletName.getText().toString(), Wallet.Type.MY_WALLET);
-        if (found != null && !found.getName().equals(walletDetailsState.getOriginalName())) {
-            walletName.setError(getString(R.string.walletNameHaveToBeUnique));
-        }
-    }
-
-    @OnTextChanged(value = R.id.walletInitialAmount, callback = OnTextChanged.Callback.BEFORE_TEXT_CHANGED)
-    void walletInitialAmountBeforeTextChanged() {
-        walletInitialAmount.setError(null);
-    }
-
-    @OnTextChanged(value = R.id.walletInitialAmount, callback = OnTextChanged.Callback.TEXT_CHANGED)
-    void walletInitialAmountTextChanged() {
-        validateIfEmpty(walletInitialAmount, getString(R.string.walletInitialAmountCantBeEmpty));
     }
 
     @Override
@@ -144,17 +114,13 @@ public class WalletDetailsFragment extends Fragment {
     private void selectedOptionSave() {
         if (validateIfNoEmptyFields()) {
             getDataFromViews();
-            walletDetailsState.setType(Wallet.Type.MY_WALLET);
-            try {
-                if (type == DetailsType.ADD) {
-                    localWalletService.insert(walletDetailsState.getWallet());
-                } else if (type == DetailsType.EDIT) {
-                    localWalletService.update(walletDetailsState.getWallet());
-                }
-                getActivity().getSupportFragmentManager().popBackStack();
-            } catch (WalletNameAndTypeMustBeUniqueException e) {
-                walletName.setError(getString(R.string.walletNameHaveToBeUnique));
+            wallet.setType(Wallet.Type.MY_WALLET);
+            if (type == DetailsType.ADD) {
+                localWalletService.insert(wallet);
+            } else if (type == DetailsType.EDIT) {
+                localWalletService.update(wallet);
             }
+            getActivity().getSupportFragmentManager().popBackStack();
         }
     }
 
@@ -175,12 +141,12 @@ public class WalletDetailsFragment extends Fragment {
     }
 
     private void getDataFromViews() {
-        walletDetailsState.setName(walletName.getText().toString());
-        walletDetailsState.setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()));
+        wallet.setName(walletName.getText().toString());
+        wallet.setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()));
         if (type == DetailsType.ADD) {
-            walletDetailsState.setCurrentAmount(walletDetailsState.getInitialAmount());
+            wallet.setCurrentAmount(wallet.getInitialAmount());
         } else if (type == DetailsType.EDIT) {
-            walletDetailsState.setCurrentAmount(walletDetailsState.getCurrentAmount() + walletDetailsState.getInitialAmount() - walletDetailsState.getInitialAmount());
+            wallet.setCurrentAmount(wallet.getCurrentAmount() + wallet.getInitialAmount() - wallet.getInitialAmount());
         }
     }
 
@@ -194,7 +160,7 @@ public class WalletDetailsFragment extends Fragment {
                 .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        tryDelete(walletDetailsState.getId());
+                        tryDelete(wallet.getId());
                     }
                 })
                 .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -207,7 +173,7 @@ public class WalletDetailsFragment extends Fragment {
     }
 
     private String getConfirmationMessage() {
-        int count = (int) localCashFlowService.countAssignedToWallet(walletDetailsState.getId());
+        int count = (int) localCashFlowService.countAssignedToWallet(wallet.getId());
         String msg = getActivity().getString(R.string.walletDeleteConfirmation);
         return MessageFormat.format(msg, count);
     }
