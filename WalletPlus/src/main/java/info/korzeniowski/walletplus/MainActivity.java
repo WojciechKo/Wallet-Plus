@@ -190,6 +190,8 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
     @Override
     public void onBackStackChanged() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+        state.setFragmentTag(fragment.getTag());
         drawerToggle.setDrawerIndicatorEnabled(isTopFragment());
     }
 
