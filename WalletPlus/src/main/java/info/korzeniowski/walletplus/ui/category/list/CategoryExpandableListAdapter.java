@@ -11,10 +11,10 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.widget.IdentityableExpandableListAdapter;
+import info.korzeniowski.walletplus.widget.IdentifiableExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
-public class CategoryExpandableListAdapter extends IdentityableExpandableListAdapter<Category> {
+public class CategoryExpandableListAdapter extends IdentifiableExpandableListAdapter<Category> {
 
     public CategoryExpandableListAdapter(Context context, List<Category> items, OnContentClickListener onContentClickListener) {
         super(context, items, R.layout.category_main_list_item, R.layout.category_sub_list_item, onContentClickListener);
@@ -34,7 +34,7 @@ public class CategoryExpandableListAdapter extends IdentityableExpandableListAda
         holder.categoryName.setTypeface(null, Typeface.BOLD);
     }
 
-    public class CategoryGroupViewHolder extends MyBaseGroupViewHolder {
+    class CategoryGroupViewHolder extends MyBaseGroupViewHolder {
         @InjectView(R.id.categoryName)
         protected TextView categoryName;
     }

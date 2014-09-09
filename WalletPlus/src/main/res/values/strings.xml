@@ -35,6 +35,7 @@
     <string name="categoryNameHint">name</string>
     <string name="categoryTypeLabel">Type:</string>
     <string name="categoryParentLabel">Parent:</string>
+    <string name="categoryCantChangeTypeOfSubcategory">Can\'t change type of subcategory.</string>
 
     <!-- Wallet details fragment -->
     <string name="walletNameLabel">Name:</string>
@@ -47,7 +48,7 @@
     <string name="walletNameHaveToBeUnique">Wallet name have to be unique.</string>
 
     <!-- Wallet list fragment -->
-    <string name="initialValue">Initial value:</string>
+    <string name="walletListInitialValue">Initial value:</string>
 
     <!-- Cashflow list fragment -->
     <string name="cashflowListFromWalletLabel">From: </string>
@@ -64,4 +65,9 @@
     <string name="cashflowCategoryLabel">Category:</string>
     <string name="cashflowCategoryHint">Choose category…</string>
     <string name="cashflowCategoryChooseAlertTitle">Choose category:</string>
+    <string name="categoryCantDeleteCategoryWithSubs">Cannot delete category which have subcategories.</string>
+    <string name="categoryMustHaveName">Category must have name.</string>
+    <string name="categoryMustHaveType">Main category must have any type.</string>
+    <string name="categorySubCantHaveSubs">Subcategory cannot have subcategories.</string>
+    <string name="categoryNoParentSelected">No parent (main category)</string>
 </resources>

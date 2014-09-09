@@ -29,21 +29,25 @@ import info.korzeniowski.walletplus.widget.OnContentClickListener;
 public class CategoryListFragment extends Fragment {
     public static final String TAG = "categoryList";
     public static final String CATEGORY_TYPE = "categoryType";
-    public static final int ONLY_INCOME = 1;
-    public static final int ONLY_EXPENSE = ONLY_INCOME + 1;
-    public static final int ALL = ONLY_EXPENSE + 1;
+
+    public enum Type {
+        ONLY_INCOME,
+        ONLY_EXPENSE,
+        ALL
+    }
 
     @InjectView(R.id.list)
     ExpandableListView list;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     CategoryService localCategoryService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
         ((WalletPlus) getActivity().getApplication()).inject(this);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -56,20 +60,19 @@ public class CategoryListFragment extends Fragment {
     }
 
     void setupViews() {
-        setListAdapter(getArguments().getInt(CATEGORY_TYPE));
+        Type categoryType = Type.values()[getArguments().getInt(CATEGORY_TYPE)];
+        list.setAdapter(getCategoryListAdapter(categoryType));
         removeListListeners();
     }
 
-    private void setListAdapter(int categoryType) {
-        list.setAdapter(
-                new CategoryExpandableListAdapter(getActivity(), getCategoryList(categoryType),
-                        new OnContentClickListener() {
-                            @Override
-                            public void onContentClick(Long id) {
-                                startCategoryDetailsFragment(id);
-                            }
-                        }
-                )
+    private CategoryExpandableListAdapter getCategoryListAdapter(Type categoryType) {
+        return new CategoryExpandableListAdapter(getActivity(), getCategoryList(categoryType),
+                new OnContentClickListener() {
+                    @Override
+                    public void onContentClick(Long id) {
+                        startCategoryDetailsFragment(id);
+                    }
+                }
         );
     }
 
@@ -92,15 +95,7 @@ public class CategoryListFragment extends Fragment {
         );
     }
 
-    private void startCategoryDetailsFragment(Long id) {
-        Fragment fragment = new CategoryDetailsFragment();
-        Bundle bundle = new Bundle();
-        bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, id);
-        fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true, CategoryDetailsFragment.TAG);
-    }
-
-    private List<Category> getCategoryList(int type) {
+    private List<Category> getCategoryList(Type type) {
         switch (type) {
             case ONLY_INCOME:
                 return localCategoryService.getMainIncomeTypeCategories();
@@ -110,5 +105,13 @@ public class CategoryListFragment extends Fragment {
                 return localCategoryService.getMainCategories();
         }
         throw new RuntimeException("Inacceptable category type: " + type);
+    }
+
+    private void startCategoryDetailsFragment(Long id) {
+        Fragment fragment = new CategoryDetailsFragment();
+        Bundle bundle = new Bundle();
+        bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, id);
+        fragment.setArguments(bundle);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true, CategoryDetailsFragment.TAG);
     }
 }

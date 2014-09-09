@@ -16,14 +16,14 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.Identityable;
 import info.korzeniowski.walletplus.service.BaseService;
 
-public class IdentityableMultiChoiceModeListener<T extends Identityable> implements AbsListView.MultiChoiceModeListener {
+public class IdentifiableMultiChoiceModeListener<T extends Identityable> implements AbsListView.MultiChoiceModeListener {
 
     private final BaseService<T> service;
     private final Map<Identityable, View> selectedItemList;
     private final ListView listView;
     private final Activity activity;
 
-    public IdentityableMultiChoiceModeListener(ListView listView, BaseService<T> service, Activity activity) {
+    public IdentifiableMultiChoiceModeListener(ListView listView, BaseService<T> service, Activity activity) {
         this.selectedItemList = Maps.newHashMap();
         this.listView = listView;
         this.service = service;
@@ -57,9 +57,9 @@ public class IdentityableMultiChoiceModeListener<T extends Identityable> impleme
         if (menuItem.getItemId() == R.id.menu_delete) {
             for (Map.Entry<Identityable, View> entry : selectedItemList.entrySet()) {
                 service.deleteById(entry.getKey().getId());
-                ((IdentityableListAdapter) listView.getAdapter()).remove(entry.getKey());
+                ((IdentifiableListAdapter) listView.getAdapter()).remove(entry.getKey());
             }
-            ((IdentityableListAdapter) listView.getAdapter()).notifyDataSetChanged();
+            ((IdentifiableListAdapter) listView.getAdapter()).notifyDataSetChanged();
             mode.finish();
             return true;
         }

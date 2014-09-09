@@ -24,7 +24,7 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsMainFragment;
-import info.korzeniowski.walletplus.widget.IdentityableMultiChoiceModeListener;
+import info.korzeniowski.walletplus.widget.IdentifiableMultiChoiceModeListener;
 
 /**
  * Fragment with list of cash flows.
@@ -57,7 +57,7 @@ public class CashFlowListFragment extends Fragment {
     void setupView() {
         list.setAdapter(new CashFlowListAdapter(getActivity(), localCashFlowService.getAll()));
         list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-        list.setMultiChoiceModeListener(new IdentityableMultiChoiceModeListener<CashFlow>(list, localCashFlowService, getActivity()));
+        list.setMultiChoiceModeListener(new IdentifiableMultiChoiceModeListener<CashFlow>(list, localCashFlowService, getActivity()));
     }
 
     @OnItemClick(R.id.list)

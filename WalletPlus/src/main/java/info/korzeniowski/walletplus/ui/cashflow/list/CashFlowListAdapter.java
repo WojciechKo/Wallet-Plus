@@ -14,9 +14,9 @@ import java.util.List;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.widget.IdentityableListAdapter;
+import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 
-public class CashFlowListAdapter extends IdentityableListAdapter<CashFlow> {
+public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
 
     public CashFlowListAdapter(Context context, List<CashFlow> casFlows) {
         super(context, casFlows, R.layout.cashflow_list_item);

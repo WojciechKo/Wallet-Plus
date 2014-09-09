@@ -17,14 +17,14 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.Childable;
 import info.korzeniowski.walletplus.model.Identityable;
 
-public abstract class IdentityableExpandableListAdapter<T extends Identityable & Childable<T>> extends BaseExpandableListAdapter {
+public abstract class IdentifiableExpandableListAdapter<T extends Identityable & Childable<T>> extends BaseExpandableListAdapter {
     private final Context context;
     private final List<T> items;
     private final int groupItemLayout;
     private final int childItemLayout;
     OnContentClickListener listener;
 
-    public IdentityableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener listener) {
+    public IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener listener) {
         this.context = context;
         this.items = items;
         this.groupItemLayout = groupItemLayout;

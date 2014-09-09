@@ -26,7 +26,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 
 public class CategoryListsContainerFragment extends Fragment {
-    public final static String TAG = "CategoryListsContainerFragment";
+    public final static String TAG = "categoryListsContainer";
 
     @InjectView(R.id.tabs)
     PagerSlidingTabStrip tabs;
@@ -60,13 +60,13 @@ public class CategoryListsContainerFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.action_new, menu);
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_new, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == info.korzeniowski.walletplus.R.id.menu_new) {
+        if (item.getItemId() == R.id.menu_new) {
             startCategoryDetailsFragment();
             return true;
         }
@@ -87,8 +87,8 @@ public class CategoryListsContainerFragment extends Fragment {
         public MyPagerAdapter(FragmentManager fm) {
             super(fm);
             list = new LinkedList<Map.Entry<String, Integer>>();
-            list.add(new AbstractMap.SimpleEntry<String, Integer>("income", CategoryListFragment.ONLY_INCOME));
-            list.add(new AbstractMap.SimpleEntry<String, Integer>("expense", CategoryListFragment.ONLY_EXPENSE));
+            list.add(new AbstractMap.SimpleEntry<String, Integer>("income", CategoryListFragment.Type.ONLY_INCOME.ordinal()));
+            list.add(new AbstractMap.SimpleEntry<String, Integer>("expense", CategoryListFragment.Type.ONLY_EXPENSE.ordinal()));
         }
 
         @Override
