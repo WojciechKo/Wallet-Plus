@@ -52,8 +52,7 @@ public class WalletDetailsFragment extends Fragment {
     NumberFormat amountFormat;
 
     private DetailsType type;
-    private Wallet.Builder walletBuilder;
-    private String originalName;
+    private WalletDetailsParcelableState walletDetailsState;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,14 +64,12 @@ public class WalletDetailsFragment extends Fragment {
     private void init() {
         Long walletId = getArguments().getLong(WALLET_ID);
         type = walletId == 0L ? DetailsType.ADD : DetailsType.EDIT;
-        walletBuilder = new Wallet.Builder(getWallet(walletId));
+        walletDetailsState = new WalletDetailsParcelableState(getWallet(walletId));
     }
 
     private Wallet getWallet(Long walletId) {
         if (type == DetailsType.EDIT) {
-            Wallet wallet = localWalletService.findById(walletId);
-            originalName = wallet.getName();
-            return wallet;
+            return localWalletService.findById(walletId);
         }
         return null;
     }
@@ -92,8 +89,8 @@ public class WalletDetailsFragment extends Fragment {
 
     private void fillViewsWithData() {
         if (type == DetailsType.EDIT) {
-            walletName.setText(walletBuilder.getName());
-            walletInitialAmount.setText(amountFormat.format(walletBuilder.getInitialAmount()));
+            walletName.setText(walletDetailsState.getName());
+            walletInitialAmount.setText(amountFormat.format(walletDetailsState.getInitialAmount()));
         }
     }
 
@@ -110,7 +107,7 @@ public class WalletDetailsFragment extends Fragment {
 
     private void validateIfNameIsUnique() {
         Wallet found = localWalletService.findByNameAndType(walletName.getText().toString(), Wallet.Type.MY_WALLET);
-        if (found != null && !found.getName().equals(originalName)) {
+        if (found != null && !found.getName().equals(walletDetailsState.getOriginalName())) {
             walletName.setError(getString(R.string.walletNameHaveToBeUnique));
         }
     }
@@ -147,12 +144,12 @@ public class WalletDetailsFragment extends Fragment {
     private void selectedOptionSave() {
         if (validateIfNoEmptyFields()) {
             getDataFromViews();
-            walletBuilder.setType(Wallet.Type.MY_WALLET);
+            walletDetailsState.setType(Wallet.Type.MY_WALLET);
             try {
                 if (type == DetailsType.ADD) {
-                    localWalletService.insert(walletBuilder.build());
+                    localWalletService.insert(walletDetailsState.getWallet());
                 } else if (type == DetailsType.EDIT) {
-                    localWalletService.update(walletBuilder.build());
+                    localWalletService.update(walletDetailsState.getWallet());
                 }
                 getActivity().getSupportFragmentManager().popBackStack();
             } catch (WalletNameAndTypeMustBeUniqueException e) {
@@ -178,29 +175,29 @@ public class WalletDetailsFragment extends Fragment {
     }
 
     private void getDataFromViews() {
-        walletBuilder.setName(walletName.getText().toString());
-        walletBuilder.setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()));
+        walletDetailsState.setName(walletName.getText().toString());
+        walletDetailsState.setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()));
         if (type == DetailsType.ADD) {
-            walletBuilder.setCurrentAmount(walletBuilder.getInitialAmount());
+            walletDetailsState.setCurrentAmount(walletDetailsState.getInitialAmount());
         } else if (type == DetailsType.EDIT) {
-            walletBuilder.setCurrentAmount(walletBuilder.getCurrentAmount() + walletBuilder.getInitialAmount() - walletBuilder.getInitialAmount());
+            walletDetailsState.setCurrentAmount(walletDetailsState.getCurrentAmount() + walletDetailsState.getInitialAmount() - walletDetailsState.getInitialAmount());
         }
     }
 
     private void selectedOptionDelete() {
-        showConfirmationAlert();
+        showDeleteConfirmationAlert();
     }
 
-    private void showConfirmationAlert() {
+    private void showDeleteConfirmationAlert() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setMessage(getConfirmationMessage())
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        tryDelete(walletBuilder.getId());
+                        tryDelete(walletDetailsState.getId());
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -210,7 +207,7 @@ public class WalletDetailsFragment extends Fragment {
     }
 
     private String getConfirmationMessage() {
-        int count = (int) localCashFlowService.countAssignedToWallet(walletBuilder.getId());
+        int count = (int) localCashFlowService.countAssignedToWallet(walletDetailsState.getId());
         String msg = getActivity().getString(R.string.walletDeleteConfirmation);
         return MessageFormat.format(msg, count);
     }

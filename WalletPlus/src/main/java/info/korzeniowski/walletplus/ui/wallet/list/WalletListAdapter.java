@@ -39,7 +39,6 @@ public class WalletListAdapter extends IdentityableListAdapter<Wallet> {
         }
     }
 
-
     class WalletViewHolder extends MyBaseViewHolder {
         @InjectView(R.id.walletName)
         protected TextView walletName;

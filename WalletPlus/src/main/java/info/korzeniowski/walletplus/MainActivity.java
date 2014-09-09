@@ -37,7 +37,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     @Inject
     DrawerListAdapter drawerListAdapter;
 
-    //    private List<OnCashFlowDetailsChangedListener> cashFlowDetailsChangedListeners = Lists.newArrayList();
+//    private List<OnCashFlowDetailsChangedListener> cashFlowDetailsChangedListeners = Lists.newArrayList();
     private ActionBarDrawerToggle drawerToggle;
     private MainActivityParcelableState state;
 

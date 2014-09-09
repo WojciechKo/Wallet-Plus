@@ -79,27 +79,24 @@ public class DatabaseInitializer {
 
     private void initExampleDatabase() {
         /** Init my wallets **/
-        Wallet.Builder walletBuilder = new Wallet.Builder().setType(Wallet.Type.MY_WALLET);
-        Wallet personalWallet = walletBuilder.setName("Personal wallet").setInitialAmount(100.0).build();
+        Wallet personalWallet = new Wallet().setType(Wallet.Type.MY_WALLET).setName("Personal wallet").setInitialAmount(100.0).setCurrentAmount(100.0);
         localWalletService.insert(personalWallet);
-        Wallet wardrobe = walletBuilder.setName("Wardrobe").setInitialAmount(1500.0).build();
+        Wallet wardrobe = new Wallet().setType(Wallet.Type.MY_WALLET).setName("Wardrobe").setInitialAmount(1500.0).setCurrentAmount(100.0);
         localWalletService.insert(wardrobe);
-        Wallet sock = walletBuilder.setName("Sock").setInitialAmount(500.0).build();
+        Wallet sock = new Wallet().setType(Wallet.Type.MY_WALLET).setName("Sock").setInitialAmount(500.0).setCurrentAmount(100.0);
         localWalletService.insert(sock);
-        Wallet bankAccount = walletBuilder.setName("Bank account").setInitialAmount(2500.0).build();
+        Wallet bankAccount = new Wallet().setType(Wallet.Type.MY_WALLET).setName("Bank account").setInitialAmount(2500.0).setCurrentAmount(100.0);
         localWalletService.insert(bankAccount);
 
         /** Init other wallets **/
-        walletBuilder.setType(Wallet.Type.CONTRACTOR).setInitialAmount(0.0);
-        Wallet sevenEleven = walletBuilder.setName("7-Eleven").build();
+        Wallet sevenEleven = new Wallet().setType(Wallet.Type.CONTRACTOR).setName("7-Eleven").setInitialAmount(0.0).setCurrentAmount(100.0);
         localWalletService.insert(sevenEleven);
-        Wallet tesco = walletBuilder.setName("Tesco").build();
+        Wallet tesco = new Wallet().setType(Wallet.Type.CONTRACTOR).setName("Tesco").setInitialAmount(0.0).setCurrentAmount(100.0);
         localWalletService.insert(tesco);
-        Wallet walMart = walletBuilder.setName("Wal-Mart").build();
+        Wallet walMart = new Wallet().setType(Wallet.Type.CONTRACTOR).setName("Wal-Mart").setInitialAmount(0.0).setCurrentAmount(100.0);
         localWalletService.insert(walMart);
-        Wallet amazon = walletBuilder.setName("Amazon").build();
+        Wallet amazon = new Wallet().setType(Wallet.Type.CONTRACTOR).setName("Amazon").setInitialAmount(0.0).setCurrentAmount(100.0);
         localWalletService.insert(amazon);
-
 
         /** Init categories **/
         Category mainHouse = new Category().setName("House").setType(Category.Type.EXPENSE);

@@ -65,14 +65,10 @@ public class WalletListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_new) {
-            selectedOptionNew();
+            startWalletDetailsFragment(0L);
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    void selectedOptionNew() {
-        startWalletDetailsFragment(0L);
     }
 
     private void startWalletDetailsFragment(Long id) {

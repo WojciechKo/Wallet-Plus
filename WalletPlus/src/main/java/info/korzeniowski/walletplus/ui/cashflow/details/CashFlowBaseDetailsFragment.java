@@ -205,6 +205,7 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
         textWatcher = null;
         bus.unregister(busEventHandler);
         busEventHandler = null;
+        comment = null;
         super.onPause();
 //        busEventHandler = null;
     }
