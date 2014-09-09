@@ -18,9 +18,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 
 import java.util.List;
 
@@ -29,12 +27,14 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnItemSelected;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.CategoryNameMustBeUniqueException;
+import info.korzeniowski.walletplus.widget.IdentityableListAdapter;
 import info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton;
 
 public class CategoryDetailsFragment extends Fragment {
@@ -65,14 +65,14 @@ public class CategoryDetailsFragment extends Fragment {
     CategoryService localCategoryService;
 
     private DetailsType type;
-    private Category.Builder categoryBuilder;
+    private List<Category> parentCategoryList;
+    private CategoryDetailsParcelableState categoryDetailsState;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         ((WalletPlus) getActivity().getApplication()).inject(this);
-
     }
 
     @Override
@@ -91,39 +91,16 @@ public class CategoryDetailsFragment extends Fragment {
         fillViewsWithData();
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_delete, menu);
-        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_save, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean handled = super.onOptionsItemSelected(item);
-        if (handled) {
-            return true;
-        }
-        int itemId_ = item.getItemId();
-        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_delete) {
-            actionDelete();
-            return true;
-        }
-        if (itemId_ == info.korzeniowski.walletplus.R.id.menu_save) {
-            actionSave();
-            return true;
-        }
-        return false;
-    }
-
     private void initFields() {
         Long categoryId = getArguments().getLong(CATEGORY_ID);
         type = categoryId == 0L ? DetailsType.ADD : DetailsType.EDIT;
-        categoryBuilder = new Category.Builder(localCategoryService.findById(categoryId));
+        categoryDetailsState = new CategoryDetailsParcelableState(localCategoryService.findById(categoryId));
+//        categoryBuilder = new Category.Builder();
     }
 
     private void setupAdapters() {
-        parentCategory.setAdapter(new ParentCategoryAdapter(getActivity(), localCategoryService.getMainCategories()));
+        parentCategoryList = localCategoryService.getMainCategories();
+        parentCategory.setAdapter(new ParentCategoryAdapter(getActivity(), parentCategoryList));
     }
 
     private void setupListeners() {
@@ -135,74 +112,63 @@ public class CategoryDetailsFragment extends Fragment {
         };
         categoryIncomeType.setOnClickWhenDisabledListener(typeButtonClickedListener);
         categoryExpenseType.setOnClickWhenDisabledListener(typeButtonClickedListener);
-
-        parentCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (position == 0) {
-                    noParentSelected();
-                } else {
-                    parentSelected((Category) parentView.getSelectedItem());
-                }
-            }
-
-            private void noParentSelected() {
-                Category parent = categoryBuilder.getParent();
-                if (parent != null) {
-                    categoryIncomeType.setChecked(parent.isIncomeType());
-                    categoryExpenseType.setChecked(parent.isExpenseType());
-                    categoryBuilder.setParent(null);
-                }
-                categoryIncomeType.setEnabled(true);
-                categoryExpenseType.setEnabled(true);
-            }
-
-            private void parentSelected(Category selectedParent) {
-                categoryBuilder.setParent(selectedParent);
-                categoryIncomeType.setChecked(selectedParent.isIncomeType());
-                categoryExpenseType.setChecked(selectedParent.isExpenseType());
-                categoryIncomeType.setEnabled(false);
-                categoryExpenseType.setEnabled(false);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-
-            }
-        });
     }
 
     private void fillViewsWithData() {
-        categoryName.setText(categoryBuilder.getName());
-        Category.Type type = categoryBuilder.getType();
-        if (categoryBuilder.getParent() != null) {
+        categoryName.setText(categoryDetailsState.getName());
+        Category.Type type = categoryDetailsState.getType();
+        if (categoryDetailsState.getParentId() != null) {
             ParentCategoryAdapter parentCategoryAdapter = (ParentCategoryAdapter) parentCategory.getAdapter();
-            parentCategory.setSelection(parentCategoryAdapter.getPosition(categoryBuilder.getParent()));
-            type = categoryBuilder.getParent().getType();
+            Category parentCategory = localCategoryService.findById(categoryDetailsState.getParentId());
+            this.parentCategory.setSelection(parentCategoryList.indexOf(parentCategory));
+            type = parentCategory.getType();
         }
 
         categoryIncomeType.setChecked(type == null || type.isIncome());
         categoryExpenseType.setChecked(type == null || type.isExpense());
     }
 
-    private void getDataFromViews() {
-        categoryBuilder.setName(categoryName.getText().toString());
-        if (categoryBuilder.getParent() == null) {
-            categoryBuilder.setType(getTypeFromView());
-        } else {
-            categoryBuilder.setType(null);
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_delete, menu);
+        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_save, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == info.korzeniowski.walletplus.R.id.menu_delete) {
+            actionDelete();
+            return true;
+        } else if (item.getItemId() == info.korzeniowski.walletplus.R.id.menu_save) {
+            actionSave();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    void actionDelete() {
+        if (handleDeleteAction()) {
+            getActivity().getSupportFragmentManager().popBackStack();
         }
     }
 
-    private Category.Type getTypeFromView() {
-        if (categoryExpenseType.isChecked() && categoryIncomeType.isChecked()) {
-            return Category.Type.INCOME_EXPENSE;
-        } else if (categoryIncomeType.isChecked()) {
-            return Category.Type.INCOME;
-        } else if (categoryExpenseType.isChecked()) {
-            return Category.Type.EXPENSE;
+    private boolean handleDeleteAction() {
+        if (type == DetailsType.EDIT) {
+            return tryDelete();
         }
-        return null;
+        return type == DetailsType.ADD;
+    }
+
+    private boolean tryDelete() {
+        try {
+            // show warning alert about number of cashflows to be deleted
+            localCategoryService.deleteById(categoryDetailsState.getId());
+            return true;
+        } catch (CategoryHaveSubsException e) {
+            showToast("Cannot delete category which have subcategories.");
+        }
+        return false;
     }
 
     void actionSave() {
@@ -212,15 +178,6 @@ public class CategoryDetailsFragment extends Fragment {
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         }
-    }
-
-    private boolean handleActionSave() {
-        if (type == DetailsType.ADD) {
-            return tryInsert();
-        } else if (type == DetailsType.EDIT) {
-            return tryUpdate();
-        }
-        return false;
     }
 
     private boolean preValidation() {
@@ -243,7 +200,7 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     private boolean validateType() {
-        if (categoryBuilder.getParent() == null && !isTypeChosen()) {
+        if (categoryDetailsState.getParentId() == null && !isTypeChosen()) {
             showToast("Main category must have any type.");
             return false;
         }
@@ -254,9 +211,38 @@ public class CategoryDetailsFragment extends Fragment {
         return categoryIncomeType.isChecked() || categoryExpenseType.isChecked();
     }
 
+    private void getDataFromViews() {
+        categoryDetailsState.setName(categoryName.getText().toString());
+        if (categoryDetailsState.getParentId() == null) {
+            categoryDetailsState.setType(getTypeFromView());
+        } else {
+            categoryDetailsState.setType(null);
+        }
+    }
+
+    private Category.Type getTypeFromView() {
+        if (categoryExpenseType.isChecked() && categoryIncomeType.isChecked()) {
+            return Category.Type.INCOME_EXPENSE;
+        } else if (categoryIncomeType.isChecked()) {
+            return Category.Type.INCOME;
+        } else if (categoryExpenseType.isChecked()) {
+            return Category.Type.EXPENSE;
+        }
+        return null;
+    }
+
+    private boolean handleActionSave() {
+        if (type == DetailsType.ADD) {
+            return tryInsert();
+        } else if (type == DetailsType.EDIT) {
+            return tryUpdate();
+        }
+        return false;
+    }
+
     private boolean tryInsert() {
         try {
-            localCategoryService.insert(categoryBuilder.build());
+            localCategoryService.insert(new Category(categoryDetailsState));
             return true;
         } catch (CategoryNameMustBeUniqueException e) {
             categoryName.setError("Category name need to be unique");
@@ -266,10 +252,7 @@ public class CategoryDetailsFragment extends Fragment {
 
     private boolean tryUpdate() {
         try {
-            if (categoryBuilder.getParent() != null) {
-                categoryBuilder.setType(null);
-            }
-            localCategoryService.update(categoryBuilder.build());
+            localCategoryService.update(new Category(categoryDetailsState));
             return true;
         } catch (CategoryNameMustBeUniqueException e) {
             categoryName.setError("Category name need to be unique");
@@ -279,40 +262,44 @@ public class CategoryDetailsFragment extends Fragment {
         return false;
     }
 
-    void actionDelete() {
-        if (handleDeleteAction()) {
-            getActivity().getSupportFragmentManager().popBackStack();
-        }
-    }
-
-    private boolean handleDeleteAction() {
-        if (type == DetailsType.EDIT) {
-            return tryDelete();
-        }
-        return type == DetailsType.ADD;
-    }
-
-    private boolean tryDelete() {
-        try {
-            // show warning alert about number of cashflows to be deleted
-            localCategoryService.deleteById(categoryBuilder.getId());
-            return true;
-        } catch (CategoryHaveSubsException e) {
-            showToast("Cannot delete category which have subcategories.");
-        }
-        return false;
-    }
-
     private void showToast(String msg) {
         Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
     }
 
-    private class ParentCategoryAdapter extends BaseAdapter {
+    @OnItemSelected(R.id.parentCategory)
+    public void onParentCategorySelected(AdapterView<?> parentView, int position) {
+        if (position == 0) {
+            noParentSelected();
+        } else {
+            parentSelected((Category) parentView.getSelectedItem());
+        }
+    }
+
+    private void noParentSelected() {
+        if (categoryDetailsState.getParentId() != null) {
+            Category parent = localCategoryService.findById(categoryDetailsState.getParentId());
+            categoryIncomeType.setChecked(parent.isIncomeType());
+            categoryExpenseType.setChecked(parent.isExpenseType());
+            categoryDetailsState.setParentId(null);
+        }
+        categoryIncomeType.setEnabled(true);
+        categoryExpenseType.setEnabled(true);
+    }
+
+    private void parentSelected(Category selectedParent) {
+        categoryDetailsState.setParentId(selectedParent.getId());
+        categoryIncomeType.setChecked(selectedParent.isIncomeType());
+        categoryExpenseType.setChecked(selectedParent.isExpenseType());
+        categoryIncomeType.setEnabled(false);
+        categoryExpenseType.setEnabled(false);
+    }
+
+    public static class ParentCategoryAdapter extends BaseAdapter {
         private Context context;
         private List<Category> mainCategories;
 
-        private ParentCategoryAdapter(Context context, List<Category> mainCategories) {
-            mainCategories.add(0, new Category.Builder().setName("No parent (main category)").build());
+        ParentCategoryAdapter(Context context, List<Category> mainCategories) {
+            mainCategories.add(0, new Category().setName("No parent (main category)"));
             this.context = context;
             this.mainCategories = mainCategories;
         }
@@ -332,26 +319,28 @@ public class CategoryDetailsFragment extends Fragment {
             return position;
         }
 
-        public int getPosition(final Category category) {
-            return Iterables.indexOf(mainCategories, new Predicate<Category>() {
-                @Override
-                public boolean apply(Category categoryIt) {
-                    return category.getId().equals(categoryIt.getId());
-                }
-            });
-        }
-
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(context).inflate(android.R.layout.simple_spinner_item, parent, false);
-            }
-            TextView categoryNameView = (TextView) convertView.findViewById(android.R.id.text1);
+            ParentCategoryViewHolder holder;
 
-            categoryNameView.setText(getItem(position).getName());
+            if (convertView == null) {
+                convertView = LayoutInflater.from(context).inflate(android.R.layout.simple_spinner_item, null);
+                holder = new ParentCategoryViewHolder();
+                ButterKnife.inject(holder, convertView);
+                convertView.setTag(holder);
+            } else {
+                holder = (ParentCategoryViewHolder) convertView.getTag();
+            }
+
+            Category item = getItem(position);
+            holder.categoryName.setText(item.getName());
 
             return convertView;
         }
 
+        class ParentCategoryViewHolder {
+            @InjectView(android.R.id.text1)
+            TextView categoryName;
+        }
     }
 }

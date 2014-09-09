@@ -67,8 +67,14 @@ public class DatabaseInitializer {
     }
 
     private void initDatabase() {
-        localCategoryService.insert(new Category.Builder().setType(Category.Type.OTHER).setName(walletPlus.getString(R.string.otherCategoryName)).build());
-        localCategoryService.insert(new Category.Builder().setType(Category.Type.TRANSFER).setName(walletPlus.getString(R.string.transferCategoryName)).build());
+        Category category = new Category();
+        category.setType(Category.Type.OTHER);
+        category.setName(walletPlus.getString(R.string.otherCategoryName));
+        localCategoryService.insert(category);
+        category = new Category();
+        category.setType(Category.Type.TRANSFER);
+        category.setName(walletPlus.getString(R.string.transferCategoryName));
+        localCategoryService.insert(category);
     }
 
     private void initExampleDatabase() {
@@ -96,25 +102,21 @@ public class DatabaseInitializer {
 
 
         /** Init categories **/
-        Category.Builder categoryBuilder = new Category.Builder();
-        Category mainHouse = categoryBuilder.setName("House").setType(Category.Type.EXPENSE).build();
+        Category mainHouse = new Category().setName("House").setType(Category.Type.EXPENSE);
         localCategoryService.insert(mainHouse);
-        categoryBuilder.setParent(mainHouse).setType(null);
-
-        Category energy = categoryBuilder.setName("Energy").build();
+        Category energy = new Category().setName("Energy").setParent(mainHouse);
         localCategoryService.insert(energy);
-        Category water = categoryBuilder.setName("Water").build();
+        Category water = new Category().setName("Water").setParent(mainHouse);
         localCategoryService.insert(water);
-        Category gas = categoryBuilder.setName("Gas").build();
+        Category gas = new Category().setName("Gas").setParent(mainHouse);
         localCategoryService.insert(gas);
 
-        Category mainInternet = categoryBuilder.setName("Internet").setType(Category.Type.INCOME).setParent(null).build();
+        Category mainInternet = new Category().setName("Internet").setType(Category.Type.INCOME);
         localCategoryService.insert(mainInternet);
-        categoryBuilder.setParent(mainInternet).setType(null);
-        localCategoryService.insert(categoryBuilder.setName("Music forum").build());
-        localCategoryService.insert(categoryBuilder.setName("News Service").build());
+        localCategoryService.insert(new Category().setParent(mainInternet).setName("Music forum"));
+        localCategoryService.insert(new Category().setParent(mainInternet).setName("News Service"));
 
-        Category mainPartner = categoryBuilder.setName("Partner").setType(Category.Type.INCOME_EXPENSE).setParent(null).build();
+        Category mainPartner = new Category().setName("Partner").setType(Category.Type.INCOME_EXPENSE);
         localCategoryService.insert(mainPartner);
 
         /** Init cashflows **/
