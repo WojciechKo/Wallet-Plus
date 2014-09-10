@@ -19,14 +19,19 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.ui.DrawerListAdapter;
 import info.korzeniowski.walletplus.ui.MainDrawerItem;
+import info.korzeniowski.walletplus.ui.cashflow.details.OnCashFlowDetailsChangedListener;
 
-public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener, OnCashFlowDetailsChangedListener {
 
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
@@ -37,7 +42,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     @Inject
     DrawerListAdapter drawerListAdapter;
 
-//    private List<OnCashFlowDetailsChangedListener> cashFlowDetailsChangedListeners = Lists.newArrayList();
+    private List<OnCashFlowDetailsChangedListener> cashFlowDetailsChangedListeners = Lists.newArrayList();
     private ActionBarDrawerToggle drawerToggle;
     private MainActivityParcelableState state;
 
@@ -227,12 +232,12 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 //        }
 //    }
 //
-//    @Override
-//    public void onCommentChanged() {
-//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-//            listener.onCommentChanged();
-//        }
-//    }
+    @Override
+    public void onCommentChanged() {
+        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
+            listener.onCommentChanged();
+        }
+    }
 //
 //    @Override
 //    public void onCategoryChanged() {
@@ -255,17 +260,17 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 //        }
 //    }
 //
-//    private List<OnCashFlowDetailsChangedListener> getCashFlowDetailsChangedListeners() {
-//        return cashFlowDetailsChangedListeners;
-//    }
-//
-//    public void addOnCashFlowDetailsChangedListener(OnCashFlowDetailsChangedListener listener) {
-//        cashFlowDetailsChangedListeners.add(listener);
-//    }
-//
-//    public void removeOnCashFlowDetailsChangedListeners(OnCashFlowDetailsChangedListener listener) {
-//        cashFlowDetailsChangedListeners.remove(listener);
-//    }
+    private List<OnCashFlowDetailsChangedListener> getCashFlowDetailsChangedListeners() {
+        return cashFlowDetailsChangedListeners;
+    }
+
+    public void addOnCashFlowDetailsChangedListener(OnCashFlowDetailsChangedListener listener) {
+        cashFlowDetailsChangedListeners.add(listener);
+    }
+
+    public void removeOnCashFlowDetailsChangedListeners(OnCashFlowDetailsChangedListener listener) {
+        cashFlowDetailsChangedListeners.remove(listener);
+    }
 
     private class MainActivityDrawerToggle extends ActionBarDrawerToggle {
         MainActivityDrawerToggle(Activity activity) {

@@ -1,8 +1,10 @@
-package info.korzeniowski.walletplus.ui.cashflow.details;
+package info.korzeniowski.walletplus.ui.cashflow.details.tab;
 
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsEvent;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsParcelableState;
 
 public class CashFlowExpanseDetailsFragment extends CashFlowBaseDetailsFragment {
     @Override

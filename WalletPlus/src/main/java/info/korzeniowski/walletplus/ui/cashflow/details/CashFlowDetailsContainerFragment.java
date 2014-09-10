@@ -22,10 +22,14 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
+import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowBaseDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowExpanseDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowIncomeDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowTransferDetailsFragment;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 
-public class CashFlowDetailsMainFragment extends Fragment {
-    public static final String TAG = "CashFlowDetails";
+public class CashFlowDetailsContainerFragment extends Fragment {
+    public static final String TAG = "cashFlowDetailsContainer";
     public static final String CASH_FLOW_ID = "CASH_FLOW_ID";
 
     @InjectView(R.id.tabs)
@@ -50,7 +54,7 @@ public class CashFlowDetailsMainFragment extends Fragment {
     }
 
     public void setupViews() {
-        Long cashFlowId = getArguments().getLong(CashFlowDetailsMainFragment.CASH_FLOW_ID);
+        Long cashFlowId = getArguments().getLong(CashFlowDetailsContainerFragment.CASH_FLOW_ID);
         pager.setAdapter(new CashFlowPagerAdapter(getChildFragmentManager(), cashFlowId));
         tabs.setViewPager(pager);
         tabs.setTextColorResource(R.color.black);

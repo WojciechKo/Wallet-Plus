@@ -1,5 +1,6 @@
-package info.korzeniowski.walletplus.ui.cashflow.details;
+package info.korzeniowski.walletplus.ui.cashflow.details.tab;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -44,6 +45,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import butterknife.OnTextChanged;
+import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
@@ -52,13 +54,17 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsEvent;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsParcelableState;
+import info.korzeniowski.walletplus.ui.cashflow.details.OnCashFlowDetailsChangedListener;
 import info.korzeniowski.walletplus.ui.category.list.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 
-public abstract class CashFlowBaseDetailsFragment extends Fragment {
+public abstract class CashFlowBaseDetailsFragment extends Fragment implements OnCashFlowDetailsChangedListener {
     public static final String CASH_FLOW_DETAILS_STATE = "cashFlowDetailsState";
     private TextWatcher textWatcher;
+    private OnCashFlowDetailsChangedListener listener;
 
     private enum DetailsMode {ADD, EDIT}
 
@@ -123,6 +129,14 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
 //        }
 //    }
 
+
+    @Override
+    public void onAttach(Activity activity) {
+        ((MainActivity) activity).addOnCashFlowDetailsChangedListener(this);
+        super.onAttach(activity);
+    }
+
+
     private String getAmountStringFromState() {
         Float amount = cashFlowDetailsState.getAmount();
         if (amount == null) {
@@ -130,6 +144,14 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
         }
         return amountFormat.format(amount);
     }
+
+    public void onCommentChanged() {
+        String commentString = cashFlowDetailsState.getComment();
+        if (!comment.getText().toString().equals(commentString)) {
+            comment.setText(commentString);
+        }
+    }
+
 //
 //    @Subscribe
 //    public void onCommentChanged(CashFlowDetailsEvent.CommentChanged event) {
@@ -197,7 +219,10 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
         super.onResume();
         busEventHandler = new CashFlowEventHandler();
         bus.register(busEventHandler);
+        listener = (OnCashFlowDetailsChangedListener) getActivity();
+//        ((MainActivity) getActivity()).addOnCashFlowDetailsChangedListener(this);
     }
+
 
     @Override
     public void onPause() {
@@ -205,7 +230,8 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
         textWatcher = null;
         bus.unregister(busEventHandler);
         busEventHandler = null;
-        comment = null;
+        ((MainActivity) getActivity()).removeOnCashFlowDetailsChangedListeners(this);
+        listener = null;
         super.onPause();
 //        busEventHandler = null;
     }
@@ -232,7 +258,8 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
             public void afterTextChanged(Editable s) {
                 if (!s.toString().equals(cashFlowDetailsState.getComment())) {
                     cashFlowDetailsState.setComment(s.toString());
-                    bus.post(new CashFlowDetailsEvent.CommentChanged(cashFlowDetailsState.getComment()));
+                    if (listener != null) listener.onCommentChanged();
+//                    bus.post(new CashFlowDetailsEvent.CommentChanged(cashFlowDetailsState.getComment()));
                 }
             }
         };
@@ -521,14 +548,14 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
                 amount.setText(amountString);
             }
         }
-
-        @Subscribe
-        public void onCommentChanged(CashFlowDetailsEvent.CommentChanged event) {
-            String commentString = cashFlowDetailsState.getComment();
-            if (!comment.getText().toString().equals(commentString)) {
-                comment.setText(commentString);
-            }
-        }
+//
+//        @Subscribe
+//        public void onCommentChanged(CashFlowDetailsEvent.CommentChanged event) {
+//            String commentString = cashFlowDetailsState.getComment();
+//            if (!comment.getText().toString().equals(commentString)) {
+//                comment.setText(commentString);
+//            }
+//        }
 
         @Subscribe
         public void onCategoryChanged(CashFlowDetailsEvent.CategoryChanged event) {

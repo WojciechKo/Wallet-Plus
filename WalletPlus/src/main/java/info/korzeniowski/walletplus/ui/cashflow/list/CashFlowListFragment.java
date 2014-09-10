@@ -23,7 +23,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsMainFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsContainerFragment;
 import info.korzeniowski.walletplus.widget.IdentifiableMultiChoiceModeListener;
 
 /**
@@ -35,7 +35,8 @@ public class CashFlowListFragment extends Fragment {
     @InjectView(R.id.list)
     ListView list;
 
-    @Inject @Named("local")
+    @Inject
+    @Named("local")
     CashFlowService localCashFlowService;
 
     @Override
@@ -67,31 +68,29 @@ public class CashFlowListFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_new, menu);
+        inflater.inflate(R.menu.action_new, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (super.onOptionsItemSelected(item)) {
+        if (item.getItemId() == R.id.menu_new) {
+            startCashFlowDetailsFragment();
             return true;
         }
-        if (item.getItemId() == info.korzeniowski.walletplus.R.id.menu_new) {
-            actionAdd();
-            return true;
-        }
-        return false;
+        return super.onOptionsItemSelected(item);
     }
 
-    void actionAdd() {
+    private void startCashFlowDetailsFragment() {
         startCashFlowDetailsFragment(0L);
     }
 
+
     private void startCashFlowDetailsFragment(Long id) {
-        Fragment fragment = new CashFlowDetailsMainFragment();
+        Fragment fragment = new CashFlowDetailsContainerFragment();
         Bundle bundle = new Bundle();
-        bundle.putLong(CashFlowDetailsMainFragment.CASH_FLOW_ID, id);
+        bundle.putLong(CashFlowDetailsContainerFragment.CASH_FLOW_ID, id);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true, CashFlowDetailsMainFragment.TAG);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true, CashFlowDetailsContainerFragment.TAG);
     }
 }
