@@ -11,6 +11,8 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class Category implements Comparable<Category>, Identityable, Childable<Category>, Parcelable {
     public enum Type {
         TRANSFER,
@@ -58,7 +60,15 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
 
     }
 
-    public Category(Parcel in) {
+    public Category(Category category) {
+        checkNotNull(category);
+        setId(category.getId());
+        setParent(category.getParent() == null ? null : new Category(category.getParent()));
+        setName(category.getName());
+        setType(category.getType());
+    }
+
+    private Category(Parcel in) {
         id = in.readLong();
         parent = in.readParcelable(Category.class.getClassLoader());
         name = in.readString();

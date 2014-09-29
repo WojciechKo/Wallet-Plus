@@ -60,17 +60,16 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
 )
 public class DatabaseModule {
 
-    private DatabaseHelper databaseHelper;
+    private Context context;
 
     public DatabaseModule(WalletPlus application) {
-        databaseHelper = getHelper(application);
+        context = application.getApplicationContext();
     }
 
-    private DatabaseHelper getHelper(Context context) {
-        if (databaseHelper == null) {
-            databaseHelper = OpenHelperManager.getHelper(context, DatabaseHelper.class);
-        }
-        return databaseHelper;
+    @Provides
+    @Singleton
+    public DatabaseHelper provideDatabaseHelper() {
+        return OpenHelperManager.getHelper(context, DatabaseHelper.class);
     }
 
     /**
@@ -79,7 +78,7 @@ public class DatabaseModule {
      * *************
      */
     @Provides
-    public Dao<Category, Long> provideCategoryDao() {
+    public Dao<Category, Long> provideCategoryDao(DatabaseHelper databaseHelper) {
         try {
             return databaseHelper.getCategoryDao();
         } catch (SQLException e) {
@@ -101,7 +100,7 @@ public class DatabaseModule {
      * *************
      */
     @Provides
-    public Dao<CashFlow, Long> provideCashFlowDao() {
+    public Dao<CashFlow, Long> provideCashFlowDao(DatabaseHelper databaseHelper) {
         try {
             return databaseHelper.getCashFlowDao();
         } catch (SQLException e) {
@@ -123,7 +122,7 @@ public class DatabaseModule {
      * *************
      */
     @Provides
-    public Dao<Wallet, Long> provideWalletDao() {
+    public Dao<Wallet, Long> provideWalletDao(DatabaseHelper databaseHelper) {
         try {
             return databaseHelper.getWalletDao();
         } catch (SQLException e) {

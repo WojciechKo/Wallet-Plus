@@ -11,6 +11,8 @@ import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNull
 import info.korzeniowski.walletplus.service.exception.ParentCategoryIsNotMainCategoryException;
 import info.korzeniowski.walletplus.service.exception.SubCategoryCantHaveTypeException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class CategoryValidator implements Validator<Category> {
     private final CategoryService categoryService;
 
@@ -20,6 +22,7 @@ public class CategoryValidator implements Validator<Category> {
 
     @Override
     public void validateInsert(Category category) {
+        checkNotNull(category);
         validateIfNameIsNotNullOrEmpty(category);
         validateIfIdIsUnique(category);
         if (category.getParent() == null) {
@@ -58,6 +61,7 @@ public class CategoryValidator implements Validator<Category> {
 
     @Override
     public void validateUpdate(Category newCategory) {
+        checkNotNull(newCategory);
         Category oldCategory = categoryService.findById(newCategory.getId());
         validateIfNameIsNotNullOrEmpty(newCategory);
         validateIfNewIdIsUnique(newCategory, oldCategory);

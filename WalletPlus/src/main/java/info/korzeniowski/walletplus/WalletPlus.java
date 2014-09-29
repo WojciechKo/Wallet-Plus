@@ -1,25 +1,15 @@
 package info.korzeniowski.walletplus;
 
 import android.app.Application;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import dagger.ObjectGraph;
-import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.module.DatabaseModule;
 import info.korzeniowski.walletplus.module.MainModule;
-import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.service.CategoryService;
-import info.korzeniowski.walletplus.service.WalletService;
 
 /**
  * Main Application class.

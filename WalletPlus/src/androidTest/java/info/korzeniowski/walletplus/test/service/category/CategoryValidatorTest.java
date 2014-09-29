@@ -16,11 +16,9 @@ import java.util.UUID;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
-import info.korzeniowski.walletplus.service.exception.CategoryNameMustBeUniqueException;
 import info.korzeniowski.walletplus.service.exception.EntityAlreadyExistsException;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 import info.korzeniowski.walletplus.service.exception.ParentCategoryIsNotMainCategoryException;
-import info.korzeniowski.walletplus.service.exception.SubCategoryCantHaveTypeException;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.validation.CategoryValidator;
 
@@ -30,11 +28,13 @@ import static org.mockito.Mockito.when;
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class CategoryValidatorTest {
-    private CategoryService categoryService;
-    private CategoryService validatorService;
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
+
+    private CategoryService categoryService;
+
+    private CategoryService validatorService;
 
     @Before
     public void setUp() {
@@ -44,83 +44,64 @@ public class CategoryValidatorTest {
     }
 
     /**
-     * **********************************
-     * INSERT VALIDATION         *
-     * ***********************************
+     * *******************
+     * INSERT VALIDATION *
+     * *******************
      */
-
     @Test
     public void shouldInsertMainCategory() {
-        categoryService.insert(getSimpleMainIncomeCategoryBuilder().build());
+        categoryService.insert(getSimpleMainIncomeCategory());
     }
 
     @Test
     public void shouldInsertSubOfMainCategory() {
-        Category main = getSimpleMainIncomeCategoryBuilder().build();
+        Category main = getSimpleMainIncomeCategory();
         when(validatorService.findById(main.getId())).thenReturn(main);
 
-        categoryService.insert(getSimpleMainIncomeCategoryBuilder().setParent(main).setType(null).build());
+        categoryService.insert(getSimpleMainIncomeCategory().setParent(main).setType(null));
     }
 
     @Test
     public void shouldThrowExceptionWhenInsertCategoryWithoutName() {
         exception.expect(EntityPropertyCannotBeNullOrEmptyException.class);
         exception.expectMessage("Name");
-        categoryService.insert(getSimpleMainIncomeCategoryBuilder().setName(null).build());
+        categoryService.insert(getSimpleMainIncomeCategory().setName(null));
     }
 
     @Test
     public void shouldThrowExceptionWhenInsertMainCategoryWithoutType() {
         exception.expect(EntityPropertyCannotBeNullOrEmptyException.class);
         exception.expectMessage("Type");
-        categoryService.insert(getSimpleMainIncomeCategoryBuilder().setType(null).build());
+        categoryService.insert(getSimpleMainIncomeCategory().setType(null));
     }
 
     @Test
     public void shouldThrowExceptionWhenInsertWithDuplicatedId() {
-        Category toInsert = getSimpleMainIncomeCategoryBuilder().build();
+        Category toInsert = getSimpleMainIncomeCategory();
         when(validatorService.findById(toInsert.getId())).thenReturn(toInsert);
 
         exception.expect(EntityAlreadyExistsException.class);
-        categoryService.insert(getSimpleMainIncomeCategoryBuilder().setId(toInsert.getId()).build());
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenInsertWithDuplicatedName() {
-        Category toInsert = getSimpleMainIncomeCategoryBuilder().build();
-        when(validatorService.findByName(toInsert.getName())).thenReturn(toInsert);
-
-        exception.expect(CategoryNameMustBeUniqueException.class);
-        categoryService.insert(getSimpleMainIncomeCategoryBuilder().setName(toInsert.getName()).build());
+        categoryService.insert(getSimpleMainIncomeCategory().setId(toInsert.getId()));
     }
 
     @Test
     public void shouldThrowExceptionWhenInsertSubOfSub() {
-        Category subOfMain = getSimpleMainIncomeCategoryBuilder().setParent(getSimpleMainIncomeCategoryBuilder().build()).build();
-        Category subOfSub = getSimpleMainIncomeCategoryBuilder().setParent(subOfMain).build();
+        Category subOfMain = getSimpleMainIncomeCategory().setParent(getSimpleMainIncomeCategory());
+        Category subOfSub = getSimpleMainIncomeCategory().setParent(subOfMain);
         when(validatorService.findById(subOfMain.getId())).thenReturn(subOfMain);
 
         exception.expect(ParentCategoryIsNotMainCategoryException.class);
         categoryService.insert(subOfSub);
     }
 
-    @Test
-    public void shouldThrowExceptionWhenInsertSubWithTypeDifferentThanParent() {
-        Category parent = getSimpleMainIncomeCategoryBuilder().build();
-        when(validatorService.findById(parent.getId())).thenReturn(parent);
-
-        exception.expect(SubCategoryCantHaveTypeException.class);
-        categoryService.insert(getSimpleMainIncomeCategoryBuilder().setParent(parent).build());
-    }
-
     /**
-     * **********************************
-     * DELETE VALIDATION         *
-     * ***********************************
+     * *******************
+     * DELETE VALIDATION *
+     * *******************
      */
     @Test
     public void shouldDeleteMainCategory() {
-        Category main = getSimpleMainIncomeCategoryBuilder().build();
+        Category main = getSimpleMainIncomeCategory();
         when(validatorService.findById(main.getId())).thenReturn(main);
 
         categoryService.deleteById(main.getId());
@@ -128,8 +109,8 @@ public class CategoryValidatorTest {
 
     @Test
     public void shouldDeleteSubCategory() {
-        Category main = getSimpleMainIncomeCategoryBuilder().build();
-        Category sub = getSimpleMainIncomeCategoryBuilder().setParent(main).build();
+        Category main = getSimpleMainIncomeCategory();
+        Category sub = getSimpleMainIncomeCategory().setParent(main);
         when(validatorService.findById(sub.getId())).thenReturn(sub);
 
         categoryService.deleteById(sub.getId());
@@ -137,69 +118,67 @@ public class CategoryValidatorTest {
 
     @Test
     public void shouldThrowExceptionWhenDeleteMainCategoryWithSub() {
-        Category main = getSimpleMainIncomeCategoryBuilder().build();
+        Category main = getSimpleMainIncomeCategory();
         when(validatorService.findById(main.getId())).thenReturn(main);
-        when(validatorService.getSubCategoriesOf(main.getId())).thenReturn(Lists.newArrayList(getSimpleMainIncomeCategoryBuilder().setParent(main).build()));
+        when(validatorService.getSubCategoriesOf(main.getId())).thenReturn(Lists.newArrayList(getSimpleMainIncomeCategory().setParent(main)));
 
         exception.expect(CategoryHaveSubsException.class);
         categoryService.deleteById(main.getId());
     }
 
     /**
-     * **********************************
-     * UPDATE VALIDATION         *
-     * ***********************************
+     * *******************
+     * UPDATE VALIDATION *
+     * *******************
      */
     @Test
     public void shouldUpdateNameAndTypeOfMainCategory() {
-        Category category = getSimpleMainIncomeCategoryBuilder().build();
+        Category category = getSimpleMainIncomeCategory();
         String newName = "NewName";
         when(validatorService.findById(category.getId())).thenReturn(category);
         when(validatorService.findByName(newName)).thenReturn(null);
 
-        categoryService.update(new Category.Builder(category).setName(newName).setType(Category.Type.EXPENSE).build());
+        categoryService.update(category.setName(newName).setType(Category.Type.EXPENSE));
     }
 
     @Test
     public void shouldUpdateCategoryFromSubToMain() {
-        Category main = getSimpleMainIncomeCategoryBuilder().build();
-        Category sub = getSimpleMainIncomeCategoryBuilder().setType(null).setParent(main).build();
+        Category main = getSimpleMainIncomeCategory();
+        Category sub = getSimpleMainIncomeCategory().setType(null).setParent(main);
         when(validatorService.findById(main.getId())).thenReturn(main);
         when(validatorService.findById(sub.getId())).thenReturn(sub);
 
-        sub = new Category.Builder(sub).setType(sub.getParent().getType()).setParent(null).build();
-
-        categoryService.update(sub);
+        categoryService.update(sub.setType(sub.getParent().getType()).setParent(null));
     }
 
     @Test
     public void shouldUpdateCategoryFromMainToSub() {
-        Category main1 = getSimpleMainIncomeCategoryBuilder().build();
-        Category main2 = getSimpleMainIncomeCategoryBuilder().build();
+        Category main1 = getSimpleMainIncomeCategory();
+        Category main2 = getSimpleMainIncomeCategory();
         when(validatorService.findById(main1.getId())).thenReturn(main1);
         when(validatorService.findById(main2.getId())).thenReturn(main2);
 
-        main1 = new Category.Builder(main1).setParent(main2).build();
-        categoryService.update(main2);
+        categoryService.update(main1.setType(null).setParent(main2));
     }
 
     @Test
     public void shouldThrowExceptionWhenUpdateMainCategoryWithChildrenToSub() {
-        Category mainWithSub = getSimpleMainIncomeCategoryBuilder().build();
-        Category subOfMain = getSimpleMainIncomeCategoryBuilder().setParent(mainWithSub).build();
-        Category main2 = getSimpleMainIncomeCategoryBuilder().build();
+        Category mainWithSub = getSimpleMainIncomeCategory();
+        Category subOfMain = getSimpleMainIncomeCategory().setParent(mainWithSub);
+        Category otherMain = getSimpleMainIncomeCategory();
         when(validatorService.findById(mainWithSub.getId())).thenReturn(mainWithSub);
-        when(validatorService.findById(main2.getId())).thenReturn(main2);
+        when(validatorService.findById(otherMain.getId())).thenReturn(otherMain);
+        when(validatorService.getSubCategoriesOf(mainWithSub.getId())).thenReturn(Lists.newArrayList(subOfMain));
 
-        mainWithSub = new Category.Builder(mainWithSub).setParent(main2).build();
-        categoryService.update(main2);
+        exception.expect(CategoryHaveSubsException.class);
+        categoryService.update(new Category(mainWithSub).setType(null).setParent(new Category(otherMain)));
     }
 
-    private Category.Builder getSimpleMainIncomeCategoryBuilder() {
+    private Category getSimpleMainIncomeCategory() {
         UUID id = UUID.randomUUID();
-        return new Category.Builder()
-                .setName("Simple category-" + id.getLeastSignificantBits())
+        return new Category()
+                .setName("Simple category-" + id.getMostSignificantBits())
                 .setType(Category.Type.INCOME)
-                .setId(id.getLeastSignificantBits());
+                .setId(id.getMostSignificantBits());
     }
 }

@@ -1,52 +1,47 @@
 package info.korzeniowski.walletplus.test.service.wallet;
 
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.sql.SQLException;
-import java.util.List;
 import java.util.UUID;
 
-import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.service.exception.WalletNameAndTypeMustBeUniqueException;
-import info.korzeniowski.walletplus.service.exception.WalletTypeCannotBeChangedException;
-import info.korzeniowski.walletplus.service.local.DatabaseHelper;
-import info.korzeniowski.walletplus.service.local.LocalWalletService;
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.service.exception.WalletTypeCannotBeChangedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class LocalWalletServiceTest {
-    private WalletService walletService;
+
+    @Inject
+    @Named("local")
+    WalletService walletService;
 
     @Before
     public void setUp() {
-        try {
-            DatabaseHelper helper = new DatabaseHelper(Robolectric.application, null);
-            walletService = new LocalWalletService(helper.getWalletDao());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            fail("Setup failed.");
-        }
+        ((TestWalletPlus) Robolectric.application).inject(this);
     }
 
     @Test
     public void shouldThrowExceptionOnChangeWalletType() {
-        Long id = walletService.insert(getSimpleWalletBuilder(Wallet.Type.MY_WALLET).build());
+        Long id = walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET));
         Wallet wallet = walletService.findById(id);
+
         try {
-            walletService.update(new Wallet.Builder(wallet).setType(Wallet.Type.CONTRACTOR).build());
+            walletService.update(wallet.setType(Wallet.Type.CONTRACTOR));
             failBecauseExceptionWasNotThrown(WalletTypeCannotBeChangedException.class);
         } catch (WalletTypeCannotBeChangedException e) {
             assertThat(walletService.count()).isEqualTo(1);
@@ -55,13 +50,13 @@ public class LocalWalletServiceTest {
 
     @Test
     public void shouldAddDifferentTypeOfWallets() {
-        walletService.insert(getSimpleWalletBuilder(Wallet.Type.MY_WALLET).build());
-        walletService.insert(getSimpleWalletBuilder(Wallet.Type.CONTRACTOR).build());
-        walletService.insert(getSimpleWalletBuilder(Wallet.Type.CONTRACTOR).build());
-        walletService.insert(getSimpleWalletBuilder(Wallet.Type.MY_WALLET).build());
-        walletService.insert(getSimpleWalletBuilder(Wallet.Type.CONTRACTOR).build());
-        walletService.insert(getSimpleWalletBuilder(Wallet.Type.CONTRACTOR).build());
-        walletService.insert(getSimpleWalletBuilder(Wallet.Type.MY_WALLET).build());
+        walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET));
+        walletService.insert(getSimpleWallet(Wallet.Type.CONTRACTOR));
+        walletService.insert(getSimpleWallet(Wallet.Type.CONTRACTOR));
+        walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET));
+        walletService.insert(getSimpleWallet(Wallet.Type.CONTRACTOR));
+        walletService.insert(getSimpleWallet(Wallet.Type.CONTRACTOR));
+        walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET));
 
         assertThat(walletService.getContractors()).hasSize(4);
         assertThat(walletService.getMyWallets()).hasSize(3);
@@ -70,22 +65,21 @@ public class LocalWalletServiceTest {
 
     @Test
     public void shouldUpdateWalletData() {
-        String oldName = "oldName";
-        String newName = "newName";
-        Long id = walletService.insert(getSimpleWalletBuilder(Wallet.Type.MY_WALLET).setName(oldName).build());
+        Long id = walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET).setName("oldName"));
         Wallet toUpdate = walletService.findById(id);
 
-        walletService.update(new Wallet.Builder(toUpdate).setName(newName).build());
-        Wallet updated = walletService.findById(id);
+        String newName = "newName";
+        walletService.update(toUpdate.setName(newName));
 
+        Wallet updated = walletService.findById(id);
         assertThat(updated.getName()).isEqualTo(newName);
     }
 
     @Test
     public void shouldRemoveWallet() {
-        Long myWalletId1 = walletService.insert(getSimpleWalletBuilder(Wallet.Type.MY_WALLET).build());
-        Long myWalletId2 = walletService.insert(getSimpleWalletBuilder(Wallet.Type.MY_WALLET).build());
-        Long contractorId = walletService.insert(getSimpleWalletBuilder(Wallet.Type.CONTRACTOR).build());
+        Long myWalletId1 = walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET));
+        Long myWalletId2 = walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET));
+        Long contractorId = walletService.insert(getSimpleWallet(Wallet.Type.CONTRACTOR));
 
         walletService.deleteById(myWalletId1);
         assertThat(walletService.getContractors()).hasSize(1);
@@ -104,30 +98,16 @@ public class LocalWalletServiceTest {
     }
 
     @Test
-    public void shouldNotInsertDuplicatedNamedAndTypedWallet() {
-        Wallet first = getSimpleWalletBuilder(Wallet.Type.MY_WALLET).build();
-        Integer myWalletsBefore = walletService.getMyWallets().size();
+    public void shouldInsertDuplicatedNamedWallet() {
+        Wallet first = getSimpleWallet(Wallet.Type.MY_WALLET);
+        walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET));
+        walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET).setName(first.getName()));
 
-        walletService.insert(first);
-        try {
-            walletService.insert(getSimpleWalletBuilder(Wallet.Type.MY_WALLET).setName(first.getName()).build());
-            failBecauseExceptionWasNotThrown(WalletNameAndTypeMustBeUniqueException.class);
-        } catch (WalletNameAndTypeMustBeUniqueException e) {
-            assertThat(walletService.getMyWallets()).hasSize(myWalletsBefore + 1);
-        }
+        assertThat(walletService.getMyWallets()).hasSize(2);
+        assertThat(walletService.getContractors()).hasSize(0);
     }
 
-    @Test
-    public void shouldInsertDuplicatedNamedButDifferentTypedWallet() {
-        Wallet first = getSimpleWalletBuilder(Wallet.Type.MY_WALLET).build();
-        walletService.insert(getSimpleWalletBuilder(Wallet.Type.MY_WALLET).build());
-        walletService.insert(getSimpleWalletBuilder(Wallet.Type.CONTRACTOR).setName(first.getName()).build());
-
-        assertThat(walletService.getMyWallets()).hasSize(1);
-        assertThat(walletService.getContractors()).hasSize(1);
-    }
-
-    private Wallet.Builder getSimpleWalletBuilder(Wallet.Type type) {
-        return new Wallet.Builder().setType(type).setName("Simple wallet-" + UUID.randomUUID()).setInitialAmount(11.1).setCurrentAmount(11.1);
+    private Wallet getSimpleWallet(Wallet.Type type) {
+        return new Wallet().setType(type).setName("Simple wallet-" + UUID.randomUUID()).setInitialAmount(11.1).setCurrentAmount(11.1);
     }
 }

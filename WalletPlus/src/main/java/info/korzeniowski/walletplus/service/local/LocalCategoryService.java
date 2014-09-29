@@ -33,14 +33,13 @@ public class LocalCategoryService implements CategoryService {
     }
 
     /**
-     * **********
-     * CREATE
-     * ***********
+     * ********
+     * CREATE *
+     * ********
      */
     @Override
     public Long insert(Category category) {
         try {
-            checkNotNull(category);
             categoryValidator.validateInsert(category);
             categoryDao.create(category);
             return category.getId();
@@ -50,9 +49,9 @@ public class LocalCategoryService implements CategoryService {
     }
 
     /**
-     * **********
-     * READ
-     * ***********
+     * ******
+     * READ *
+     * ******
      */
     @Override
     public Category findById(final Long id) {
@@ -135,9 +134,9 @@ public class LocalCategoryService implements CategoryService {
     }
 
     /**
-     * **********
-     * UPDATE
-     * ***********
+     * ********
+     * UPDATE *
+     * ********
      */
     @Override
     public void update(final Category newValue) {
@@ -150,9 +149,9 @@ public class LocalCategoryService implements CategoryService {
     }
 
     /**
-     * **********
-     * DELETE
-     * ***********
+     * ********
+     * DELETE *
+     * ********
      */
     @Override
     public void deleteById(Long id) {

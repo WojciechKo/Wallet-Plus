@@ -28,7 +28,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     @Inject
     public DatabaseHelper(Context context) {
-        super(context, "WalletPlus.db", null, DATABASE_VERSION);
+        this(context, "WalletPlus.db");
     }
 
     public DatabaseHelper(Context context, String databaseName) {
