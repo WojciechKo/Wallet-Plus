@@ -5,9 +5,9 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:0.12.+"
+        classpath "com.android.tools.build:gradle:0.13.+"
         classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
-        classpath "org.robolectric:robolectric-gradle-plugin:0.11.+"
+        classpath "org.robolectric:robolectric-gradle-plugin:0.13.+"
     }
 }
 
@@ -148,15 +148,15 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {
     sourceDirectories = files(coverageSourceDirs)
     executionData = files('build/jacoco/testDebug.exec')
 
-    renamedFilesMap = [:]
+    def renamedFilesMap = [:]
 
     // Hacky fix for issue: https://code.google.com/p/android/issues/detail?id=69174.
     // Rename files with '$$' before generating report, and then rename back after
     doFirst {
         new File('WalletPlus/build/intermediates/classes/').eachFileRecurse { file ->
             if (file.name.contains('$$')) {
-                oldPath = file.path
-                newPath = oldPath.replace('$$', '$')
+                def oldPath = file.path
+                def newPath = oldPath.replace('$$', '$')
                 file.renameTo(newPath)
                 renamedFilesMap[newPath] = oldPath
             }
@@ -168,5 +168,4 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {
                 new File(newPath).renameTo(oldPath)
         }
     }
-
 }
