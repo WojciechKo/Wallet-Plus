@@ -10,10 +10,7 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
-import android.text.method.TextKeyListener;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +51,7 @@ import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsParcelableState;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsStateListener;
 import info.korzeniowski.walletplus.ui.category.list.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 

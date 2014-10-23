@@ -30,6 +30,7 @@ import butterknife.InjectView;
 import butterknife.OnItemSelected;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
@@ -71,33 +72,35 @@ public class CategoryDetailsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        ((WalletPlus) getActivity().getApplication()).inject(this);
-        initState();
-    }
-
-    private void initState() {
-        category = localCategoryService.findById(getArguments().getLong(CATEGORY_ID));
-        if (category == null) {
-            category = new Category();
-            type = DetailsType.ADD;
-        } else {
-            type = DetailsType.EDIT;
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.category_details, container, false);
+        ((WalletPlus) getActivity().getApplication()).inject(this);
         ButterKnife.inject(this, view);
         setupViews();
         return view;
     }
 
+
     void setupViews() {
+        initState();
         setupAdapters();
         setupListeners();
         fillViewsWithData();
+    }
+
+    private void initState() {
+        Long categoryId = getArguments() != null ? getArguments().getLong(CATEGORY_ID) : 0;
+        if (categoryId == 0) {
+            category = new Category();
+            type = DetailsType.ADD;
+        } else {
+            category = localCategoryService.findById(categoryId);
+            type = DetailsType.EDIT;
+        }
     }
 
     private void setupAdapters() {

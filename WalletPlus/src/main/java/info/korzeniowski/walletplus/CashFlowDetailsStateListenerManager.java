@@ -1,6 +1,6 @@
 package info.korzeniowski.walletplus;
 
-import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowDetailsStateListener;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsStateListener;
 
 public interface CashFlowDetailsStateListenerManager {
     public void addCashFlowDetailsStateListener(CashFlowDetailsStateListener fragment);

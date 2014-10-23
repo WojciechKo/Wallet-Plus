@@ -77,7 +77,6 @@ public class CashFlowListFragment extends Fragment {
             return true;
         }
         return false;
-//        return super.onOptionsItemSelected(item);
     }
 
     private void startCashFlowDetailsFragment() {

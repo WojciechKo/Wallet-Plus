@@ -29,7 +29,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.ui.DrawerListAdapter;
 import info.korzeniowski.walletplus.ui.MainDrawerItem;
-import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowDetailsStateListener;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsStateListener;
 
 public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener, CashFlowDetailsStateListenerManager {
 
