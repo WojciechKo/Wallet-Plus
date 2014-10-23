@@ -26,6 +26,7 @@ import android.widget.TimePicker;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.squareup.otto.Bus;
 
 import java.text.NumberFormat;
 import java.util.Calendar;
@@ -40,8 +41,6 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import butterknife.OnTextChanged;
-import info.korzeniowski.walletplus.CashFlowDetailsStateListenerManager;
-import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
@@ -51,12 +50,12 @@ import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsParcelableState;
-import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsStateListener;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsStatusChangedEvent;
 import info.korzeniowski.walletplus.ui.category.list.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 
-public abstract class CashFlowBaseDetailsFragment extends Fragment implements CashFlowDetailsStateListener {
+public abstract class CashFlowBaseDetailsFragment extends Fragment {
     public static final String CASH_FLOW_DETAILS_STATE = "cashFlowDetailsState";
     public static final String IS_SELECTED = "isSelected";
 
@@ -102,23 +101,34 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements Ca
     @Named("amount")
     NumberFormat amountFormat;
 
+    @Inject
+    Bus bus;
+
     protected List<Wallet> fromWalletList;
+
     protected List<Wallet> toWalletList;
     protected List<Category> categoryList;
-
     protected CashFlowDetailsParcelableState cashFlowDetailsState;
+
     private TextWatcher textWatcher;
     private DetailsMode detailsMode;
     private boolean isSelected;
+
+    public void statusChanged() {
+        comment.setText(cashFlowDetailsState.getComment());
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
-        cashFlowDetailsState = savedInstanceState != null
-                ? (CashFlowDetailsParcelableState) savedInstanceState.getParcelable(CASH_FLOW_DETAILS_STATE)
-                : (CashFlowDetailsParcelableState) getArguments().getParcelable(CASH_FLOW_DETAILS_STATE);
-        isSelected = getArguments().getBoolean(IS_SELECTED);
+        if (savedInstanceState != null) {
+            cashFlowDetailsState = savedInstanceState.getParcelable(CASH_FLOW_DETAILS_STATE);
+            isSelected = savedInstanceState.getBoolean(IS_SELECTED);
+        } else {
+            cashFlowDetailsState = getArguments().getParcelable(CASH_FLOW_DETAILS_STATE);
+            isSelected = getArguments().getBoolean(IS_SELECTED);
+        }
         setHasOptionsMenu(true);
     }
 
@@ -127,42 +137,11 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements Ca
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.cashflow_details_fragment, container, false);
         ButterKnife.inject(this, view);
-        if (savedInstanceState != null) {
-            isSelected = savedInstanceState.getBoolean(IS_SELECTED);
-        }
-
-        setupViews(savedInstanceState);
+        setupViews();
         return view;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(CASH_FLOW_DETAILS_STATE, cashFlowDetailsState);
-        outState.putBoolean(IS_SELECTED, isSelected);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        fillViewsWithData();
-        setupListenersIfSelected();
-        ((MainActivity) getActivity()).addCashFlowDetailsStateListener(this);
-    }
-
-    @Override
-    public void onPause() {
-        ((MainActivity) getActivity()).removeCashFlowDetailsStateListener(this);
-        clearListeners();
-        super.onPause();
-    }
-
-    @Override
-    public void update() {
-        comment.setText(cashFlowDetailsState.getComment());
-    }
-
-    private void setupViews(Bundle savedInstanceState) {
+    private void setupViews() {
         initFields();
         setupAdapters();
     }
@@ -177,6 +156,28 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements Ca
     private void setupAdapters() {
         toWallet.setAdapter(new WalletAdapter(getActivity(), toWalletList));
         fromWallet.setAdapter(new WalletAdapter(getActivity(), fromWalletList));
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(CASH_FLOW_DETAILS_STATE, cashFlowDetailsState);
+        outState.putBoolean(IS_SELECTED, isSelected);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fillViewsWithData();
+        setupListenersIfSelected();
+        bus.register(this);
+    }
+
+    @Override
+    public void onPause() {
+        bus.unregister(this);
+        clearListeners();
+        super.onPause();
     }
 
     private void setupListenersIfSelected() {
@@ -440,7 +441,8 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment implements Ca
     }
 
     private void notifyCashFlowStateChanged() {
-        ((CashFlowDetailsStateListenerManager) getActivity()).cashFlowStateChanged(this);
+        bus.post(new CashFlowDetailsStatusChangedEvent());
+//        ((CashFlowDetailsStateListenerManager) getActivity()).cashFlowStateChanged(this);
     }
 
     class WalletAdapter extends BaseAdapter {

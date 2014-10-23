@@ -19,19 +19,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.google.common.collect.Lists;
-
-import java.util.List;
-
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.ui.DrawerListAdapter;
 import info.korzeniowski.walletplus.ui.MainDrawerItem;
-import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsStateListener;
 
-public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener, CashFlowDetailsStateListenerManager {
+public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
 
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
@@ -44,7 +39,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
     private ActionBarDrawerToggle drawerToggle;
     private MainActivityParcelableState state;
-    private List<CashFlowDetailsStateListener> cashFlowDetailsStateListeners;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,7 +59,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
             state.setSelectedDrawerPosition(0);
         }
         drawerToggle = new MainActivityDrawerToggle(this);
-        cashFlowDetailsStateListeners = Lists.newArrayList();
     }
 
     void setupViews() {
@@ -206,25 +199,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         getSupportFragmentManager().removeOnBackStackChangedListener(this);
         drawerToggle = null;
         super.onDestroy();
-    }
-
-    @Override
-    public void addCashFlowDetailsStateListener(CashFlowDetailsStateListener fragment) {
-        this.cashFlowDetailsStateListeners.add(fragment);
-    }
-
-    @Override
-    public void removeCashFlowDetailsStateListener(CashFlowDetailsStateListener fragment) {
-        this.cashFlowDetailsStateListeners.remove(fragment);
-    }
-
-    @Override
-    public void cashFlowStateChanged(CashFlowDetailsStateListener notifierFragment) {
-        for (CashFlowDetailsStateListener listener : cashFlowDetailsStateListeners) {
-            if (listener != notifierFragment) {
-                listener.update();
-            }
-        }
     }
 
     private class MainActivityDrawerToggle extends ActionBarDrawerToggle {

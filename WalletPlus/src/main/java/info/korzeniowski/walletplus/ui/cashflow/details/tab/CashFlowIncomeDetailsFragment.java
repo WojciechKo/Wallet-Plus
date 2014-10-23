@@ -1,9 +1,17 @@
 package info.korzeniowski.walletplus.ui.cashflow.details.tab;
 
+import com.squareup.otto.Subscribe;
+
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsStatusChangedEvent;
 
 public class CashFlowIncomeDetailsFragment extends CashFlowBaseDetailsFragment {
+
+    @Subscribe
+    public void statusChanged(CashFlowDetailsStatusChangedEvent event) {
+        super.statusChanged();
+    }
 
     @Override
     Wallet getFromWalletFromState() {

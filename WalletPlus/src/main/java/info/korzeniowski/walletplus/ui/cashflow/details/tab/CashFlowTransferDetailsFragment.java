@@ -7,15 +7,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.squareup.otto.Subscribe;
+
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsStatusChangedEvent;
 
 public class CashFlowTransferDetailsFragment extends CashFlowBaseDetailsFragment {
 
-//    @InjectView(R.id.categoryLabel)
-//    TextView categoryLabel;
+    @InjectView(R.id.categoryLabel)
+    TextView categoryLabel;
+
+    @Subscribe
+    public void statusChanged(CashFlowDetailsStatusChangedEvent event) {
+        super.statusChanged();
+    }
 
     @Override
     Wallet getFromWalletFromState() {
@@ -69,7 +77,7 @@ public class CashFlowTransferDetailsFragment extends CashFlowBaseDetailsFragment
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         category.setVisibility(View.GONE);
-//        categoryLabel.setVisibility(View.GONE);
+        categoryLabel.setVisibility(View.GONE);
         removeCategory.setVisibility(View.GONE);
         return view;
     }
