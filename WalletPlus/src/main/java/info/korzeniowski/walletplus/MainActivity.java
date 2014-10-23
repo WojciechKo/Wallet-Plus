@@ -29,9 +29,9 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.ui.DrawerListAdapter;
 import info.korzeniowski.walletplus.ui.MainDrawerItem;
-import info.korzeniowski.walletplus.ui.cashflow.details.OnCashFlowDetailsChangedListener;
+import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowDetailsStateListener;
 
-public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener, OnCashFlowDetailsChangedListener {
+public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener, CashFlowDetailsStateListenerManager {
 
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
@@ -42,9 +42,9 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     @Inject
     DrawerListAdapter drawerListAdapter;
 
-    private List<OnCashFlowDetailsChangedListener> cashFlowDetailsChangedListeners = Lists.newArrayList();
     private ActionBarDrawerToggle drawerToggle;
     private MainActivityParcelableState state;
+    private List<CashFlowDetailsStateListener> cashFlowDetailsStateListeners;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +65,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
             state.setSelectedDrawerPosition(0);
         }
         drawerToggle = new MainActivityDrawerToggle(this);
+        cashFlowDetailsStateListeners = Lists.newArrayList();
     }
 
     void setupViews() {
@@ -159,10 +160,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         drawerLayout.closeDrawer(drawer);
     }
 
-    public void setContentFragment(Fragment fragment, Boolean addToBackStack) {
-        setContentFragment(fragment, addToBackStack, null);
-    }
-
     public void setContentFragment(Fragment fragment, Boolean addToBackStack, String tag) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.content_frame, fragment, tag);
@@ -210,66 +207,24 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         drawerToggle = null;
         super.onDestroy();
     }
-//
-//    @Override
-//    public void onFromWalletChanged() {
-//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-//            listener.onFromWalletChanged();
-//        }
-//    }
-//
-//    @Override
-//    public void onToWalletChanged() {
-//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-//            listener.onToWalletChanged();
-//        }
-//    }
-//
-//    @Override
-//    public void onAmountChanged() {
-//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-//            listener.onAmountChanged();
-//        }
-//    }
-//
+
     @Override
-    public void onCommentChanged() {
-        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-            listener.onCommentChanged();
+    public void addCashFlowDetailsStateListener(CashFlowDetailsStateListener fragment) {
+        this.cashFlowDetailsStateListeners.add(fragment);
+    }
+
+    @Override
+    public void removeCashFlowDetailsStateListener(CashFlowDetailsStateListener fragment) {
+        this.cashFlowDetailsStateListeners.remove(fragment);
+    }
+
+    @Override
+    public void cashFlowStateChanged(CashFlowDetailsStateListener notifierFragment) {
+        for (CashFlowDetailsStateListener listener : cashFlowDetailsStateListeners) {
+            if (listener != notifierFragment) {
+                listener.update();
+            }
         }
-    }
-//
-//    @Override
-//    public void onCategoryChanged() {
-//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-//            listener.onCategoryChanged();
-//        }
-//    }
-//
-//    @Override
-//    public void onDateChanged() {
-//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-//            listener.onDateChanged();
-//        }
-//    }
-//
-//    @Override
-//    public void onTimeChanged() {
-//        for (OnCashFlowDetailsChangedListener listener : getCashFlowDetailsChangedListeners()) {
-//            listener.onTimeChanged();
-//        }
-//    }
-//
-    private List<OnCashFlowDetailsChangedListener> getCashFlowDetailsChangedListeners() {
-        return cashFlowDetailsChangedListeners;
-    }
-
-    public void addOnCashFlowDetailsChangedListener(OnCashFlowDetailsChangedListener listener) {
-        cashFlowDetailsChangedListeners.add(listener);
-    }
-
-    public void removeOnCashFlowDetailsChangedListeners(OnCashFlowDetailsChangedListener listener) {
-        cashFlowDetailsChangedListeners.remove(listener);
     }
 
     private class MainActivityDrawerToggle extends ActionBarDrawerToggle {

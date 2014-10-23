@@ -15,7 +15,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/appName">
+            android:label="@string/appName"
+            android:windowSoftInputMode="stateHidden">
 
             <intent-filter>
 

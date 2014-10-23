@@ -24,11 +24,12 @@ import info.korzeniowski.walletplus.service.local.DatabaseHelper;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsContainerFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowBaseDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowExpanseDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowIncomeDetailsFragment;
-import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
-import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowBaseDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowTransferDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
@@ -47,6 +48,7 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
                 CategoryDetailsFragment.class,
                 CategoryListFragment.class,
 
+                CashFlowDetailsContainerFragment.class,
                 CashFlowBaseDetailsFragment.class,
                 CashFlowIncomeDetailsFragment.class,
                 CashFlowTransferDetailsFragment.class,

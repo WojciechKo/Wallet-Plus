@@ -73,14 +73,16 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     }
 
     private int getAmountColor(CashFlow item) {
-        if (item.isExpanse()) {
+        CashFlow.Type type = item.getType();
+
+        if (type == CashFlow.Type.EXPANSE) {
             return getContext().getResources().getColor(R.color.red);
-        } else if (item.isIncome()) {
+        } else if (type == CashFlow.Type.INCOME) {
             return getContext().getResources().getColor(R.color.green);
-        } else if (item.isTransfer()) {
+        } else if (type == CashFlow.Type.TRANSFER) {
             return getContext().getResources().getColor(R.color.blue);
         }
-        throw new RuntimeException("Unexpected cashflow type.");
+        return getContext().getResources().getColor(R.color.black);
     }
 
     private String getDateText(CashFlow item) {

@@ -59,13 +59,12 @@ public class LocalCashFlowServiceTest {
         double toCurrentAmount = walletService.findById(to.getId()).getCurrentAmount();
         categoryService.insert(new Category().setType(Category.Type.OTHER).setName("Other"));
 
-        CashFlow cashFlow = new CashFlow.Builder()
+        CashFlow cashFlow = new CashFlow()
                 .setAmount(amount)
                 .setDateTime(new Date())
                 .setFromWallet(from)
                 .setToWallet(to)
-                .setCategory(cashFlowService.getOtherCategory())
-                .build();
+                .setCategory(cashFlowService.getOtherCategory());
         cashFlowService.insert(cashFlow);
 
         assertThat(walletService.findById(from.getId()).getCurrentAmount()).isEqualTo(fromCurrentAmount - amount);

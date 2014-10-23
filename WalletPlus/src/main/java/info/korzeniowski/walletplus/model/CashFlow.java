@@ -38,36 +38,6 @@ public class CashFlow implements Identityable {
 
     public enum Type {INCOME, EXPANSE, TRANSFER}
 
-    public CashFlow(CashFlowDetailsParcelableState parcelableState, Type type) {
-        id = parcelableState.getId();
-        amount = parcelableState.getAmount();
-        dateTime = new Date(parcelableState.getDate());
-        comment = parcelableState.getComment();
-
-        if (type == Type.INCOME) {
-            fromWallet = parcelableState.getIncomeFromWallet();
-            toWallet = parcelableState.getIncomeToWallet();
-            category = parcelableState.getIncomeCategory();
-        } else if (type == Type.EXPANSE) {
-            fromWallet = parcelableState.getExpanseFromWallet();
-            toWallet = parcelableState.getExpanseToWallet();
-            category = parcelableState.getExpanseCategory();
-        } else if (type == Type.TRANSFER) {
-            fromWallet = parcelableState.getExpanseFromWallet();
-            toWallet = parcelableState.getIncomeToWallet();
-        }
-    }
-
-    public CashFlow(Builder builder) {
-        id = builder.id;
-        fromWallet = builder.fromWallet;
-        toWallet = builder.toWallet;
-        category = builder.category;
-        amount = builder.amount;
-        dateTime = builder.dateTime;
-        comment = builder.comment;
-    }
-
     @Override
     public Long getId() {
         return id;
@@ -114,15 +84,6 @@ public class CashFlow implements Identityable {
         return this;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public CashFlow setComment(String comment) {
-        this.comment = comment;
-        return this;
-    }
-
     public Date getDateTime() {
         return dateTime;
     }
@@ -132,123 +93,29 @@ public class CashFlow implements Identityable {
         return this;
     }
 
-    public boolean isExpanse() {
+    public String getComment() {
+        return comment;
+    }
+
+    public CashFlow setComment(String comment) {
+        this.comment = comment;
+        return this;
+    }
+
+    public Type getType() {
         if (getFromWallet() != null && getFromWallet().getType() == Wallet.Type.MY_WALLET) {
-            if (getToWallet() == null) {
-                return true;
-            } else if (getToWallet().getType() == Wallet.Type.CONTRACTOR) {
-                return true;
+            if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
+                return Type.TRANSFER;
+            } else if (getToWallet() == null || getToWallet().getType() == Wallet.Type.CONTRACTOR) {
+                return Type.EXPANSE;
+            } else {
+                throw new RuntimeException("Unknown type of CashFlow");
+            }
+        } else if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
+            if (getFromWallet() == null || getFromWallet().getType() == Wallet.Type.CONTRACTOR) {
+                return Type.INCOME;
             }
         }
-        return false;
-    }
-
-    public boolean isIncome() {
-        if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
-            if (getFromWallet() == null) {
-                return true;
-            } else if (getFromWallet().getType() == Wallet.Type.CONTRACTOR) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean isTransfer() {
-        return getFromWallet() != null && getFromWallet().getType() == Wallet.Type.MY_WALLET &&
-                getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET;
-    }
-
-    public static class Builder {
-        private Long id;
-        private Wallet fromWallet;
-        private Wallet toWallet;
-        private Category category;
-        private Float amount;
-        private Date dateTime;
-        private String comment;
-
-        public Builder() {
-
-        }
-
-        public Builder(CashFlow cashFlow) {
-            if (cashFlow != null) {
-                id = cashFlow.getId();
-                fromWallet = cashFlow.getFromWallet();
-                toWallet = cashFlow.getToWallet();
-                category = cashFlow.getCategory();
-                amount = cashFlow.getAmount();
-                dateTime = cashFlow.getDateTime();
-                comment = cashFlow.getComment();
-            }
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public Builder setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public Wallet getFromWallet() {
-            return fromWallet;
-        }
-
-        public Builder setFromWallet(Wallet fromWallet) {
-            this.fromWallet = fromWallet;
-            return this;
-        }
-
-        public Wallet getToWallet() {
-            return toWallet;
-        }
-
-        public Builder setToWallet(Wallet toWallet) {
-            this.toWallet = toWallet;
-            return this;
-        }
-
-        public Category getCategory() {
-            return category;
-        }
-
-        public Builder setCategory(Category category) {
-            this.category = category;
-            return this;
-        }
-
-        public Float getAmount() {
-            return amount;
-        }
-
-        public Builder setAmount(Float amount) {
-            this.amount = amount;
-            return this;
-        }
-
-        public Date getDateTime() {
-            return dateTime;
-        }
-
-        public Builder setDateTime(Date dateTime) {
-            this.dateTime = dateTime;
-            return this;
-        }
-
-        public String getComment() {
-            return comment;
-        }
-
-        public Builder setComment(String comment) {
-            this.comment = comment;
-            return this;
-        }
-
-        public CashFlow build() {
-            return new CashFlow(this);
-        }
+        throw new RuntimeException("Unknown type of CashFlow");
     }
 }

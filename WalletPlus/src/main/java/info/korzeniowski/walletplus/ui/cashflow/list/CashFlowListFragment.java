@@ -1,7 +1,6 @@
 package info.korzeniowski.walletplus.ui.cashflow.list;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,7 +46,7 @@ public class CashFlowListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.card_list, container, false);
         ButterKnife.inject(this, view);
@@ -69,7 +68,6 @@ public class CashFlowListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.action_new, menu);
-        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -78,11 +76,12 @@ public class CashFlowListFragment extends Fragment {
             startCashFlowDetailsFragment();
             return true;
         }
-        return super.onOptionsItemSelected(item);
+        return false;
+//        return super.onOptionsItemSelected(item);
     }
 
     private void startCashFlowDetailsFragment() {
-        startCashFlowDetailsFragment(0L);
+        ((MainActivity) getActivity()).setContentFragment(new CashFlowDetailsContainerFragment(), true, CashFlowDetailsContainerFragment.TAG);
     }
 
 
