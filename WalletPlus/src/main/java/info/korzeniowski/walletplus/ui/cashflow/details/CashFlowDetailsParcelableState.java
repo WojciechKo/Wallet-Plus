@@ -19,7 +19,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     };
 
     private Long id;
-    private Float amount;
+    private String amount;
     private String comment = "";
     private Wallet incomeFromWallet;
     private Wallet incomeToWallet;
@@ -36,7 +36,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
 
     public CashFlowDetailsParcelableState(Parcel in) {
         id = (Long) in.readValue(Long.class.getClassLoader());
-        amount = (Float) in.readValue(Float.class.getClassLoader());
+        amount = in.readString();
         comment = in.readString();
         incomeFromWallet = in.readParcelable(Wallet.class.getClassLoader());
         incomeToWallet = in.readParcelable(Wallet.class.getClassLoader());
@@ -57,7 +57,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(id);
-        dest.writeValue(amount);
+        dest.writeString(amount);
         dest.writeString(comment);
         dest.writeParcelable(incomeFromWallet, flags);
         dest.writeParcelable(incomeToWallet, flags);
@@ -77,11 +77,11 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         this.id = id;
     }
 
-    public Float getAmount() {
+    public String getAmount() {
         return amount;
     }
 
-    public void setAmount(Float amount) {
+    public void setAmount(String amount) {
         this.amount = amount;
     }
 

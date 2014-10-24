@@ -22,7 +22,9 @@ public class CashFlowTransferDetailsFragment extends CashFlowBaseDetailsFragment
 
     @Subscribe
     public void statusChanged(CashFlowDetailsStatusChangedEvent event) {
-        super.statusChanged();
+        if (!event.getFragmentClass().equals(getClass())) {
+            fillViewsFromState();
+        }
     }
 
     @Override

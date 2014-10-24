@@ -97,7 +97,7 @@ public class CashFlowDetailsContainerFragment extends Fragment {
     private CashFlowDetailsParcelableState getEditCashFlowState(CashFlow cashFlow) {
         CashFlowDetailsParcelableState state = new CashFlowDetailsParcelableState();
         state.setId(cashFlow.getId());
-        state.setAmount(cashFlow.getAmount());
+        state.setAmount(cashFlow.getAmount().toString());
         state.setComment(cashFlow.getComment());
         state.setDate(cashFlow.getDateTime().getTime());
         state.setType(cashFlow.getType());

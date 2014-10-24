@@ -28,7 +28,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.squareup.otto.Bus;
 
-import java.text.NumberFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -40,7 +39,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
-import butterknife.OnTextChanged;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
@@ -58,6 +56,7 @@ import info.korzeniowski.walletplus.widget.OnContentClickListener;
 public abstract class CashFlowBaseDetailsFragment extends Fragment {
     public static final String CASH_FLOW_DETAILS_STATE = "cashFlowDetailsState";
     public static final String IS_SELECTED = "isSelected";
+    public static final String digitRegex = "^(\\+|\\-)?(([0-9]+(\\.[0-9]{0,4})?)|(\\.[0-9]{0,4}))$";
 
     private enum DetailsMode {ADD, EDIT}
 
@@ -98,10 +97,6 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
     CategoryService localCategoryService;
 
     @Inject
-    @Named("amount")
-    NumberFormat amountFormat;
-
-    @Inject
     Bus bus;
 
     protected List<Wallet> fromWalletList;
@@ -110,13 +105,10 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
     protected List<Category> categoryList;
     protected CashFlowDetailsParcelableState cashFlowDetailsState;
 
-    private TextWatcher textWatcher;
+    private TextWatcher amountTextWatcher;
+    private TextWatcher commentTextWatcher;
     private DetailsMode detailsMode;
     private boolean isSelected;
-
-    public void statusChanged() {
-        comment.setText(cashFlowDetailsState.getComment());
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -170,6 +162,7 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
         super.onResume();
         fillViewsWithData();
         setupListenersIfSelected();
+        validateIfAmountContainsDigit();
         bus.register(this);
     }
 
@@ -189,13 +182,7 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
     private void fillViewsWithData() {
         fillWalletLists();
         fillCategoryList();
-        amount.setText(getAmountStringFromState());
-        comment.setText(cashFlowDetailsState.getComment());
-        category.setText(getCategoryText(getCategoryFromState()));
-        fromWallet.setSelection(fromWalletList.indexOf(getFromWalletFromState()));
-        ((WalletAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
-        toWallet.setSelection(toWalletList.indexOf(getToWalletFromState()));
-        ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
+        fillViewsFromState();
         setDatePickerButtonTextFromState();
         setTimePickerButtonTextFromState();
     }
@@ -204,12 +191,14 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
 
     abstract void fillCategoryList();
 
-    private String getAmountStringFromState() {
-        Float amount = cashFlowDetailsState.getAmount();
-        if (amount == null) {
-            return "";
-        }
-        return amountFormat.format(amount);
+    protected void fillViewsFromState() {
+        amount.setText(cashFlowDetailsState.getAmount());
+        comment.setText(cashFlowDetailsState.getComment());
+        category.setText(getCategoryText(getCategoryFromState()));
+        fromWallet.setSelection(fromWalletList.indexOf(getFromWalletFromState()));
+        ((WalletAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
+        toWallet.setSelection(toWalletList.indexOf(getToWalletFromState()));
+        ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
     }
 
     private String getCategoryText(Category category) {
@@ -240,32 +229,6 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
 
     @OnItemSelected(R.id.toWallet)
     abstract void onToWalletItemSelected(int position);
-
-    @OnTextChanged(value = R.id.amount, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    void onAmountAfterTextChanged(Editable s) {
-        if (isDecimal(s)) {
-            int numberOfDigitsToDelete = getNumberOfDigitsToDelete(s);
-            s.delete(s.length() - numberOfDigitsToDelete, s.length());
-        }
-        if (Strings.isNullOrEmpty(s.toString())) {
-            cashFlowDetailsState.setAmount(null);
-        } else {
-            cashFlowDetailsState.setAmount(Float.parseFloat(s.toString()));
-        }
-    }
-
-    private boolean isDecimal(Editable s) {
-        return s.toString().contains(".");
-    }
-
-    private int getNumberOfDigitsToDelete(Editable s) {
-        int allowedNumberOfDigitsAfterComa = 2;
-        int indexOfComa = s.toString().indexOf('.');
-        if (indexOfComa < s.length() - 1 - allowedNumberOfDigitsAfterComa) {
-            return s.length() - indexOfComa - 1 - allowedNumberOfDigitsAfterComa;
-        }
-        return 0;
-    }
 
     @OnClick(R.id.category)
     void onCategoryClick() {
@@ -355,11 +318,27 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
     }
 
     private boolean validateAmount() {
+        return validateIfAmountIsNullOrEmpty() && validateIfAmountContainsDigit();
+    }
+
+    private boolean validateIfAmountIsNullOrEmpty() {
         if (Strings.isNullOrEmpty(amount.getText().toString())) {
             amount.setError("Amount can't be empty.");
             return false;
         }
         return true;
+    }
+
+    private boolean validateIfAmountContainsDigit() {
+        if (!isContainValidateDigit(amount.getText().toString())) {
+            amount.setError("Write amount in this pattern: (+/-)149.1234");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isContainValidateDigit(String s) {
+        return s.matches(digitRegex);
     }
 
     private boolean handleActionSave() {
@@ -385,7 +364,7 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
         CashFlow cashFlow = new CashFlow();
 
         cashFlow.setId(cashFlowDetailsState.getId());
-        cashFlow.setAmount(cashFlowDetailsState.getAmount());
+        cashFlow.setAmount(Float.parseFloat(cashFlowDetailsState.getAmount()));
         cashFlow.setDateTime(new Date(cashFlowDetailsState.getDate()));
         cashFlow.setComment(cashFlowDetailsState.getComment());
         cashFlow.setFromWallet(getFromWalletFromState());
@@ -409,13 +388,19 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
     }
 
     private void setupListeners() {
-        textWatcher = new CommentTextWatcher();
-        comment.addTextChangedListener(textWatcher);
+        commentTextWatcher = new CommentTextWatcher();
+        comment.addTextChangedListener(commentTextWatcher);
+
+        amountTextWatcher = new AmountTextWatcher();
+        amount.addTextChangedListener(amountTextWatcher);
     }
 
     private void clearListeners() {
-        comment.removeTextChangedListener(textWatcher);
-        textWatcher = null;
+        amount.removeTextChangedListener(amountTextWatcher);
+        amountTextWatcher = null;
+
+        comment.removeTextChangedListener(commentTextWatcher);
+        commentTextWatcher = null;
     }
 
     class CommentTextWatcher implements TextWatcher {
@@ -437,12 +422,31 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
                 notifyCashFlowStateChanged();
             }
         }
+    }
 
+    class AmountTextWatcher implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (!s.toString().equals(cashFlowDetailsState.getAmount())) {
+                validateAmount();
+                cashFlowDetailsState.setAmount(s.toString());
+                notifyCashFlowStateChanged();
+            }
+        }
     }
 
     private void notifyCashFlowStateChanged() {
-        bus.post(new CashFlowDetailsStatusChangedEvent());
-//        ((CashFlowDetailsStateListenerManager) getActivity()).cashFlowStateChanged(this);
+        bus.post(new CashFlowDetailsStatusChangedEvent(getClass()));
     }
 
     class WalletAdapter extends BaseAdapter {
