@@ -3,14 +3,15 @@ package info.korzeniowski.walletplus.service.local.validation;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
+import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
-import info.korzeniowski.walletplus.service.exception.CategoryNameMustBeUniqueException;
 import info.korzeniowski.walletplus.service.exception.EntityAlreadyExistsException;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 import info.korzeniowski.walletplus.service.exception.ParentCategoryIsNotMainCategoryException;
 import info.korzeniowski.walletplus.service.exception.SubCategoryCantHaveTypeException;
-import info.korzeniowski.walletplus.model.Category;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class CategoryValidator implements Validator<Category> {
     private final CategoryService categoryService;
@@ -21,8 +22,8 @@ public class CategoryValidator implements Validator<Category> {
 
     @Override
     public void validateInsert(Category category) {
+        checkNotNull(category);
         validateIfNameIsNotNullOrEmpty(category);
-        validateIfNameIsUnique(category);
         validateIfIdIsUnique(category);
         if (category.getParent() == null) {
             validateInsertMain(category);
@@ -60,9 +61,9 @@ public class CategoryValidator implements Validator<Category> {
 
     @Override
     public void validateUpdate(Category newCategory) {
+        checkNotNull(newCategory);
         Category oldCategory = categoryService.findById(newCategory.getId());
         validateIfNameIsNotNullOrEmpty(newCategory);
-        validateIfNewNameIsUnique(newCategory, oldCategory);
         validateIfNewIdIsUnique(newCategory, oldCategory);
         if (newCategory.getParent() == null && oldCategory.getParent() == null) {
             validateUpdateMainToMain(newCategory);
@@ -105,12 +106,6 @@ public class CategoryValidator implements Validator<Category> {
         }
     }
 
-    private void validateIfNameIsUnique(Category category) {
-        if (categoryService.findByName(category.getName()) != null) {
-            throw new CategoryNameMustBeUniqueException();
-        }
-    }
-
     private void validateIfIdIsUnique(Category category) {
         if (category.getId() != null && categoryService.findById(category.getId()) != null) {
             throw new EntityAlreadyExistsException(Category.class.getSimpleName(), category.getId());
@@ -149,12 +144,6 @@ public class CategoryValidator implements Validator<Category> {
     private void validateIfNewIdIsUnique(Category newValue, Category toUpdate) {
         if (!Objects.equal(newValue.getId(), toUpdate.getId())) {
             validateIfIdIsUnique(newValue);
-        }
-    }
-
-    private void validateIfNewNameIsUnique(Category newValue, Category toUpdate) {
-        if (!Objects.equal(newValue.getName(), toUpdate.getName())) {
-            validateIfNameIsUnique(newValue);
         }
     }
 }

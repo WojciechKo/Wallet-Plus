@@ -6,17 +6,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.google.common.collect.Iterables;
+
 import java.util.List;
 
+import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Identityable;
 
-public abstract class IdentityableListAdapter<T extends Identityable> extends BaseAdapter{
+public abstract class IdentifiableListAdapter<T extends Identityable> extends BaseAdapter{
 
     private final Context context;
     private final List<T> items;
     private int itemResourceLayout;
 
-    public IdentityableListAdapter(Context context, List<T> items, int itemLayout) {
+    public IdentifiableListAdapter(Context context, List<T> items, int itemLayout) {
         this.context = context;
         this.items = items;
         this.itemResourceLayout = itemLayout;

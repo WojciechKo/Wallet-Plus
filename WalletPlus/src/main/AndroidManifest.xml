@@ -15,8 +15,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/appName">
+            android:label="@string/appName"
+            android:windowSoftInputMode="stateHidden">
 
             <intent-filter>
 

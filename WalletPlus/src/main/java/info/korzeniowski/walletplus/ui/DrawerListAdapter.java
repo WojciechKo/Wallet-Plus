@@ -66,6 +66,6 @@ public class DrawerListAdapter extends BaseAdapter {
     }
 
     private class ViewHolder {
-        protected TextView menuName;
+        private TextView menuName;
     }
 }

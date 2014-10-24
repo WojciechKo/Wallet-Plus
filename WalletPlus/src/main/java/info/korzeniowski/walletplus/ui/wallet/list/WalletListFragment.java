@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.cashflow;
+package info.korzeniowski.walletplus.ui.wallet.list;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,7 +9,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ListView;
 
 import javax.inject.Inject;
@@ -21,20 +20,18 @@ import butterknife.OnItemClick;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.widget.IdentityableMultiChoiceModeListener;
+import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
 
-/**
- * Fragment with list of cash flows.
- */
-public class CashFlowListFragment extends Fragment {
+public class WalletListFragment extends Fragment {
+    public static final String TAG = "walletList";
 
     @InjectView(R.id.list)
     ListView list;
 
-    @Inject @Named("local")
-    CashFlowService localCashFlowService;
+    @Inject
+    @Named("local")
+    WalletService localWalletService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,19 +45,17 @@ public class CashFlowListFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.card_list, container, false);
         ButterKnife.inject(this, view);
-        setupView();
+        setupViews();
         return view;
     }
 
-    void setupView() {
-        list.setAdapter(new CashFlowListAdapter(getActivity(), localCashFlowService.getAll()));
-        list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-        list.setMultiChoiceModeListener(new IdentityableMultiChoiceModeListener<CashFlow>(list, localCashFlowService, getActivity()));
+    void setupViews() {
+        list.setAdapter(new WalletListAdapter(getActivity(), localWalletService.getMyWallets()));
     }
 
     @OnItemClick(R.id.list)
     void listItemClicked(int position) {
-        startCashFlowDetailsFragment(list.getAdapter().getItemId(position));
+        startWalletDetailsFragment(list.getAdapter().getItemId(position));
     }
 
     @Override
@@ -71,25 +66,18 @@ public class CashFlowListFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (super.onOptionsItemSelected(item)) {
+        if (item.getItemId() == R.id.menu_new) {
+            startWalletDetailsFragment(0L);
             return true;
         }
-        if (item.getItemId() == info.korzeniowski.walletplus.R.id.menu_new) {
-            actionAdd();
-            return true;
-        }
-        return false;
+        return super.onOptionsItemSelected(item);
     }
 
-    void actionAdd() {
-        startCashFlowDetailsFragment(0L);
-    }
-
-    private void startCashFlowDetailsFragment(Long id) {
-        Fragment fragment = new CashFlowDetailsFragment();
+    private void startWalletDetailsFragment(Long id) {
+        Fragment fragment = new WalletDetailsFragment();
         Bundle bundle = new Bundle();
-        bundle.putLong(CashFlowDetailsFragment.CASH_FLOW_ID, id);
+        bundle.putLong(WalletDetailsFragment.WALLET_ID, id);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true, CashFlowDetailsFragment.TAG);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true, WalletDetailsFragment.TAG);
     }
 }

@@ -5,9 +5,9 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:0.12.+"
-        classpath "com.neenbedankt.gradle.plugins:android-apt:1.3"
-        classpath "org.robolectric:robolectric-gradle-plugin:0.11.+"
+        classpath "com.android.tools.build:gradle:0.13.+"
+        classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
+        classpath "org.robolectric:robolectric-gradle-plugin:0.13.+"
     }
 }
 
@@ -72,7 +72,11 @@ dependencies {
     // Dagger
     def daggerVersion = '1.2.+'
     apt "com.squareup.dagger:dagger-compiler:$daggerVersion"
+    androidTestCompile "com.squareup.dagger:dagger-compiler:$daggerVersion"
     compile "com.squareup.dagger:dagger:$daggerVersion"
+
+    // Otto
+    compile "com.squareup:otto:1.3.5"
 
     // Guava
     compile "com.google.guava:guava:17.0"
@@ -144,15 +148,15 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {
     sourceDirectories = files(coverageSourceDirs)
     executionData = files('build/jacoco/testDebug.exec')
 
-    renamedFilesMap = [:]
+    def renamedFilesMap = [:]
 
     // Hacky fix for issue: https://code.google.com/p/android/issues/detail?id=69174.
     // Rename files with '$$' before generating report, and then rename back after
     doFirst {
         new File('WalletPlus/build/intermediates/classes/').eachFileRecurse { file ->
             if (file.name.contains('$$')) {
-                oldPath = file.path
-                newPath = oldPath.replace('$$', '$')
+                def oldPath = file.path
+                def newPath = oldPath.replace('$$', '$')
                 file.renameTo(newPath)
                 renamedFilesMap[newPath] = oldPath
             }
@@ -164,5 +168,4 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {
                 new File(newPath).renameTo(oldPath)
         }
     }
-
 }

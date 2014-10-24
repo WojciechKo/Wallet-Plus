@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.cashflow;
+package info.korzeniowski.walletplus.ui.cashflow.list;
 
 import android.content.Context;
 import android.text.SpannableStringBuilder;
@@ -12,11 +12,13 @@ import com.google.common.base.Strings;
 import java.text.NumberFormat;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.widget.IdentityableListAdapter;
+import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 
-public class CashFlowListAdapter extends IdentityableListAdapter<CashFlow> {
+public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
 
     public CashFlowListAdapter(Context context, List<CashFlow> casFlows) {
         super(context, casFlows, R.layout.cashflow_list_item);
@@ -25,12 +27,7 @@ public class CashFlowListAdapter extends IdentityableListAdapter<CashFlow> {
     @Override
     protected MyBaseViewHolder createHolder(View convertView) {
         CashFlowViewHolder holder = new CashFlowViewHolder();
-        holder.fromWallet = (TextView) convertView.findViewById(R.id.fromWallet);
-        holder.toWallet = (TextView) convertView.findViewById(R.id.toWallet);
-        holder.amount = (TextView) convertView.findViewById(R.id.amount);
-        holder.category = (TextView) convertView.findViewById(R.id.category);
-        holder.comment = (TextView) convertView.findViewById(R.id.comment);
-        holder.date = (TextView) convertView.findViewById(R.id.date);
+        ButterKnife.inject(holder, convertView);
         return holder;
     }
 
@@ -76,14 +73,16 @@ public class CashFlowListAdapter extends IdentityableListAdapter<CashFlow> {
     }
 
     private int getAmountColor(CashFlow item) {
-        if (item.isExpanse()) {
+        CashFlow.Type type = item.getType();
+
+        if (type == CashFlow.Type.EXPANSE) {
             return getContext().getResources().getColor(R.color.red);
-        } else if (item.isIncome()) {
+        } else if (type == CashFlow.Type.INCOME) {
             return getContext().getResources().getColor(R.color.green);
-        } else if (item.isTransfer()) {
+        } else if (type == CashFlow.Type.TRANSFER) {
             return getContext().getResources().getColor(R.color.blue);
         }
-        throw new RuntimeException("Unexpected cashflow type.");
+        return getContext().getResources().getColor(R.color.black);
     }
 
     private String getDateText(CashFlow item) {
@@ -99,11 +98,22 @@ public class CashFlowListAdapter extends IdentityableListAdapter<CashFlow> {
     }
 
     class CashFlowViewHolder extends MyBaseViewHolder {
+        @InjectView(R.id.fromWallet)
         protected TextView fromWallet;
+
+        @InjectView(R.id.toWallet)
         protected TextView toWallet;
+
+        @InjectView(R.id.amount)
         protected TextView amount;
+
+        @InjectView(R.id.category)
         protected TextView category;
+
+        @InjectView(R.id.comment)
         protected TextView comment;
+
+        @InjectView(R.id.date)
         protected TextView date;
     }
 }

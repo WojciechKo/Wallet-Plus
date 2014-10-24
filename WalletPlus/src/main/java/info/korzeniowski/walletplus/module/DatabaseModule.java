@@ -24,13 +24,17 @@ import info.korzeniowski.walletplus.service.local.DatabaseHelper;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
-import info.korzeniowski.walletplus.ui.cashflow.CashFlowListFragment;
-import info.korzeniowski.walletplus.ui.cashflow.CashFlowBaseDetailsFragment;
-import info.korzeniowski.walletplus.ui.category.CategoryDetailsFragment;
-import info.korzeniowski.walletplus.ui.category.CategoryListFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsContainerFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowBaseDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowExpanseDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowIncomeDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowTransferDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
+import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
+import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
-import info.korzeniowski.walletplus.ui.wallet.WalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
+import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
 
 /**
  * Module for Database objects.
@@ -44,7 +48,11 @@ import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
                 CategoryDetailsFragment.class,
                 CategoryListFragment.class,
 
+                CashFlowDetailsContainerFragment.class,
                 CashFlowBaseDetailsFragment.class,
+                CashFlowIncomeDetailsFragment.class,
+                CashFlowTransferDetailsFragment.class,
+                CashFlowExpanseDetailsFragment.class,
                 CashFlowListFragment.class,
 
                 WalletDetailsFragment.class,
@@ -54,38 +62,17 @@ import info.korzeniowski.walletplus.ui.wallet.WalletListFragment;
 )
 public class DatabaseModule {
 
-    private DatabaseHelper databaseHelper;
+    private Context context;
 
     public DatabaseModule(WalletPlus application) {
-        databaseHelper = getHelper(application);
+        context = application.getApplicationContext();
     }
 
-    private DatabaseHelper getHelper(Context context) {
-        if (databaseHelper == null) {
-            databaseHelper = OpenHelperManager.getHelper(context, DatabaseHelper.class);
-        }
-        return databaseHelper;
+    @Provides
+    @Singleton
+    public DatabaseHelper provideDatabaseHelper() {
+        return OpenHelperManager.getHelper(context, DatabaseHelper.class);
     }
-
-//    /****************
-//     * ACCOUNT
-//     ***************/
-//    @Provides
-//    public Dao<Account, Long> provideAccountDao() {
-//        try {
-//            return databaseHelper.getAccountDao();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-//    @Provides
-//    @Named("local")
-//    @Singleton
-//    public AccountDataManager provideAccountDataManager(LocalAccountDataManager localAccountDataManager) {
-//        return localAccountDataManager;
-//    }
 
     /**
      * *************
@@ -93,7 +80,7 @@ public class DatabaseModule {
      * *************
      */
     @Provides
-    public Dao<Category, Long> provideCategoryDao() {
+    public Dao<Category, Long> provideCategoryDao(DatabaseHelper databaseHelper) {
         try {
             return databaseHelper.getCategoryDao();
         } catch (SQLException e) {
@@ -115,7 +102,7 @@ public class DatabaseModule {
      * *************
      */
     @Provides
-    public Dao<CashFlow, Long> provideCashFlowDao() {
+    public Dao<CashFlow, Long> provideCashFlowDao(DatabaseHelper databaseHelper) {
         try {
             return databaseHelper.getCashFlowDao();
         } catch (SQLException e) {
@@ -137,7 +124,7 @@ public class DatabaseModule {
      * *************
      */
     @Provides
-    public Dao<Wallet, Long> provideWalletDao() {
+    public Dao<Wallet, Long> provideWalletDao(DatabaseHelper databaseHelper) {
         try {
             return databaseHelper.getWalletDao();
         } catch (SQLException e) {

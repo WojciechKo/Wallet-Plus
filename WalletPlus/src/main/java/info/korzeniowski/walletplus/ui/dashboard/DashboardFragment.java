@@ -25,6 +25,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 
 public class DashboardFragment extends Fragment {
+    public static final String TAG = "dashboard";
 
     @InjectView(R.id.totalAmount)
     TextView totalAmount;

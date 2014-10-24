@@ -11,7 +11,7 @@ public class Wallet implements Identityable, Parcelable {
     @DatabaseField(generatedId = true)
     private Long id;
 
-    @DatabaseField(uniqueIndex = true, canBeNull = false)
+    @DatabaseField(canBeNull = false)
     private String name;
 
     @DatabaseField(canBeNull = false)
@@ -23,27 +23,21 @@ public class Wallet implements Identityable, Parcelable {
     @DatabaseField(canBeNull = false)
     private Double currentAmount;
 
-    /**
-     * ORMLite requirement *
-     */
+    public static final Parcelable.Creator<Wallet> CREATOR = new Parcelable.Creator<Wallet>() {
+        public Wallet createFromParcel(Parcel in) {
+            return new Wallet(in);
+        }
+
+        public Wallet[] newArray(int size) {
+            return new Wallet[size];
+        }
+    };
+
     public Wallet() {
 
     }
 
-    private Wallet(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
-        this.type = builder.type;
-        this.initialAmount = builder.initialAmount;
-
-        if (builder.currentAmount == null) {
-            this.currentAmount = builder.initialAmount;
-        } else {
-            this.currentAmount = builder.currentAmount;
-        }
-    }
-
-    public Wallet(Parcel parcel) {
+    private Wallet(Parcel parcel) {
         id = parcel.readLong();
         name = parcel.readString();
         type = Type.values()[parcel.readInt()];
@@ -63,27 +57,6 @@ public class Wallet implements Identityable, Parcelable {
         dest.writeInt(type.ordinal());
         dest.writeDouble(initialAmount);
         dest.writeDouble(currentAmount);
-    }
-
-    @Override
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Double getInitialAmount() {
-        return initialAmount;
-    }
-
-    public Double getCurrentAmount() {
-        return currentAmount;
-    }
-
-    public Type getType() {
-        return type;
     }
 
     @Override
@@ -119,74 +92,49 @@ public class Wallet implements Identityable, Parcelable {
                 '}';
     }
 
-    public static class Builder {
-        private Long id;
-        private String name;
-        private Type type;
-        private Double initialAmount;
-        private Double currentAmount;
+    @Override
+    public Long getId() {
+        return id;
+    }
 
-        public Builder() {
+    public Wallet setId(Long id) {
+        this.id = id;
+        return this;
+    }
 
-        }
+    public String getName() {
+        return name;
+    }
 
-        public Builder(Wallet wallet) {
-            if (wallet != null) {
-                id = wallet.getId();
-                name = wallet.getName();
-                type = wallet.getType();
-                initialAmount = wallet.getInitialAmount();
-                currentAmount = wallet.getCurrentAmount();
-            }
-        }
+    public Wallet setName(String name) {
+        this.name = name;
+        return this;
+    }
 
-        public Long getId() {
-            return id;
-        }
+    public Type getType() {
+        return type;
+    }
 
-        public Builder setId(Long id) {
-            this.id = id;
-            return this;
-        }
+    public Wallet setType(Type type) {
+        this.type = type;
+        return this;
+    }
 
-        public String getName() {
-            return name;
-        }
+    public Double getInitialAmount() {
+        return initialAmount;
+    }
 
-        public Builder setName(String name) {
-            this.name = name;
-            return this;
-        }
+    public Wallet setInitialAmount(Double initialAmount) {
+        this.initialAmount = initialAmount;
+        return this;
+    }
 
-        public Type getType() {
-            return type;
-        }
+    public Double getCurrentAmount() {
+        return currentAmount;
+    }
 
-        public Builder setType(Type type) {
-            this.type = type;
-            return this;
-        }
-
-        public Double getInitialAmount() {
-            return initialAmount;
-        }
-
-        public Builder setInitialAmount(Double initialAmount) {
-            this.initialAmount = initialAmount;
-            return this;
-        }
-
-        public Double getCurrentAmount() {
-            return currentAmount;
-        }
-
-        public Builder setCurrentAmount(Double currentAmount) {
-            this.currentAmount = currentAmount;
-            return this;
-        }
-
-        public Wallet build() {
-            return new Wallet(this);
-        }
+    public Wallet setCurrentAmount(Double currentAmount) {
+        this.currentAmount = currentAmount;
+        return this;
     }
 }

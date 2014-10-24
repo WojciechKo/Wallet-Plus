@@ -1,66 +1,53 @@
 package info.korzeniowski.walletplus.test.service.category;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.sql.SQLException;
-import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Named;
 
+import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
-import info.korzeniowski.walletplus.service.local.DatabaseHelper;
-import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class LocalCategoryServiceTest {
 
+    @Inject
+    @Named("local")
     CategoryService categoryService;
 
     @Before
     public void setUp() {
-        try {
-            DatabaseHelper helper = new DatabaseHelper(Robolectric.application, null);
-            categoryService = new LocalCategoryService(helper.getCategoryDao());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            fail("Setup failed.");
-        }
+        ((TestWalletPlus) Robolectric.application).inject(this);
     }
 
     @Test
-    public void testSetOfEncodeCategoryType() {
-        testEncodeCategoryType(Category.Type.INCOME);
-        testEncodeCategoryType(Category.Type.EXPENSE);
-        testEncodeCategoryType(Category.Type.INCOME_EXPENSE);
+    public void shouldReadSetOfSoredCategoryType() {
+        shouldReadSoredCategoryType(Category.Type.INCOME);
+        shouldReadSoredCategoryType(Category.Type.EXPENSE);
+        shouldReadSoredCategoryType(Category.Type.INCOME_EXPENSE);
     }
 
-    private void testEncodeCategoryType(Category.Type type) {
-        Category category = new Category.Builder().setName("Category Test Name").setType(type).build();
+    private void shouldReadSoredCategoryType(Category.Type type) {
+        Category category = new Category().setName("Category Test Name").setType(type);
         categoryService.insert(category);
         category = categoryService.findById(category.getId());
 
         assertThat(category.getType()).isEqualTo(type);
-
-        categoryService.deleteById(category.getId());
     }
 
     /**
-     * *************************
-     * TEST INSERT             *
-     * *************************
+     * *************
+     * TEST INSERT *
+     * *************
      */
     @Test
     public void shouldInsertMainAndTwoSubCategoryOfIncomeType() {
@@ -80,7 +67,7 @@ public class LocalCategoryServiceTest {
     private void shouldInsertMainTwoSubCategoriesOfType(Category.Type types) {
         Integer numberOfIncomeMain = 0;
         Integer numberOfExpenseMain = 0;
-        Category main = new Category.Builder().setName("Main").setType(types).build();
+        Category main = new Category().setName("Main").setType(types);
         categoryService.insert(main);
 
         if (main.isIncomeType()) {
@@ -94,7 +81,7 @@ public class LocalCategoryServiceTest {
         assertThat(categoryService.getMainExpenseTypeCategories()).hasSize(numberOfExpenseMain);
         assertThat(categoryService.getMainCategories().get(0).getChildren()).hasSize(0);
 
-        categoryService.insert(new Category.Builder().setParent(categoryService.findById(main.getId())).setName("Sub of Main").build());
+        categoryService.insert(new Category().setParent(categoryService.findById(main.getId())).setName("Sub of Main"));
 
         assertThat(categoryService.getMainCategories()).hasSize(1);
         assertThat(categoryService.getMainIncomeTypeCategories()).hasSize(numberOfIncomeMain);
@@ -103,21 +90,21 @@ public class LocalCategoryServiceTest {
     }
 
     /**
-     * ************************
-     * TEST READ              *
-     * ************************
+     * ***********
+     * TEST READ *
+     * ***********
      */
     @Test
-    public void readNonexistingCategoryShouldReturnNull() {
+    public void shouldReturnNullWhenTryingToFindNonExistingCategoryById() {
         Long categoryId = (long) 5326432;
         assertThat(categoryService.findById(categoryId)).isNull();
     }
 
     @Test
-    public void shouldBeAbleToReadMainCategory() {
+    public void shouldReadMainCategory() {
         String categoryName = "Main";
         Category.Type categoryType = Category.Type.INCOME;
-        Category inserted = new Category.Builder().setName(categoryName).setType(categoryType).build();
+        Category inserted = new Category().setName(categoryName).setType(categoryType);
         Long id = categoryService.insert(inserted);
 
         Category read = categoryService.findById(id);
@@ -126,10 +113,10 @@ public class LocalCategoryServiceTest {
     }
 
     @Test
-    public void shouldBeAbleToReadSubCategory() {
-        Category parentCategory = new Category.Builder().setName("Main").setType(Category.Type.INCOME).build();
+    public void shouldReadSubCategory() {
+        Category parentCategory = new Category().setName("Main").setType(Category.Type.INCOME);
         Long parentCategoryId = categoryService.insert(parentCategory);
-        Category subCategory = new Category.Builder().setName("Sub").setParent(categoryService.findById(parentCategoryId)).build();
+        Category subCategory = new Category().setName("Sub").setParent(categoryService.findById(parentCategoryId));
         Long subCategoryId = categoryService.insert(subCategory);
 
         Category readSubCategory = categoryService.getMainCategories().get(0).getChildren().iterator().next();
@@ -138,59 +125,28 @@ public class LocalCategoryServiceTest {
         assertThat(readSubCategory).isEqualTo(categoryService.findById(subCategoryId));
     }
 
-    private String getMainName(int number, String type) {
-        return "Main " + number + " " + type;
-    }
-
-    private String getSubName(int number, String mainName) {
-        return "Sub " + number + " of " + mainName;
-    }
-
-    private void testIfContainsCategoryWithName(List<Category> categoryList, final String name) {
-        if (!isCategoryListContainsCategoryWithName(categoryList, name)) {
-            fail("Categories: " + categoryList.toString() + "should contain: " + name + ".");
-        }
-    }
-
-    private boolean isCategoryListContainsCategoryWithName(List<Category> categoryList, final String name) {
-        return Iterables.any(categoryList, new Predicate<Category>() {
-            @Override
-            public boolean apply(Category category) {
-                return category.getName().equals(name);
-            }
-        });
-    }
-
     /**
-     * ************************
-     * TEST EDIT              *
-     * ************************
+     * ***********
+     * TEST EDIT *
+     * ***********
      */
     @Test
-    public void editNameAndTypeInMainCategoryWithoutChildren() {
-        Category oldCategory = new Category.Builder().setName("Main 1").setType(Category.Type.EXPENSE).build();
+    public void shouldEditNameAndTypeInMainCategoryWithoutChildren() {
+        Category oldCategory = new Category().setName("Main 1").setType(Category.Type.EXPENSE);
         categoryService.insert(oldCategory);
 
-        Category newCategory = new Category.Builder().setId(oldCategory.getId()).setName("Main 1 Fix").setType(Category.Type.INCOME).build();
+        Category newCategory = new Category().setId(oldCategory.getId()).setName("Main 1 Fix").setType(Category.Type.INCOME);
         categoryService.update(newCategory);
 
-        Category readed = categoryService.findById(newCategory.getId());
+        Category read = categoryService.findById(newCategory.getId());
         assertThat(oldCategory.getId()).isEqualTo(newCategory.getId());
-        assertThat(readed).isEqualTo(newCategory);
-    }
-
-    public Category insertMainAndSubs(Category category, Integer numberOfChildren) {
-        categoryService.insert(category);
-        for (int i = 0; i < numberOfChildren; i++) {
-            categoryService.insert(new Category.Builder().setName(getSubName(i, category.getName())).setParent(categoryService.findById(category.getId())).build());
-        }
-        return category;
+        assertThat(read).isEqualTo(newCategory);
     }
 
     @Test
-    public void editNameAndTypeInMainCategoryWithChildren() {
-        Category main1 = insertMainAndSubs(new Category.Builder().setName("Main 1").setType(Category.Type.INCOME).build(), 2);
-        Category main2 = insertMainAndSubs(new Category.Builder().setName("Main 2").setType(Category.Type.INCOME).build(), 3);
+    public void shouldEditNameAndTypeInMainCategoryWithChildren() {
+        Category main1 = insertMainAndSubs(new Category().setName("Main 1").setType(Category.Type.INCOME), 2);
+        Category main2 = insertMainAndSubs(new Category().setName("Main 2").setType(Category.Type.INCOME), 3);
 
         Long oldCategoryCount = categoryService.count();
         Integer oldMainSize = categoryService.getMainCategories().size();
@@ -198,7 +154,7 @@ public class LocalCategoryServiceTest {
         Integer oldMainExpenseSize = categoryService.getMainExpenseTypeCategories().size();
 
         Category read = categoryService.findById(main2.getId());
-        categoryService.update(new Category.Builder(read).setName("Main 2 Fix").setType(Category.Type.EXPENSE).build());
+        categoryService.update(read.setName("Main 2 Fix").setType(Category.Type.EXPENSE));
 
         assertThat(categoryService.count()).isEqualTo(oldCategoryCount);
         assertThat(categoryService.getMainCategories()).hasSize(oldMainSize);
@@ -206,31 +162,42 @@ public class LocalCategoryServiceTest {
         assertThat(categoryService.getMainExpenseTypeCategories()).hasSize(oldMainExpenseSize + 1);
     }
 
+    private Category insertMainAndSubs(Category category, Integer numberOfChildren) {
+        categoryService.insert(category);
+        for (int i = 0; i < numberOfChildren; i++) {
+            categoryService.insert(new Category().setName(getSubName(i, category.getName())).setParent(categoryService.findById(category.getId())));
+        }
+        return category;
+    }
+
+    private String getSubName(int number, String mainName) {
+        return "Sub " + number + " of " + mainName;
+    }
+
     @Test
-    public void editSubName() {
+    public void shouldEditSubName() {
         Category.Type category = Category.Type.INCOME_EXPENSE;
-        Long mainId = categoryService.insert(new Category.Builder().setName("Main").setType(category).build());
-        Long subId = categoryService.insert(new Category.Builder().setName("Sub").setParent(categoryService.findById(mainId)).build());
+        Long mainId = categoryService.insert(new Category().setName("Main").setType(category));
+        Long subId = categoryService.insert(new Category().setName("Sub").setParent(categoryService.findById(mainId)));
 
         String newSubName = "Sub Fix";
-        categoryService.update(new Category.Builder(categoryService.findById(subId)).setName(newSubName).build());
+        categoryService.update(categoryService.findById(subId).setName(newSubName));
 
         Category subFoundById = categoryService.findById(subId);
         assertThat(subFoundById.getName()).isEqualTo(newSubName);
         assertThat(categoryService.count()).isEqualTo(2);
         assertThat(categoryService.getMainCategories()).hasSize(1);
-
-        assertThat(categoryService.getMainCategories().get(0).getChildren().iterator().next()).isEqualTo(subFoundById);
+        assertThat(categoryService.getMainCategories().get(0).getChildren().get(0)).isEqualTo(subFoundById);
     }
 
     /**
-     * **********************************
-     * TEST DELETE             *
-     * ***********************************
+     * *************
+     * TEST DELETE *
+     * *************
      */
     @Test
     public void shouldDeleteMainCategoryWithoutSubs() {
-        Long categoryId = categoryService.insert(new Category.Builder().setName("Main").setType(Category.Type.EXPENSE).build());
+        Long categoryId = categoryService.insert(new Category().setName("Main").setType(Category.Type.EXPENSE));
 
         categoryService.deleteById(categoryId);
 
@@ -240,9 +207,9 @@ public class LocalCategoryServiceTest {
 
     @Test
     public void shouldDeleteSubCategory() {
-        Long mainCategoryId = categoryService.insert(new Category.Builder().setName("Main").setType(Category.Type.EXPENSE).build());
-        Long subCategoryId = categoryService.insert(new Category.Builder().setName("Sub 1").setParent(categoryService.findById(mainCategoryId)).build());
-        categoryService.insert(new Category.Builder().setName("Sub 2").setParent(categoryService.findById(mainCategoryId)).build());
+        Long mainCategoryId = categoryService.insert(new Category().setName("Main").setType(Category.Type.EXPENSE));
+        Long subCategoryId = categoryService.insert(new Category().setName("Sub 1").setParent(categoryService.findById(mainCategoryId)));
+        categoryService.insert(new Category().setName("Sub 2").setParent(categoryService.findById(mainCategoryId)));
 
         categoryService.deleteById(subCategoryId);
 
@@ -251,21 +218,21 @@ public class LocalCategoryServiceTest {
     }
 
     @Test
-    public void deleteMainCategoryWithSubs() {
-        Long otherMainCategory = categoryService.insert(new Category.Builder().setName("Main 1").setType(Category.Type.EXPENSE).build());
-        categoryService.insert(new Category.Builder().setName("Sub 1 of Main 1").setParent(categoryService.findById(otherMainCategory)).build());
-        categoryService.insert(new Category.Builder().setName("Sub 2 of Main 1").setParent(categoryService.findById(otherMainCategory)).build());
+    public void shouldDeleteMainCategoryWithSubs() {
+        Long otherMainCategory = categoryService.insert(new Category().setName("Main 1").setType(Category.Type.EXPENSE));
+        categoryService.insert(new Category().setName("Sub 1 of Main 1").setParent(categoryService.findById(otherMainCategory)));
+        categoryService.insert(new Category().setName("Sub 2 of Main 1").setParent(categoryService.findById(otherMainCategory)));
 
-        Integer oldMainCategorySize = categoryService.getMainCategories().size();
+        Integer oldMainCategoryCount = categoryService.getMainCategories().size();
         Long oldCount = categoryService.count();
 
-        Long mainCategoryToDelete = categoryService.insert(new Category.Builder().setName("Main 2").setType(Category.Type.EXPENSE).build());
-        categoryService.insert(new Category.Builder().setName("Sub 1 of Main 2").setParent(categoryService.findById(mainCategoryToDelete)).build());
-        categoryService.insert(new Category.Builder().setName("Sub 2 of Main 2").setParent(categoryService.findById(mainCategoryToDelete)).build());
+        Long mainCategoryToDelete = categoryService.insert(new Category().setName("Main 2").setType(Category.Type.EXPENSE));
+        categoryService.insert(new Category().setName("Sub 1 of Main 2").setParent(categoryService.findById(mainCategoryToDelete)));
+        categoryService.insert(new Category().setName("Sub 2 of Main 2").setParent(categoryService.findById(mainCategoryToDelete)));
 
         categoryService.deleteByIdWithSubcategories(mainCategoryToDelete);
 
         assertThat(categoryService.count()).isEqualTo(oldCount);
-        assertThat(categoryService.getMainCategories().size()).isEqualTo(oldMainCategorySize);
+        assertThat(categoryService.getMainCategories().size()).isEqualTo(oldMainCategoryCount);
     }
 }

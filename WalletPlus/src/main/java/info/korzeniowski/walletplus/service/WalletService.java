@@ -6,6 +6,6 @@ import info.korzeniowski.walletplus.model.Wallet;
 
 public interface WalletService extends BaseService<Wallet> {
     public List<Wallet> getMyWallets();
+
     public List<Wallet> getContractors();
-    public Wallet findByNameAndType(String name, Wallet.Type type);
 }

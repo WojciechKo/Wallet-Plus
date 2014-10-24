@@ -11,6 +11,8 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class Category implements Comparable<Category>, Identityable, Childable<Category>, Parcelable {
     public enum Type {
         TRANSFER,
@@ -26,6 +28,7 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
         public boolean isExpense() {
             return this.equals(EXPENSE) || this.equals(INCOME_EXPENSE);
         }
+
     }
 
     @DatabaseField(generatedId = true)
@@ -34,7 +37,7 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
     @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Category parent;
 
-    @DatabaseField(canBeNull = false, uniqueIndex = true)
+    @DatabaseField(canBeNull = false)
     private String name;
 
     @DatabaseField
@@ -43,18 +46,33 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
     @ForeignCollectionField(orderColumnName = "name")
     private ForeignCollection<Category> children;
 
-    /**
-     * ORMLite requirement *
-     */
+    public static final Parcelable.Creator<Category> CREATOR = new Parcelable.Creator<Category>() {
+        public Category createFromParcel(Parcel in) {
+            return new Category(in);
+        }
+
+        public Category[] newArray(int size) {
+            return new Category[size];
+        }
+    };
+
     public Category() {
 
     }
 
-    public Category(Builder builder) {
-        id = builder.id;
-        parent = builder.parent;
-        name = builder.name;
-        type = builder.type;
+    public Category(Category category) {
+        checkNotNull(category);
+        setId(category.getId());
+        setParent(category.getParent() == null ? null : new Category(category.getParent()));
+        setName(category.getName());
+        setType(category.getType());
+    }
+
+    private Category(Parcel in) {
+        id = in.readLong();
+        parent = in.readParcelable(Category.class.getClassLoader());
+        name = in.readString();
+        type = Type.values()[in.readInt()];
     }
 
     @Override
@@ -68,35 +86,6 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
         dest.writeParcelable(parent, flags);
         dest.writeString(name);
         dest.writeInt(type.ordinal());
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Category getParent() {
-        return parent;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public final boolean isIncomeType() {
-        return getType() != null && getType().isIncome();
-    }
-
-    public final boolean isExpenseType() {
-        return getType() != null && getType().isExpense();
-    }
-
-    @Override
-    public List<Category> getChildren() {
-        return Lists.newArrayList(children);
     }
 
     @Override
@@ -134,6 +123,55 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
                 '}';
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public Category setId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public Category getParent() {
+        return parent;
+    }
+
+    public Category setParent(Category parent) {
+        this.parent = parent;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Category setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public Category setType(Type type) {
+        this.type = type;
+        return this;
+    }
+
+    public final boolean isIncomeType() {
+        return getType() != null && getType().isIncome();
+    }
+
+    public final boolean isExpenseType() {
+        return getType() != null && getType().isExpense();
+    }
+
+    @Override
+    public List<Category> getChildren() {
+        return Lists.newArrayList(children);
+    }
+
     @Override
     public final int compareTo(Category other) {
         return Comparators.NAME.compare(this, other);
@@ -148,65 +186,5 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
                 return categoryName1.compareTo(categoryName2);
             }
         };
-    }
-
-    public static class Builder {
-        private Long id;
-        private Category parent;
-        private String name;
-        private Type type;
-
-        public Builder() {
-
-        }
-
-        public Builder(Category category) {
-            if (category != null) {
-                id = category.getId();
-                parent = category.getParent();
-                name = category.getName();
-                type = category.getType();
-            }
-        }
-
-        public Long getId() {
-            return id;
-        }
-
-        public Builder setId(Long id) {
-            this.id = id;
-            return this;
-        }
-
-        public Category getParent() {
-            return parent;
-        }
-
-        public Builder setParent(Category parent) {
-            this.parent = parent;
-            return this;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Builder setName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Type getType() {
-            return type;
-        }
-
-        public Builder setType(Type type) {
-            this.type = type;
-            return this;
-        }
-
-        public Category build() {
-            return new Category(this);
-        }
     }
 }

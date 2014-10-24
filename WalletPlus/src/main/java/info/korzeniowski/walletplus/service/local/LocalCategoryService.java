@@ -2,17 +2,18 @@ package info.korzeniowski.walletplus.service.local;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.local.validation.CategoryValidator;
-import info.korzeniowski.walletplus.model.Category;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -32,14 +33,13 @@ public class LocalCategoryService implements CategoryService {
     }
 
     /**
-     * **********
-     * CREATE
-     * ***********
+     * ********
+     * CREATE *
+     * ********
      */
     @Override
     public Long insert(Category category) {
         try {
-            checkNotNull(category);
             categoryValidator.validateInsert(category);
             categoryDao.create(category);
             return category.getId();
@@ -49,9 +49,9 @@ public class LocalCategoryService implements CategoryService {
     }
 
     /**
-     * **********
-     * READ
-     * ***********
+     * ******
+     * READ *
+     * ******
      */
     @Override
     public Category findById(final Long id) {
@@ -92,7 +92,15 @@ public class LocalCategoryService implements CategoryService {
     @Override
     public List<Category> getMainCategories() {
         try {
-            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().isNull("parent_id").query();
+            Where where = categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where();
+            return where.and(
+                    where.isNull("parent_id"),
+                    where.or(
+                            where.eq("type", Category.Type.INCOME),
+                            where.eq("type", Category.Type.INCOME_EXPENSE),
+                            where.eq("type", Category.Type.EXPENSE)
+                    )
+            ).query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -126,9 +134,9 @@ public class LocalCategoryService implements CategoryService {
     }
 
     /**
-     * **********
-     * UPDATE
-     * ***********
+     * ********
+     * UPDATE *
+     * ********
      */
     @Override
     public void update(final Category newValue) {
@@ -141,9 +149,9 @@ public class LocalCategoryService implements CategoryService {
     }
 
     /**
-     * **********
-     * DELETE
-     * ***********
+     * ********
+     * DELETE *
+     * ********
      */
     @Override
     public void deleteById(Long id) {
