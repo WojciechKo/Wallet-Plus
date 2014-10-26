@@ -68,8 +68,7 @@ public class WalletListFragment extends Fragment {
         final RecyclerView.Adapter adapter = new WalletListAdapter(getActivity(), localWalletService.getMyWallets(), new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startWalletDetailsFragment(list.getChildItemId(v));
-
+                startWalletDetailsFragment(list.getAdapter().getItemId(list.getChildPosition(v)));
             }
         });
         list.setAdapter(adapter);
