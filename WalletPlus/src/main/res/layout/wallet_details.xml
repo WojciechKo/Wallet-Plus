@@ -3,47 +3,59 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:padding="@dimen/cardPadding">
+    android:clipToPadding="false">
 
-    <RelativeLayout style="@style/Card">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
 
         <TextView
             android:id="@+id/walletNameLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:paddingTop="16dp"
             android:text="@string/walletNameLabel"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textSize="@dimen/smallFontSize"
+            android:visibility="invisible" />
 
         <EditText
             android:id="@+id/walletName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_below="@+id/walletNameLabel"
-            android:hint="@string/walletNameHint"
+            android:hint="@string/walletNameLabel"
             android:inputType="textAutoCorrect"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:paddingBottom="16dp"
+            android:textSize="@dimen/mediumFontSize" />
 
         <TextView
             android:id="@+id/walletInitialAmountLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_below="@+id/walletName"
+            android:paddingTop="16dp"
             android:text="@string/walletInitialAmountLabel"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textSize="@dimen/smallFontSize"
+            android:visibility="invisible" />
 
         <EditText
             android:id="@+id/walletInitialAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_below="@+id/walletInitialAmountLabel"
-            android:hint="@string/walletInitialAmount"
+            android:hint="@string/walletInitialAmountLabel"
             android:inputType="numberDecimal"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:paddingBottom="16dp"
+            android:textSize="@dimen/mediumFontSize" />
     </RelativeLayout>
 </ScrollView>
