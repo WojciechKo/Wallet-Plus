@@ -9,8 +9,8 @@
     <dimen name="verySmallFontSize">9sp</dimen>
     <dimen name="smallFontSize">12sp</dimen>
     <dimen name="mediumFontSize">16sp</dimen>
-    <dimen name="bigFontSize">16sp</dimen>
-    <dimen name="veryBigFontSize">22sp</dimen>
+    <dimen name="largeFontSize">20sp</dimen>
+    <dimen name="xLargeFontSize">22sp</dimen>
 
     <dimen name="cashflowListLabelPadding">3dp</dimen>
 
