@@ -34,8 +34,9 @@ public class WalletDetailsFragment extends Fragment {
     public static final String WALLET_ID = "WALLET_ID";
     private static final String WALLET_DETAILS_STATE = "walletDetailsState";
 
-    private enum DetailsType {ADD, EDIT}
 
+
+    private enum DetailsType {ADD, EDIT;}
     @InjectView(R.id.walletNameLabel)
     TextView walletNameLabel;
 
@@ -66,48 +67,34 @@ public class WalletDetailsFragment extends Fragment {
     @Named("amount")
     NumberFormat amountFormat;
 
-    private WalletDetailsParcelableState walletDetailsState;
     private DetailsType type;
+
+    private Wallet wallet;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
         setHasOptionsMenu(true);
-//        walletDetailsState = initOrRestoreState(savedInstanceState);
-        type = walletDetailsState.getId() == null ? DetailsType.ADD : DetailsType.EDIT;
+        if (savedInstanceState != null) {
+            restoreFields(savedInstanceState);
+        } else {
+            initFields();
+        }
     }
 
-    private WalletDetailsParcelableState initOrRestoreState(Bundle savedInstanceState) {
-        WalletDetailsParcelableState restoredState = tryRestore(savedInstanceState);
-        return restoredState != null
-                ? restoredState
-                : initState();
+    private void restoreFields(Bundle savedInstanceState) {
+        type = DetailsType.values()[savedInstanceState.getInt("detailsType")];
+        wallet = savedInstanceState.getParcelable("wallet");
     }
 
-    private WalletDetailsParcelableState tryRestore(Bundle savedInstanceState) {
-        return savedInstanceState != null
-                ? (WalletDetailsParcelableState) savedInstanceState.getParcelable(WALLET_DETAILS_STATE)
-                : null;
-    }
-
-    private WalletDetailsParcelableState initState() {
-        Long cashFlowId = getArguments() != null
-                ? getArguments().getLong(WALLET_ID)
-                : 0;
-
-        return cashFlowId != 0
-                ? getStateFromWallet(localWalletService.findById(cashFlowId))
-                : new WalletDetailsParcelableState();
-    }
-
-    private WalletDetailsParcelableState getStateFromWallet(Wallet wallet) {
-        WalletDetailsParcelableState state = new WalletDetailsParcelableState();
-        state.setId(wallet.getId());
-        state.setName(wallet.getName());
-        state.setInitialAmount(wallet.getInitialAmount());
-        state.setCurrentAmount(wallet.getCurrentAmount());
-        return state;
+    private void initFields() {
+        Long walletId = getArguments() != null ? getArguments().getLong(WALLET_ID) : 0;
+        if (walletId == 0) {
+            wallet = localWalletService.findById(walletId);
+        } else {
+            wallet = new Wallet();
+        }
     }
 
     @Override
@@ -115,17 +102,12 @@ public class WalletDetailsFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.wallet_details, container, false);
         ButterKnife.inject(this, view);
-        fillViewsWithData();
-        walletName.addTextChangedListener(new WalletNameTextWatcher());
-        if (type == DetailsType.ADD) {
-            walletInitialAmount.addTextChangedListener(new InitialAmountTextWatcherWhileAdding());
-        } else {
-            walletInitialAmount.addTextChangedListener(new InitialAmountTextWatcherWhileEditing());
-        }
+        setupViews();
+        setupListeners();
         return view;
     }
 
-    private void fillViewsWithData() {
+    private void setupViews() {
         if (type == DetailsType.EDIT) {
             walletNameLabel.setVisibility(View.VISIBLE);
             walletInitialAmountLabel.setVisibility(View.VISIBLE);
@@ -137,9 +119,19 @@ public class WalletDetailsFragment extends Fragment {
         }
     }
 
+    private void setupListeners() {
+        walletName.addTextChangedListener(new WalletNameTextWatcher());
+        if (type == DetailsType.ADD) {
+            walletInitialAmount.addTextChangedListener(new InitialAmountTextWatcherWhileAdding());
+        } else {
+            walletInitialAmount.addTextChangedListener(new InitialAmountTextWatcherWhileEditing());
+        }
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(WALLET_DETAILS_STATE, walletDetailsState);
+        outState.putInt("detailsType", type.ordinal());
+        outState.putParcelable("wallet", wallet);
         super.onSaveInstanceState(outState);
     }
 
@@ -160,7 +152,6 @@ public class WalletDetailsFragment extends Fragment {
 
     private void selectedOptionSave() {
         if (isAnyErrorOccurs()) {
-            Wallet wallet = getWalletFromState();
             wallet.setType(Wallet.Type.MY_WALLET);
             if (type == DetailsType.ADD) {
                 localWalletService.insert(wallet);
@@ -175,14 +166,6 @@ public class WalletDetailsFragment extends Fragment {
         return walletName.getError() != null || walletInitialAmount.getError() != null;
     }
 
-    private Wallet getWalletFromState() {
-        Wallet wallet = new Wallet();
-        wallet.setId(walletDetailsState.getId());
-        wallet.setName(walletDetailsState.getName());
-        wallet.setInitialAmount(walletDetailsState.getInitialAmount());
-        return wallet;
-    }
-
     private class WalletNameTextWatcher extends EmptyTextWatcher {
         @Override
         public void afterTextChanged(Editable s) {
@@ -190,11 +173,12 @@ public class WalletDetailsFragment extends Fragment {
                 if (walletNameLabel.getVisibility() == View.VISIBLE) {
                     walletName.setError(getString(R.string.walletNameIsRequired));
                 }
+            } else if (walletName.getError() != null &&
+                    walletName.getError().toString().equals(getString(R.string.walletNameIsRequired))) {
+                walletName.setError(null);
             } else {
                 walletNameLabel.setVisibility(View.VISIBLE);
-                walletName.setError(null);
             }
-            walletDetailsState.setName(s.toString());
         }
     }
 
@@ -209,8 +193,7 @@ public class WalletDetailsFragment extends Fragment {
                 walletInitialAmountLabel.setVisibility(View.VISIBLE);
             }
             validateIfInitialAmountIsNotEmpty();
-            Double newInitialAmount = validateIfInitialAmountIsDigit();
-            walletDetailsState.setInitialAmount(newInitialAmount);
+            validateIfInitialAmountIsDigit();
         }
     }
 
@@ -220,11 +203,11 @@ public class WalletDetailsFragment extends Fragment {
             validateIfInitialAmountIsNotEmpty();
             Double newInitialAmount = validateIfInitialAmountIsDigit();
             if (walletInitialAmount.getError() == null) {
-                double newCurrentAmount = walletDetailsState.getCurrentAmount() + newInitialAmount - walletDetailsState.getInitialAmount();
+                double newCurrentAmount = wallet.getCurrentAmount() + newInitialAmount - wallet.getInitialAmount();
                 walletCurrentAmount.setText(NumberFormat.getCurrencyInstance().format(newCurrentAmount));
-                walletDetailsState.setCurrentAmount(newCurrentAmount);
+                wallet.setInitialAmount(newInitialAmount);
+                wallet.setCurrentAmount(newCurrentAmount);
             }
-            walletDetailsState.setInitialAmount(newInitialAmount);
         }
     }
 
