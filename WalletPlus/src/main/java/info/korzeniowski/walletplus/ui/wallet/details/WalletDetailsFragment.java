@@ -32,9 +32,6 @@ import info.korzeniowski.walletplus.service.WalletService;
 public class WalletDetailsFragment extends Fragment {
     public static final String TAG = "walletDetails";
     public static final String WALLET_ID = "WALLET_ID";
-    private static final String WALLET_DETAILS_STATE = "walletDetailsState";
-
-
 
     private enum DetailsType {ADD, EDIT;}
     @InjectView(R.id.walletNameLabel)
@@ -91,9 +88,11 @@ public class WalletDetailsFragment extends Fragment {
     private void initFields() {
         Long walletId = getArguments() != null ? getArguments().getLong(WALLET_ID) : 0;
         if (walletId == 0) {
-            wallet = localWalletService.findById(walletId);
-        } else {
+            type = DetailsType.ADD;
             wallet = new Wallet();
+        } else {
+            type = DetailsType.EDIT;
+            wallet = localWalletService.findById(walletId);
         }
     }
 
