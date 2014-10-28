@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.test.ui.wallet;
+package info.korzeniowski.walletplus.test.ui.wallet.details;
 
 import android.os.Bundle;
 import android.view.MenuItem;

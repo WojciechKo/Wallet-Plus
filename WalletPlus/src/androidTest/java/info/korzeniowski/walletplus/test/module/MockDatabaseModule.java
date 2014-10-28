@@ -11,8 +11,8 @@ import info.korzeniowski.walletplus.module.DatabaseModule;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.local.DatabaseHelper;
 import info.korzeniowski.walletplus.test.service.cashflow.LocalCashFlowServiceTest;
-import info.korzeniowski.walletplus.test.ui.wallet.AddingMyWalletFragmentTest;
-import info.korzeniowski.walletplus.test.ui.wallet.EditingMyWalletFragmentTest;
+import info.korzeniowski.walletplus.test.ui.wallet.details.AddingMyWalletFragmentTest;
+import info.korzeniowski.walletplus.test.ui.wallet.details.EditingMyWalletFragmentTest;
 
 @Module(
         addsTo = DatabaseModule.class,
