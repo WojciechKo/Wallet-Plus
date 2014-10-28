@@ -34,6 +34,7 @@ public class WalletDetailsFragment extends Fragment {
     public static final String WALLET_ID = "WALLET_ID";
 
     private enum DetailsType {ADD, EDIT;}
+
     @InjectView(R.id.walletNameLabel)
     TextView walletNameLabel;
 
@@ -128,6 +129,25 @@ public class WalletDetailsFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (wallet.getName() == null) {
+            walletName.setText("");
+        } else {
+            walletName.setText(wallet.getName());
+        }
+        if (wallet.getInitialAmount() == null) {
+            walletInitialAmount.setText("");
+        } else {
+            walletInitialAmount.setText(amountFormat.format(wallet.getInitialAmount()));
+        }
+
+        if (type == DetailsType.EDIT) {
+            walletCurrentAmount.setText(NumberFormat.getCurrencyInstance().format(wallet.getCurrentAmount()));
+        }
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt("detailsType", type.ordinal());
         outState.putParcelable("wallet", wallet);
@@ -150,7 +170,7 @@ public class WalletDetailsFragment extends Fragment {
     }
 
     private void selectedOptionSave() {
-        if (isAnyErrorOccurs()) {
+        if (!isAnyErrorOccurs()) {
             wallet.setType(Wallet.Type.MY_WALLET);
             if (type == DetailsType.ADD) {
                 localWalletService.insert(wallet);
@@ -178,6 +198,9 @@ public class WalletDetailsFragment extends Fragment {
             } else {
                 walletNameLabel.setVisibility(View.VISIBLE);
             }
+            if (walletName.getError() == null) {
+                wallet.setName(s.toString());
+            }
         }
     }
 
@@ -191,8 +214,13 @@ public class WalletDetailsFragment extends Fragment {
             } else {
                 walletInitialAmountLabel.setVisibility(View.VISIBLE);
             }
-            validateIfInitialAmountIsNotEmpty();
-            validateIfInitialAmountIsDigit();
+            if (walletInitialAmountLabel.getVisibility() == View.VISIBLE) {
+                validateIfInitialAmountIsNotEmpty();
+                Double newInitialAmount = validateIfInitialAmountIsDigit();
+                if (newInitialAmount != null) {
+                    wallet.setInitialAmount(newInitialAmount);
+                }
+            }
         }
     }
 
@@ -201,7 +229,7 @@ public class WalletDetailsFragment extends Fragment {
         public void afterTextChanged(Editable s) {
             validateIfInitialAmountIsNotEmpty();
             Double newInitialAmount = validateIfInitialAmountIsDigit();
-            if (walletInitialAmount.getError() == null) {
+            if (newInitialAmount != null) {
                 double newCurrentAmount = wallet.getCurrentAmount() + newInitialAmount - wallet.getInitialAmount();
                 walletCurrentAmount.setText(NumberFormat.getCurrencyInstance().format(newCurrentAmount));
                 wallet.setInitialAmount(newInitialAmount);
@@ -219,13 +247,15 @@ public class WalletDetailsFragment extends Fragment {
     }
 
     private Double validateIfInitialAmountIsDigit() {
-        Double result = null;
+        Double result = Strings.isNullOrEmpty(walletInitialAmount.getText().toString())
+                ? 0.0
+                : null;
+
         if (walletInitialAmount.getError() == null || getString(R.string.walletInitialAmountIsNotADigit).equals(walletInitialAmount.getError())) {
             try {
                 result = Double.parseDouble(walletInitialAmount.getText().toString());
                 walletInitialAmount.setError(null);
             } catch (NumberFormatException e) {
-                walletCurrentAmount.setText(NumberFormat.getCurrencyInstance().format(0));
                 walletInitialAmount.setError(getString(R.string.walletInitialAmountIsNotADigit));
             }
         }
