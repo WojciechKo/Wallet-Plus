@@ -73,7 +73,7 @@ public class CashFlowDetailsContainerFragment extends Fragment {
 
     private CashFlowDetailsParcelableState tryRestore(Bundle savedInstanceState) {
         return savedInstanceState != null
-                ? (CashFlowDetailsParcelableState) savedInstanceState.getParcelable("cashFlowDetailsState")
+                ? (CashFlowDetailsParcelableState) savedInstanceState.getParcelable(CASH_FLOW_DETAILS_STATE)
                 : null;
     }
 

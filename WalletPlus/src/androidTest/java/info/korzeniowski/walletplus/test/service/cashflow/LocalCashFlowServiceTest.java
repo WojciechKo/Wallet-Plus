@@ -22,7 +22,7 @@ import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)

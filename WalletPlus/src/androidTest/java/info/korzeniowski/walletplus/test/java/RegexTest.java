@@ -7,7 +7,7 @@ import org.robolectric.annotation.Config;
 
 import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowBaseDetailsFragment;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)

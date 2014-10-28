@@ -23,8 +23,8 @@ apt {
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion '20.0.0'
+    compileSdkVersion 21
+    buildToolsVersion '21.0.2'
 
     lintOptions {
         abortOnError false
@@ -57,9 +57,12 @@ repositories {
 
 dependencies {
     // Android Support
-    def androidSupportVersion = '20.0.+'
+    def androidSupportVersion = '21.0.+'
     compile "com.android.support:support-v4:$androidSupportVersion"
     compile "com.android.support:appcompat-v7:$androidSupportVersion"
+    compile "com.android.support:cardview-v7:$androidSupportVersion"
+    compile "com.android.support:recyclerview-v7:$androidSupportVersion"
+
 
     // OrmLite
     def ormLiteVersion = '4.48'
@@ -114,8 +117,8 @@ dependencies {
         exclude module: 'wagon-provider-api'
     }
 
-    //AssertJ Android
-    androidTestCompile 'com.squareup.assertj:assertj-android:1.0.+'
+    //Fest Android
+    androidTestCompile 'com.squareup:fest-android:1.0.8'
 }
 
 apply plugin: "jacoco"

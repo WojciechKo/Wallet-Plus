@@ -97,16 +97,17 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        boolean handled = super.onOptionsItemSelected(item);
-        if (handled) {
-            return true;
-        }
-        int itemId_ = item.getItemId();
-        if (itemId_ == android.R.id.home) {
+        if (item.getItemId() == android.R.id.home) {
             homeSelected(item);
             return true;
         }
-        return false;
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void homeSelected(MenuItem item) {
+        if (!drawerToggle.onOptionsItemSelected(item)) {
+            getSupportFragmentManager().popBackStack();
+        }
     }
 
     @Override
@@ -127,12 +128,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    private void homeSelected(MenuItem item) {
-        if (!drawerToggle.onOptionsItemSelected(item)) {
-            getSupportFragmentManager().popBackStack();
-        }
     }
 
     @Override

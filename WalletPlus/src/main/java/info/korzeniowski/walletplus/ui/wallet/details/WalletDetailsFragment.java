@@ -1,20 +1,21 @@
 package info.korzeniowski.walletplus.ui.wallet.details;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.common.base.Strings;
 
-import java.text.MessageFormat;
 import java.text.NumberFormat;
 
 import javax.inject.Inject;
@@ -32,13 +33,25 @@ public class WalletDetailsFragment extends Fragment {
     public static final String TAG = "walletDetails";
     public static final String WALLET_ID = "WALLET_ID";
 
-    private enum DetailsType {ADD, EDIT}
+    private enum DetailsType {ADD, EDIT;}
+
+    @InjectView(R.id.walletNameLabel)
+    TextView walletNameLabel;
 
     @InjectView(R.id.walletName)
-    TextView walletName;
+    EditText walletName;
+
+    @InjectView(R.id.walletInitialAmountLabel)
+    TextView walletInitialAmountLabel;
 
     @InjectView(R.id.walletInitialAmount)
-    TextView walletInitialAmount;
+    EditText walletInitialAmount;
+
+    @InjectView(R.id.walletCurrentAmountLabel)
+    TextView walletCurrentAmountLabel;
+
+    @InjectView(R.id.walletCurrentAmount)
+    TextView walletCurrentAmount;
 
     @Inject
     @Named("local")
@@ -53,6 +66,7 @@ public class WalletDetailsFragment extends Fragment {
     NumberFormat amountFormat;
 
     private DetailsType type;
+
     private Wallet wallet;
 
     @Override
@@ -60,16 +74,26 @@ public class WalletDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
         setHasOptionsMenu(true);
-        initState();
+        if (savedInstanceState != null) {
+            restoreFields(savedInstanceState);
+        } else {
+            initFields();
+        }
     }
 
-    private void initState() {
-        wallet = localWalletService.findById(getArguments().getLong(WALLET_ID));
-        if (wallet == null) {
-            wallet = new Wallet();
+    private void restoreFields(Bundle savedInstanceState) {
+        type = DetailsType.values()[savedInstanceState.getInt("detailsType")];
+        wallet = savedInstanceState.getParcelable("wallet");
+    }
+
+    private void initFields() {
+        Long walletId = getArguments() != null ? getArguments().getLong(WALLET_ID) : 0;
+        if (walletId == 0) {
             type = DetailsType.ADD;
+            wallet = new Wallet();
         } else {
             type = DetailsType.EDIT;
+            wallet = localWalletService.findById(walletId);
         }
     }
 
@@ -79,23 +103,59 @@ public class WalletDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.wallet_details, container, false);
         ButterKnife.inject(this, view);
         setupViews();
+        setupListeners();
         return view;
     }
 
     private void setupViews() {
-        fillViewsWithData();
+        if (type == DetailsType.EDIT) {
+            walletNameLabel.setVisibility(View.VISIBLE);
+            walletInitialAmountLabel.setVisibility(View.VISIBLE);
+            walletCurrentAmountLabel.setVisibility(View.VISIBLE);
+            walletCurrentAmount.setVisibility(View.VISIBLE);
+
+            //TODO: czy to się zachowuje
+            walletCurrentAmount.setTypeface(walletCurrentAmount.getTypeface(), Typeface.BOLD);
+        }
     }
 
-    private void fillViewsWithData() {
-        if (type == DetailsType.EDIT) {
-            walletName.setText(wallet.getName());
-            walletInitialAmount.setText(amountFormat.format(wallet.getInitialAmount()));
+    private void setupListeners() {
+        walletName.addTextChangedListener(new WalletNameTextWatcher());
+        if (type == DetailsType.ADD) {
+            walletInitialAmount.addTextChangedListener(new InitialAmountTextWatcherWhileAdding());
+        } else {
+            walletInitialAmount.addTextChangedListener(new InitialAmountTextWatcherWhileEditing());
         }
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        if (wallet.getName() == null) {
+            walletName.setText("");
+        } else {
+            walletName.setText(wallet.getName());
+        }
+        if (wallet.getInitialAmount() == null) {
+            walletInitialAmount.setText("");
+        } else {
+            walletInitialAmount.setText(amountFormat.format(wallet.getInitialAmount()));
+        }
+
+        if (type == DetailsType.EDIT) {
+            walletCurrentAmount.setText(NumberFormat.getCurrencyInstance().format(wallet.getCurrentAmount()));
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt("detailsType", type.ordinal());
+        outState.putParcelable("wallet", wallet);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(info.korzeniowski.walletplus.R.menu.action_delete, menu);
         inflater.inflate(info.korzeniowski.walletplus.R.menu.action_save, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -105,16 +165,12 @@ public class WalletDetailsFragment extends Fragment {
         if (item.getItemId() == R.id.menu_save) {
             selectedOptionSave();
             return true;
-        } else if (item.getItemId() == R.id.menu_delete) {
-            selectedOptionDelete();
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void selectedOptionSave() {
-        if (validateIfNoEmptyFields()) {
-            getDataFromViews();
+        if (!isAnyErrorOccurs()) {
             wallet.setType(Wallet.Type.MY_WALLET);
             if (type == DetailsType.ADD) {
                 localWalletService.insert(wallet);
@@ -125,61 +181,103 @@ public class WalletDetailsFragment extends Fragment {
         }
     }
 
-    private boolean validateIfNoEmptyFields() {
-        validateIfEmpty(walletName, getString(R.string.walletNameCantBeEmpty));
-        validateIfEmpty(walletInitialAmount, getString(R.string.walletInitialAmountCantBeEmpty));
-        return !isAnyErrorsAppear();
-    }
-
-    private void validateIfEmpty(TextView textView, String errorMsg) {
-        if (Strings.isNullOrEmpty(textView.getText().toString())) {
-            textView.setError(errorMsg);
-        }
-    }
-
-    private boolean isAnyErrorsAppear() {
+    private boolean isAnyErrorOccurs() {
         return walletName.getError() != null || walletInitialAmount.getError() != null;
     }
 
-    private void getDataFromViews() {
-        wallet.setName(walletName.getText().toString());
-        wallet.setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()));
-        if (type == DetailsType.ADD) {
-            wallet.setCurrentAmount(wallet.getInitialAmount());
-        } else if (type == DetailsType.EDIT) {
-            wallet.setCurrentAmount(wallet.getCurrentAmount() + wallet.getInitialAmount() - wallet.getInitialAmount());
+    private class WalletNameTextWatcher extends EmptyTextWatcher {
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (Strings.isNullOrEmpty(s.toString())) {
+                if (walletNameLabel.getVisibility() == View.VISIBLE) {
+                    walletName.setError(getString(R.string.walletNameIsRequired));
+                }
+            } else if (walletName.getError() != null &&
+                    walletName.getError().toString().equals(getString(R.string.walletNameIsRequired))) {
+                walletName.setError(null);
+            } else {
+                walletNameLabel.setVisibility(View.VISIBLE);
+            }
+            if (walletName.getError() == null) {
+                wallet.setName(s.toString());
+            }
         }
     }
 
-    private void selectedOptionDelete() {
-        showDeleteConfirmationAlert();
+    private class InitialAmountTextWatcherWhileAdding extends EmptyTextWatcher {
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (Strings.isNullOrEmpty(s.toString())) {
+                if (walletInitialAmountLabel.getVisibility() == View.VISIBLE) {
+                    walletInitialAmount.setError(getString(R.string.walletInitialAmountIsRequired));
+                }
+            } else {
+                walletInitialAmountLabel.setVisibility(View.VISIBLE);
+            }
+            if (walletInitialAmountLabel.getVisibility() == View.VISIBLE) {
+                validateIfInitialAmountIsNotEmpty();
+                Double newInitialAmount = validateIfInitialAmountIsDigit();
+                if (newInitialAmount != null) {
+                    wallet.setInitialAmount(newInitialAmount);
+                }
+            }
+        }
     }
 
-    private void showDeleteConfirmationAlert() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setMessage(getConfirmationMessage())
-                .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        tryDelete(wallet.getId());
-                    }
-                })
-                .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-        builder.create().show();
+    private class InitialAmountTextWatcherWhileEditing extends EmptyTextWatcher {
+        @Override
+        public void afterTextChanged(Editable s) {
+            validateIfInitialAmountIsNotEmpty();
+            Double newInitialAmount = validateIfInitialAmountIsDigit();
+            if (newInitialAmount != null) {
+                double newCurrentAmount = wallet.getCurrentAmount() + newInitialAmount - wallet.getInitialAmount();
+                walletCurrentAmount.setText(NumberFormat.getCurrencyInstance().format(newCurrentAmount));
+                wallet.setInitialAmount(newInitialAmount);
+                wallet.setCurrentAmount(newCurrentAmount);
+            }
+        }
     }
 
-    private String getConfirmationMessage() {
-        int count = (int) localCashFlowService.countAssignedToWallet(wallet.getId());
-        String msg = getActivity().getString(R.string.walletDeleteConfirmation);
-        return MessageFormat.format(msg, count);
+    private void validateIfInitialAmountIsNotEmpty() {
+        if (Strings.isNullOrEmpty(walletInitialAmount.getText().toString())) {
+            walletInitialAmount.setError(getString(R.string.walletInitialAmountIsRequired));
+        } else if (getString(R.string.walletInitialAmountIsRequired).equals(walletInitialAmount.getError())) {
+            walletInitialAmount.setError(null);
+        }
     }
 
-    private void tryDelete(Long id) {
-        localWalletService.deleteById(id);
+    private Double validateIfInitialAmountIsDigit() {
+        Double result = Strings.isNullOrEmpty(walletInitialAmount.getText().toString())
+                ? 0.0
+                : null;
+
+        if (walletInitialAmount.getError() == null || getString(R.string.walletInitialAmountIsNotADigit).equals(walletInitialAmount.getError())) {
+            try {
+                result = Double.parseDouble(walletInitialAmount.getText().toString());
+                walletInitialAmount.setError(null);
+            } catch (NumberFormatException e) {
+                walletInitialAmount.setError(getString(R.string.walletInitialAmountIsNotADigit));
+            }
+        }
+        return result;
+    }
+
+    private static class EmptyTextWatcher implements TextWatcher {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+
     }
 }
