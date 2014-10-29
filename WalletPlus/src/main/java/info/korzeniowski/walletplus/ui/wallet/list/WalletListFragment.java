@@ -5,15 +5,14 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import java.text.MessageFormat;
 
@@ -28,13 +27,12 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
-import info.korzeniowski.walletplus.widget.DividerItemDecoration;
 
 public class WalletListFragment extends Fragment {
     public static final String TAG = "walletList";
 
-    @InjectView(R.id.recycler_view)
-    RecyclerView list;
+    @InjectView(R.id.list)
+    ListView list;
 
     @Inject
     @Named("local")
@@ -54,24 +52,25 @@ public class WalletListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.recycler_view, container, false);
+        View view = inflater.inflate(R.layout.list, container, false);
         ButterKnife.inject(this, view);
         setupViews();
         return view;
     }
 
     void setupViews() {
-        list.setHasFixedSize(true);
-        list.setLayoutManager(new LinearLayoutManager(getActivity()));
-        list.setItemAnimator(new DefaultItemAnimator());
-        list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        final RecyclerView.Adapter adapter = new WalletListAdapter(getActivity(), localWalletService.getMyWallets(), new View.OnClickListener() {
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-                startWalletDetailsFragment(list.getAdapter().getItemId(list.getChildPosition(v)));
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startWalletDetailsFragment(list.getAdapter().getItemId(position));
             }
         });
-        list.setAdapter(adapter);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        list.setAdapter(new WalletListAdapter(getActivity(), localWalletService.getMyWallets()));
     }
 
     @Override
@@ -94,7 +93,9 @@ public class WalletListFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putLong(WalletDetailsFragment.WALLET_ID, id);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true, WalletDetailsFragment.TAG);
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setContentFragment(fragment, true, WalletDetailsFragment.TAG);
+        }
     }
 
     private void selectedOptionDelete(Long id) {

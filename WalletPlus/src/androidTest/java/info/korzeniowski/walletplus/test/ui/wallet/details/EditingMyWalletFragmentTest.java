@@ -1,9 +1,12 @@
 package info.korzeniowski.walletplus.test.ui.wallet.details;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.junit.After;
@@ -24,6 +27,7 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -32,6 +36,7 @@ import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
 import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -73,31 +78,22 @@ public class EditingMyWalletFragmentTest {
 
     @Before
     public void setUp() {
-        Long walletId = 47L;
         module = new MockDatabaseModule();
+
         ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
         ((TestWalletPlus) Robolectric.application).addModules(module);
         ((TestWalletPlus) Robolectric.application).inject(this);
 
-        fragment = new WalletDetailsFragment();
-        Bundle arguments = new Bundle();
-        arguments.putLong(WalletDetailsFragment.WALLET_ID, walletId);
-        fragment.setArguments(arguments);
+        ActionBarActivity activity = Robolectric.buildActivity(MainActivity.class).create().start().resume().get();
+        ListView menuList = (ListView) activity.findViewById(R.id.drawer);
+        Robolectric.shadowOf(menuList).performItemClick(3);
+        ListView walletListView = (ListView) activity.findViewById(R.id.list);
+        int position = 1;
+        Robolectric.shadowOf(walletListView).performItemClick(position);
+        wallet = (Wallet) walletListView.getAdapter().getItem(position);
 
-        wallet = new Wallet()
-                .setId(walletId)
-                .setType(Wallet.Type.MY_WALLET)
-                .setName("walletName")
-                .setInitialAmount(1600.0)
-                .setCurrentAmount(500.0);
-        Mockito.when(mockWalletService.findById(walletId)).thenReturn(wallet);
+        fragment = (WalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(WalletDetailsFragment.TAG);
 
-        TextView test = new TextView(Robolectric.application);
-        test.setText(mockWalletService.findById(walletId).getName());
-        assertThat(test).containsText(wallet.getName());
-
-        FragmentTestUtil.startFragment(fragment);
-        ActivityController.of(fragment.getActivity()).visible();
         ButterKnife.inject(this, fragment.getView());
     }
 

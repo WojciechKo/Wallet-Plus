@@ -1,7 +1,9 @@
 package info.korzeniowski.walletplus.test.ui.wallet.details;
 
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.junit.Before;
@@ -20,6 +22,7 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -27,6 +30,7 @@ import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
 import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 
@@ -57,19 +61,24 @@ public class AddingMyWalletFragmentTest {
     @Named("local")
     WalletService mockWalletService;
 
-    private Fragment fragment;
     private MockDatabaseModule module;
+    private WalletDetailsFragment fragment;
 
     @Before
     public void setUp() {
         module = new MockDatabaseModule();
-        ((TestWalletPlus) Robolectric.application.getApplicationContext()).removeModule(TestDatabaseModule.class);
-        ((TestWalletPlus) Robolectric.application.getApplicationContext()).addModules(module);
-        ((TestWalletPlus) Robolectric.application.getApplicationContext()).inject(this);
 
-        fragment = new WalletDetailsFragment();
-        FragmentTestUtil.startFragment(fragment);
-        ActivityController.of(fragment.getActivity()).visible();
+        ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
+        ((TestWalletPlus) Robolectric.application).addModules(module);
+        ((TestWalletPlus) Robolectric.application).inject(this);
+
+        ActionBarActivity activity = Robolectric.buildActivity(MainActivity.class).create().start().resume().get();
+        ListView menuList = (ListView) activity.findViewById(R.id.drawer);
+        Robolectric.shadowOf(menuList).performItemClick(3);
+        Fragment walletList = activity.getSupportFragmentManager().findFragmentByTag(WalletListFragment.TAG);
+        walletList.onOptionsItemSelected(new TestMenuItem(R.id.menu_new));
+        fragment = (WalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(WalletDetailsFragment.TAG);
+
         ButterKnife.inject(this, fragment.getView());
     }
 
