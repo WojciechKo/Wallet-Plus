@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.fortysevendeg.swipelistview.SwipeListView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:swipe="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipe_list"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:listSelector="#00000000"
+    swipe:swipeBackView="@+id/walletListItemBack"
+    swipe:swipeFrontView="@+id/walletListItemFront" />

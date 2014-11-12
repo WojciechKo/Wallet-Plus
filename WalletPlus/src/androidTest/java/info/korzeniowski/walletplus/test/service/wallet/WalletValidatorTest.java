@@ -1,15 +1,18 @@
 package info.korzeniowski.walletplus.test.service.wallet;
 
-import com.j256.ormlite.dao.Dao;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
@@ -25,13 +28,14 @@ public class WalletValidatorTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    private WalletService walletService;
+    @Inject
+    @Named("local")
+    public WalletService walletService;
 
     @Before
     public void setUp() {
-        Dao<Wallet, Long> walletDao = mock(Dao.class);
-        WalletService validatorService = mock(WalletService.class);
-        walletService = new LocalWalletService(walletDao, new WalletValidator(validatorService));
+        ((TestWalletPlus) Robolectric.application).inject(this);
+        ((LocalWalletService) walletService).setWalletValidator(new WalletValidator(mock(WalletService.class)));
     }
 
     @Test

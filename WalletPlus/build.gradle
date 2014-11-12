@@ -53,6 +53,9 @@ robolectric {
 repositories {
     mavenCentral()
     maven {url 'https://oss.sonatype.org/content/repositories/snapshots/'}
+
+    // For SwipeListView
+    maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
 }
 
 dependencies {
@@ -90,6 +93,11 @@ dependencies {
     // FButton
     compile 'info.hoang8f:fbutton:1.0.5'
 
+    // SwipeListView
+    compile ('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
+        transitive = true
+    }
+
     // JUnit
     androidTestCompile "junit:junit:4.11"
 
@@ -97,7 +105,7 @@ dependencies {
     androidTestCompile "org.mockito:mockito-core:1.9.5"
 
     // Robolectric
-    androidTestCompile("org.robolectric:robolectric:2.4-SNAPSHOT") {
+    androidTestCompile("org.robolectric:robolectric:2.4") {
         exclude module: 'classworlds'
         exclude module: 'maven-artifact'
         exclude module: 'maven-artifact-manager'
@@ -155,7 +163,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {
     executionData = files('build/jacoco/testDebug.exec')
 
     def renamedFilesMap = [:]
- 
+
     // Hacky fix for issue: https://code.google.com/p/android/issues/detail?id=69174.
     // Rename files with '$$' before generating report, and then rename back after
     doFirst {
@@ -173,5 +181,13 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {
             newPath, oldPath ->
                 new File(newPath).renameTo(oldPath)
         }
+    }
+}
+
+apply plugin: 'idea'
+
+idea {
+    module {
+        downloadSources = true
     }
 }

@@ -1,12 +1,15 @@
 package info.korzeniowski.walletplus.service.local;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedQuery;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
@@ -15,16 +18,13 @@ import info.korzeniowski.walletplus.service.local.validation.WalletValidator;
 public class LocalWalletService implements WalletService {
     private WalletValidator walletValidator;
     private final Dao<Wallet, Long> walletDao;
+    private Dao<CashFlow, Long> cashFlowDao;
 
     @Inject
-    public LocalWalletService(Dao<Wallet, Long> walletDao) {
+    public LocalWalletService(Dao<Wallet, Long> walletDao, Dao<CashFlow, Long> cashFlowDao) {
         this.walletDao = walletDao;
+        this.cashFlowDao = cashFlowDao;
         this.walletValidator = new WalletValidator(this);
-    }
-
-    public LocalWalletService(Dao<Wallet, Long> walletDao, WalletValidator walletValidator) {
-        this.walletDao = walletDao;
-        this.walletValidator = walletValidator;
     }
 
     @Override
@@ -85,6 +85,12 @@ public class LocalWalletService implements WalletService {
     public void deleteById(Long id) {
         try {
             walletValidator.validateDelete(id);
+            DeleteBuilder db = cashFlowDao.deleteBuilder();
+            db.where()
+                .eq("fromWallet_id", id)
+                .or()
+                    .eq("toWallet_id", id);
+            cashFlowDao.delete(db.prepare());
             walletDao.deleteById(id);
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -107,5 +113,13 @@ public class LocalWalletService implements WalletService {
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    public WalletValidator getWalletValidator() {
+        return walletValidator;
+    }
+
+    public void setWalletValidator(WalletValidator walletValidator) {
+        this.walletValidator = walletValidator;
     }
 }

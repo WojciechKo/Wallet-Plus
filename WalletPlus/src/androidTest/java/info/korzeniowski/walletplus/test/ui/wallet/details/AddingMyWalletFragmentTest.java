@@ -61,15 +61,12 @@ public class AddingMyWalletFragmentTest {
     @Named("local")
     WalletService mockWalletService;
 
-    private MockDatabaseModule module;
     private WalletDetailsFragment fragment;
 
     @Before
     public void setUp() {
-        module = new MockDatabaseModule();
-
         ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
-        ((TestWalletPlus) Robolectric.application).addModules(module);
+        ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
         ((TestWalletPlus) Robolectric.application).inject(this);
 
         ActionBarActivity activity = Robolectric.buildActivity(MainActivity.class).create().start().resume().get();

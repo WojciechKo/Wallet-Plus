@@ -1,22 +1,21 @@
 package info.korzeniowski.walletplus.ui.wallet.list;
 
 import android.content.Context;
-import android.support.v7.internal.widget.AdapterViewCompat;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
-import java.lang.ref.WeakReference;
+import com.squareup.otto.Bus;
+
 import java.text.NumberFormat;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
+import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 
@@ -24,10 +23,12 @@ import static android.view.View.OnClickListener;
 
 public class WalletListAdapter extends IdentifiableListAdapter<Wallet> {
 
-    private WeakReference<OnClickListener> onClickListener;
+    @Inject
+    Bus bus;
 
     public WalletListAdapter(Context context, List<Wallet> myWallets) {
         super(context, myWallets, R.layout.wallet_item_list);
+        ((WalletPlus) context.getApplicationContext()).inject(this);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class WalletListAdapter extends IdentifiableListAdapter<Wallet> {
     }
 
     @Override
-    protected void fillViewWithItem(MyBaseViewHolder holder, Wallet item) {
+    protected void fillViewWithItem(MyBaseViewHolder holder, final Wallet item) {
         WalletViewHolder walletHolder = (WalletViewHolder) holder;
         walletHolder.walletName.setText(item.getName());
         walletHolder.currentAmount.setText(NumberFormat.getCurrencyInstance().format(item.getCurrentAmount()));
@@ -47,6 +48,12 @@ public class WalletListAdapter extends IdentifiableListAdapter<Wallet> {
         } else {
             walletHolder.currentAmount.setTextColor(getContext().getResources().getColor(R.color.green));
         }
+        walletHolder.delete.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bus.post(new DeleteWalletEvent(item.getId()));
+            }
+        });
     }
 
     public class WalletViewHolder extends MyBaseViewHolder {
@@ -55,5 +62,8 @@ public class WalletListAdapter extends IdentifiableListAdapter<Wallet> {
 
         @InjectView(R.id.currentAmount)
         protected TextView currentAmount;
+
+        @InjectView(R.id.deleteButton)
+        protected Button delete;
     }
 }

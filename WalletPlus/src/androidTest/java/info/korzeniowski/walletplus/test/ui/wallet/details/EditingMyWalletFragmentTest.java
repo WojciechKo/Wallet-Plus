@@ -1,26 +1,21 @@
 package info.korzeniowski.walletplus.test.ui.wallet.details;
 
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.tester.android.view.TestMenuItem;
-import org.robolectric.util.ActivityController;
-import org.robolectric.util.FragmentTestUtil;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -36,10 +31,10 @@ import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
 import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.fail;
 
 
 @Config(emulateSdk = 18, reportSdk = 18)
@@ -73,28 +68,44 @@ public class EditingMyWalletFragmentTest {
     CashFlowService mockCashFlowService;
 
     private Wallet wallet;
-    private MockDatabaseModule module;
     private WalletDetailsFragment fragment;
 
     @Before
     public void setUp() {
-        module = new MockDatabaseModule();
-
-        ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
-        ((TestWalletPlus) Robolectric.application).addModules(module);
-        ((TestWalletPlus) Robolectric.application).inject(this);
-
+        daggerInjection();
         ActionBarActivity activity = Robolectric.buildActivity(MainActivity.class).create().start().resume().get();
+        selectWalletSection(activity);
+        selectWalletToEditByPosition(activity, 1);
+        fragment = (WalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(WalletDetailsFragment.TAG);
+        ButterKnife.inject(this, fragment.getView());
+    }
+
+    private void daggerInjection() {
+        ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
+        ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
+        ((TestWalletPlus) Robolectric.application).inject(this);
+    }
+
+    private void selectWalletSection(ActionBarActivity activity) {
         ListView menuList = (ListView) activity.findViewById(R.id.drawer);
         Robolectric.shadowOf(menuList).performItemClick(3);
-        ListView walletListView = (ListView) activity.findViewById(R.id.list);
-        int position = 1;
-        Robolectric.shadowOf(walletListView).performItemClick(position);
+    }
+
+    private void selectWalletToEditByPosition(ActionBarActivity activity, int position) {
+        // Masterpiece begins...
+        ListView walletListView = (ListView) activity.findViewById(R.id.swipe_list);
+        try {
+            Method method = walletListView.getClass().getDeclaredMethod("onClickFrontView", int.class);
+            method.setAccessible(true);
+            method.invoke(walletListView, position);
+        } catch (NoSuchMethodException e) {
+            fail("Failed init.");
+        } catch (InvocationTargetException e) {
+            fail("Failed init.");
+        } catch (IllegalAccessException e) {
+            fail("Failed init.");
+        }
         wallet = (Wallet) walletListView.getAdapter().getItem(position);
-
-        fragment = (WalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(WalletDetailsFragment.TAG);
-
-        ButterKnife.inject(this, fragment.getView());
     }
 
     @Test

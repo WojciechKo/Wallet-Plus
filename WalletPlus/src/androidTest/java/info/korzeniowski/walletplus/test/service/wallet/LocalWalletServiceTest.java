@@ -7,13 +7,16 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import java.util.Date;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import info.korzeniowski.walletplus.TestWalletPlus;
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.WalletTypeCannotBeChangedException;
 
@@ -27,6 +30,10 @@ public class LocalWalletServiceTest {
     @Inject
     @Named("local")
     WalletService walletService;
+
+    @Inject
+    @Named("local")
+    CashFlowService cashFlowService;
 
     @Before
     public void setUp() {
@@ -103,6 +110,33 @@ public class LocalWalletServiceTest {
 
         assertThat(walletService.getMyWallets()).hasSize(2);
         assertThat(walletService.getContractors()).hasSize(0);
+    }
+
+    @Test
+    public void shouldDeleteRelatedCashFlowsAfterDelete() {
+        walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET));
+        walletService.insert(getSimpleWallet(Wallet.Type.MY_WALLET));
+        walletService.insert(getSimpleWallet(Wallet.Type.CONTRACTOR));
+        walletService.insert(getSimpleWallet(Wallet.Type.CONTRACTOR));
+
+        cashFlowService.insert(getCashFlow(walletService.getMyWallets().get(0), walletService.getContractors().get(0)));
+        cashFlowService.insert(getCashFlow(walletService.getMyWallets().get(0), walletService.getContractors().get(1)));
+        cashFlowService.insert(getCashFlow(walletService.getContractors().get(1), walletService.getMyWallets().get(0)));
+        cashFlowService.insert(getCashFlow(walletService.getContractors().get(1), walletService.getMyWallets().get(1)));
+
+        long cashFlowCount = cashFlowService.count();
+
+        walletService.deleteById(walletService.getMyWallets().get(0).getId());
+
+        assertThat(cashFlowService.count()).isEqualTo(cashFlowCount - 3);
+
+        walletService.deleteById(walletService.getContractors().get(1).getId());
+
+        assertThat(cashFlowService.count()).isEqualTo(cashFlowCount - 3 - 1);
+    }
+
+    private CashFlow getCashFlow(Wallet from, Wallet to) {
+        return new CashFlow().setDateTime(new Date()).setAmount(50.00F).setCategory(cashFlowService.getOtherCategory()).setFromWallet(from).setToWallet(to);
     }
 
     private Wallet getSimpleWallet(Wallet.Type type) {
