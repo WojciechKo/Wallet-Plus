@@ -1,6 +1,8 @@
 package info.korzeniowski.walletplus.ui;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +23,7 @@ public class DrawerListAdapter extends BaseAdapter {
 
     @Inject
     Context context;
+    private int selected;
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -33,6 +36,15 @@ public class DrawerListAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         fillViewWithItem(holder, getItem(position));
+
+        if (position == selected) {
+            holder.menuName.setTextColor(Color.parseColor("#2e7d32"));
+            holder.menuName.setTypeface(null, Typeface.BOLD);
+        } else {
+            holder.menuName.setTextColor((Color.parseColor("#424242")));
+            holder.menuName.setTypeface(null, Typeface.NORMAL);
+        }
+
         return convertView;
     }
 
@@ -67,5 +79,9 @@ public class DrawerListAdapter extends BaseAdapter {
 
     private class ViewHolder {
         private TextView menuName;
+    }
+
+    public void setSelected(int position) {
+        this.selected = position;
     }
 }

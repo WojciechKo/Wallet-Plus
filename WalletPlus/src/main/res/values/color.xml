@@ -1,7 +1,7 @@
 <resources>
     <!-- Style colors -->
-    <color name="actionBarBackground">#FF9909</color>
-    <color name="drawerBackground">#FF818181</color>
+    <color name="actionBarBackground">#4CAF50</color>
+    <color name="drawerBackground">#FFFFFF</color>
     <color name="background">#EEEEEE</color>
 
     <!--Card colors -->
