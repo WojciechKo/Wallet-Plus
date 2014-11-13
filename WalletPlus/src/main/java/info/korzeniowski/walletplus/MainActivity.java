@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 
@@ -36,6 +38,12 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
+
+    @InjectView(R.id.toolbarTitle)
+    TextView toolbarTitle;
+
+    @InjectView(R.id.toolbarSubtitle)
+    Spinner toolbarSubtitle;
 
     @Inject
     DrawerListAdapter drawerListAdapter;
@@ -64,6 +72,8 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     void setupViews() {
+        setTitle(null);
+        toolbarTitle.setText(state.getAppName());
         setSupportActionBar(toolbar);
         drawerToggle = new MainActivityDrawerToggle();
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -212,14 +222,14 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
         @Override
         public void onDrawerOpened(View drawerView) {
-            setTitle(state.getAppName());
+            toolbarTitle.setText(state.getAppName());
             super.onDrawerOpened(drawerView);
             MainActivity.this.invalidateOptionsMenu();
         }
 
         @Override
         public void onDrawerClosed(View drawerView) {
-            setTitle(state.getSelectedFragmentTitle());
+            toolbarTitle.setText(state.getSelectedFragmentTitle());
             super.onDrawerClosed(drawerView);
             MainActivity.this.invalidateOptionsMenu();
         }
