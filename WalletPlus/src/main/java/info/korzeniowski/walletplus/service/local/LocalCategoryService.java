@@ -1,23 +1,41 @@
 package info.korzeniowski.walletplus.service.local;
 
+import android.util.Pair;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.Where;
 
+import org.joda.time.DateTime;
+import org.joda.time.Period;
+
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.local.validation.CategoryValidator;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class LocalCategoryService implements CategoryService {
     private final CategoryValidator categoryValidator;
     private final Dao<Category, Long> categoryDao;
+
+    @Inject
+    @Named("local")
+    CashFlowService cashFlowService;
 
     @Inject
     public LocalCategoryService(Dao<Category, Long> categoryDao) {
@@ -176,6 +194,100 @@ public class LocalCategoryService implements CategoryService {
             categoryDao.delete(main);
         } catch (SQLException e) {
             throw new DatabaseException(e);
+        }
+    }
+
+    /**
+     * *************
+     * STATISTICS *
+     * *************
+     */
+
+    @Override
+    public CategoryStats getCategoryStats(Category category, Date firstDay, Period period, Integer iteration) {
+        checkNotNull(category);
+        checkNotNull(firstDay);
+        checkNotNull(period);
+        checkNotNull(iteration);
+
+        DateTime firstDayArg;
+        if (iteration <= 0) {
+            firstDayArg = new DateTime(firstDay).minus(period.multipliedBy(0 - iteration));
+        } else {
+            firstDayArg = new DateTime(firstDay).plus(period.multipliedBy(iteration));
+        }
+
+        DateTime lastDayArg = firstDayArg.plus(period);
+
+        List<CashFlow> cashFlowList = cashFlowService.findCashFlow(firstDayArg.toDate(), lastDayArg.toDate(), category.getId(), null, null);
+
+        Double difference = 0.0;
+        Double flow = 0.0;
+        for (CashFlow cashFlow : cashFlowList) {
+            flow += cashFlow.getAmount();
+            CashFlow.Type type = cashFlow.getType();
+            if (type == CashFlow.Type.INCOME) {
+                difference += cashFlow.getAmount();
+            } else if (type == CashFlow.Type.EXPANSE) {
+                difference -= cashFlow.getAmount();
+            }
+        }
+        return new CategoryStats(flow, difference);
+    }
+
+
+    @Override
+    public List<Pair<Category, CategoryStats>> getCategoryListWithStats(Date firstDay, Period period, Integer iteration) {
+        List<Category> categories = getMainCategories();
+        List<Pair<Category, CategoryStats>> result = createCategoryStatsResults(categories);
+
+        List<CashFlow> cashFlowList = getCashFlowList(firstDay, period, iteration);
+        for (final CashFlow cashFlow : cashFlowList) {
+            Pair<Category, CategoryStats> found = findByCategory(result, cashFlow.getCategory());
+            fixCategoryStats(found.second, cashFlow);
+        }
+        return result;
+    }
+
+    private List<Pair<Category, CategoryStats>> createCategoryStatsResults(List<Category> categories) {
+        List<Pair<Category, CategoryStats>> result = Lists.newArrayListWithCapacity(categories.size());
+        Lists.newArrayListWithCapacity(categories.size());
+        for (Category category : categories) {
+            result.add(new Pair<Category, CategoryStats>(category, new CategoryStats()));
+        }
+        return result;
+    }
+
+    private List<CashFlow> getCashFlowList(Date firstDay, Period period, Integer iteration) {
+        checkNotNull(firstDay);
+        checkNotNull(period);
+        checkNotNull(iteration);
+
+        DateTime firstDayArg;
+        if (iteration <= 0) {
+            firstDayArg = new DateTime(firstDay).minus(period.multipliedBy(0 - iteration));
+        } else {
+            firstDayArg = new DateTime(firstDay).plus(period.multipliedBy(iteration));
+        }
+
+        DateTime lastDayArg = firstDayArg.plus(period);
+        return cashFlowService.findCashFlow(firstDayArg.toDate(), lastDayArg.toDate(), null, null, null);
+    }
+
+    private Pair<Category, CategoryStats> findByCategory(List<Pair<Category, CategoryStats>> list, final Category category) {
+        return Iterables.find(list, new Predicate<Pair<Category, CategoryStats>>() {
+            @Override
+            public boolean apply(Pair<Category, CategoryStats> input) {
+                return input.first.getId().equals(category.getId());
+            }
+        });
+    }
+
+    private void fixCategoryStats(CategoryStats categoryStats, CashFlow cashFlow) {
+        if (cashFlow.getType() == CashFlow.Type.INCOME) {
+            categoryStats.incomeAmount(cashFlow.getAmount());
+        } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
+            categoryStats.expanseAmount(cashFlow.getAmount());
         }
     }
 }

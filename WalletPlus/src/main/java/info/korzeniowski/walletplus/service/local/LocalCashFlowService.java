@@ -1,8 +1,10 @@
 package info.korzeniowski.walletplus.service.local;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -15,7 +17,9 @@ import info.korzeniowski.walletplus.service.exception.DatabaseException;
 
 public class LocalCashFlowService implements CashFlowService {
     private final Dao<CashFlow, Long> cashFlowDao;
+    //TODO: zamienić na Service
     private final Dao<Wallet, Long> walletDao;
+    //TODO: zamienić na Service
     private final Dao<Category, Long> categoryDao;
     private Category other;
     private Category transfer;
@@ -162,5 +166,52 @@ public class LocalCashFlowService implements CashFlowService {
             return transfer;
         } catch (SQLException e) {
             throw new DatabaseException(e);
-        }    }
+        }
+    }
+
+    @Override
+    public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long fromWalletId, Long toWalletId) {
+        try {
+            boolean isFirst = true;
+            Where<CashFlow, Long> where = cashFlowDao.queryBuilder().where();
+            if (from != null) {
+//                if (!isFirst) {
+//                    where.and();
+//                }
+                isFirst = false;
+                where.ge("dateTime", from);
+            }
+            if (to != null) {
+                if (!isFirst) {
+                    where.and();
+                }
+                isFirst = false;
+                where.lt("dateTime", to);
+            }
+            if (categoryId != null) {
+                if (!isFirst) {
+                    where.and();
+                }
+                isFirst = false;
+                where.eq("category_id", categoryId);
+            }
+            if (fromWalletId != null) {
+                if (!isFirst) {
+                    where.and();
+                }
+                isFirst = false;
+                where.eq("fromWallet_id", fromWalletId);
+            }
+            if (toWalletId != null) {
+                if (!isFirst) {
+                    where.and();
+                }
+//                isFirst = false;
+                where.eq("toWallet_id", toWalletId);
+            }
+            return where.query();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
 }
