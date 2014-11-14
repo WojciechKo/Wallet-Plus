@@ -66,7 +66,6 @@ dependencies {
     compile "com.android.support:cardview-v7:$androidSupportVersion"
     compile "com.android.support:recyclerview-v7:$androidSupportVersion"
 
-
     // OrmLite
     def ormLiteVersion = '4.48'
     compile "com.j256.ormlite:ormlite-android:$ormLiteVersion"
@@ -86,6 +85,9 @@ dependencies {
 
     // Guava
     compile "com.google.guava:guava:17.0"
+
+    // Joda time android
+    compile 'net.danlew:android.joda:2.5.0'
 
     // PagerSlidingTabStrip
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'

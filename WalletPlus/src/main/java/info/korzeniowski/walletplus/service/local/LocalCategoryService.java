@@ -15,8 +15,6 @@ import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.local.validation.CategoryValidator;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class LocalCategoryService implements CategoryService {
     private final CategoryValidator categoryValidator;
     private final Dao<Category, Long> categoryDao;

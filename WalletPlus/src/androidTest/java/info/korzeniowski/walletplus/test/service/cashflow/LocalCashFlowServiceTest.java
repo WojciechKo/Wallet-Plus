@@ -50,7 +50,7 @@ public class LocalCashFlowServiceTest {
 
     @Test
     public void shouldFixRelatedWalletsAfterInsertOfCashFlow() {
-        float amount = (float) 53.1;
+        Double amount = 53.1;
         Wallet from = new Wallet().setName("from").setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0);
         Wallet to = new Wallet().setName("to").setType(Wallet.Type.CONTRACTOR).setInitialAmount(0.0);
         walletService.insert(from);

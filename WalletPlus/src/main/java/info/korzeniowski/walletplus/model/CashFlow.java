@@ -21,7 +21,7 @@ public class CashFlow implements Identityable {
     private Category category;
 
     @DatabaseField(canBeNull = false)
-    private Float amount;
+    private Double amount;
 
     @DatabaseField(canBeNull = false)
     private Date dateTime;
@@ -75,11 +75,11 @@ public class CashFlow implements Identityable {
         return this;
     }
 
-    public Float getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public CashFlow setAmount(Float amount) {
+    public CashFlow setAmount(Double amount) {
         this.amount = amount;
         return this;
     }
