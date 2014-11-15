@@ -7,14 +7,10 @@ import org.joda.time.DateTime;
 
 import java.util.Date;
 
-import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.Wallet;
 
+public class CategoryListParcelableState implements Parcelable {
 
-public class CategoryListParcelableState implements Parcelable{
-
-    private Date fromDate;
+    private Date startDate;
     private CategoryListFragmentMain.Period period;
 
     public static final Parcelable.Creator<CategoryListParcelableState> CREATOR = new Parcelable.Creator<CategoryListParcelableState>() {
@@ -27,13 +23,17 @@ public class CategoryListParcelableState implements Parcelable{
         }
     };
 
-    public CategoryListParcelableState() {
-        fromDate = DateTime.now().toDate();
-        period = CategoryListFragmentMain.Period.WEEK;
+    public CategoryListParcelableState(CategoryListFragmentMain.Period period) {
+        this.startDate = getStartDate(DateTime.now());
+        this.period = period;
+    }
+
+    private Date getStartDate(DateTime dateTime) {
+        return new DateTime(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth(), 0, 0).toDate();
     }
 
     public CategoryListParcelableState(Parcel in) {
-        fromDate = new Date(in.readLong());
+        startDate = new Date(in.readLong());
         period = CategoryListFragmentMain.Period.values()[in.readInt()];
     }
 
@@ -44,16 +44,16 @@ public class CategoryListParcelableState implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(fromDate.getTime());
+        dest.writeLong(startDate.getTime());
         dest.writeInt(period.ordinal());
     }
 
-    public Date getFromDate() {
-        return fromDate;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setFromDate(Date fromDate) {
-        this.fromDate = fromDate;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
     public CategoryListFragmentMain.Period getPeriod() {

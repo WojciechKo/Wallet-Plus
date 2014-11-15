@@ -77,10 +77,9 @@ public class CategoryListFragment2 extends Fragment {
 
 
     protected void initFields() {
-        categoryListState.getFromDate();
         Period period = getPeriod(categoryListState.getPeriod());
         mainCategories = localCategoryService.getMainCategories();
-        categoryStatsList = localCategoryService.getCategoryStateList(categoryListState.getFromDate(), period, iteration);
+        categoryStatsList = localCategoryService.getCategoryStateList(categoryListState.getStartDate(), period, iteration);
     }
 
     private Period getPeriod(CategoryListFragmentMain.Period period) {

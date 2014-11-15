@@ -1,7 +1,5 @@
 package info.korzeniowski.walletplus.service.local;
 
-import android.util.Pair;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -10,6 +8,7 @@ import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.Where;
 
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.sql.SQLException;
@@ -19,6 +18,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import info.korzeniowski.walletplus.KorzeniowskiUtils;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CashFlowService;
@@ -268,16 +268,10 @@ public class LocalCategoryService implements CategoryService {
         checkNotNull(period);
         checkNotNull(iteration);
 
-        DateTime firstDayArg;
-        if (iteration <= 0) {
-            firstDayArg = new DateTime(firstDay).minus(period.multipliedBy(0 - iteration));
-        } else {
-            firstDayArg = new DateTime(firstDay).plus(period.multipliedBy(iteration));
-        }
-
-        DateTime lastDayArg = firstDayArg.plus(period);
-        return cashFlowService.findCashFlow(firstDayArg.toDate(), lastDayArg.toDate(), null, null, null);
+        Interval interval = KorzeniowskiUtils.Time.getInterval(new DateTime(firstDay), period, iteration);
+        return cashFlowService.findCashFlow(interval.getStart().toDate(), interval.getEnd().toDate(), null, null, null);
     }
+
 
     private CategoryStats findByCategory(List<CategoryStats> list, final Category category) {
         return Iterables.find(list, new Predicate<CategoryStats>() {
