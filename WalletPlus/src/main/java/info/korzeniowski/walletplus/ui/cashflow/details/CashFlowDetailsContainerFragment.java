@@ -159,7 +159,7 @@ public class CashFlowDetailsContainerFragment extends Fragment {
 
         tabs.setViewPager(pager);
         tabs.setTextColorResource(R.color.black);
-        tabs.setIndicatorColorResource(R.color.actionBarBackground);
+        tabs.setIndicatorColorResource(R.color.mainColor);
         tabs.setUnderlineColorResource(android.R.color.transparent);
         tabs.setShouldExpand(true);
         tabs.setOnPageChangeListener(pagerAdapter);

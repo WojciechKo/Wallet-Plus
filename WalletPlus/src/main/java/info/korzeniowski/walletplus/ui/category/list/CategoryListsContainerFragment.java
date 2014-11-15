@@ -53,7 +53,7 @@ public class CategoryListsContainerFragment extends Fragment {
         pager.setAdapter(new MyPagerAdapter(getChildFragmentManager()));
         tabs.setViewPager(pager);
         tabs.setTextColorResource(R.color.black);
-        tabs.setIndicatorColorResource(R.color.actionBarBackground);
+        tabs.setIndicatorColorResource(R.color.mainColor);
         tabs.setUnderlineColorResource(android.R.color.transparent);
         tabs.setShouldExpand(true);
     }

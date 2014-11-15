@@ -136,42 +136,42 @@ public class CategoryStatisticsTest {
         cashFlowService.insert(new CashFlow().setCategory(category).setFromWallet(walletService.getMyWallets().get(1)).setAmount(300.0).setDateTime(tomorrow));
         cashFlowService.insert(new CashFlow().setCategory(category).setToWallet(walletService.getMyWallets().get(1)).setAmount(700.0).setDateTime(tomorrow));
 
-        Pair<Category, CategoryService.CategoryStats> stats;
+        CategoryService.CategoryStats stats;
 
         stats = getCategoryStats(category, yesterday, Period.days(1), 0);
-        assertThat(stats.second.getDifference()).isEqualTo(1.0);
-        assertThat(stats.second.getFlow()).isEqualTo(13.0);
+        assertThat(stats.getDifference()).isEqualTo(1.0);
+        assertThat(stats.getFlow()).isEqualTo(13.0);
 
         stats = getCategoryStats(category, yesterday, Period.days(1), 1);
-        assertThat(stats.second.getDifference()).isEqualTo(30.0);
-        assertThat(stats.second.getFlow()).isEqualTo(210.0);
+        assertThat(stats.getDifference()).isEqualTo(30.0);
+        assertThat(stats.getFlow()).isEqualTo(210.0);
 
         stats = getCategoryStats(category, yesterday, Period.days(2), 0);
-        assertThat(stats.second.getDifference()).isEqualTo(31.0);
-        assertThat(stats.second.getFlow()).isEqualTo(223.0);
+        assertThat(stats.getDifference()).isEqualTo(31.0);
+        assertThat(stats.getFlow()).isEqualTo(223.0);
 
         stats = getCategoryStats(category, today, Period.days(1), -1);
-        assertThat(stats.second.getDifference()).isEqualTo(1.0);
-        assertThat(stats.second.getFlow()).isEqualTo(13.0);
+        assertThat(stats.getDifference()).isEqualTo(1.0);
+        assertThat(stats.getFlow()).isEqualTo(13.0);
 
         stats = getCategoryStats(category, today, Period.days(1), 0);
-        assertThat(stats.second.getDifference()).isEqualTo(30.0);
-        assertThat(stats.second.getFlow()).isEqualTo(210.0);
+        assertThat(stats.getDifference()).isEqualTo(30.0);
+        assertThat(stats.getFlow()).isEqualTo(210.0);
 
         stats = getCategoryStats(category, today, Period.days(2), 0);
-        assertThat(stats.second.getDifference()).isEqualTo(530.0);
-        assertThat(stats.second.getFlow()).isEqualTo(1310.0);
+        assertThat(stats.getDifference()).isEqualTo(530.0);
+        assertThat(stats.getFlow()).isEqualTo(1310.0);
     }
 
-    private Pair<Category, CategoryService.CategoryStats> getCategoryStats(final Category category, Date yesterday, Period period, Integer iteration) {
-        List<Pair<Category, CategoryService.CategoryStats>> categoryPairList = categoryService.getCategoryListWithStats(yesterday, period, iteration);
+    private CategoryService.CategoryStats getCategoryStats(final Category category, Date yesterday, Period period, Integer iteration) {
+        List<CategoryService.CategoryStats> categoryStatsList = categoryService.getCategoryStateList(yesterday, period, iteration);
 
-        Pair<Category, CategoryService.CategoryStats> pair = Iterables.find(categoryPairList, new Predicate<Pair<Category, CategoryService.CategoryStats>>() {
+        CategoryService.CategoryStats categoryStat = Iterables.find(categoryStatsList, new Predicate<CategoryService.CategoryStats>() {
             @Override
-            public boolean apply(Pair<Category, CategoryService.CategoryStats> input) {
-                return category.equals(input.first);
+            public boolean apply(CategoryService.CategoryStats input) {
+                return category.getId().equals(input.getCategoryId());
             }
         });
-        return pair;
+        return categoryStat;
     }
 }

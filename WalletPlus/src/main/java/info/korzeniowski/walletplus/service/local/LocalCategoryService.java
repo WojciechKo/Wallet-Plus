@@ -232,28 +232,33 @@ public class LocalCategoryService implements CategoryService {
                 difference -= cashFlow.getAmount();
             }
         }
-        return new CategoryStats(flow, difference);
+        return new CategoryStats(category.getId(), flow, difference);
     }
 
 
     @Override
-    public List<Pair<Category, CategoryStats>> getCategoryListWithStats(Date firstDay, Period period, Integer iteration) {
-        List<Category> categories = getMainCategories();
-        List<Pair<Category, CategoryStats>> result = createCategoryStatsResults(categories);
+    public List<CategoryStats> getCategoryStateList(Date firstDay, Period period, Integer iteration) {
+        List<Category> categories = null;
+        try {
+            categories = categoryDao.queryForAll();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+        List<CategoryStats> result = createCategoryStatsResults(categories);
 
         List<CashFlow> cashFlowList = getCashFlowList(firstDay, period, iteration);
         for (final CashFlow cashFlow : cashFlowList) {
-            Pair<Category, CategoryStats> found = findByCategory(result, cashFlow.getCategory());
-            fixCategoryStats(found.second, cashFlow);
+            CategoryStats found = findByCategory(result, cashFlow.getCategory());
+            fixCategoryStats(found, cashFlow);
         }
         return result;
     }
 
-    private List<Pair<Category, CategoryStats>> createCategoryStatsResults(List<Category> categories) {
-        List<Pair<Category, CategoryStats>> result = Lists.newArrayListWithCapacity(categories.size());
+    private List<CategoryStats> createCategoryStatsResults(List<Category> categories) {
+        List<CategoryStats> result = Lists.newArrayListWithCapacity(categories.size());
         Lists.newArrayListWithCapacity(categories.size());
         for (Category category : categories) {
-            result.add(new Pair<Category, CategoryStats>(category, new CategoryStats()));
+            result.add(new CategoryStats(category.getId()));
         }
         return result;
     }
@@ -274,11 +279,11 @@ public class LocalCategoryService implements CategoryService {
         return cashFlowService.findCashFlow(firstDayArg.toDate(), lastDayArg.toDate(), null, null, null);
     }
 
-    private Pair<Category, CategoryStats> findByCategory(List<Pair<Category, CategoryStats>> list, final Category category) {
-        return Iterables.find(list, new Predicate<Pair<Category, CategoryStats>>() {
+    private CategoryStats findByCategory(List<CategoryStats> list, final Category category) {
+        return Iterables.find(list, new Predicate<CategoryStats>() {
             @Override
-            public boolean apply(Pair<Category, CategoryStats> input) {
-                return input.first.getId().equals(category.getId());
+            public boolean apply(CategoryStats input) {
+                return input.getCategoryId().equals(category.getId());
             }
         });
     }
