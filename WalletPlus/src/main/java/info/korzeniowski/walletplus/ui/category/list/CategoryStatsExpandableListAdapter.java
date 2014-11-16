@@ -23,7 +23,7 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
     private final List<CategoryService.CategoryStats> stats;
 
     public CategoryStatsExpandableListAdapter(Context context, List<Category> items, List<CategoryService.CategoryStats> stats, OnContentClickListener onContentClickListener) {
-        super(context, items, R.layout.category_stats_main_list_item, R.layout.category_stats_main_list_item, onContentClickListener);
+        super(context, items, R.layout.category_stats_list_item, R.layout.category_stats_list_item, onContentClickListener);
         this.stats = stats;
     }
 
@@ -37,11 +37,12 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
     @Override
     protected void fillGroupViewWithItem(MyBaseGroupViewHolder baseHolder, Category item, boolean isExpanded) {
         CategoryGroupViewHolder holder = (CategoryGroupViewHolder) baseHolder;
+        holder.categoryName.setTextColor(getContext().getResources().getColor(R.color.black87A));
         holder.categoryName.setText(item.getName());
-        holder.categoryName.setTypeface(null, Typeface.BOLD);
+        holder.categoryName.setTypeface(holder.categoryName.getTypeface(), Typeface.BOLD);
         CategoryService.CategoryStats stats = getStats(item);
-        holder.flow.setText(stats.getFlow().toString());
-        holder.difference.setText(stats.getDifference().toString());
+        holder.flow.setText("Total flow: " + stats.getTotalFlow() + " (" + stats.getFlow() + ")");
+        holder.difference.setText("Total diff: " + stats.getTotalDifference() + " (" + stats.getDifference() + ")");
     }
 
     class CategoryGroupViewHolder extends MyBaseGroupViewHolder {
@@ -65,10 +66,11 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
     @Override
     protected void fillChildViewWithItem(MyBaseChildViewHolder baseHolder, Category item) {
         CategoryChildViewHolder holder = (CategoryChildViewHolder) baseHolder;
+        holder.categoryName.setTextColor(getContext().getResources().getColor(R.color.black54A));
         holder.categoryName.setText(item.getName());
         CategoryService.CategoryStats stats = getStats(item);
-        holder.flow.setText(stats.getFlow().toString());
-        holder.difference.setText(stats.getDifference().toString());
+        holder.flow.setText("Flow: " + stats.getFlow().toString());
+        holder.difference.setText("Diff:" + stats.getDifference().toString());
     }
 
     private CategoryService.CategoryStats getStats(final Category category) {

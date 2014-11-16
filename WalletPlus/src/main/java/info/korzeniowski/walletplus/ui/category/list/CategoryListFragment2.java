@@ -53,7 +53,6 @@ public class CategoryListFragment2 extends Fragment {
         }
     }
 
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelable(CategoryListFragmentMain.CATEGORY_LIST_STATE, categoryListState);
@@ -74,7 +73,6 @@ public class CategoryListFragment2 extends Fragment {
         initFields();
         setupAdapters();
     }
-
 
     protected void initFields() {
         Period period = getPeriod(categoryListState.getPeriod());
@@ -102,14 +100,12 @@ public class CategoryListFragment2 extends Fragment {
     }
 
     private CategoryStatsExpandableListAdapter getCategoryListAdapter() {
-        return new CategoryStatsExpandableListAdapter(getActivity(), mainCategories, categoryStatsList,
-                new OnContentClickListener() {
-                    @Override
-                    public void onContentClick(Long id) {
-                        startCategoryDetailsFragment(id);
-                    }
-                }
-        );
+        return new CategoryStatsExpandableListAdapter(getActivity(), mainCategories, categoryStatsList, new OnContentClickListener() {
+            @Override
+            public void onContentClick(Long id) {
+                startCategoryDetailsFragment(id);
+            }
+        });
     }
 
 

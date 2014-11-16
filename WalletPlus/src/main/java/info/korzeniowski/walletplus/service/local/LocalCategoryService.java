@@ -1,5 +1,6 @@
 package info.korzeniowski.walletplus.service.local;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -204,7 +205,7 @@ public class LocalCategoryService implements CategoryService {
      */
 
     @Override
-    public CategoryStats getCategoryStats(Category category, Date firstDay, Period period, Integer iteration) {
+    public CategoryStats getCategoryStats(Category category, final Date firstDay, final Period period, final Integer iteration) {
         checkNotNull(category);
         checkNotNull(firstDay);
         checkNotNull(period);
@@ -218,27 +219,38 @@ public class LocalCategoryService implements CategoryService {
         }
 
         DateTime lastDayArg = firstDayArg.plus(period);
-
         List<CashFlow> cashFlowList = cashFlowService.findCashFlow(firstDayArg.toDate(), lastDayArg.toDate(), category.getId(), null, null);
 
-        Double difference = 0.0;
-        Double flow = 0.0;
+        CategoryStats stats = new CategoryStats(category.getId());
         for (CashFlow cashFlow : cashFlowList) {
-            flow += cashFlow.getAmount();
             CashFlow.Type type = cashFlow.getType();
             if (type == CashFlow.Type.INCOME) {
-                difference += cashFlow.getAmount();
+                stats.incomeAmount(cashFlow.getAmount());
             } else if (type == CashFlow.Type.EXPANSE) {
-                difference -= cashFlow.getAmount();
+                stats.expanseAmount(cashFlow.getAmount());
             }
         }
-        return new CategoryStats(category.getId(), flow, difference);
+
+        if (category.getParent() == null) {
+            List<Category> subCategories = getSubCategoriesOf(category.getId());
+            List<CategoryStats> subCategoriesStats = Lists.transform(subCategories, new Function<Category, CategoryStats>() {
+                @Override
+                public CategoryStats apply(Category input) {
+                    return getCategoryStats(input, firstDay, period, iteration);
+                }
+            });
+
+            for (CategoryStats subCategoryStatus : subCategoriesStats) {
+                stats.includeSubCategoryStats(subCategoryStatus);
+            }
+        }
+        return stats;
     }
 
 
     @Override
     public List<CategoryStats> getCategoryStateList(Date firstDay, Period period, Integer iteration) {
-        List<Category> categories = null;
+        List<Category> categories;
         try {
             categories = categoryDao.queryForAll();
         } catch (SQLException e) {
@@ -248,8 +260,22 @@ public class LocalCategoryService implements CategoryService {
 
         List<CashFlow> cashFlowList = getCashFlowList(firstDay, period, iteration);
         for (final CashFlow cashFlow : cashFlowList) {
-            CategoryStats found = findByCategory(result, cashFlow.getCategory());
-            fixCategoryStats(found, cashFlow);
+            CategoryStats found = findByCategoryId(result, cashFlow.getCategory().getId());
+            if (cashFlow.getType() == CashFlow.Type.INCOME) {
+                found.incomeAmount(cashFlow.getAmount());
+            } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
+                found.expanseAmount(cashFlow.getAmount());
+            }
+            if (cashFlow.getCategory().getParent() != null) {
+                CategoryStats foundParent = findByCategoryId(result, cashFlow.getCategory().getParent().getId());
+                if (cashFlow.getType() == CashFlow.Type.INCOME) {
+                    foundParent.incomeAmountFromSub(cashFlow.getAmount());
+                } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
+                    foundParent.expanseAmountFromSub(cashFlow.getAmount());
+                }
+
+            }
+
         }
         return result;
     }
@@ -273,20 +299,12 @@ public class LocalCategoryService implements CategoryService {
     }
 
 
-    private CategoryStats findByCategory(List<CategoryStats> list, final Category category) {
+    private CategoryStats findByCategoryId(List<CategoryStats> list, final Long categoryId) {
         return Iterables.find(list, new Predicate<CategoryStats>() {
             @Override
             public boolean apply(CategoryStats input) {
-                return input.getCategoryId().equals(category.getId());
+                return input.getCategoryId().equals(categoryId);
             }
         });
-    }
-
-    private void fixCategoryStats(CategoryStats categoryStats, CashFlow cashFlow) {
-        if (cashFlow.getType() == CashFlow.Type.INCOME) {
-            categoryStats.incomeAmount(cashFlow.getAmount());
-        } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
-            categoryStats.expanseAmount(cashFlow.getAmount());
-        }
     }
 }
