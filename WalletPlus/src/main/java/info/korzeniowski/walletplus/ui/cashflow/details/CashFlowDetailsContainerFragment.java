@@ -146,7 +146,7 @@ public class CashFlowDetailsContainerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.tab_layout, container, false);
+        View view = inflater.inflate(R.layout.cashflow_details_main_layout, container, false);
         ButterKnife.inject(this, view);
         setupViews();
         return view;
@@ -156,12 +156,13 @@ public class CashFlowDetailsContainerFragment extends Fragment {
         pagerAdapter = new CashFlowPagerAdapter(this, cashFlowDetailsPageList, cashFlowDetailsParcelableState);
 
         pager.setAdapter(pagerAdapter);
+        pager.setOffscreenPageLimit(3);
 
         tabs.setViewPager(pager);
-        tabs.setTextColorResource(R.color.black);
-        tabs.setIndicatorColorResource(R.color.mainColor);
-        tabs.setUnderlineColorResource(android.R.color.transparent);
-        tabs.setShouldExpand(true);
+        tabs.setTextColor(getResources().getColor(R.color.white));
+        tabs.setBackgroundColor(getResources().getColor(R.color.mainColor));
+        tabs.setIndicatorColor(getResources().getColor(R.color.lightMainColor));
+        tabs.setTextColor(getResources().getColor(R.color.white));
         tabs.setOnPageChangeListener(pagerAdapter);
         selectPage(getPositionOfFragmentByType(cashFlowDetailsParcelableState.getType()));
     }

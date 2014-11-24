@@ -1,6 +1,7 @@
 <resources>
     <!-- Style colors -->
     <color name="mainColor">#4CAF50</color>
+    <color name="lightMainColor">#C8E6C9</color>
     <color name="darkerMainColor">#2E7D32</color>
 
     <color name="drawerBackground">#FFFFFF</color>

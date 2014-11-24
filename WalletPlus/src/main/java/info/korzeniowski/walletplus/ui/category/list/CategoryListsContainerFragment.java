@@ -43,7 +43,7 @@ public class CategoryListsContainerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.tab_layout, container, false);
+        View view = inflater.inflate(R.layout.category_main_layout, container, false);
         ButterKnife.inject(this, view);
         setupViews();
         return view;

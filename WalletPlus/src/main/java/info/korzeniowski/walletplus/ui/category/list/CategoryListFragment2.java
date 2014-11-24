@@ -44,20 +44,8 @@ public class CategoryListFragment2 extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
-        if (savedInstanceState != null) {
-            categoryListState = savedInstanceState.getParcelable(CategoryListFragmentMain.CATEGORY_LIST_STATE);
-            iteration = savedInstanceState.getInt(ITERATION);
-        } else {
-            categoryListState = getArguments().getParcelable(CategoryListFragmentMain.CATEGORY_LIST_STATE);
-            iteration = getArguments().getInt(ITERATION);
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(CategoryListFragmentMain.CATEGORY_LIST_STATE, categoryListState);
-        outState.putInt(ITERATION, iteration);
-        super.onSaveInstanceState(outState);
+        categoryListState = getArguments().getParcelable(CategoryListFragmentMain.CATEGORY_LIST_STATE);
+        iteration = getArguments().getInt(ITERATION);
     }
 
     @Override
