@@ -30,7 +30,7 @@ public class DrawerListAdapter extends BaseAdapter {
         ViewHolder holder;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.main_drawer_item, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.main_drawer_item, parent, false);
             holder = createHolder(convertView);
         } else {
             holder = (ViewHolder) convertView.getTag();
