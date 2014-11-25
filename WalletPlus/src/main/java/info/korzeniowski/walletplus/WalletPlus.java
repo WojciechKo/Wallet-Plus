@@ -2,6 +2,8 @@ package info.korzeniowski.walletplus;
 
 import android.app.Application;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +34,7 @@ public class WalletPlus extends Application {
         super.onCreate();
         graph = ObjectGraph.create(getModules().toArray());
         new DatabaseInitializer(this).initDatabaseAfterInstallation();
+        JodaTimeAndroid.init(this);
     }
 
     public void inject(Object object) {

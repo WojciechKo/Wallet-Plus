@@ -69,7 +69,7 @@ public abstract class IdentifiableListAdapter<T extends Identityable> extends Ba
 
     protected abstract void fillViewWithItem(MyBaseViewHolder holder, T item);
 
-    public class MyBaseViewHolder {
+    public static class MyBaseViewHolder {
     }
 }
 

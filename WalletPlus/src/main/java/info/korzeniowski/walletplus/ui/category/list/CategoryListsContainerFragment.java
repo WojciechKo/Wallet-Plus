@@ -43,7 +43,7 @@ public class CategoryListsContainerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.tab_layout, container, false);
+        View view = inflater.inflate(R.layout.category_main_layout, container, false);
         ButterKnife.inject(this, view);
         setupViews();
         return view;
@@ -53,7 +53,7 @@ public class CategoryListsContainerFragment extends Fragment {
         pager.setAdapter(new MyPagerAdapter(getChildFragmentManager()));
         tabs.setViewPager(pager);
         tabs.setTextColorResource(R.color.black);
-        tabs.setIndicatorColorResource(R.color.actionBarBackground);
+        tabs.setIndicatorColorResource(R.color.mainColor);
         tabs.setUnderlineColorResource(android.R.color.transparent);
         tabs.setShouldExpand(true);
     }

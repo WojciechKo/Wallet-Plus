@@ -5,9 +5,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,7 +12,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.fortysevendeg.swipelistview.BaseSwipeListViewListener;
+import com.fortysevendeg.swipelistview.SwipeListView;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+
 import java.text.MessageFormat;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -25,16 +30,16 @@ import butterknife.InjectView;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
-import info.korzeniowski.walletplus.widget.DividerItemDecoration;
 
 public class WalletListFragment extends Fragment {
     public static final String TAG = "walletList";
 
-    @InjectView(R.id.recycler_view)
-    RecyclerView list;
+    @InjectView(R.id.swipe_list)
+    SwipeListView list;
 
     @Inject
     @Named("local")
@@ -43,6 +48,12 @@ public class WalletListFragment extends Fragment {
     @Inject
     @Named("local")
     CashFlowService localCashFlowService;
+
+    @Inject
+    Bus bus;
+
+    private List<Wallet> walletList;
+    private BaseSwipeListViewListener swipeListViewListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,24 +65,46 @@ public class WalletListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.recycler_view, container, false);
+        View view = inflater.inflate(R.layout.wallet_list, container, false);
         ButterKnife.inject(this, view);
+        walletList = localWalletService.getMyWallets();
         setupViews();
         return view;
     }
 
     void setupViews() {
-        list.setHasFixedSize(true);
-        list.setLayoutManager(new LinearLayoutManager(getActivity()));
-        list.setItemAnimator(new DefaultItemAnimator());
-        list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-        final RecyclerView.Adapter adapter = new WalletListAdapter(getActivity(), localWalletService.getMyWallets(), new View.OnClickListener() {
+        list.setSwipeListViewListener(new BaseSwipeListViewListener() {
             @Override
-            public void onClick(View v) {
-                startWalletDetailsFragment(list.getAdapter().getItemId(list.getChildPosition(v)));
+            public void onClickFrontView(int position) {
+                startWalletDetailsFragment(list.getAdapter().getItemId(position));
+            }
+
+            @Override
+            public void onDismiss(int[] reverseSortedPositions) {
+                for (int index : reverseSortedPositions) {
+                    walletList.remove(index);
+                }
+                list.setAdapter(new WalletListAdapter(getActivity(), walletList));
             }
         });
-        list.setAdapter(adapter);
+        list.setAdapter(new WalletListAdapter(getActivity(), walletList));
+    }
+
+    @Subscribe
+    public void deleteWalletEvent(DeleteWalletEvent event) {
+        showDeleteConfirmationAlert(event.getId());
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        bus.register(this);
+    }
+
+    @Override
+    public void onStop() {
+        bus.unregister(this);
+        super.onStop();
     }
 
     @Override
@@ -94,15 +127,13 @@ public class WalletListFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putLong(WalletDetailsFragment.WALLET_ID, id);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true, WalletDetailsFragment.TAG);
-    }
-
-    private void selectedOptionDelete(Long id) {
-        showDeleteConfirmationAlert(id);
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setContentFragment(fragment, true, WalletDetailsFragment.TAG);
+        }
     }
 
     private void showDeleteConfirmationAlert(final Long walletId) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+        new AlertDialog.Builder(getActivity())
                 .setMessage(getConfirmationMessage(walletId))
                 .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
@@ -115,8 +146,9 @@ public class WalletListFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
 
                     }
-                });
-        builder.create().show();
+                })
+                .create()
+                .show();
     }
 
     private String getConfirmationMessage(Long walletId) {
@@ -125,7 +157,14 @@ public class WalletListFragment extends Fragment {
         return MessageFormat.format(msg, count);
     }
 
-    private void tryDelete(Long id) {
+    private void tryDelete(final Long id) {
         localWalletService.deleteById(id);
+        final int index = Iterables.indexOf(walletList, new Predicate<Wallet>() {
+            @Override
+            public boolean apply(Wallet input) {
+                return id.equals(input.getId());
+            }
+        });
+        list.dismiss(index);
     }
 }

@@ -72,11 +72,17 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
         GroupViewHolder groupViewHolder;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_group_content, null);
+            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_group_content, parent, false);
             groupViewHolder = getGroupViewHolder(convertView);
             convertView.setTag(groupViewHolder);
         } else {
             groupViewHolder = (GroupViewHolder) convertView.getTag();
+        }
+
+        if (groupPosition == 0) {
+            groupViewHolder.divider.setVisibility(View.INVISIBLE);
+        } else {
+            groupViewHolder.divider.setVisibility(View.VISIBLE);
         }
 
         setupContent(groupViewHolder, groupPosition);
@@ -91,8 +97,19 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
         return convertView;
     }
 
+    private GroupViewHolder getGroupViewHolder(View convertView) {
+        GroupViewHolder groupViewHolder = new GroupViewHolder();
+        groupViewHolder.divider = (ImageView) convertView.findViewById(R.id.divider);
+        groupViewHolder.content = convertView.findViewById(R.id.group_content);
+        groupViewHolder.groupIndicator = (ImageView) convertView.findViewById(R.id.group_indicator);
+        ViewStub stub = (ViewStub) convertView.findViewById(R.id.content_stub);
+        stub.setLayoutResource(groupItemLayout);
+        groupViewHolder.contentViewHolder = createGroupViewHolder(stub.inflate());
+        return groupViewHolder;
+    }
+
     private void setupContent(GroupViewHolder groupViewHolder, final int groupPosition) {
-        groupViewHolder.contentView.setOnClickListener(new View.OnClickListener() {
+        groupViewHolder.content.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onContentClick(getGroupId(groupPosition));
@@ -102,7 +119,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
 
     private void setupIndicatorAsExpandable(GroupViewHolder groupViewHolder, final ExpandableListView listView, final int groupPosition) {
         groupViewHolder.groupIndicator.setImageResource(listView.isGroupExpanded(groupPosition) ? R.drawable.arrow_down : R.drawable.arrow_left);
-        groupViewHolder.groupIndicatorFrame.setOnClickListener(new View.OnClickListener() {
+        groupViewHolder.groupIndicator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (listView.isGroupExpanded(groupPosition)) {
@@ -116,24 +133,12 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
 
     private void setupIndicatorAsNotExpandable(GroupViewHolder groupViewHolder, final int groupPosition) {
         groupViewHolder.groupIndicator.setImageDrawable(new ColorDrawable(context.getResources().getColor(android.R.color.transparent)));
-        groupViewHolder.groupIndicatorFrame.setOnClickListener(new View.OnClickListener() {
+        groupViewHolder.groupIndicator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onContentClick(getGroupId(groupPosition));
             }
         });
-    }
-
-    private GroupViewHolder getGroupViewHolder(View convertView) {
-        GroupViewHolder groupViewHolder = new GroupViewHolder();
-        groupViewHolder.groupIndicatorFrame = (FrameLayout) convertView.findViewById(R.id.group_indicator_frame);
-        groupViewHolder.groupIndicator = (ImageView) convertView.findViewById(R.id.group_indicator);
-        ViewStub stub = (ViewStub) convertView.findViewById(R.id.contentStub);
-        stub.setLayoutResource(groupItemLayout);
-        stub.inflate();
-        groupViewHolder.contentView = convertView.findViewById(R.id.content);
-        groupViewHolder.contentViewHolder = createGroupViewHolder(groupViewHolder.contentView);
-        return groupViewHolder;
     }
 
     protected abstract MyBaseGroupViewHolder createGroupViewHolder(View convertView);
@@ -145,29 +150,24 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
     }
 
     public class GroupViewHolder {
+        ImageView divider;
         ImageView groupIndicator;
-        FrameLayout groupIndicatorFrame;
+        View content;
         MyBaseGroupViewHolder contentViewHolder;
-        View contentView;
     }
 
     @Override
     public final View getChildView(final int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         ChildViewHolder holder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_child_content, null);
-            holder = new ChildViewHolder();
-            ViewStub stub = (ViewStub) convertView.findViewById(R.id.contentStub);
-            stub.setLayoutResource(childItemLayout);
-            stub.inflate();
-            holder.contentView = convertView.findViewById(R.id.content);
-            holder.contentViewHolder = createChildHolder(convertView);
+            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_child_content, parent,false);
+            holder = getChildViewHolder(convertView);
             convertView.setTag(holder);
         } else {
             holder = (ChildViewHolder) convertView.getTag();
         }
 
-        holder.contentView.setOnClickListener(new View.OnClickListener() {
+        holder.content.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onContentClick(getChildId(groupPosition, childPosition));
@@ -176,6 +176,16 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
 
         fillChildViewWithItem(holder.contentViewHolder, getChild(groupPosition, childPosition));
         return convertView;
+    }
+
+    private ChildViewHolder getChildViewHolder(View convertView) {
+        ChildViewHolder holder = new ChildViewHolder();
+        holder.divider = (ImageView) convertView.findViewById(R.id.divider);
+        holder.content = convertView.findViewById(R.id.child_content);
+        ViewStub stub = (ViewStub) convertView.findViewById(R.id.content_stub);
+        stub.setLayoutResource(childItemLayout);
+        holder.contentViewHolder = createChildHolder(stub.inflate());
+        return holder;
     }
 
     protected abstract MyBaseChildViewHolder createChildHolder(View convertView);
@@ -187,8 +197,9 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
     }
 
     public class ChildViewHolder {
+        ImageView divider;
+        View content;
         MyBaseChildViewHolder contentViewHolder;
-        View contentView;
     }
 
     @Override

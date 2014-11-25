@@ -17,6 +17,7 @@ import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.ui.DrawerListAdapter;
 import info.korzeniowski.walletplus.ui.MainDrawerContent;
+import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
 
 /**
  * Module for common objects.
@@ -25,8 +26,9 @@ import info.korzeniowski.walletplus.ui.MainDrawerContent;
         includes = DatabaseModule.class,
         injects = {
                 MainActivity.class,
+                MainDrawerContent.class,
                 DrawerListAdapter.class,
-                MainDrawerContent.class
+                WalletListAdapter.class
         }
 )
 public class MainModule {

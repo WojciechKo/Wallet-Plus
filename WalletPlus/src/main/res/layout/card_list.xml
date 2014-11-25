@@ -7,7 +7,7 @@
     android:clipToPadding="false"
     android:divider="@null"
     android:dividerHeight="10dp"
-    android:padding="@dimen/cardPadding"
+    android:padding="@dimen/edgePadding"
     android:scrollbars="none"
     android:choiceMode="none"
     android:listSelector="@drawable/selector_card_background"/>

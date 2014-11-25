@@ -1,15 +1,28 @@
 package info.korzeniowski.walletplus.service.local;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.Where;
 
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.Period;
+
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
+import info.korzeniowski.walletplus.KorzeniowskiUtils;
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
@@ -20,6 +33,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class LocalCategoryService implements CategoryService {
     private final CategoryValidator categoryValidator;
     private final Dao<Category, Long> categoryDao;
+
+    @Inject
+    @Named("local")
+    CashFlowService cashFlowService;
 
     @Inject
     public LocalCategoryService(Dao<Category, Long> categoryDao) {
@@ -179,5 +196,115 @@ public class LocalCategoryService implements CategoryService {
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    /**
+     * *************
+     * STATISTICS *
+     * *************
+     */
+
+    @Override
+    public CategoryStats getCategoryStats(Category category, final Date firstDay, final Period period, final Integer iteration) {
+        checkNotNull(category);
+        checkNotNull(firstDay);
+        checkNotNull(period);
+        checkNotNull(iteration);
+
+        DateTime firstDayArg;
+        if (iteration <= 0) {
+            firstDayArg = new DateTime(firstDay).minus(period.multipliedBy(0 - iteration));
+        } else {
+            firstDayArg = new DateTime(firstDay).plus(period.multipliedBy(iteration));
+        }
+
+        DateTime lastDayArg = firstDayArg.plus(period);
+        List<CashFlow> cashFlowList = cashFlowService.findCashFlow(firstDayArg.toDate(), lastDayArg.toDate(), category.getId(), null, null);
+
+        CategoryStats stats = new CategoryStats(category.getId());
+        for (CashFlow cashFlow : cashFlowList) {
+            CashFlow.Type type = cashFlow.getType();
+            if (type == CashFlow.Type.INCOME) {
+                stats.incomeAmount(cashFlow.getAmount());
+            } else if (type == CashFlow.Type.EXPANSE) {
+                stats.expanseAmount(cashFlow.getAmount());
+            }
+        }
+
+        if (category.getParent() == null) {
+            List<Category> subCategories = getSubCategoriesOf(category.getId());
+            List<CategoryStats> subCategoriesStats = Lists.transform(subCategories, new Function<Category, CategoryStats>() {
+                @Override
+                public CategoryStats apply(Category input) {
+                    return getCategoryStats(input, firstDay, period, iteration);
+                }
+            });
+
+            for (CategoryStats subCategoryStatus : subCategoriesStats) {
+                stats.includeSubCategoryStats(subCategoryStatus);
+            }
+        }
+        return stats;
+    }
+
+
+    @Override
+    public List<CategoryStats> getCategoryStateList(Date firstDay, Period period, Integer iteration) {
+        List<Category> categories;
+        try {
+            categories = categoryDao.queryForAll();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+        List<CategoryStats> result = createCategoryStatsResults(categories);
+
+        List<CashFlow> cashFlowList = getCashFlowList(firstDay, period, iteration);
+        for (final CashFlow cashFlow : cashFlowList) {
+            CategoryStats found = findByCategoryId(result, cashFlow.getCategory().getId());
+            if (cashFlow.getType() == CashFlow.Type.INCOME) {
+                found.incomeAmount(cashFlow.getAmount());
+            } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
+                found.expanseAmount(cashFlow.getAmount());
+            }
+            if (cashFlow.getCategory().getParent() != null) {
+                CategoryStats foundParent = findByCategoryId(result, cashFlow.getCategory().getParent().getId());
+                if (cashFlow.getType() == CashFlow.Type.INCOME) {
+                    foundParent.incomeAmountFromSub(cashFlow.getAmount());
+                } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
+                    foundParent.expanseAmountFromSub(cashFlow.getAmount());
+                }
+
+            }
+
+        }
+        return result;
+    }
+
+    private List<CategoryStats> createCategoryStatsResults(List<Category> categories) {
+        List<CategoryStats> result = Lists.newArrayListWithCapacity(categories.size());
+        Lists.newArrayListWithCapacity(categories.size());
+        for (Category category : categories) {
+            result.add(new CategoryStats(category.getId()));
+        }
+        return result;
+    }
+
+    private List<CashFlow> getCashFlowList(Date firstDay, Period period, Integer iteration) {
+        checkNotNull(firstDay);
+        checkNotNull(period);
+        checkNotNull(iteration);
+
+        Interval interval = KorzeniowskiUtils.Time.getInterval(new DateTime(firstDay), period, iteration);
+        return cashFlowService.findCashFlow(interval.getStart().toDate(), interval.getEnd().toDate(), null, null, null);
+    }
+
+
+    private CategoryStats findByCategoryId(List<CategoryStats> list, final Long categoryId) {
+        return Iterables.find(list, new Predicate<CategoryStats>() {
+            @Override
+            public boolean apply(CategoryStats input) {
+                return input.getCategoryId().equals(categoryId);
+            }
+        });
     }
 }

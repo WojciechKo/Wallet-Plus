@@ -1,29 +1,28 @@
-package info.korzeniowski.walletplus.test.ui.wallet;
+package info.korzeniowski.walletplus.test.ui.wallet.details;
 
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
+import android.support.v7.app.ActionBarActivity;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.tester.android.view.TestMenuItem;
-import org.robolectric.util.ActivityController;
-import org.robolectric.util.FragmentTestUtil;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -35,6 +34,7 @@ import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.fail;
 
 
 @Config(emulateSdk = 18, reportSdk = 18)
@@ -68,37 +68,44 @@ public class EditingMyWalletFragmentTest {
     CashFlowService mockCashFlowService;
 
     private Wallet wallet;
-    private MockDatabaseModule module;
     private WalletDetailsFragment fragment;
 
     @Before
     public void setUp() {
-        Long walletId = 47L;
-        module = new MockDatabaseModule();
-        ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
-        ((TestWalletPlus) Robolectric.application).addModules(module);
-        ((TestWalletPlus) Robolectric.application).inject(this);
-
-        fragment = new WalletDetailsFragment();
-        Bundle arguments = new Bundle();
-        arguments.putLong(WalletDetailsFragment.WALLET_ID, walletId);
-        fragment.setArguments(arguments);
-
-        wallet = new Wallet()
-                .setId(walletId)
-                .setType(Wallet.Type.MY_WALLET)
-                .setName("walletName")
-                .setInitialAmount(1600.0)
-                .setCurrentAmount(500.0);
-        Mockito.when(mockWalletService.findById(walletId)).thenReturn(wallet);
-
-        TextView test = new TextView(Robolectric.application);
-        test.setText(mockWalletService.findById(walletId).getName());
-        assertThat(test).containsText(wallet.getName());
-
-        FragmentTestUtil.startFragment(fragment);
-        ActivityController.of(fragment.getActivity()).visible();
+        daggerInjection();
+        ActionBarActivity activity = Robolectric.buildActivity(MainActivity.class).create().start().resume().get();
+        selectWalletSection(activity);
+        selectWalletToEditByPosition(activity, 1);
+        fragment = (WalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(WalletDetailsFragment.TAG);
         ButterKnife.inject(this, fragment.getView());
+    }
+
+    private void daggerInjection() {
+        ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
+        ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
+        ((TestWalletPlus) Robolectric.application).inject(this);
+    }
+
+    private void selectWalletSection(ActionBarActivity activity) {
+        ListView menuList = (ListView) activity.findViewById(R.id.drawer);
+        Robolectric.shadowOf(menuList).performItemClick(3);
+    }
+
+    private void selectWalletToEditByPosition(ActionBarActivity activity, int position) {
+        // Masterpiece begins...
+        ListView walletListView = (ListView) activity.findViewById(R.id.swipe_list);
+        try {
+            Method method = walletListView.getClass().getDeclaredMethod("onClickFrontView", int.class);
+            method.setAccessible(true);
+            method.invoke(walletListView, position);
+        } catch (NoSuchMethodException e) {
+            fail("Failed init.");
+        } catch (InvocationTargetException e) {
+            fail("Failed init.");
+        } catch (IllegalAccessException e) {
+            fail("Failed init.");
+        }
+        wallet = (Wallet) walletListView.getAdapter().getItem(position);
     }
 
     @Test

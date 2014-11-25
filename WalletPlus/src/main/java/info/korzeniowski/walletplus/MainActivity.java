@@ -1,6 +1,5 @@
 package info.korzeniowski.walletplus;
 
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,12 +11,15 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 
@@ -33,6 +35,15 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
     @InjectView(R.id.drawer)
     ListView drawer;
+
+    @InjectView(R.id.toolbar)
+    Toolbar toolbar;
+
+    @InjectView(R.id.toolbarTitle)
+    TextView toolbarTitle;
+
+    @InjectView(R.id.toolbarSubtitle)
+    Spinner toolbarSubtitle;
 
     @Inject
     DrawerListAdapter drawerListAdapter;
@@ -58,10 +69,13 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
             state.setAppName(getString(R.string.appName));
             state.setSelectedDrawerPosition(0);
         }
-        drawerToggle = new MainActivityDrawerToggle(this);
     }
 
     void setupViews() {
+        setTitle(null);
+        toolbarTitle.setText(state.getAppName());
+        setSupportActionBar(toolbar);
+        drawerToggle = new MainActivityDrawerToggle();
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         drawerLayout.setDrawerListener(drawerToggle);
 
@@ -140,7 +154,8 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     void drawerItemClicked(int position) {
-        MainDrawerItem selectedMainDrawerItem = (MainDrawerItem) drawer.getAdapter().getItem(position);
+        drawerListAdapter.setSelected(position);
+        MainDrawerItem selectedMainDrawerItem = drawerListAdapter.getItem(position);
         setContentFragment(selectedMainDrawerItem.getFragment(), false, selectedMainDrawerItem.getTag());
         drawer.setItemChecked(position, true);
         state.setSelectedFragmentTitle(selectedMainDrawerItem.getTitle());
@@ -197,25 +212,26 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     private class MainActivityDrawerToggle extends ActionBarDrawerToggle {
-        MainActivityDrawerToggle(Activity activity) {
-            super(activity,
+        MainActivityDrawerToggle() {
+            super(MainActivity.this,
                     drawerLayout,
+                    toolbar,
                     R.string.main_drawer_open,
                     R.string.main_drawer_close);
         }
 
         @Override
         public void onDrawerOpened(View drawerView) {
-            setTitle(state.getAppName());
+            toolbarTitle.setText(state.getAppName());
             super.onDrawerOpened(drawerView);
-            invalidateOptionsMenu();
+            MainActivity.this.invalidateOptionsMenu();
         }
 
         @Override
         public void onDrawerClosed(View drawerView) {
-            setTitle(state.getSelectedFragmentTitle());
+            toolbarTitle.setText(state.getSelectedFragmentTitle());
             super.onDrawerClosed(drawerView);
-            invalidateOptionsMenu();
+            MainActivity.this.invalidateOptionsMenu();
         }
     }
 }

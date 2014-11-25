@@ -1,8 +1,11 @@
 <resources>
     <!-- Style colors -->
-    <color name="actionBarBackground">#FF9909</color>
-    <color name="drawerBackground">#FF818181</color>
-    <color name="background">#EEEEEE</color>
+    <color name="mainColor">#4CAF50</color>
+    <color name="lightMainColor">#C8E6C9</color>
+    <color name="darkerMainColor">#2E7D32</color>
+
+    <color name="drawerBackground">#FFFFFF</color>
+    <color name="background">#FFFFFF</color>
 
     <!--Card colors -->
     <color name="cardShadow">#DBDBDB</color>
@@ -13,6 +16,11 @@
     <color name="green">#99CC00</color>
     <color name="red">#FF4444</color>
     <color name="blue">#0099CC</color>
+
+    <!-- Grey scale -->
+    <color name="black12A">#1F000000</color>
+    <color name="black54A">#8F000000</color>
+    <color name="black87A">#DE000000</color>
 
     <!--Basic colors-->
     <color name="white">#FFFFFF</color>

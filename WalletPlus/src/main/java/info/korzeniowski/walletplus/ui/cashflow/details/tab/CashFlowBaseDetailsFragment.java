@@ -364,7 +364,7 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
         CashFlow cashFlow = new CashFlow();
 
         cashFlow.setId(cashFlowDetailsState.getId());
-        cashFlow.setAmount(Float.parseFloat(cashFlowDetailsState.getAmount()));
+        cashFlow.setAmount(Double.parseDouble(cashFlowDetailsState.getAmount()));
         cashFlow.setDateTime(new Date(cashFlowDetailsState.getDate()));
         cashFlow.setComment(cashFlowDetailsState.getComment());
         cashFlow.setFromWallet(getFromWalletFromState());
