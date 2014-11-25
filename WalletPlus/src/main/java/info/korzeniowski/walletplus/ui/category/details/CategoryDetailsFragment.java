@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,7 +29,6 @@ import butterknife.InjectView;
 import butterknife.OnItemSelected;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
@@ -47,15 +45,6 @@ public class CategoryDetailsFragment extends Fragment {
 
     @InjectView(R.id.categoryName)
     EditText categoryName;
-
-    @InjectView(R.id.categoryType)
-    RadioGroup categoryType;
-
-    @InjectView(R.id.categoryIncomeType)
-    ListenWhenDisabledToggleButton categoryIncomeType;
-
-    @InjectView(R.id.categoryExpenseType)
-    ListenWhenDisabledToggleButton categoryExpenseType;
 
     @InjectView(R.id.parentCategory)
     Spinner parentCategoryView;
@@ -88,7 +77,6 @@ public class CategoryDetailsFragment extends Fragment {
     void setupViews() {
         initState();
         setupAdapters();
-        setupListeners();
         fillViewsWithData();
     }
 
@@ -108,27 +96,12 @@ public class CategoryDetailsFragment extends Fragment {
         parentCategoryView.setAdapter(new ParentCategoryAdapter(getActivity(), parentCategoryList));
     }
 
-    private void setupListeners() {
-        ListenWhenDisabledToggleButton.OnClickWhenDisabledListener typeButtonClickedListener = new ListenWhenDisabledToggleButton.OnClickWhenDisabledListener() {
-            @Override
-            public void onClickWhenDisable() {
-                showToast(getActivity().getString(R.string.categoryCantChangeTypeOfSubcategory));
-            }
-        };
-        categoryIncomeType.setOnClickWhenDisabledListener(typeButtonClickedListener);
-        categoryExpenseType.setOnClickWhenDisabledListener(typeButtonClickedListener);
-    }
-
     private void fillViewsWithData() {
         categoryName.setText(category.getName());
-        Category.Type type = category.getType();
         if (category.getParent() != null) {
             Category parentCategory = localCategoryService.findById(category.getParent().getId());
             parentCategoryView.setSelection(parentCategoryList.indexOf(parentCategory));
-            type = parentCategory.getType();
         }
-        categoryIncomeType.setChecked(type == null || type.isIncome());
-        categoryExpenseType.setChecked(type == null || type.isExpense());
     }
 
     @OnItemSelected(R.id.parentCategory)
@@ -141,22 +114,11 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     private void noParentSelected() {
-        if (category.getParent() != null) {
-            Category parent = localCategoryService.findById(category.getParent().getId());
-            categoryIncomeType.setChecked(parent.isIncomeType());
-            categoryExpenseType.setChecked(parent.isExpenseType());
-            category.setParent(null);
-        }
-        categoryIncomeType.setEnabled(true);
-        categoryExpenseType.setEnabled(true);
+        category.setParent(null);
     }
 
     private void parentSelected(Category selectedParent) {
         category.setParent(selectedParent);
-        categoryIncomeType.setChecked(selectedParent.isIncomeType());
-        categoryExpenseType.setChecked(selectedParent.isExpenseType());
-        categoryIncomeType.setEnabled(false);
-        categoryExpenseType.setEnabled(false);
     }
 
     @Override
@@ -209,7 +171,7 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     private boolean preValidation() {
-        return validateName() && validateType();
+        return validateName();
     }
 
     private boolean validateName() {
@@ -220,36 +182,8 @@ public class CategoryDetailsFragment extends Fragment {
         return true;
     }
 
-    private boolean validateType() {
-        if (category.getParent() == null && !isTypeChosen()) {
-            showToast(getActivity().getString(R.string.categoryMustHaveType));
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isTypeChosen() {
-        return categoryIncomeType.isChecked() || categoryExpenseType.isChecked();
-    }
-
     private void getDataFromViews() {
         category.setName(categoryName.getText().toString().trim());
-        if (category.getParent() == null) {
-            category.setType(getTypeFromView());
-        } else {
-            category.setType(null);
-        }
-    }
-
-    private Category.Type getTypeFromView() {
-        if (categoryExpenseType.isChecked() && categoryIncomeType.isChecked()) {
-            return Category.Type.INCOME_EXPENSE;
-        } else if (categoryIncomeType.isChecked()) {
-            return Category.Type.INCOME;
-        } else if (categoryExpenseType.isChecked()) {
-            return Category.Type.EXPENSE;
-        }
-        return null;
     }
 
     private boolean handleSaveOption() {

@@ -13,10 +13,6 @@ public interface CategoryService extends BaseService<Category> {
 
     List<Category> getMainCategories();
 
-    List<Category> getMainIncomeTypeCategories();
-
-    List<Category> getMainExpenseTypeCategories();
-
     List<Category> getSubCategoriesOf(final Long id);
 
     void deleteByIdWithSubcategories(final Long id);

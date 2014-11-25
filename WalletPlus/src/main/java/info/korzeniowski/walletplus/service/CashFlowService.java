@@ -9,9 +9,9 @@ import info.korzeniowski.walletplus.model.Category;
 public interface CashFlowService extends BaseService<CashFlow> {
     long countAssignedToWallet(Long walletId);
 
-    public Category getOtherCategory();
-
     public Category getTransferCategory();
 
     public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long fromWalletId, Long toWalletId);
+
+    public List<CashFlow> findCashFlow(Date from, Date to, Category.Type categoryType, Long fromWalletId, Long toWalletId);
 }

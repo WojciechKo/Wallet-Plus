@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -18,7 +16,6 @@ import butterknife.InjectView;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
@@ -28,13 +25,6 @@ import info.korzeniowski.walletplus.widget.OnContentClickListener;
  */
 public class CategoryListFragment extends Fragment {
     public static final String TAG = "categoryList";
-    public static final String CATEGORY_TYPE = "categoryType";
-
-    public enum Type {
-        ONLY_INCOME,
-        ONLY_EXPENSE,
-        ALL
-    }
 
     @InjectView(R.id.list)
     ExpandableListView list;
@@ -60,13 +50,12 @@ public class CategoryListFragment extends Fragment {
     }
 
     void setupViews() {
-        Type categoryType = Type.values()[getArguments().getInt(CATEGORY_TYPE)];
-        list.setAdapter(getCategoryListAdapter(categoryType));
+        list.setAdapter(getCategoryListAdapter());
         removeListListeners();
     }
 
-    private CategoryExpandableListAdapter getCategoryListAdapter(Type categoryType) {
-        return new CategoryExpandableListAdapter(getActivity(), getCategoryList(categoryType),
+    private CategoryExpandableListAdapter getCategoryListAdapter() {
+        return new CategoryExpandableListAdapter(getActivity(), localCategoryService.getMainCategories(),
                 new OnContentClickListener() {
                     @Override
                     public void onContentClick(Long id) {
@@ -93,18 +82,6 @@ public class CategoryListFragment extends Fragment {
                     }
                 }
         );
-    }
-
-    private List<Category> getCategoryList(Type type) {
-        switch (type) {
-            case ONLY_INCOME:
-                return localCategoryService.getMainIncomeTypeCategories();
-            case ONLY_EXPENSE:
-                return localCategoryService.getMainExpenseTypeCategories();
-            case ALL:
-                return localCategoryService.getMainCategories();
-        }
-        throw new RuntimeException("Inacceptable category type: " + type);
     }
 
     private void startCategoryDetailsFragment(Long id) {

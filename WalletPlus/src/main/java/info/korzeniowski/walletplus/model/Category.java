@@ -16,19 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class Category implements Comparable<Category>, Identityable, Childable<Category>, Parcelable {
     public enum Type {
         TRANSFER,
-        OTHER,
-        INCOME,
-        EXPENSE,
-        INCOME_EXPENSE;
-
-        public boolean isIncome() {
-            return this.equals(INCOME) || this.equals(INCOME_EXPENSE);
-        }
-
-        public boolean isExpense() {
-            return this.equals(EXPENSE) || this.equals(INCOME_EXPENSE);
-        }
-
+        NO_CATEGORY
     }
 
     @DatabaseField(generatedId = true)
@@ -37,7 +25,7 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
     @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Category parent;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField
     private String name;
 
     @DatabaseField
@@ -159,16 +147,11 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
         return this;
     }
 
-    public final boolean isIncomeType() {
-        return getType() != null && getType().isIncome();
-    }
-
-    public final boolean isExpenseType() {
-        return getType() != null && getType().isExpense();
-    }
-
     @Override
     public List<Category> getChildren() {
+        if (children == null) {
+            return Lists.newArrayList();
+        }
         return Lists.newArrayList(children);
     }
 

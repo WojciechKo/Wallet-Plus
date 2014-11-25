@@ -38,7 +38,7 @@ public class CashFlowExpanseDetailsFragment extends CashFlowBaseDetailsFragment 
 
     @Override
     void fillCategoryList() {
-        categoryList.addAll(localCategoryService.getMainExpenseTypeCategories());
+        categoryList.addAll(localCategoryService.getMainCategories());
     }
 
     @Override
@@ -60,6 +60,6 @@ public class CashFlowExpanseDetailsFragment extends CashFlowBaseDetailsFragment 
 
     @Override
     void onRemoveCategoryClick() {
-        cashFlowDetailsState.setExpanseCategory(localCashFlowService.getOtherCategory());
+        cashFlowDetailsState.setExpanseCategory(null);
     }
 }

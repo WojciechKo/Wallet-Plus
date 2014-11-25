@@ -70,14 +70,10 @@ public class DatabaseInitializer {
     }
 
     private void initDatabase() {
-        Category category = new Category();
-        category.setType(Category.Type.OTHER);
-        category.setName(walletPlus.getString(R.string.otherCategoryName));
-        localCategoryService.insert(category);
-        category = new Category();
-        category.setType(Category.Type.TRANSFER);
-        category.setName(walletPlus.getString(R.string.transferCategoryName));
-        localCategoryService.insert(category);
+        localCategoryService.insert(
+                new Category()
+                        .setType(Category.Type.TRANSFER)
+                        .setName(walletPlus.getString(R.string.transferCategoryName)));
     }
 
     private void initExampleDatabase() {
@@ -102,7 +98,7 @@ public class DatabaseInitializer {
         localWalletService.insert(amazon);
 
         /** Init categories **/
-        Category mainHouse = new Category().setName("House").setType(Category.Type.EXPENSE);
+        Category mainHouse = new Category().setName("House");
         localCategoryService.insert(mainHouse);
         Category energy = new Category().setName("Energy").setParent(mainHouse);
         localCategoryService.insert(energy);
@@ -111,12 +107,12 @@ public class DatabaseInitializer {
         Category gas = new Category().setName("Gas").setParent(mainHouse);
         localCategoryService.insert(gas);
 
-        Category mainInternet = new Category().setName("Internet").setType(Category.Type.INCOME);
+        Category mainInternet = new Category().setName("Internet");
         localCategoryService.insert(mainInternet);
         localCategoryService.insert(new Category().setParent(mainInternet).setName("Music forum"));
         localCategoryService.insert(new Category().setParent(mainInternet).setName("News Service"));
 
-        Category mainPartner = new Category().setName("Partner").setType(Category.Type.INCOME_EXPENSE);
+        Category mainPartner = new Category().setName("Partner");
         localCategoryService.insert(mainPartner);
 
         /** Init cashflows **/
@@ -139,7 +135,7 @@ public class DatabaseInitializer {
         date.add(Calendar.DATE, -1);
         localCashFlowService.insert(cashFlow.setAmount(500.0).setCategory(localCashFlowService.getTransferCategory()).setFromWallet(bankAccount).setToWallet(personalWallet).setComment(null));
         localCashFlowService.insert(cashFlow.setAmount(1000.0).setCategory(localCashFlowService.getTransferCategory()).setFromWallet(bankAccount).setToWallet(wardrobe).setComment("Savings"));
-        localCashFlowService.insert(cashFlow.setAmount(3000.0).setCategory(localCashFlowService.getOtherCategory()).setFromWallet(amazon).setToWallet(bankAccount).setComment("Payment"));
+        localCashFlowService.insert(cashFlow.setAmount(3000.0).setCategory(null).setFromWallet(amazon).setToWallet(bankAccount).setComment("Payment"));
     }
 
 }

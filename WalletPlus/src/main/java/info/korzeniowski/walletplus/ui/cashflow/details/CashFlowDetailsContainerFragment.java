@@ -104,17 +104,17 @@ public class CashFlowDetailsContainerFragment extends Fragment {
 
         if (state.getType() == CashFlow.Type.INCOME) {
             state.setIncomeCategory(cashFlow.getCategory());
-            state.setExpanseCategory(cashFlowService.getOtherCategory());
+            state.setExpanseCategory(null);
             state.setIncomeFromWallet(cashFlow.getFromWallet());
             state.setIncomeToWallet(cashFlow.getToWallet());
         } else if (state.getType() == CashFlow.Type.EXPANSE) {
-            state.setIncomeCategory(cashFlowService.getOtherCategory());
+            state.setIncomeCategory(null);
             state.setExpanseCategory(cashFlow.getCategory());
             state.setExpanseFromWallet(cashFlow.getFromWallet());
             state.setExpanseToWallet(cashFlow.getToWallet());
         } else if (state.getType() == CashFlow.Type.TRANSFER) {
-            state.setIncomeCategory(cashFlowService.getOtherCategory());
-            state.setExpanseCategory(cashFlowService.getOtherCategory());
+            state.setIncomeCategory(null);
+            state.setExpanseCategory(null);
             state.setExpanseFromWallet(cashFlow.getFromWallet());
             state.setIncomeToWallet(cashFlow.getToWallet());
         }
@@ -124,8 +124,8 @@ public class CashFlowDetailsContainerFragment extends Fragment {
     private CashFlowDetailsParcelableState getNewCashFlowState() {
         CashFlowDetailsParcelableState state = new CashFlowDetailsParcelableState();
         state.setDate(Calendar.getInstance().getTimeInMillis());
-        state.setIncomeCategory(cashFlowService.getOtherCategory());
-        state.setExpanseCategory(cashFlowService.getOtherCategory());
+        state.setIncomeCategory(null);
+        state.setExpanseCategory(null);
         state.setType(CashFlow.Type.EXPANSE);
         return state;
     }

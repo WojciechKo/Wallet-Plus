@@ -48,29 +48,5 @@
             android:layout_below="@+id/parentCategory"
             android:text="@string/categoryTypeLabel"
             android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <RadioGroup
-            android:id="@+id/categoryType"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/categoryTypeLabel"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton
-                android:id="@+id/categoryIncomeType"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textOff="Income"
-                android:textOn="Income" />
-
-            <info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton
-                android:id="@+id/categoryExpenseType"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textOff="Expense"
-                android:textOn="Expense" />
-        </RadioGroup>
     </RelativeLayout>
 </ScrollView>

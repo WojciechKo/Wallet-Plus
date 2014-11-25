@@ -42,9 +42,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     @InjectView(R.id.toolbarTitle)
     TextView toolbarTitle;
 
-    @InjectView(R.id.toolbarSubtitle)
-    Spinner toolbarSubtitle;
-
     @Inject
     DrawerListAdapter drawerListAdapter;
 

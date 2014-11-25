@@ -20,7 +20,6 @@ import butterknife.InjectView;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
@@ -38,7 +37,6 @@ public class CategoryListFragment2 extends Fragment {
     private CategoryListParcelableState categoryListState;
     private int iteration;
     private List<CategoryService.CategoryStats> categoryStatsList;
-    private List<Category> mainCategories;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,7 +62,6 @@ public class CategoryListFragment2 extends Fragment {
 
     protected void initFields() {
         Period period = getPeriod(categoryListState.getPeriod());
-        mainCategories = localCategoryService.getMainCategories();
         categoryStatsList = localCategoryService.getCategoryStateList(categoryListState.getStartDate(), period, iteration);
     }
 
@@ -88,7 +85,7 @@ public class CategoryListFragment2 extends Fragment {
     }
 
     private CategoryStatsExpandableListAdapter getCategoryListAdapter() {
-        return new CategoryStatsExpandableListAdapter(getActivity(), mainCategories, categoryStatsList, new OnContentClickListener() {
+        return new CategoryStatsExpandableListAdapter(getActivity(), categoryListState.getCategoryList(), categoryStatsList, new OnContentClickListener() {
             @Override
             public void onContentClick(Long id) {
                 startCategoryDetailsFragment(id);

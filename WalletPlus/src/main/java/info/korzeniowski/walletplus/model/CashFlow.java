@@ -17,7 +17,7 @@ public class CashFlow implements Identityable {
     @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Wallet toWallet;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, canBeNull = false)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Category category;
 
     @DatabaseField(canBeNull = false)
