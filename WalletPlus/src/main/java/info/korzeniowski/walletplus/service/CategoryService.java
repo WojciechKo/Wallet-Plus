@@ -19,7 +19,7 @@ public interface CategoryService extends BaseService<Category> {
 
     public CategoryStats getCategoryStats(Category category, Date firstDay, Period period, Integer iteration);
 
-    public List<CategoryStats> getCategoryStateList(Date firstDay, Period period, Integer iteration);
+    public List<CategoryStats> getCategoryStatsList(Date firstDay, Period period, Integer iteration);
 
     public class CategoryStats {
         private Long categoryId;

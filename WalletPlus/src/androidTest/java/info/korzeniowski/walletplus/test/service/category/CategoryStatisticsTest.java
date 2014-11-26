@@ -143,7 +143,7 @@ public class CategoryStatisticsTest {
     }
 
     private CategoryService.CategoryStats getCategoryStatsFromCategoryStateList(final Category category, Date yesterday, Period period, Integer iteration) {
-        List<CategoryService.CategoryStats> categoryStatsList = categoryService.getCategoryStateList(yesterday, period, iteration);
+        List<CategoryService.CategoryStats> categoryStatsList = categoryService.getCategoryStatsList(yesterday, period, iteration);
 
         CategoryService.CategoryStats categoryStat = Iterables.find(categoryStatsList, new Predicate<CategoryService.CategoryStats>() {
             @Override

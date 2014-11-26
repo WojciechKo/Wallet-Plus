@@ -17,13 +17,14 @@ import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.widget.IdentifiableExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
+import info.korzeniowski.walletplus.widget.OnContentLongClickListener;
 
 public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableListAdapter<Category> {
 
     private final List<CategoryService.CategoryStats> stats;
 
-    public CategoryStatsExpandableListAdapter(Context context, List<Category> items, List<CategoryService.CategoryStats> stats, OnContentClickListener onContentClickListener) {
-        super(context, items, R.layout.category_stats_list_item, R.layout.category_stats_list_item, onContentClickListener);
+    public CategoryStatsExpandableListAdapter(Context context, List<Category> items, List<CategoryService.CategoryStats> stats, OnContentClickListener onContentClickListener, OnContentLongClickListener onContentLongClickListener) {
+        super(context, items, R.layout.category_stats_list_item, R.layout.category_stats_list_item, onContentClickListener, onContentLongClickListener);
         this.stats = stats;
     }
 

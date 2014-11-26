@@ -21,7 +21,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
     private Dao<Wallet, Long> walletDao;
     private Dao<Category, Long> categoryDao;
     private Dao<CashFlow, Long> cashFlowDao;

@@ -30,7 +30,7 @@
 
     <!-- Category list fragment -->
     <string name="categoryNoCategoryName">No category</string>
-    <string name="categoryNoCategoryClicked">This category disappears after setting any category to every cashflows.</string>
+    <string name="categoryNoCategoryClicked">This category disappears after setting category to every cashflows.</string>
 
     <!-- Category details fragment -->
     <string name="categoryNameLabel">Name:</string>

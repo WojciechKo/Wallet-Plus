@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import java.util.List;
@@ -22,14 +21,20 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
     private final List<T> items;
     private final int groupItemLayout;
     private final int childItemLayout;
-    OnContentClickListener listener;
+    private OnContentClickListener clickListener;
+    private OnContentLongClickListener longClickListener;
 
-    public IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener listener) {
+    public IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener clickListener) {
         this.context = context;
         this.items = items;
         this.groupItemLayout = groupItemLayout;
         this.childItemLayout = childItemLayout;
-        this.listener = listener;
+        this.clickListener = clickListener;
+    }
+
+    public IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener clickListener, OnContentLongClickListener longClickListener) {
+        this(context, items, groupItemLayout, childItemLayout, clickListener);
+        this.longClickListener = longClickListener;
     }
 
     @Override
@@ -112,7 +117,14 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
         groupViewHolder.content.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onContentClick(items.get(groupPosition));
+                clickListener.onContentClick(getGroup(groupPosition));
+            }
+        });
+        groupViewHolder.content.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                longClickListener.onContentLongClick(getGroup(groupPosition));
+                return true;
             }
         });
     }
@@ -136,7 +148,14 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
         groupViewHolder.groupIndicator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onContentClick(items.get(groupPosition));
+                clickListener.onContentClick(getGroup(groupPosition));
+            }
+        });
+        groupViewHolder.groupIndicator.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                longClickListener.onContentLongClick(getGroup(groupPosition));
+                return true;
             }
         });
     }
@@ -160,7 +179,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
     public final View getChildView(final int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         ChildViewHolder holder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_child_content, parent,false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_child_content, parent, false);
             holder = getChildViewHolder(convertView);
             convertView.setTag(holder);
         } else {
@@ -170,7 +189,15 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
         holder.content.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onContentClick(getChild(groupPosition, childPosition));
+                clickListener.onContentClick(getChild(groupPosition, childPosition));
+            }
+        });
+
+        holder.content.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                longClickListener.onContentLongClick(getChild(groupPosition, childPosition));
+                return true;
             }
         });
 

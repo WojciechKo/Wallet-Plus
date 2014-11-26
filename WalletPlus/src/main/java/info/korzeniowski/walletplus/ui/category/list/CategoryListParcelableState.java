@@ -53,7 +53,7 @@ public class CategoryListParcelableState implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(startDate.getTime());
         dest.writeInt(period.ordinal());
-        dest.writeParcelableArray((Parcelable[]) categoryList.toArray(), flags);
+        dest.writeParcelableArray(categoryList.toArray(new Category[categoryList.size()]), flags);
     }
 
     public Date getStartDate() {

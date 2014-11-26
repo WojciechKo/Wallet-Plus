@@ -223,7 +223,7 @@ public class LocalCategoryService implements CategoryService {
 
 
     @Override
-    public List<CategoryStats> getCategoryStateList(Date firstDay, Period period, Integer iteration) {
+    public List<CategoryStats> getCategoryStatsList(Date firstDay, Period period, Integer iteration) {
         List<Category> categories;
         try {
             categories = categoryDao.queryForAll();
