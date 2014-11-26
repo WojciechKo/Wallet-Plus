@@ -1,5 +1,5 @@
 package info.korzeniowski.walletplus.widget;
 
-public interface OnContentClickListener {
-    public void onContentClick(Long id);
+public interface OnContentClickListener<T> {
+    public void onContentClick(T content);
 }

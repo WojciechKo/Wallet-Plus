@@ -16,6 +16,7 @@ import butterknife.InjectView;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
@@ -56,10 +57,10 @@ public class CategoryListFragment extends Fragment {
 
     private CategoryExpandableListAdapter getCategoryListAdapter() {
         return new CategoryExpandableListAdapter(getActivity(), localCategoryService.getMainCategories(),
-                new OnContentClickListener() {
+                new OnContentClickListener<Category>() {
                     @Override
-                    public void onContentClick(Long id) {
-                        startCategoryDetailsFragment(id);
+                    public void onContentClick(Category content) {
+                        startCategoryDetailsFragment(content.getId());
                     }
                 }
         );

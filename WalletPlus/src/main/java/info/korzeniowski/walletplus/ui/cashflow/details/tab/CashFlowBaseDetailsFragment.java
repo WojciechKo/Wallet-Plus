@@ -240,10 +240,10 @@ public abstract class CashFlowBaseDetailsFragment extends Fragment {
                 .setView(expandableListView)
                 .create();
 
-        expandableListView.setAdapter(new CategoryExpandableListAdapter(getActivity(), categoryList, new OnContentClickListener() {
+        expandableListView.setAdapter(new CategoryExpandableListAdapter(getActivity(), categoryList, new OnContentClickListener<Category>() {
             @Override
-            public void onContentClick(Long id) {
-                storeSelectedCategoryInState(localCategoryService.findById(id));
+            public void onContentClick(Category content) {
+                storeSelectedCategoryInState(localCategoryService.findById(content.getId()));
                 alertDialog.dismiss();
             }
         }));

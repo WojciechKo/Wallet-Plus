@@ -112,7 +112,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
         groupViewHolder.content.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onContentClick(getGroupId(groupPosition));
+                listener.onContentClick(items.get(groupPosition));
             }
         });
     }
@@ -136,7 +136,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
         groupViewHolder.groupIndicator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onContentClick(getGroupId(groupPosition));
+                listener.onContentClick(items.get(groupPosition));
             }
         });
     }
@@ -170,7 +170,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
         holder.content.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onContentClick(getChildId(groupPosition, childPosition));
+                listener.onContentClick(getChild(groupPosition, childPosition));
             }
         });
 

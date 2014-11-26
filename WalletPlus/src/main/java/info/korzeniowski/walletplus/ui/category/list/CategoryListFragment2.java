@@ -1,12 +1,14 @@
 package info.korzeniowski.walletplus.ui.category.list;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 
 import org.joda.time.Period;
 
@@ -20,6 +22,7 @@ import butterknife.InjectView;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
@@ -85,14 +88,17 @@ public class CategoryListFragment2 extends Fragment {
     }
 
     private CategoryStatsExpandableListAdapter getCategoryListAdapter() {
-        return new CategoryStatsExpandableListAdapter(getActivity(), categoryListState.getCategoryList(), categoryStatsList, new OnContentClickListener() {
+        return new CategoryStatsExpandableListAdapter(getActivity(), categoryListState.getCategoryList(), categoryStatsList, new OnContentClickListener<Category>() {
             @Override
-            public void onContentClick(Long id) {
-                startCategoryDetailsFragment(id);
+            public void onContentClick(Category category) {
+                if (category.getType() == Category.Type.NO_CATEGORY) {
+                    Toast.makeText(getActivity(), getResources().getString(R.string.categoryNoCategoryClicked), Toast.LENGTH_SHORT).show();
+                } else {
+                    startCategoryDetailsFragment(category.getId());
+                }
             }
         });
     }
-
 
     private void startCategoryDetailsFragment(Long id) {
         Fragment fragment = new CategoryDetailsFragment();
