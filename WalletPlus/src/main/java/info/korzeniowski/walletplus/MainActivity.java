@@ -39,9 +39,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
 
-    @InjectView(R.id.toolbarTitle)
-    TextView toolbarTitle;
-
     @Inject
     DrawerListAdapter drawerListAdapter;
 
@@ -69,9 +66,8 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     void setupViews() {
-        setTitle(null);
-        toolbarTitle.setText(state.getAppName());
         setSupportActionBar(toolbar);
+        setTitle(state.getAppName());
         drawerToggle = new MainActivityDrawerToggle();
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         drawerLayout.setDrawerListener(drawerToggle);
@@ -219,14 +215,14 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
         @Override
         public void onDrawerOpened(View drawerView) {
-            toolbarTitle.setText(state.getAppName());
+            setTitle(state.getAppName());
             super.onDrawerOpened(drawerView);
             MainActivity.this.invalidateOptionsMenu();
         }
 
         @Override
         public void onDrawerClosed(View drawerView) {
-            toolbarTitle.setText(state.getSelectedFragmentTitle());
+            setTitle(state.getSelectedFragmentTitle());
             super.onDrawerClosed(drawerView);
             MainActivity.this.invalidateOptionsMenu();
         }

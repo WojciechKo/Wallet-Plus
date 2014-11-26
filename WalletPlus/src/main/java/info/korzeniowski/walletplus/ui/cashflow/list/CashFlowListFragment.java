@@ -83,7 +83,6 @@ public class CashFlowListFragment extends Fragment {
         ((MainActivity) getActivity()).setContentFragment(new CashFlowDetailsContainerFragment(), true, CashFlowDetailsContainerFragment.TAG);
     }
 
-
     private void startCashFlowDetailsFragment(Long id) {
         Fragment fragment = new CashFlowDetailsContainerFragment();
         Bundle bundle = new Bundle();
