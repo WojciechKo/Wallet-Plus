@@ -48,7 +48,6 @@ public class CategoryListFragment2 extends Fragment {
 
     private CategoryListParcelableState categoryListState;
     private int iteration;
-    private List<CategoryService.CategoryStats> categoryStatsList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

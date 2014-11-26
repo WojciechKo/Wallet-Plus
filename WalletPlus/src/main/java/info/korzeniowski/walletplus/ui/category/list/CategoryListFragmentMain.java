@@ -7,6 +7,9 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -25,11 +28,13 @@ import javax.inject.Named;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.KorzeniowskiUtils;
+import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 
 public class CategoryListFragmentMain extends Fragment {
     public static final String TAG = "CategoryListFragmentMain";
@@ -56,6 +61,7 @@ public class CategoryListFragmentMain extends Fragment {
         super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
         categoryListState = initOrRestoreState(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     private CategoryListParcelableState initOrRestoreState(Bundle savedInstanceState) {
@@ -75,6 +81,23 @@ public class CategoryListFragmentMain extends Fragment {
         return new CategoryListParcelableState(Period.WEEK, getMainCategories());
     }
 
+    private boolean isAnyCashflowWithoutCategoryExists() {
+        return !localCashFlowService.findCashFlow(null, null, Category.Type.NO_CATEGORY, null, null).isEmpty();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.category_main_layout, container, false);
+        ButterKnife.inject(this, view);
+        updateCategoryListState(categoryListState);
+        setupViews();
+        return view;
+    }
+
+    private void updateCategoryListState(CategoryListParcelableState state) {
+        state.setCategoryList(getMainCategories());
+    }
+
     private List<Category> getMainCategories() {
         List<Category> mainCategories = localCategoryService.getMainCategories();
 
@@ -88,18 +111,6 @@ public class CategoryListFragmentMain extends Fragment {
         return mainCategories;
     }
 
-    private boolean isAnyCashflowWithoutCategoryExists() {
-        return !localCashFlowService.findCashFlow(null, null, Category.Type.NO_CATEGORY, null, null).isEmpty();
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.category_main_layout, container, false);
-        ButterKnife.inject(this, view);
-        setupViews();
-        return view;
-    }
-
     public void setupViews() {
         CategoryListPagerAdapter pagerAdapter = new CategoryListPagerAdapter();
         pager.setAdapter(pagerAdapter);
@@ -109,6 +120,24 @@ public class CategoryListFragmentMain extends Fragment {
         tabs.setBackgroundColor(getResources().getColor(R.color.mainColor));
         tabs.setTabIndicatorColor(getResources().getColor(R.color.lightMainColor));
         pager.setCurrentItem(pager.getAdapter().getCount() / 2);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.action_new, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_new) {
+            startCategoryDetailsFragment();
+            return true;
+        }
+        return false;
+    }
+
+    private void startCategoryDetailsFragment() {
+        ((MainActivity) getActivity()).setContentFragment(new CategoryDetailsFragment(), true, CategoryDetailsFragment.TAG);
     }
 
     private class CategoryListPagerAdapter extends FragmentStatePagerAdapter implements ViewPager.OnPageChangeListener {
