@@ -29,58 +29,26 @@ public class LocalCategoryServiceTest {
         ((TestWalletPlus) Robolectric.application).inject(this);
     }
 
-    @Test
-    public void shouldReadSetOfSoredCategoryType() {
-        shouldReadSoredCategoryType(Category.Type.INCOME);
-        shouldReadSoredCategoryType(Category.Type.EXPENSE);
-        shouldReadSoredCategoryType(Category.Type.INCOME_EXPENSE);
-    }
-
-    private void shouldReadSoredCategoryType(Category.Type type) {
-        Category category = new Category().setName("Category Test Name").setType(type);
-        categoryService.insert(category);
-        category = categoryService.findById(category.getId());
-
-        assertThat(category.getType()).isEqualTo(type);
-    }
-
     /**
      * *************
      * TEST INSERT *
      * *************
      */
     @Test
-    public void shouldInsertMainAndTwoSubCategory() {
-        shouldInsertMainTwoSubCategoriesOfType(Category.Type.INCOME);
-        shouldInsertMainTwoSubCategoriesOfType(Category.Type.EXPENSE);
-        shouldInsertMainTwoSubCategoriesOfType(Category.Type.INCOME_EXPENSE);
-    }
+    public void shouldInsertMainAndTwoSubCategories() {
+        Integer mainCategorySize = categoryService.getMainCategories().size();
 
-    private void shouldInsertMainTwoSubCategoriesOfType(Category.Type type) {
-        Integer numberOfIncomeMain = categoryService.getMainIncomeTypeCategories().size();
-        Integer numberOfExpenseMain = categoryService.getMainExpenseTypeCategories().size();
-
-        Category main = new Category().setName("Main").setType(type);
+        Category main = new Category().setName("Main");
         categoryService.insert(main);
+        mainCategorySize++;
 
-        Integer mainCategoriesSize = categoryService.getMainCategories().size();
-        if (main.isIncomeType()) {
-            numberOfIncomeMain++;
-        }
-        if (main.isExpenseType()) {
-            numberOfExpenseMain++;
-        }
-        assertThat(categoryService.getMainCategories()).hasSize(mainCategoriesSize);
-        assertThat(categoryService.getMainIncomeTypeCategories()).hasSize(numberOfIncomeMain);
-        assertThat(categoryService.getMainExpenseTypeCategories()).hasSize(numberOfExpenseMain);
+        assertThat(categoryService.getMainCategories()).hasSize(mainCategorySize);
         assertThat(categoryService.findById(main.getId()).getChildren()).hasSize(0);
 
         categoryService.insert(new Category().setParent(categoryService.findById(main.getId())).setName("1. Sub of Main"));
         categoryService.insert(new Category().setParent(categoryService.findById(main.getId())).setName("2. Sub of Main"));
 
-        assertThat(categoryService.getMainCategories()).hasSize(mainCategoriesSize);
-        assertThat(categoryService.getMainIncomeTypeCategories()).hasSize(numberOfIncomeMain);
-        assertThat(categoryService.getMainExpenseTypeCategories()).hasSize(numberOfExpenseMain);
+        assertThat(categoryService.getMainCategories()).hasSize(mainCategorySize);
         assertThat(categoryService.findById(main.getId()).getChildren()).hasSize(2);
     }
 
@@ -98,8 +66,7 @@ public class LocalCategoryServiceTest {
     @Test
     public void shouldReadMainCategory() {
         String categoryName = "Main";
-        Category.Type categoryType = Category.Type.INCOME;
-        Category inserted = new Category().setName(categoryName).setType(categoryType);
+        Category inserted = new Category().setName(categoryName);
         Long id = categoryService.insert(inserted);
 
         Category read = categoryService.findById(id);
@@ -109,7 +76,7 @@ public class LocalCategoryServiceTest {
 
     @Test
     public void shouldReadSubCategory() {
-        Category parentCategory = new Category().setName("Main").setType(Category.Type.INCOME);
+        Category parentCategory = new Category().setName("Main");
         Long parentCategoryId = categoryService.insert(parentCategory);
         Category subCategory = new Category().setName("Sub").setParent(categoryService.findById(parentCategoryId));
         Long subCategoryId = categoryService.insert(subCategory);
@@ -126,11 +93,11 @@ public class LocalCategoryServiceTest {
      * ***********
      */
     @Test
-    public void shouldEditNameAndTypeInMainCategoryWithoutChildren() {
-        Category oldCategory = new Category().setName("Main 1").setType(Category.Type.EXPENSE);
+    public void shouldEditNameInMainCategoryWithoutChildren() {
+        Category oldCategory = new Category().setName("Main 1");
         categoryService.insert(oldCategory);
 
-        Category newCategory = new Category().setId(oldCategory.getId()).setName("Main 1 Fix").setType(Category.Type.INCOME);
+        Category newCategory = new Category().setId(oldCategory.getId()).setName("Main 1 Fix");
         categoryService.update(newCategory);
 
         Category read = categoryService.findById(newCategory.getId());
@@ -139,22 +106,18 @@ public class LocalCategoryServiceTest {
     }
 
     @Test
-    public void shouldEditNameAndTypeInMainCategoryWithChildren() {
-        Category main1 = insertMainAndSubs(new Category().setName("Main 1").setType(Category.Type.INCOME), 2);
-        Category main2 = insertMainAndSubs(new Category().setName("Main 2").setType(Category.Type.INCOME), 3);
+    public void shouldEditNameInMainCategoryWithChildren() {
+        Category main1 = insertMainAndSubs(new Category().setName("Main 1"), 2);
+        Category main2 = insertMainAndSubs(new Category().setName("Main 2"), 3);
 
         Long oldCategoryCount = categoryService.count();
         Integer oldMainSize = categoryService.getMainCategories().size();
-        Integer oldMainIncomeSize = categoryService.getMainIncomeTypeCategories().size();
-        Integer oldMainExpenseSize = categoryService.getMainExpenseTypeCategories().size();
 
         Category read = categoryService.findById(main2.getId());
-        categoryService.update(read.setName("Main 2 Fix").setType(Category.Type.EXPENSE));
+        categoryService.update(read.setName("Main 2 Fix"));
 
         assertThat(categoryService.count()).isEqualTo(oldCategoryCount);
         assertThat(categoryService.getMainCategories()).hasSize(oldMainSize);
-        assertThat(categoryService.getMainIncomeTypeCategories()).hasSize(oldMainIncomeSize - 1);
-        assertThat(categoryService.getMainExpenseTypeCategories()).hasSize(oldMainExpenseSize + 1);
     }
 
     private Category insertMainAndSubs(Category category, Integer numberOfChildren) {
@@ -171,8 +134,7 @@ public class LocalCategoryServiceTest {
 
     @Test
     public void shouldEditSubName() {
-        Category.Type category = Category.Type.INCOME_EXPENSE;
-        Long mainId = categoryService.insert(new Category().setName("Main").setType(category));
+        Long mainId = categoryService.insert(new Category().setName("Main"));
         Long subId = categoryService.insert(new Category().setName("Sub").setParent(categoryService.findById(mainId)));
 
         String newSubName = "Sub Fix";
@@ -193,7 +155,7 @@ public class LocalCategoryServiceTest {
      */
     @Test
     public void shouldDeleteMainCategoryWithoutSubs() {
-        Long categoryId = categoryService.insert(new Category().setName("Main").setType(Category.Type.EXPENSE));
+        Long categoryId = categoryService.insert(new Category().setName("Main"));
 
         int mainCategories = categoryService.getMainCategories().size();
         Long count = categoryService.count();
@@ -205,7 +167,7 @@ public class LocalCategoryServiceTest {
 
     @Test
     public void shouldDeleteSubCategory() {
-        Long mainCategoryId = categoryService.insert(new Category().setName("Main").setType(Category.Type.EXPENSE));
+        Long mainCategoryId = categoryService.insert(new Category().setName("Main"));
         Long subCategoryId = categoryService.insert(new Category().setName("Sub 1").setParent(categoryService.findById(mainCategoryId)));
         categoryService.insert(new Category().setName("Sub 2").setParent(categoryService.findById(mainCategoryId)));
 
@@ -220,14 +182,14 @@ public class LocalCategoryServiceTest {
 
     @Test
     public void shouldDeleteMainCategoryWithSubs() {
-        Long otherMainCategory = categoryService.insert(new Category().setName("Main 1").setType(Category.Type.EXPENSE));
+        Long otherMainCategory = categoryService.insert(new Category().setName("Main 1"));
         categoryService.insert(new Category().setName("Sub 1 of Main 1").setParent(categoryService.findById(otherMainCategory)));
         categoryService.insert(new Category().setName("Sub 2 of Main 1").setParent(categoryService.findById(otherMainCategory)));
 
         Integer oldMainCategoryCount = categoryService.getMainCategories().size();
         Long oldCount = categoryService.count();
 
-        Long mainCategoryToDelete = categoryService.insert(new Category().setName("Main 2").setType(Category.Type.EXPENSE));
+        Long mainCategoryToDelete = categoryService.insert(new Category().setName("Main 2"));
         categoryService.insert(new Category().setName("Sub 1 of Main 2").setParent(categoryService.findById(mainCategoryToDelete)));
         categoryService.insert(new Category().setName("Sub 2 of Main 2").setParent(categoryService.findById(mainCategoryToDelete)));
 

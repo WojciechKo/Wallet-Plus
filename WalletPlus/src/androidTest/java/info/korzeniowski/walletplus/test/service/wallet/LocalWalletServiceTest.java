@@ -136,7 +136,7 @@ public class LocalWalletServiceTest {
     }
 
     private CashFlow getCashFlow(Wallet from, Wallet to) {
-        return new CashFlow().setDateTime(new Date()).setAmount(50.00).setCategory(cashFlowService.getOtherCategory()).setFromWallet(from).setToWallet(to);
+        return new CashFlow().setDateTime(new Date()).setAmount(50.00).setCategory(null).setFromWallet(from).setToWallet(to);
     }
 
     private Wallet getSimpleWallet(Wallet.Type type) {
