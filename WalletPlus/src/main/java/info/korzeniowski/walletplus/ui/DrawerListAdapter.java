@@ -83,5 +83,6 @@ public class DrawerListAdapter extends BaseAdapter {
 
     public void setSelected(int position) {
         this.selected = position;
+        notifyDataSetChanged();
     }
 }

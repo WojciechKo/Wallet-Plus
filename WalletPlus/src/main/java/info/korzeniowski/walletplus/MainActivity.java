@@ -18,8 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 
@@ -84,13 +82,12 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
             fragmentTransaction.replace(R.id.content_frame, lastFragment, state.getFragmentTag());
             fragmentTransaction.commit();
         } else {
-            drawerItemClicked(state.getSelectedDrawerPosition());
+            setSelectedDrawerItem(state.getSelectedDrawerPosition());
         }
 
         drawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                state.setSelectedDrawerPosition(position);
                 drawerItemClicked(position);
             }
         });
@@ -147,13 +144,19 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     void drawerItemClicked(int position) {
+        if (state.getSelectedDrawerPosition() != position) {
+            setSelectedDrawerItem(position);
+        }
+        drawerLayout.closeDrawer(drawer);
+    }
+
+    private void setSelectedDrawerItem(int position) {
+        state.setSelectedDrawerPosition(position);
         drawerListAdapter.setSelected(position);
         MainDrawerItem selectedMainDrawerItem = drawerListAdapter.getItem(position);
         setContentFragment(selectedMainDrawerItem.getFragment(), false, selectedMainDrawerItem.getTag());
-        drawer.setItemChecked(position, true);
         state.setSelectedFragmentTitle(selectedMainDrawerItem.getTitle());
         state.setFragmentTag(selectedMainDrawerItem.getTag());
-        drawerLayout.closeDrawer(drawer);
     }
 
     public void setContentFragment(Fragment fragment, Boolean addToBackStack, String tag) {
@@ -204,6 +207,14 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         super.onDestroy();
     }
 
+    public void setToolbarBackground(int color) {
+        toolbar.setBackgroundColor(color);
+    }
+
+    public void setMenu() {
+
+    }
+
     private class MainActivityDrawerToggle extends ActionBarDrawerToggle {
         MainActivityDrawerToggle() {
             super(MainActivity.this,
@@ -215,6 +226,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
         @Override
         public void onDrawerOpened(View drawerView) {
+            state.setSelectedFragmentTitle(getTitle().toString());
             setTitle(state.getAppName());
             super.onDrawerOpened(drawerView);
             MainActivity.this.invalidateOptionsMenu();

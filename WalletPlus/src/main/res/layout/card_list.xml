@@ -4,10 +4,5 @@
     android:id="@+id/list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:divider="@null"
-    android:dividerHeight="10dp"
-    android:padding="@dimen/edgePadding"
-    android:scrollbars="none"
-    android:choiceMode="none"
-    android:listSelector="@drawable/selector_card_background"/>
+    android:clipToPadding="true"
+    android:listSelector="@drawable/selector_list_item"/>

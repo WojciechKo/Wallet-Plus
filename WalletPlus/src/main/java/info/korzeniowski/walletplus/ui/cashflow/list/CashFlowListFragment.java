@@ -11,19 +11,24 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
+import butterknife.OnItemLongClick;
+import info.korzeniowski.walletplus.KorzeniowskiUtils;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsContainerFragment;
-import info.korzeniowski.walletplus.widget.IdentifiableMultiChoiceModeListener;
 
 /**
  * Fragment with list of cash flows.
@@ -38,6 +43,10 @@ public class CashFlowListFragment extends Fragment {
     @Named("local")
     CashFlowService localCashFlowService;
 
+    private List<CashFlow> categories;
+    private List<CashFlow> selected;
+    private String title;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,19 +59,84 @@ public class CashFlowListFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.card_list, container, false);
         ButterKnife.inject(this, view);
+        categories = localCashFlowService.getAll();
+        selected = Lists.newArrayList();
         setupView();
         return view;
     }
 
     void setupView() {
-        list.setAdapter(new CashFlowListAdapter(getActivity(), localCashFlowService.getAll()));
-        list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-        list.setMultiChoiceModeListener(new IdentifiableMultiChoiceModeListener<CashFlow>(list, localCashFlowService, getActivity()));
+        list.setAdapter(new CashFlowListAdapter(getActivity(), categories));
+        list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
     }
 
     @OnItemClick(R.id.list)
     void listItemClicked(int position) {
-        startCashFlowDetailsFragment(list.getAdapter().getItemId(position));
+        View itemView = KorzeniowskiUtils.Views.getViewByPosition(list, position);
+        if (list.getChoiceMode() == AbsListView.CHOICE_MODE_SINGLE) {
+            itemView.setBackgroundResource(R.drawable.list_item_background_checked);
+            startCashFlowDetailsFragment(list.getAdapter().getItemId(position));
+        } else if (list.getChoiceMode() == AbsListView.CHOICE_MODE_MULTIPLE) {
+            handleCategorySelect(position, itemView);
+            if (selected.size() == 0) {
+                endMultipleChoiceMode();
+            } else {
+                getActivity().setTitle(getSelectedTitle());
+            }
+        }
+    }
+
+    private void handleCategorySelect(int position, View itemView) {
+        if (selected.contains(categories.get(position))) {
+            unselectCategory(position, itemView);
+        } else {
+            selectCategory(position, itemView);
+        }
+    }
+
+    @OnItemLongClick(R.id.list)
+    boolean listItemLongClicked(int position) {
+        if (list.getChoiceMode() == AbsListView.CHOICE_MODE_SINGLE) {
+            startMultipleChoiceMode(position);
+        } else if (list.getChoiceMode() == AbsListView.CHOICE_MODE_MULTIPLE) {
+            listItemClicked(position);
+        }
+        return true;
+    }
+
+    private void startMultipleChoiceMode(int position) {
+        list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+        selectCategory(position, KorzeniowskiUtils.Views.getViewByPosition(list, position));
+        ((MainActivity) getActivity()).setToolbarBackground(getResources().getColor(R.color.darkerMainColor));
+
+        title = getActivity().getTitle().toString();
+        getActivity().setTitle(getSelectedTitle());
+    }
+
+    private void endMultipleChoiceMode() {
+        list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        ((MainActivity) getActivity()).setToolbarBackground(getResources().getColor(R.color.mainColor));
+        getActivity().setTitle(title);
+    }
+
+    @Override
+    public void onStop() {
+        ((MainActivity) getActivity()).setToolbarBackground(getResources().getColor(R.color.mainColor));
+        super.onStop();
+    }
+
+    private String getSelectedTitle() {
+        return title + " (" + selected.size() + ")";
+    }
+
+    private void selectCategory(int position, View itemView) {
+        selected.add(categories.get(position));
+        itemView.setBackgroundResource(R.drawable.list_item_background_checked);
+    }
+
+    private void unselectCategory(int position, View itemView) {
+        selected.remove(categories.get(position));
+        itemView.setBackgroundResource(R.drawable.list_item_background);
     }
 
     @Override

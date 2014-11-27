@@ -1,7 +1,6 @@
 package info.korzeniowski.walletplus.service.local;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -267,7 +266,7 @@ public class LocalCategoryService implements CategoryService {
         checkNotNull(period);
         checkNotNull(iteration);
 
-        Interval interval = KorzeniowskiUtils.Time.getInterval(new DateTime(firstDay), period, iteration);
+        Interval interval = KorzeniowskiUtils.Times.getInterval(new DateTime(firstDay), period, iteration);
         return cashFlowService.findCashFlow(interval.getStart().toDate(), interval.getEnd().toDate(), (Long) null, null, null);
     }
 

@@ -179,7 +179,7 @@ public class CategoryListFragmentMain extends Fragment {
             org.joda.time.Period period = getPeriodInJoda(categoryListState.getPeriod());
             int iteration = getIterationFromPosition(position);
 
-            Interval interval = KorzeniowskiUtils.Time.getInterval(new DateTime(fromDate), period, iteration);
+            Interval interval = KorzeniowskiUtils.Times.getInterval(new DateTime(fromDate), period, iteration);
             return getPageTitle(interval);
         }
 
