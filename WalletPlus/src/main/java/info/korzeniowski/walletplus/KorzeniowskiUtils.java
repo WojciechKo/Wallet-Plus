@@ -38,6 +38,9 @@ public class KorzeniowskiUtils {
                 return listView.getChildAt(childIndex);
             }
         }
-    }
 
+        public static void performItemClick(ListView list, int position) {
+            list.performItemClick(list.getChildAt(position), position, list.getAdapter().getItemId(position));
+        }
+    }
 }

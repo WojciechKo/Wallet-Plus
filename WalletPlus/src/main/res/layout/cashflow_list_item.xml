@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<info.korzeniowski.walletplus.widget.CheckableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/list_item_background">
+    android:background="@drawable/selector_list_item">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -63,4 +63,4 @@
             android:gravity="center_horizontal"
             android:textSize="@dimen/verySmallFontSize" />
     </RelativeLayout>
-</FrameLayout>
+</info.korzeniowski.walletplus.widget.CheckableFrameLayout>

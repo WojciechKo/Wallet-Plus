@@ -211,8 +211,8 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         toolbar.setBackgroundColor(color);
     }
 
-    public void setMenu() {
-
+    public Toolbar getToolbar() {
+        return toolbar;
     }
 
     private class MainActivityDrawerToggle extends ActionBarDrawerToggle {
@@ -220,8 +220,8 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
             super(MainActivity.this,
                     drawerLayout,
                     toolbar,
-                    R.string.main_drawer_open,
-                    R.string.main_drawer_close);
+                    R.string.appName,
+                    R.string.appName);
         }
 
         @Override

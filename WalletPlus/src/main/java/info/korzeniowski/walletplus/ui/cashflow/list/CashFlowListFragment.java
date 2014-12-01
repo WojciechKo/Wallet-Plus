@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import com.google.common.collect.Lists;
@@ -43,7 +44,7 @@ public class CashFlowListFragment extends Fragment {
     @Named("local")
     CashFlowService localCashFlowService;
 
-    private List<CashFlow> categories;
+    private List<CashFlow> cashFlows;
     private List<CashFlow> selected;
     private String title;
 
@@ -57,25 +58,24 @@ public class CashFlowListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.card_list, container, false);
+        View view = inflater.inflate(R.layout.cashflow_list, container, false);
         ButterKnife.inject(this, view);
-        categories = localCashFlowService.getAll();
+        cashFlows = localCashFlowService.getAll();
         selected = Lists.newArrayList();
         setupView();
         return view;
     }
 
     void setupView() {
-        list.setAdapter(new CashFlowListAdapter(getActivity(), categories));
-        list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        list.setAdapter(new CashFlowListAdapter(getActivity(), cashFlows));
     }
 
     @OnItemClick(R.id.list)
     void listItemClicked(int position) {
         View itemView = KorzeniowskiUtils.Views.getViewByPosition(list, position);
         if (list.getChoiceMode() == AbsListView.CHOICE_MODE_SINGLE) {
-            itemView.setBackgroundResource(R.drawable.list_item_background_checked);
             startCashFlowDetailsFragment(list.getAdapter().getItemId(position));
+            list.setItemChecked(position, false);
         } else if (list.getChoiceMode() == AbsListView.CHOICE_MODE_MULTIPLE) {
             handleCategorySelect(position, itemView);
             if (selected.size() == 0) {
@@ -86,37 +86,42 @@ public class CashFlowListFragment extends Fragment {
         }
     }
 
-    private void handleCategorySelect(int position, View itemView) {
-        if (selected.contains(categories.get(position))) {
-            unselectCategory(position, itemView);
-        } else {
-            selectCategory(position, itemView);
-        }
-    }
-
     @OnItemLongClick(R.id.list)
     boolean listItemLongClicked(int position) {
         if (list.getChoiceMode() == AbsListView.CHOICE_MODE_SINGLE) {
             startMultipleChoiceMode(position);
+            KorzeniowskiUtils.Views.performItemClick(list, position);
         } else if (list.getChoiceMode() == AbsListView.CHOICE_MODE_MULTIPLE) {
-            listItemClicked(position);
+            KorzeniowskiUtils.Views.performItemClick(list, position);
         }
         return true;
     }
 
+    private void handleCategorySelect(int position, View itemView) {
+        if (selected.contains(cashFlows.get(position))) {
+            selected.remove(cashFlows.get(position));
+        } else {
+            selected.add(cashFlows.get(position));
+        }
+    }
+
     private void startMultipleChoiceMode(int position) {
         list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-        selectCategory(position, KorzeniowskiUtils.Views.getViewByPosition(list, position));
         ((MainActivity) getActivity()).setToolbarBackground(getResources().getColor(R.color.darkerMainColor));
 
         title = getActivity().getTitle().toString();
         getActivity().setTitle(getSelectedTitle());
+
+        ((MainActivity) getActivity()).getToolbar().getMenu().clear();
+        ((MainActivity) getActivity()).getToolbar().inflateMenu(R.menu.action_delete);
     }
 
     private void endMultipleChoiceMode() {
         list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         ((MainActivity) getActivity()).setToolbarBackground(getResources().getColor(R.color.mainColor));
         getActivity().setTitle(title);
+        ((MainActivity) getActivity()).getToolbar().getMenu().clear();
+        onCreateOptionsMenu(((MainActivity) getActivity()).getToolbar().getMenu(), getActivity().getMenuInflater());
     }
 
     @Override
@@ -129,16 +134,6 @@ public class CashFlowListFragment extends Fragment {
         return title + " (" + selected.size() + ")";
     }
 
-    private void selectCategory(int position, View itemView) {
-        selected.add(categories.get(position));
-        itemView.setBackgroundResource(R.drawable.list_item_background_checked);
-    }
-
-    private void unselectCategory(int position, View itemView) {
-        selected.remove(categories.get(position));
-        itemView.setBackgroundResource(R.drawable.list_item_background);
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.action_new, menu);
@@ -148,6 +143,9 @@ public class CashFlowListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_new) {
             startCashFlowDetailsFragment();
+            return true;
+        } else if (item.getItemId() == R.id.menu_delete) {
+            deleteSelectedCashFlows();
             return true;
         }
         return false;
@@ -163,5 +161,15 @@ public class CashFlowListFragment extends Fragment {
         bundle.putLong(CashFlowDetailsContainerFragment.CASH_FLOW_ID, id);
         fragment.setArguments(bundle);
         ((MainActivity) getActivity()).setContentFragment(fragment, true, CashFlowDetailsContainerFragment.TAG);
+    }
+
+    private void deleteSelectedCashFlows() {
+        for (CashFlow cashFlow : selected) {
+            localCashFlowService.deleteById(cashFlow.getId());
+        }
+        cashFlows.removeAll(selected);
+        selected.clear();
+        endMultipleChoiceMode();
+        list.setAdapter(new CashFlowListAdapter(getActivity(), cashFlows));
     }
 }

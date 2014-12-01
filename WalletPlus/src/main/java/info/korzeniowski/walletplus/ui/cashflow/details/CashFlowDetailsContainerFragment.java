@@ -282,7 +282,6 @@ public class CashFlowDetailsContainerFragment extends Fragment {
             this.fragment = fragmentClass;
             this.type = type;
             this.title = title;
-
         }
 
         public Class<? extends CashFlowBaseDetailsFragment> getFragmentClass() {
