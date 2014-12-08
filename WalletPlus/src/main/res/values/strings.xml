@@ -10,8 +10,9 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
-    <string name="income">Income</string>
-    <string name="expanse">Expanse</string>
+    <string name="income">income</string>
+    <string name="expanse">expanse</string>
+    <string name="transfer">transfer</string>
 
     <!-- Navigation drawer -->
     <string name="dashboardMenu">Dashboard</string>
@@ -22,7 +23,6 @@
     <string name="main_drawer_close">Close drawer</string>
 
     <!-- Commons -->
-    <string name="otherCategoryName">Other</string>
     <string name="transferCategoryName">Transfer</string>
 
     <!-- Dashboard fragment -->
@@ -61,13 +61,14 @@
     <string name="cashflowListCommentLabel">Comment:</string>
 
     <!-- Cashflow details fragment -->
-    <string name="cashflowFromWalletLabel">From:</string>
-    <string name="cashflowToWalletLabel">To:</string>
+    <string name="cashFlowFromWalletLabel">From:</string>
+    <string name="cashFlowToWalletLabel">To:</string>
     <string name="cashflowAmountLabel">Amount:</string>
     <string name="cashflowAmountHint">amount</string>
     <string name="cashflowCommentLabel">Comment:</string>
     <string name="cashflowCommentHint">comment</string>
     <string name="cashflowCategoryLabel">Category:</string>
-    <string name="cashflowCategoryHint">Choose category…</string>
+    <string name="cashFlowCategoryHint">Choose category…</string>
     <string name="cashflowCategoryChooseAlertTitle">Choose category:</string>
+    <string name="cashFlowFromAndToWalletsNeedToBeDifferent">From and to wallets need to be different.</string>
 </resources>

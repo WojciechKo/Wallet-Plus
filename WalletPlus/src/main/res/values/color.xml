@@ -6,6 +6,10 @@
 
     <color name="background">#EEEEEE</color>
 
+    <color name="buttonBackground">#3EADEB</color>
+    <color name="buttonTextColor">#4DFFFFFF</color>
+    <color name="buttontextColorDisabled">#42000000</color>
+
     <!--Card colors -->
     <color name="cardShadow">#DBDBDB</color>
     <color name="cardColor">#FFFFFF</color>

@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
 
 import com.google.common.collect.Lists;
@@ -29,7 +28,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsContainerFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsFragment;
 
 /**
  * Fragment with list of cash flows.
@@ -45,7 +44,9 @@ public class CashFlowListFragment extends Fragment {
     CashFlowService localCashFlowService;
 
     private List<CashFlow> cashFlows;
+
     private List<CashFlow> selected;
+
     private String title;
 
     @Override
@@ -86,17 +87,6 @@ public class CashFlowListFragment extends Fragment {
         }
     }
 
-    @OnItemLongClick(R.id.list)
-    boolean listItemLongClicked(int position) {
-        if (list.getChoiceMode() == AbsListView.CHOICE_MODE_SINGLE) {
-            startMultipleChoiceMode(position);
-            KorzeniowskiUtils.Views.performItemClick(list, position);
-        } else if (list.getChoiceMode() == AbsListView.CHOICE_MODE_MULTIPLE) {
-            KorzeniowskiUtils.Views.performItemClick(list, position);
-        }
-        return true;
-    }
-
     private void handleCategorySelect(int position, View itemView) {
         if (selected.contains(cashFlows.get(position))) {
             selected.remove(cashFlows.get(position));
@@ -105,7 +95,18 @@ public class CashFlowListFragment extends Fragment {
         }
     }
 
-    private void startMultipleChoiceMode(int position) {
+    @OnItemLongClick(R.id.list)
+    boolean listItemLongClicked(int position) {
+        if (list.getChoiceMode() == AbsListView.CHOICE_MODE_SINGLE) {
+            startMultipleChoiceMode();
+            KorzeniowskiUtils.Views.performItemClick(list, position);
+        } else if (list.getChoiceMode() == AbsListView.CHOICE_MODE_MULTIPLE) {
+            KorzeniowskiUtils.Views.performItemClick(list, position);
+        }
+        return true;
+    }
+
+    private void startMultipleChoiceMode() {
         list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
         ((MainActivity) getActivity()).setToolbarBackground(getResources().getColor(R.color.darkerMainColor));
 
@@ -152,15 +153,15 @@ public class CashFlowListFragment extends Fragment {
     }
 
     private void startCashFlowDetailsFragment() {
-        ((MainActivity) getActivity()).setContentFragment(new CashFlowDetailsContainerFragment(), true, CashFlowDetailsContainerFragment.TAG);
+        ((MainActivity) getActivity()).setContentFragment(new CashFlowDetailsFragment(), true, CashFlowDetailsFragment.TAG);
     }
 
     private void startCashFlowDetailsFragment(Long id) {
-        Fragment fragment = new CashFlowDetailsContainerFragment();
+        Fragment fragment = new CashFlowDetailsFragment();
         Bundle bundle = new Bundle();
-        bundle.putLong(CashFlowDetailsContainerFragment.CASH_FLOW_ID, id);
+        bundle.putLong(CashFlowDetailsFragment.CASH_FLOW_ID, id);
         fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true, CashFlowDetailsContainerFragment.TAG);
+        ((MainActivity) getActivity()).setContentFragment(fragment, true, CashFlowDetailsFragment.TAG);
     }
 
     private void deleteSelectedCashFlows() {

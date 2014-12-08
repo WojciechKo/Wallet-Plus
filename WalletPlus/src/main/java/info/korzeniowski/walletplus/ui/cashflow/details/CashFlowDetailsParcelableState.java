@@ -3,6 +3,8 @@ package info.korzeniowski.walletplus.ui.cashflow.details;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Calendar;
+
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -18,6 +20,8 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         }
     };
 
+    public static final CashFlow.Type defaultType = CashFlow.Type.INCOME;
+
     private Long id;
     private String amount;
     private String comment = "";
@@ -28,10 +32,41 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     private Category incomeCategory;
     private Category expanseCategory;
     private CashFlow.Type type;
+    private CashFlow.Type previousType;
     private Long date;
 
     public CashFlowDetailsParcelableState() {
+        setDate(Calendar.getInstance().getTimeInMillis());
+        setIncomeCategory(null);
+        setExpanseCategory(null);
+        setType(defaultType);
+        this.previousType = defaultType;
+    }
 
+    public CashFlowDetailsParcelableState(CashFlow cashFlow) {
+        setId(cashFlow.getId());
+        setAmount(cashFlow.getAmount().toString());
+        setComment(cashFlow.getComment());
+        setDate(cashFlow.getDateTime().getTime());
+        setType(cashFlow.getType());
+        this.previousType = defaultType;
+
+        if (getType() == CashFlow.Type.INCOME) {
+            setIncomeCategory(cashFlow.getCategory());
+            setExpanseCategory(null);
+            setIncomeFromWallet(cashFlow.getFromWallet());
+            setIncomeToWallet(cashFlow.getToWallet());
+        } else if (getType() == CashFlow.Type.EXPANSE) {
+            setIncomeCategory(null);
+            setExpanseCategory(cashFlow.getCategory());
+            setExpanseFromWallet(cashFlow.getFromWallet());
+            setExpanseToWallet(cashFlow.getToWallet());
+        } else if (getType() == CashFlow.Type.TRANSFER) {
+            setIncomeCategory(null);
+            setExpanseCategory(null);
+            setExpanseFromWallet(cashFlow.getFromWallet());
+            setIncomeToWallet(cashFlow.getToWallet());
+        }
     }
 
     public CashFlowDetailsParcelableState(Parcel in) {
@@ -46,6 +81,8 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         expanseCategory = in.readParcelable(Category.class.getClassLoader());
         Integer typeOrdinal = (Integer) in.readValue(Integer.class.getClassLoader());
         type = typeOrdinal != null ? CashFlow.Type.values()[typeOrdinal] : null;
+        Integer previousTypeOrdinal = (Integer) in.readValue(Integer.class.getClassLoader());
+        previousType = previousTypeOrdinal != null ? CashFlow.Type.values()[previousTypeOrdinal] : null;
         date = (Long) in.readValue(Long.class.getClassLoader());
     }
 
@@ -66,6 +103,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         dest.writeParcelable(incomeCategory, flags);
         dest.writeParcelable(expanseCategory, flags);
         dest.writeValue(type != null ? type.ordinal() : null);
+        dest.writeValue(previousType != null ? previousType.ordinal() : null);
         dest.writeValue(date);
     }
 
@@ -146,7 +184,14 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     }
 
     public void setType(CashFlow.Type type) {
+        if (getType() != type) {
+            this.previousType = getType();
+        }
         this.type = type;
+    }
+
+    public CashFlow.Type getPreviousType() {
+        return previousType;
     }
 
     public Long getDate() {
