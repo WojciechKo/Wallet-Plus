@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.service.local;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
@@ -21,7 +22,6 @@ public class LocalCashFlowService implements CashFlowService {
     private final Dao<Wallet, Long> walletDao;
     //TODO: zamienić na Service
     private final Dao<Category, Long> categoryDao;
-    private Category other;
     private Category transfer;
 
     @Inject
@@ -146,18 +146,6 @@ public class LocalCashFlowService implements CashFlowService {
     }
 
     @Override
-    public Category getOtherCategory() {
-        try {
-            if (other == null) {
-                other = categoryDao.queryBuilder().where().eq("type", Category.Type.OTHER).queryForFirst();
-            }
-            return other;
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
     public Category getTransferCategory() {
         try {
             if (transfer == null) {
@@ -172,44 +160,79 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long fromWalletId, Long toWalletId) {
         try {
-            boolean isFirst = true;
-            Where<CashFlow, Long> where = cashFlowDao.queryBuilder().where();
+            QueryBuilder<CashFlow, Long> queryBuilder = cashFlowDao.queryBuilder();
+            queryBuilder.setWhere(getWhereList(from, to, categoryId, fromWalletId, toWalletId, queryBuilder));
+            return queryBuilder.query();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    private Where<CashFlow, Long> getWhereList(Date from, Date to, Long categoryId, Long fromWalletId, Long toWalletId, QueryBuilder<CashFlow, Long> queryBuilder) throws SQLException {
+        Where<CashFlow, Long> where = queryBuilder.where();
+        boolean isFirst = true;
+
+        if (from != null) {
+//            if (!isFirst) {
+//                where.and();
+//            }
+            where.ge("dateTime", from);
+            isFirst = false;
+        }
+        if (to != null) {
+            if (!isFirst) {
+                where.and();
+            }
+            where.lt("dateTime", to);
+            isFirst = false;
+        }
+        if (categoryId != null) {
+            if (!isFirst) {
+                where.and();
+            }
+            where.eq("category_id", categoryId);
+            isFirst = false;
+        }
+        if (fromWalletId != null) {
+            if (!isFirst) {
+                where.and();
+            }
+            where.eq("fromWallet_id", fromWalletId);
+            isFirst = false;
+        }
+        if (toWalletId != null) {
+            if (!isFirst) {
+                where.and();
+            }
+            where.eq("toWallet_id", toWalletId);
+//            isFirst = false;
+        }
+
+        return where;
+    }
+
+    @Override
+    public List<CashFlow> findCashFlow(Date from, Date to, Category.Type categoryType, Long fromWalletId, Long toWalletId) {
+        try {
+            QueryBuilder<CashFlow, Long> queryBuilder = cashFlowDao.queryBuilder();
+
             if (from != null) {
-//                if (!isFirst) {
-//                    where.and();
-//                }
-                isFirst = false;
-                where.ge("dateTime", from);
+                queryBuilder.where().ge("dateTime", from);
             }
             if (to != null) {
-                if (!isFirst) {
-                    where.and();
-                }
-                isFirst = false;
-                where.lt("dateTime", to);
+                queryBuilder.where().lt("dateTime", to);
             }
-            if (categoryId != null) {
-                if (!isFirst) {
-                    where.and();
-                }
-                isFirst = false;
-                where.eq("category_id", categoryId);
+            if (categoryType == Category.Type.NO_CATEGORY) {
+                queryBuilder.where().isNull("category_id");
             }
             if (fromWalletId != null) {
-                if (!isFirst) {
-                    where.and();
-                }
-                isFirst = false;
-                where.eq("fromWallet_id", fromWalletId);
+                queryBuilder.where().eq("fromWallet_id", fromWalletId);
             }
             if (toWalletId != null) {
-                if (!isFirst) {
-                    where.and();
-                }
-//                isFirst = false;
-                where.eq("toWallet_id", toWalletId);
+                queryBuilder.where().eq("toWallet_id", toWalletId);
             }
-            return where.query();
+
+            return queryBuilder.query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

@@ -17,13 +17,14 @@ import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.widget.IdentifiableExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
+import info.korzeniowski.walletplus.widget.OnContentLongClickListener;
 
 public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableListAdapter<Category> {
 
     private final List<CategoryService.CategoryStats> stats;
 
-    public CategoryStatsExpandableListAdapter(Context context, List<Category> items, List<CategoryService.CategoryStats> stats, OnContentClickListener onContentClickListener) {
-        super(context, items, R.layout.category_stats_list_item, R.layout.category_stats_list_item, onContentClickListener);
+    public CategoryStatsExpandableListAdapter(Context context, List<Category> items, List<CategoryService.CategoryStats> stats, OnContentClickListener onContentClickListener, OnContentLongClickListener onContentLongClickListener) {
+        super(context, items, R.layout.category_stats_list_item, R.layout.category_stats_list_item, onContentClickListener, onContentLongClickListener);
         this.stats = stats;
     }
 
@@ -37,7 +38,8 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
     @Override
     protected void fillGroupViewWithItem(MyBaseGroupViewHolder baseHolder, Category item, boolean isExpanded) {
         CategoryGroupViewHolder holder = (CategoryGroupViewHolder) baseHolder;
-        holder.categoryName.setTextColor(getContext().getResources().getColor(R.color.black87A));
+        holder.categoryName.setTextColor(getContext().getResources()
+                .getColor(item.getType() == Category.Type.NO_CATEGORY ? R.color.black54A : R.color.black87A));
         holder.categoryName.setText(item.getName());
         holder.categoryName.setTypeface(holder.categoryName.getTypeface(), Typeface.BOLD);
         CategoryService.CategoryStats stats = getStats(item);
@@ -77,6 +79,9 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
         return Iterables.find(stats, new Predicate<CategoryService.CategoryStats>() {
             @Override
             public boolean apply(CategoryService.CategoryStats input) {
+                if (category.getType() == Category.Type.NO_CATEGORY) {
+                    return input.getCategoryId() == null;
+                }
                 return input.getCategoryId().equals(category.getId());
             }
         });

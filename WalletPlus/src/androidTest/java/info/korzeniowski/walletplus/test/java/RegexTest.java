@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import info.korzeniowski.walletplus.ui.cashflow.details.tab.CashFlowBaseDetailsFragment;
+import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsFragment;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -15,7 +15,7 @@ public class RegexTest {
 
     @Test
     public void testDigitRegex() {
-        String regex = CashFlowBaseDetailsFragment.digitRegex;
+        String regex = CashFlowDetailsFragment.digitRegex;
 
         assertThat(".".matches(regex)).isTrue();
         assertThat(".2".matches(regex)).isTrue();

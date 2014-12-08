@@ -51,7 +51,7 @@ public class CategoryStatisticsTest {
 
     @Test
     public void shouldReturnProperCategoryStats() {
-        Category category = new Category().setType(Category.Type.INCOME_EXPENSE).setName("Test category");
+        Category category = new Category().setName("Test category");
         categoryService.insert(category);
         walletService.insert(new Wallet().setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0).setName("Wallet 1"));
         walletService.insert(new Wallet().setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0).setName("Wallet 2"));
@@ -113,7 +113,7 @@ public class CategoryStatisticsTest {
 
     @Test
     public void shouldReturnProperCategoryStatsForMain() {
-        Category mainCategory = new Category().setType(Category.Type.INCOME_EXPENSE).setName("Main category");
+        Category mainCategory = new Category().setName("Main category");
         categoryService.insert(mainCategory);
         Category subCategory = new Category().setParent(mainCategory).setName("Sub category");
         categoryService.insert(subCategory);
@@ -143,7 +143,7 @@ public class CategoryStatisticsTest {
     }
 
     private CategoryService.CategoryStats getCategoryStatsFromCategoryStateList(final Category category, Date yesterday, Period period, Integer iteration) {
-        List<CategoryService.CategoryStats> categoryStatsList = categoryService.getCategoryStateList(yesterday, period, iteration);
+        List<CategoryService.CategoryStats> categoryStatsList = categoryService.getCategoryStatsList(yesterday, period, iteration);
 
         CategoryService.CategoryStats categoryStat = Iterables.find(categoryStatsList, new Predicate<CategoryService.CategoryStats>() {
             @Override

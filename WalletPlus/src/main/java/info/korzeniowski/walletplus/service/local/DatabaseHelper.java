@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -20,7 +21,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 3;
     private Dao<Wallet, Long> walletDao;
     private Dao<Category, Long> categoryDao;
     private Dao<CashFlow, Long> cashFlowDao;
@@ -78,7 +79,43 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
+        if (oldVersion < 2) {
+            removeIncomeExpenseIeCategoryTypes();
+            setNullInsteadOfOtherCategoryInCashFlows();
+            removeOtherCategory();
+        }
+    }
 
+    private void removeIncomeExpenseIeCategoryTypes() {
+        //Remove INCOME EXPENSE INCOME_EXPENSE OTHER type of category
+        try {
+            getCategoryDao().updateRaw("UPDATE category " +
+                    "SET type = NULL " +
+                    "WHERE type IN ('INCOME', 'EXPENSE', 'INCOME_EXPENSE')");
+        } catch (SQLException e) {
+            Log.e(DatabaseHelper.class.getName(), "Can't remove Income, Expense, IncomeExpense Category Type" , e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void setNullInsteadOfOtherCategoryInCashFlows() {
+        try {
+            getCashFlowDao().updateRaw("UPDATE cashflow " +
+                    "SET category_id = NULL " +
+                    "WHERE category_id IN (" + "SELECT id FROM category WHERE type = 'OTHER'" + ")");
+        } catch (SQLException e) {
+            Log.e(DatabaseHelper.class.getName(), "Can't convert OTHER category to NULL value in cashflows.", e);
+            e.printStackTrace();
+        }
+    }
+
+    private void removeOtherCategory() {
+        try {
+            getCategoryDao().executeRawNoArgs("DELETE FROM category WHERE type = 'OTHER'");
+        } catch (SQLException e) {
+            Log.e(DatabaseHelper.class.getName(), "Can't delete OTHER Category.", e);
+            e.printStackTrace();
+        }
     }
 
     @Override

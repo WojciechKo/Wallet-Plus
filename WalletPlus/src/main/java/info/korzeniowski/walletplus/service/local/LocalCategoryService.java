@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.stmt.Where;
 
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -109,33 +108,7 @@ public class LocalCategoryService implements CategoryService {
     @Override
     public List<Category> getMainCategories() {
         try {
-            Where where = categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where();
-            return where.and(
-                    where.isNull("parent_id"),
-                    where.or(
-                            where.eq("type", Category.Type.INCOME),
-                            where.eq("type", Category.Type.INCOME_EXPENSE),
-                            where.eq("type", Category.Type.EXPENSE)
-                    )
-            ).query();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public List<Category> getMainIncomeTypeCategories() {
-        return getMainCategoriesOfType(Category.Type.INCOME);
-    }
-
-    @Override
-    public List<Category> getMainExpenseTypeCategories() {
-        return getMainCategoriesOfType(Category.Type.EXPENSE);
-    }
-
-    private List<Category> getMainCategoriesOfType(final Category.Type type) {
-        try {
-            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().eq("type", type).or().eq("type", Category.Type.INCOME_EXPENSE).query();
+            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().isNull("parent_id").and().isNull("type").query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -249,7 +222,7 @@ public class LocalCategoryService implements CategoryService {
 
 
     @Override
-    public List<CategoryStats> getCategoryStateList(Date firstDay, Period period, Integer iteration) {
+    public List<CategoryStats> getCategoryStatsList(Date firstDay, Period period, Integer iteration) {
         List<Category> categories;
         try {
             categories = categoryDao.queryForAll();
@@ -260,22 +233,20 @@ public class LocalCategoryService implements CategoryService {
 
         List<CashFlow> cashFlowList = getCashFlowList(firstDay, period, iteration);
         for (final CashFlow cashFlow : cashFlowList) {
-            CategoryStats found = findByCategoryId(result, cashFlow.getCategory().getId());
+            CategoryStats found = findByCategory(result, cashFlow.getCategory());
             if (cashFlow.getType() == CashFlow.Type.INCOME) {
                 found.incomeAmount(cashFlow.getAmount());
             } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
                 found.expanseAmount(cashFlow.getAmount());
             }
-            if (cashFlow.getCategory().getParent() != null) {
-                CategoryStats foundParent = findByCategoryId(result, cashFlow.getCategory().getParent().getId());
+            if (cashFlow.getCategory() != null && cashFlow.getCategory().getParent() != null) {
+                CategoryStats foundParent = findByCategory(result, cashFlow.getCategory().getParent());
                 if (cashFlow.getType() == CashFlow.Type.INCOME) {
                     foundParent.incomeAmountFromSub(cashFlow.getAmount());
                 } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
                     foundParent.expanseAmountFromSub(cashFlow.getAmount());
                 }
-
             }
-
         }
         return result;
     }
@@ -286,6 +257,7 @@ public class LocalCategoryService implements CategoryService {
         for (Category category : categories) {
             result.add(new CategoryStats(category.getId()));
         }
+        result.add(new CategoryStats(null));
         return result;
     }
 
@@ -294,16 +266,21 @@ public class LocalCategoryService implements CategoryService {
         checkNotNull(period);
         checkNotNull(iteration);
 
-        Interval interval = KorzeniowskiUtils.Time.getInterval(new DateTime(firstDay), period, iteration);
-        return cashFlowService.findCashFlow(interval.getStart().toDate(), interval.getEnd().toDate(), null, null, null);
+        Interval interval = KorzeniowskiUtils.Times.getInterval(new DateTime(firstDay), period, iteration);
+        return cashFlowService.findCashFlow(interval.getStart().toDate(), interval.getEnd().toDate(), (Long) null, null, null);
     }
 
 
-    private CategoryStats findByCategoryId(List<CategoryStats> list, final Long categoryId) {
+    private CategoryStats findByCategory(List<CategoryStats> list, final Category category) {
         return Iterables.find(list, new Predicate<CategoryStats>() {
             @Override
             public boolean apply(CategoryStats input) {
-                return input.getCategoryId().equals(categoryId);
+                if (category != null) {
+                    return category.getId().equals(input.getCategoryId());
+                } else if (input.getCategoryId() == null) {
+                    return true;
+                }
+                return false;
             }
         });
     }

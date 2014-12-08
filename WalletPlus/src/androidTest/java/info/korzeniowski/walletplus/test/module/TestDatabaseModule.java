@@ -34,7 +34,6 @@ public class TestDatabaseModule {
     public TestDatabaseModule() {
         databaseHelper = new DatabaseHelper(Robolectric.application, null);
         try {
-            databaseHelper.getCategoryDao().create(new Category().setType(Category.Type.OTHER).setName("Other"));
             databaseHelper.getCategoryDao().create(new Category().setType(Category.Type.TRANSFER).setName("Transfer"));
         } catch (SQLException e) {
             e.printStackTrace();

@@ -1,12 +1,16 @@
 package info.korzeniowski.walletplus.ui.category.list;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 
 import org.joda.time.Period;
 
@@ -21,9 +25,12 @@ import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
+import info.korzeniowski.walletplus.widget.OnContentLongClickListener;
 
 public class CategoryListFragment2 extends Fragment {
     public static final String ITERATION = "iteration";
@@ -35,10 +42,12 @@ public class CategoryListFragment2 extends Fragment {
     @Named("local")
     CategoryService localCategoryService;
 
+    @Inject
+    @Named("local")
+    CashFlowService localCashFlowService;
+
     private CategoryListParcelableState categoryListState;
     private int iteration;
-    private List<CategoryService.CategoryStats> categoryStatsList;
-    private List<Category> mainCategories;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,14 +67,7 @@ public class CategoryListFragment2 extends Fragment {
     }
 
     private void setupViews() {
-        initFields();
         setupAdapters();
-    }
-
-    protected void initFields() {
-        Period period = getPeriod(categoryListState.getPeriod());
-        mainCategories = localCategoryService.getMainCategories();
-        categoryStatsList = localCategoryService.getCategoryStateList(categoryListState.getStartDate(), period, iteration);
     }
 
     private Period getPeriod(CategoryListFragmentMain.Period period) {
@@ -88,14 +90,71 @@ public class CategoryListFragment2 extends Fragment {
     }
 
     private CategoryStatsExpandableListAdapter getCategoryListAdapter() {
-        return new CategoryStatsExpandableListAdapter(getActivity(), mainCategories, categoryStatsList, new OnContentClickListener() {
-            @Override
-            public void onContentClick(Long id) {
-                startCategoryDetailsFragment(id);
-            }
-        });
+        return new CategoryStatsExpandableListAdapter(
+                getActivity(),
+                categoryListState.getCategoryList(),
+                getCategoryStatsList(),
+                new OnContentClickListener<Category>() {
+                    @Override
+                    public void onContentClick(Category category) {
+                        if (category.getType() == Category.Type.NO_CATEGORY) {
+                            Toast.makeText(getActivity(), getResources().getString(R.string.categoryNoCategoryClicked), Toast.LENGTH_SHORT).show();
+                        } else {
+                            startCategoryDetailsFragment(category.getId());
+                        }
+                    }
+                },
+                new OnContentLongClickListener<Category>() {
+                    @Override
+                    public void onContentLongClick(Category category) {
+                        if (category.getType() == Category.Type.NO_CATEGORY) {
+                            Toast.makeText(getActivity(), getResources().getString(R.string.categoryNoCategoryClicked), Toast.LENGTH_SHORT).show();
+                        } else {
+                            showDeleteConfirmationAlert(category);
+                        }
+                    }
+                });
     }
 
+    private List<CategoryService.CategoryStats> getCategoryStatsList() {
+        return localCategoryService.getCategoryStatsList(categoryListState.getStartDate(), getPeriod(categoryListState.getPeriod()), iteration);
+    }
+
+    private void showDeleteConfirmationAlert(final Category category) {
+        new AlertDialog.Builder(getActivity())
+                .setMessage(getConfirmationMessage(category))
+                .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        tryDeleteCategory(category);
+                    }
+                })
+                .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .create()
+                .show();
+    }
+
+    private String getConfirmationMessage(Category category) {
+        Integer count = localCashFlowService.findCashFlow(null, null, category.getId(), null, null).size();
+        return "Do you want to delete category:\n" + category.getName() + "\n\n" + count + " cashflows will be assigned to no category.";
+    }
+
+
+    private void tryDeleteCategory(Category category) {
+        try {
+            localCategoryService.deleteById(category.getId());
+            categoryListState.getCategoryList().remove(category);
+            list.setAdapter(getCategoryListAdapter());
+        } catch (CategoryHaveSubsException e) {
+            //TODO: alert if delete with subs
+            Toast.makeText(getActivity(), R.string.categoryCantDeleteCategoryWithSubs, Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void startCategoryDetailsFragment(Long id) {
         Fragment fragment = new CategoryDetailsFragment();

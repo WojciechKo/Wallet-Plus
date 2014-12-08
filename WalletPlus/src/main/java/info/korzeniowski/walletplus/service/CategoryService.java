@@ -13,17 +13,13 @@ public interface CategoryService extends BaseService<Category> {
 
     List<Category> getMainCategories();
 
-    List<Category> getMainIncomeTypeCategories();
-
-    List<Category> getMainExpenseTypeCategories();
-
     List<Category> getSubCategoriesOf(final Long id);
 
     void deleteByIdWithSubcategories(final Long id);
 
     public CategoryStats getCategoryStats(Category category, Date firstDay, Period period, Integer iteration);
 
-    public List<CategoryStats> getCategoryStateList(Date firstDay, Period period, Integer iteration);
+    public List<CategoryStats> getCategoryStatsList(Date firstDay, Period period, Integer iteration);
 
     public class CategoryStats {
         private Long categoryId;

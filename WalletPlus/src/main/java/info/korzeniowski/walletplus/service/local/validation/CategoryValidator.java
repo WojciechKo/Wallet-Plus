@@ -33,7 +33,7 @@ public class CategoryValidator implements Validator<Category> {
     }
 
     private void validateInsertMain(Category category) {
-        validateIfCategoryTypeIsNotNullOrEmpty(category);
+
     }
 
     private void validateInsertSub(Category category) {
@@ -86,7 +86,6 @@ public class CategoryValidator implements Validator<Category> {
     }
 
     private void validateUpdateSubToMain(Category newValue, Category toUpdate) {
-        validateIfCategoryTypeIsNotNullOrEmpty(newValue);
     }
 
     private void validateSubToSub(Category newValue) {
@@ -117,12 +116,6 @@ public class CategoryValidator implements Validator<Category> {
             return;
         }
         throw new SubCategoryCantHaveTypeException();
-    }
-
-    private void validateIfCategoryTypeIsNotNullOrEmpty(Category category) {
-        if (category.getType() == null) {
-            throw new EntityPropertyCannotBeNullOrEmptyException(Category.class.getSimpleName(), "Type");
-        }
     }
 
     private boolean isMainCategory(final Long id) {

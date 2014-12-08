@@ -18,8 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 
@@ -38,12 +36,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
-
-    @InjectView(R.id.toolbarTitle)
-    TextView toolbarTitle;
-
-    @InjectView(R.id.toolbarSubtitle)
-    Spinner toolbarSubtitle;
 
     @Inject
     DrawerListAdapter drawerListAdapter;
@@ -72,9 +64,8 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     void setupViews() {
-        setTitle(null);
-        toolbarTitle.setText(state.getAppName());
         setSupportActionBar(toolbar);
+        setTitle(state.getAppName());
         drawerToggle = new MainActivityDrawerToggle();
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         drawerLayout.setDrawerListener(drawerToggle);
@@ -91,13 +82,12 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
             fragmentTransaction.replace(R.id.content_frame, lastFragment, state.getFragmentTag());
             fragmentTransaction.commit();
         } else {
-            drawerItemClicked(state.getSelectedDrawerPosition());
+            setSelectedDrawerItem(state.getSelectedDrawerPosition());
         }
 
         drawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                state.setSelectedDrawerPosition(position);
                 drawerItemClicked(position);
             }
         });
@@ -154,13 +144,19 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     void drawerItemClicked(int position) {
+        if (state.getSelectedDrawerPosition() != position) {
+            setSelectedDrawerItem(position);
+        }
+        drawerLayout.closeDrawer(drawer);
+    }
+
+    private void setSelectedDrawerItem(int position) {
+        state.setSelectedDrawerPosition(position);
         drawerListAdapter.setSelected(position);
         MainDrawerItem selectedMainDrawerItem = drawerListAdapter.getItem(position);
         setContentFragment(selectedMainDrawerItem.getFragment(), false, selectedMainDrawerItem.getTag());
-        drawer.setItemChecked(position, true);
         state.setSelectedFragmentTitle(selectedMainDrawerItem.getTitle());
         state.setFragmentTag(selectedMainDrawerItem.getTag());
-        drawerLayout.closeDrawer(drawer);
     }
 
     public void setContentFragment(Fragment fragment, Boolean addToBackStack, String tag) {
@@ -211,25 +207,34 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         super.onDestroy();
     }
 
+    public void setToolbarBackground(int color) {
+        toolbar.setBackgroundColor(color);
+    }
+
+    public Toolbar getToolbar() {
+        return toolbar;
+    }
+
     private class MainActivityDrawerToggle extends ActionBarDrawerToggle {
         MainActivityDrawerToggle() {
             super(MainActivity.this,
                     drawerLayout,
                     toolbar,
-                    R.string.main_drawer_open,
-                    R.string.main_drawer_close);
+                    R.string.appName,
+                    R.string.appName);
         }
 
         @Override
         public void onDrawerOpened(View drawerView) {
-            toolbarTitle.setText(state.getAppName());
+            state.setSelectedFragmentTitle(getTitle().toString());
+            setTitle(state.getAppName());
             super.onDrawerOpened(drawerView);
             MainActivity.this.invalidateOptionsMenu();
         }
 
         @Override
         public void onDrawerClosed(View drawerView) {
-            toolbarTitle.setText(state.getSelectedFragmentTitle());
+            setTitle(state.getSelectedFragmentTitle());
             super.onDrawerClosed(drawerView);
             MainActivity.this.invalidateOptionsMenu();
         }

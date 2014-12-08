@@ -13,7 +13,7 @@ import java.util.List;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Identityable;
 
-public abstract class IdentifiableListAdapter<T extends Identityable> extends BaseAdapter{
+public abstract class IdentifiableListAdapter<T extends Identityable> extends BaseAdapter {
 
     private final Context context;
     private final List<T> items;

@@ -1,12 +1,15 @@
 package info.korzeniowski.walletplus;
 
+import android.view.View;
+import android.widget.ListView;
+
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
 public class KorzeniowskiUtils {
-    public static class Time {
+    public static class Times {
         public static Interval getInterval(DateTime firstDay, Period period, Integer iteration) {
             DateTime firstDayArg;
             if (iteration <= 0) {
@@ -23,4 +26,21 @@ public class KorzeniowskiUtils {
         }
     }
 
+    public static class Views {
+        public static View getViewByPosition(ListView listView, int pos) {
+            final int firstListItemPosition = listView.getFirstVisiblePosition();
+            final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+            if (pos < firstListItemPosition || pos > lastListItemPosition) {
+                return listView.getAdapter().getView(pos, null, listView);
+            } else {
+                final int childIndex = pos - firstListItemPosition;
+                return listView.getChildAt(childIndex);
+            }
+        }
+
+        public static void performItemClick(ListView list, int position) {
+            list.performItemClick(list.getChildAt(position), position, list.getAdapter().getItemId(position));
+        }
+    }
 }

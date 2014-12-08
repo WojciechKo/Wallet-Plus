@@ -69,13 +69,6 @@ public class CategoryValidatorTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenInsertMainCategoryWithoutType() {
-        exception.expect(EntityPropertyCannotBeNullOrEmptyException.class);
-        exception.expectMessage("Type");
-        categoryService.insert(getSimpleMainIncomeCategory().setType(null));
-    }
-
-    @Test
     public void shouldThrowExceptionWhenInsertWithDuplicatedId() {
         Category toInsert = getSimpleMainIncomeCategory();
         when(validatorService.findById(toInsert.getId())).thenReturn(toInsert);
@@ -132,13 +125,13 @@ public class CategoryValidatorTest {
      * *******************
      */
     @Test
-    public void shouldUpdateNameAndTypeOfMainCategory() {
+    public void shouldUpdateNameOfMainCategory() {
         Category category = getSimpleMainIncomeCategory();
         String newName = "NewName";
         when(validatorService.findById(category.getId())).thenReturn(category);
         when(validatorService.findByName(newName)).thenReturn(null);
 
-        categoryService.update(category.setName(newName).setType(Category.Type.EXPENSE));
+        categoryService.update(category.setName(newName));
     }
 
     @Test
@@ -178,7 +171,6 @@ public class CategoryValidatorTest {
         UUID id = UUID.randomUUID();
         return new Category()
                 .setName("Simple category-" + id.getMostSignificantBits())
-                .setType(Category.Type.INCOME)
                 .setId(id.getMostSignificantBits());
     }
 }

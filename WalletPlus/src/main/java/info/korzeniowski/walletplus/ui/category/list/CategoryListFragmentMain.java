@@ -7,13 +7,11 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-
-import com.google.common.collect.Lists;
 
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -22,6 +20,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -29,9 +28,13 @@ import javax.inject.Named;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.KorzeniowskiUtils;
+import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 
 public class CategoryListFragmentMain extends Fragment {
     public static final String TAG = "CategoryListFragmentMain";
@@ -47,8 +50,10 @@ public class CategoryListFragmentMain extends Fragment {
     @Named("local")
     CategoryService localCategoryService;
 
-    private Spinner spinner;
-    private CategoryListPagerAdapter pagerAdapter;
+    @Inject
+    @Named("local")
+    CashFlowService localCashFlowService;
+
     private CategoryListParcelableState categoryListState;
 
     @Override
@@ -56,6 +61,7 @@ public class CategoryListFragmentMain extends Fragment {
         super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
         categoryListState = initOrRestoreState(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     private CategoryListParcelableState initOrRestoreState(Bundle savedInstanceState) {
@@ -72,45 +78,66 @@ public class CategoryListFragmentMain extends Fragment {
     }
 
     private CategoryListParcelableState initState() {
-        CategoryListParcelableState state = new CategoryListParcelableState(Period.WEEK);
-        return state;
+        return new CategoryListParcelableState(Period.WEEK, getMainCategories());
+    }
+
+    private boolean isAnyCashflowWithoutCategoryExists() {
+        return !localCashFlowService.findCashFlow(null, null, Category.Type.NO_CATEGORY, null, null).isEmpty();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.category_main_layout, container, false);
         ButterKnife.inject(this, view);
+        updateCategoryListState(categoryListState);
         setupViews();
         return view;
     }
 
+    private void updateCategoryListState(CategoryListParcelableState state) {
+        state.setCategoryList(getMainCategories());
+    }
+
+    private List<Category> getMainCategories() {
+        List<Category> mainCategories = localCategoryService.getMainCategories();
+
+        if (isAnyCashflowWithoutCategoryExists()) {
+            mainCategories.add(new Category()
+                    .setType(Category.Type.NO_CATEGORY)
+                    .setName(getString(R.string.categoryNoCategoryName))
+                    .setId(UUID.randomUUID().getMostSignificantBits()));
+        }
+
+        return mainCategories;
+    }
+
     public void setupViews() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.category_type_spinner_item, CategoryType.valuesString());
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        spinner = (Spinner) getActivity().findViewById(R.id.toolbarSubtitle);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                selectedType = CategoryType.values()[position];
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        spinner.setVisibility(View.VISIBLE);
-
-        pagerAdapter = new CategoryListPagerAdapter();
+        CategoryListPagerAdapter pagerAdapter = new CategoryListPagerAdapter();
         pager.setAdapter(pagerAdapter);
-
         pager.setOnPageChangeListener(pagerAdapter);
+
         tabs.setTextColor(getResources().getColor(R.color.white));
         tabs.setBackgroundColor(getResources().getColor(R.color.mainColor));
         tabs.setTabIndicatorColor(getResources().getColor(R.color.lightMainColor));
         pager.setCurrentItem(pager.getAdapter().getCount() / 2);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.action_new, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_new) {
+            startCategoryDetailsFragment();
+            return true;
+        }
+        return false;
+    }
+
+    private void startCategoryDetailsFragment() {
+        ((MainActivity) getActivity()).setContentFragment(new CategoryDetailsFragment(), true, CategoryDetailsFragment.TAG);
     }
 
     private class CategoryListPagerAdapter extends FragmentStatePagerAdapter implements ViewPager.OnPageChangeListener {
@@ -152,10 +179,9 @@ public class CategoryListFragmentMain extends Fragment {
             org.joda.time.Period period = getPeriodInJoda(categoryListState.getPeriod());
             int iteration = getIterationFromPosition(position);
 
-            Interval interval = KorzeniowskiUtils.Time.getInterval(new DateTime(fromDate), period, iteration);
+            Interval interval = KorzeniowskiUtils.Times.getInterval(new DateTime(fromDate), period, iteration);
             return getPageTitle(interval);
         }
-
 
         private int getIterationFromPosition(int position) {
             return offsetOfCentralPosition + position - getCount() / 2;
@@ -276,20 +302,6 @@ public class CategoryListFragmentMain extends Fragment {
             int getIndex() {
                 return index;
             }
-        }
-    }
-
-    public enum CategoryType {
-        INCOME,
-        EXPANSE,
-        BOTH;
-
-        public static List<String> valuesString() {
-            List<String> result = Lists.newArrayListWithCapacity(CategoryType.values().length);
-            for (CategoryType type : CategoryType.values()) {
-                result.add(type.name().toLowerCase());
-            }
-            return result;
         }
     }
 

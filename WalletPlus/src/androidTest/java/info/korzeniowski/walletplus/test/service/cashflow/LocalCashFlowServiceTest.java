@@ -59,14 +59,13 @@ public class LocalCashFlowServiceTest {
         walletService.insert(to);
         double fromCurrentAmount = walletService.findById(from.getId()).getCurrentAmount();
         double toCurrentAmount = walletService.findById(to.getId()).getCurrentAmount();
-        categoryService.insert(new Category().setType(Category.Type.OTHER).setName("Other"));
+        categoryService.insert(new Category().setName("Other"));
 
         CashFlow cashFlow = new CashFlow()
                 .setAmount(amount)
                 .setDateTime(new Date())
                 .setFromWallet(from)
-                .setToWallet(to)
-                .setCategory(cashFlowService.getOtherCategory());
+                .setToWallet(to);
         cashFlowService.insert(cashFlow);
 
         assertThat(walletService.findById(from.getId()).getCurrentAmount()).isEqualTo(fromCurrentAmount - amount);
@@ -77,38 +76,38 @@ public class LocalCashFlowServiceTest {
     public void shouldFilterCashFlows() {
         Wallet myWallet = new Wallet().setName("from").setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0);
         Wallet to = new Wallet().setName("to").setType(Wallet.Type.CONTRACTOR).setInitialAmount(0.0);
-        Category category = new Category().setType(Category.Type.INCOME_EXPENSE).setName("Category");
+        Category category = new Category().setName("Category");
 
         walletService.insert(myWallet);
         walletService.insert(to);
-        categoryService.insert(new Category().setType(Category.Type.OTHER).setName("Other"));
+        categoryService.insert(new Category().setName("Other"));
         categoryService.insert(category);
 
         DateTime now = DateTime.now();
         cashFlowService.insert(new CashFlow().setDateTime(now.minusDays(1).toDate()).setAmount(50.0).setCategory(category).setFromWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.minusDays(1).toDate()).setAmount(10.0).setCategory(cashFlowService.getOtherCategory()).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(15.0).setCategory(cashFlowService.getOtherCategory()).setFromWallet(myWallet));
+        cashFlowService.insert(new CashFlow().setDateTime(now.minusDays(1).toDate()).setAmount(10.0).setToWallet(myWallet));
+        cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(15.0).setFromWallet(myWallet));
         cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(80.0).setCategory(category).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(94.0).setCategory(cashFlowService.getOtherCategory()).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(500.0).setCategory(cashFlowService.getOtherCategory()).setToWallet(myWallet));
+        cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(94.0).setToWallet(myWallet));
+        cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(500.0).setToWallet(myWallet));
         cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(600.0).setCategory(category).setFromWallet(myWallet));
         cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(900.0).setCategory(category).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(800.0).setCategory(cashFlowService.getOtherCategory()).setToWallet(myWallet));
+        cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(800.0).setToWallet(myWallet));
 
 
         assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), category.getId(), null, null)).hasSize(4);
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), null, myWallet.getId(), null)).hasSize(3);
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), null, null, myWallet.getId())).hasSize(6);
+        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), (Long) null, myWallet.getId(), null)).hasSize(3);
+        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), (Long) null, null, myWallet.getId())).hasSize(6);
         assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), category.getId(), null, myWallet.getId())).hasSize(2);
 
-        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), category.getId(), null, null)).hasSize(3);
-        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), null, myWallet.getId(), null)).hasSize(2);
-        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), null, null, myWallet.getId())).hasSize(5);
+        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), category.getId(), (Long) null, null)).hasSize(3);
+        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), (Long) null, myWallet.getId(), null)).hasSize(2);
+        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), (Long) null, null, myWallet.getId())).hasSize(5);
         assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), category.getId(), null, myWallet.getId())).hasSize(2);
 
         assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(1).toDate(), category.getId(), null, null)).hasSize(2);
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(1).toDate(), null, myWallet.getId(), null)).hasSize(2);
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(1).toDate(), null, null, myWallet.getId())).hasSize(3);
+        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(1).toDate(), (Long) null, myWallet.getId(), null)).hasSize(2);
+        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(1).toDate(), (Long) null, null, myWallet.getId())).hasSize(3);
         assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(1).toDate(), category.getId(), null, myWallet.getId())).hasSize(1);
     }
 }
