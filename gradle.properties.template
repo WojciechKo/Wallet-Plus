@@ -1,0 +1,4 @@
+signingKeyAlias=MyKeyAlias
+signingStorePassword=myKeyStorePassword
+signingKeyPassword=myKeyPassword
+signingStoreFile=/home/myHome/dev/myAndroidKey

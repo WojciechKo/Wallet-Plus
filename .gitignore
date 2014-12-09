@@ -3,5 +3,5 @@
 *.iml
 **/build/
 *.log
-local.properties
-
+*.properties
+*~
