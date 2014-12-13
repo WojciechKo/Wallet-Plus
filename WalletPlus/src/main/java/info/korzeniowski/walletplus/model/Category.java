@@ -60,7 +60,7 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
         id = in.readLong();
         parent = in.readParcelable(Category.class.getClassLoader());
         name = in.readString();
-        type = Type.values()[in.readInt()];
+        type = (Type) in.readValue(Type.class.getClassLoader());
     }
 
     @Override
@@ -73,7 +73,7 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
         dest.writeLong(id);
         dest.writeParcelable(parent, flags);
         dest.writeString(name);
-        dest.writeInt(type.ordinal());
+        dest.writeValue(type);
     }
 
     @Override
