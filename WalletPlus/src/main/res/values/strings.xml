@@ -12,9 +12,13 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
-    <string name="income">income</string>
-    <string name="expanse">expanse</string>
-    <string name="transfer">transfer</string>
+    <string name="income">Income</string>
+    <string name="expanse">Expanse</string>
+    <string name="transfer">Transfer</string>
+
+    <string name="divider">Divider</string>
+    <string name="groupIndicator">Group indicator</string>
+    <string name="removeCategory">Remove category</string>
 
     <!-- Navigation drawer -->
     <string name="dashboardMenu">Dashboard</string>
@@ -26,9 +30,6 @@
 
     <string name="newAccount">New account</string>
     <string name="accountLinkWithGoogle">Link with Google</string>
-
-    <!-- Commons -->
-    <string name="transferCategoryName">Transfer</string>
 
     <!-- Dashboard fragment -->
     <string name="totalAmountLabel">Total:</string>
@@ -73,7 +74,6 @@
     <string name="cashflowCommentLabel">Comment:</string>
     <string name="cashflowCommentHint">comment</string>
     <string name="cashflowCategoryLabel">Category:</string>
-    <string name="cashFlowCategoryHint">Choose category…</string>
     <string name="cashflowCategoryChooseAlertTitle">Choose category:</string>
     <string name="cashFlowFromAndToWalletsNeedToBeDifferent">From and to wallets need to be different.</string>
 </resources>

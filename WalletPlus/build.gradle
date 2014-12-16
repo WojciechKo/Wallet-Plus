@@ -27,18 +27,16 @@ android {
     buildToolsVersion '21.1.1'
 
     defaultConfig {
-        versionCode 12
-
-        versionName "2.0"
+        versionCode 1
+        versionName "0.1"
         applicationId 'info.korzeniowski.walletplus'
 
-        minSdkVersion 14
+        minSdkVersion 17
         targetSdkVersion 21
     }
 
     lintOptions {
         abortOnError false
-        disable 'InvalidPackage'
     }
 
     packagingOptions {
@@ -96,6 +94,7 @@ dependencies {
     compile "com.android.support:recyclerview-v7:$androidSupportVersion"
 
     //Google Drive API
+    //noinspection GradleDynamicVersion
     compile 'com.google.android.gms:play-services:6.5.+'
 
     // OrmLite

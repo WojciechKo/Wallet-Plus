@@ -70,7 +70,7 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
         getCategoryDao().create(
                 new Category()
                         .setType(Category.Type.TRANSFER)
-                        .setName(walletPlus.get().getString(R.string.transferCategoryName)));
+                        .setName(walletPlus.get().getString(R.string.transfer)));
     }
 
     @Override
