@@ -552,7 +552,7 @@ public class CashFlowDetailsFragment extends Fragment {
         WeakReference<Context> context;
 
         private WalletAdapter(Context context, List<Wallet> list) {
-            this.context = new WeakReference<Context>(context);
+            this.context = new WeakReference<>(context);
             wallets = list;
         }
 

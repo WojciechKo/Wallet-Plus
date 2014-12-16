@@ -70,7 +70,7 @@ public class WalletPlus extends Application {
     }
 
     protected List<Object> getModules() {
-        List<Object> modules = new ArrayList<Object>();
+        List<Object> modules = new ArrayList<>();
         modules.add(new MainModule(this));
         modules.add(new DatabaseModule(this));
         return modules;

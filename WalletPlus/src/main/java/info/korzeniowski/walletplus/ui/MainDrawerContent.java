@@ -23,7 +23,7 @@ public class MainDrawerContent {
 
     @Inject
     public MainDrawerContent(Context context) {
-        mainDrawerItems = new LinkedList<MainDrawerItem>();
+        mainDrawerItems = new LinkedList<>();
 
         mainDrawerItems.add(
                 new MainDrawerItem(
