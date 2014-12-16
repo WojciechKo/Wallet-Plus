@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 import dagger.ObjectGraph;
+import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
 
 public class TestWalletPlus extends WalletPlus {
@@ -46,5 +47,10 @@ public class TestWalletPlus extends WalletPlus {
         }
 
         graph = ObjectGraph.create(getModules().toArray());
+    }
+
+    @Override
+    public Account getCurrentAccount() {
+        return new Account().setName("Test Account").setDatabaseFileName("Test Account.db");
     }
 }

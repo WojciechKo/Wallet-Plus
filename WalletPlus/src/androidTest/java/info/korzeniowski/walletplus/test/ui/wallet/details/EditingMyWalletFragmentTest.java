@@ -87,7 +87,7 @@ public class EditingMyWalletFragmentTest {
     }
 
     private void selectWalletSection(ActionBarActivity activity) {
-        ListView menuList = (ListView) activity.findViewById(R.id.drawer);
+        ListView menuList = (ListView) activity.findViewById(R.id.drawerList);
         Robolectric.shadowOf(menuList).performItemClick(3);
     }
 

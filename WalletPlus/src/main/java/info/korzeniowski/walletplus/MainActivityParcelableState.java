@@ -6,7 +6,6 @@ import android.os.Parcelable;
 public class MainActivityParcelableState implements Parcelable {
     public static final String TAG = "mainActivityState";
 
-    private String appName;
     private String selectedFragmentTitle;
     private String fragmentTag;
     private int selectedDrawerPosition;
@@ -26,7 +25,6 @@ public class MainActivityParcelableState implements Parcelable {
     }
 
     public MainActivityParcelableState(Parcel in) {
-        appName = in.readString();
         selectedFragmentTitle = in.readString();
         fragmentTag = in.readString();
         selectedDrawerPosition = in.readInt();
@@ -39,18 +37,9 @@ public class MainActivityParcelableState implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(appName);
         dest.writeString(selectedFragmentTitle);
         dest.writeString(fragmentTag);
         dest.writeInt(selectedDrawerPosition);
-    }
-
-    public String getAppName() {
-        return appName;
-    }
-
-    public void setAppName(String appName) {
-        this.appName = appName;
     }
 
     public String getSelectedFragmentTitle() {

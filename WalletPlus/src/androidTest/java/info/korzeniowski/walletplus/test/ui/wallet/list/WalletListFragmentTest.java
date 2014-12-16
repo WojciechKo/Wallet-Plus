@@ -53,7 +53,7 @@ public class WalletListFragmentTest {
         ((TestWalletPlus) Robolectric.application.getApplicationContext()).inject(this);
 
         activity = Robolectric.buildActivity(MainActivity.class).create().start().resume().get();
-        ListView menuList = (ListView) activity.findViewById(R.id.drawer);
+        ListView menuList = (ListView) activity.findViewById(R.id.drawerList);
         Robolectric.shadowOf(menuList).performItemClick(3);
 
         fragment = (WalletListFragment) activity.getSupportFragmentManager().findFragmentByTag(WalletListFragment.TAG);

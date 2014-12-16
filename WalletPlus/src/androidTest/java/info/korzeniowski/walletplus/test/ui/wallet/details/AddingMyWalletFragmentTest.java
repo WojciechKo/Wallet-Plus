@@ -14,8 +14,6 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.tester.android.view.TestMenuItem;
-import org.robolectric.util.ActivityController;
-import org.robolectric.util.FragmentTestUtil;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -70,7 +68,7 @@ public class AddingMyWalletFragmentTest {
         ((TestWalletPlus) Robolectric.application).inject(this);
 
         ActionBarActivity activity = Robolectric.buildActivity(MainActivity.class).create().start().resume().get();
-        ListView menuList = (ListView) activity.findViewById(R.id.drawer);
+        ListView menuList = (ListView) activity.findViewById(R.id.drawerList);
         Robolectric.shadowOf(menuList).performItemClick(3);
         Fragment walletList = activity.getSupportFragmentManager().findFragmentByTag(WalletListFragment.TAG);
         walletList.onOptionsItemSelected(new TestMenuItem(R.id.menu_new));

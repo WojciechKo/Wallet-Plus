@@ -9,33 +9,53 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 
 /**
  * Adapter for items from Main Drawer Menu
  */
-public class DrawerListAdapter extends BaseAdapter {
+public class DrawerMenuAdapter extends BaseAdapter {
 
-    @Inject
-    MainDrawerContent mainDrawerContent;
+    private MainDrawerContent mainDrawerContent;
+    private WeakReference<Context> context;
+    private int selected = -1;
 
-    @Inject
-    Context context;
-    private int selected;
+    public DrawerMenuAdapter(Context context, MainDrawerContent mainDrawerContent) {
+        this.mainDrawerContent = mainDrawerContent;
+        this.context = new WeakReference<>(context);
+    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.main_drawer_item, parent, false);
+            convertView = LayoutInflater.from(context.get()).inflate(R.layout.main_drawer_item, parent, false);
             holder = createHolder(convertView);
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
-        fillViewWithItem(holder, getItem(position));
+        fillViewWithItem(holder, position);
+        return convertView;
+    }
+
+    private ViewHolder createHolder(View convertView) {
+        ViewHolder holder = new ViewHolder();
+
+        ButterKnife.inject(holder, convertView);
+
+        convertView.setTag(holder);
+        return holder;
+    }
+
+    private void fillViewWithItem(ViewHolder holder, int position) {
+        MainDrawerItem item = getItem(position);
+        holder.menuName.setText(item.getTitle());
+        holder.menuName.setCompoundDrawablesWithIntrinsicBounds(item.getIcon(), 0, 0, 0);
 
         if (position == selected) {
             holder.menuName.setTextColor(Color.parseColor("#2e7d32"));
@@ -44,22 +64,6 @@ public class DrawerListAdapter extends BaseAdapter {
             holder.menuName.setTextColor((Color.parseColor("#424242")));
             holder.menuName.setTypeface(null, Typeface.NORMAL);
         }
-
-        return convertView;
-    }
-
-    private ViewHolder createHolder(View convertView) {
-        ViewHolder holder = new ViewHolder();
-
-        holder.menuName = (TextView) convertView;
-
-        convertView.setTag(holder);
-        return holder;
-    }
-
-    private void fillViewWithItem(ViewHolder holder, MainDrawerItem item) {
-        holder.menuName.setText(item.getTitle());
-        holder.menuName.setCompoundDrawablesWithIntrinsicBounds(item.getIcon(), 0, 0, 0);
     }
 
     @Override
@@ -77,12 +81,13 @@ public class DrawerListAdapter extends BaseAdapter {
         return position;
     }
 
-    private class ViewHolder {
-        private TextView menuName;
-    }
-
     public void setSelected(int position) {
         this.selected = position;
         notifyDataSetChanged();
+    }
+
+    static class ViewHolder {
+        @InjectView(R.id.menu_name)
+        TextView menuName;
     }
 }

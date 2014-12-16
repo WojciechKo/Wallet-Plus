@@ -108,7 +108,7 @@ public class CashFlowListFragment extends Fragment {
 
     private void startMultipleChoiceMode() {
         list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-        ((MainActivity) getActivity()).setToolbarBackground(getResources().getColor(R.color.darkerMainColor));
+        ((MainActivity) getActivity()).getToolbar().setBackgroundColor(getResources().getColor(R.color.darkerMainColor));
 
         title = getActivity().getTitle().toString();
         getActivity().setTitle(getSelectedTitle());
@@ -119,7 +119,7 @@ public class CashFlowListFragment extends Fragment {
 
     private void endMultipleChoiceMode() {
         list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-        ((MainActivity) getActivity()).setToolbarBackground(getResources().getColor(R.color.mainColor));
+        ((MainActivity) getActivity()).getToolbar().setBackgroundColor(getResources().getColor(R.color.mainColor));
         getActivity().setTitle(title);
         ((MainActivity) getActivity()).getToolbar().getMenu().clear();
         onCreateOptionsMenu(((MainActivity) getActivity()).getToolbar().getMenu(), getActivity().getMenuInflater());
@@ -127,7 +127,7 @@ public class CashFlowListFragment extends Fragment {
 
     @Override
     public void onStop() {
-        ((MainActivity) getActivity()).setToolbarBackground(getResources().getColor(R.color.mainColor));
+        ((MainActivity) getActivity()).getToolbar().setBackgroundColor(getResources().getColor(R.color.mainColor));
         super.onStop();
     }
 
