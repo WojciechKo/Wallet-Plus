@@ -214,8 +214,8 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     class ParentCategoryAdapter extends BaseAdapter {
-        private Context context;
-        private List<Category> mainCategories;
+        private final Context context;
+        private final List<Category> mainCategories;
 
         ParentCategoryAdapter(Context context, List<Category> mainCategories) {
             mainCategories.add(0, new Category().setName(context.getString(R.string.categoryNoParentSelected)));

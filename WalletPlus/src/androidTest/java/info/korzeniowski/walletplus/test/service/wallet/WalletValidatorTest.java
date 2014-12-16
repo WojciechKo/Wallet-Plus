@@ -25,12 +25,12 @@ import static org.mockito.Mockito.mock;
 @RunWith(RobolectricTestRunner.class)
 public class WalletValidatorTest {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Inject
     @Named("local")
-    public WalletService walletService;
+    WalletService walletService;
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Before
     public void setUp() {

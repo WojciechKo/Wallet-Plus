@@ -20,8 +20,8 @@ import info.korzeniowski.walletplus.R;
  */
 public class DrawerMenuAdapter extends BaseAdapter {
 
-    private MainDrawerContent mainDrawerContent;
-    private WeakReference<Context> context;
+    private final MainDrawerContent mainDrawerContent;
+    private final WeakReference<Context> context;
     private int selected = -1;
 
     public DrawerMenuAdapter(Context context, MainDrawerContent mainDrawerContent) {

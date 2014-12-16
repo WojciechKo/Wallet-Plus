@@ -58,12 +58,12 @@ public class WalletListAdapter extends IdentifiableListAdapter<Wallet> {
 
     public class WalletViewHolder extends MyBaseViewHolder {
         @InjectView(R.id.walletName)
-        protected TextView walletName;
+        TextView walletName;
 
         @InjectView(R.id.currentAmount)
-        protected TextView currentAmount;
+        TextView currentAmount;
 
         @InjectView(R.id.deleteButton)
-        protected Button delete;
+        Button delete;
     }
 }

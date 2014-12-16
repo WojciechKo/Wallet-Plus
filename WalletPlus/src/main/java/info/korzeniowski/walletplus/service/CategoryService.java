@@ -22,7 +22,7 @@ public interface CategoryService extends BaseService<Category> {
     public List<CategoryStats> getCategoryStatsList(Date firstDay, Period period, Integer iteration);
 
     public class CategoryStats {
-        private Long categoryId;
+        private final Long categoryId;
         private Double income;
         private Double expense;
         private Double totalIncome;

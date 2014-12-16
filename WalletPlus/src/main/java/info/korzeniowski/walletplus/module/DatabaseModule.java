@@ -2,6 +2,7 @@ package info.korzeniowski.walletplus.module;
 
 import com.j256.ormlite.dao.Dao;
 
+import java.lang.ref.WeakReference;
 import java.sql.SQLException;
 
 import javax.inject.Named;
@@ -58,22 +59,22 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
 )
 public class DatabaseModule {
 
-    private WalletPlus application;
+    private final WeakReference<WalletPlus> application;
 
     public DatabaseModule(WalletPlus application) {
-        this.application = application;
+        this.application = new WeakReference<>(application);
     }
 
     @Provides
     @Singleton
     public MainDatabaseHelper provideMainDatabaseHelper() {
-        return new MainDatabaseHelper(application);
+        return new MainDatabaseHelper(application.get());
     }
 
     @Provides
     @Singleton
     public UserDatabaseHelper provideDatabaseHelper() {
-        return new UserDatabaseHelper(application);
+        return new UserDatabaseHelper(application.get());
     }
 
     /**

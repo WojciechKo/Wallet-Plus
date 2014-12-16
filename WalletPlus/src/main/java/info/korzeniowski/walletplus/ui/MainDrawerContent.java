@@ -27,7 +27,7 @@ public class MainDrawerContent {
 
         mainDrawerItems.add(
                 new MainDrawerItem(
-                        context.getString(R.string.appName),
+                        context.getString(R.string.dashboardMenu),
                         R.drawable.ic_menu_dashboard,
                         DashboardFragment.class,
                         DashboardFragment.TAG));

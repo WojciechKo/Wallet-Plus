@@ -78,7 +78,7 @@ public class CashFlowListFragment extends Fragment {
             startCashFlowDetailsFragment(list.getAdapter().getItemId(position));
             list.setItemChecked(position, false);
         } else if (list.getChoiceMode() == AbsListView.CHOICE_MODE_MULTIPLE) {
-            handleCategorySelect(position, itemView);
+            handleCategorySelect(position);
             if (selected.size() == 0) {
                 endMultipleChoiceMode();
             } else {
@@ -87,7 +87,7 @@ public class CashFlowListFragment extends Fragment {
         }
     }
 
-    private void handleCategorySelect(int position, View itemView) {
+    private void handleCategorySelect(int position) {
         if (selected.contains(cashFlows.get(position))) {
             selected.remove(cashFlows.get(position));
         } else {

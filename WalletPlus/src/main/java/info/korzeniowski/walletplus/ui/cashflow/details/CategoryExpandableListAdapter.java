@@ -36,7 +36,7 @@ public class CategoryExpandableListAdapter extends IdentifiableExpandableListAda
 
     class CategoryGroupViewHolder extends MyBaseGroupViewHolder {
         @InjectView(R.id.categoryName)
-        protected TextView categoryName;
+        TextView categoryName;
     }
 
     @Override
@@ -54,6 +54,6 @@ public class CategoryExpandableListAdapter extends IdentifiableExpandableListAda
 
     class CategoryChildViewHolder extends MyBaseChildViewHolder {
         @InjectView(R.id.categoryName)
-        protected TextView categoryName;
+        TextView categoryName;
     }
 }

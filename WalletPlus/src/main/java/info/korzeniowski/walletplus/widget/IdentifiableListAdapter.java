@@ -14,9 +14,9 @@ public abstract class IdentifiableListAdapter<T extends Identityable> extends Ba
 
     private final Context context;
     private final List<T> items;
-    private int itemResourceLayout;
+    private final int itemResourceLayout;
 
-    public IdentifiableListAdapter(Context context, List<T> items, int itemLayout) {
+    protected IdentifiableListAdapter(Context context, List<T> items, int itemLayout) {
         this.context = context;
         this.items = items;
         this.itemResourceLayout = itemLayout;
@@ -58,7 +58,7 @@ public abstract class IdentifiableListAdapter<T extends Identityable> extends Ba
         items.remove(entity);
     }
 
-    public final Context getContext() {
+    protected final Context getContext() {
         return context;
     }
 

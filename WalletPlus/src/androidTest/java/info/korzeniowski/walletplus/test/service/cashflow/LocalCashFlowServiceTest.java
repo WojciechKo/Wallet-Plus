@@ -99,7 +99,7 @@ public class LocalCashFlowServiceTest {
         assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), (Long) null, null, myWallet.getId())).hasSize(6);
         assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), category.getId(), null, myWallet.getId())).hasSize(2);
 
-        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), category.getId(), (Long) null, null)).hasSize(3);
+        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), category.getId(),null, null)).hasSize(3);
         assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), (Long) null, myWallet.getId(), null)).hasSize(2);
         assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), (Long) null, null, myWallet.getId())).hasSize(5);
         assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), category.getId(), null, myWallet.getId())).hasSize(2);

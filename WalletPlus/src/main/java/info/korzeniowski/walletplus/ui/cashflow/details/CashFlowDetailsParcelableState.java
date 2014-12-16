@@ -20,7 +20,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         }
     };
 
-    public static final CashFlow.Type defaultType = CashFlow.Type.INCOME;
+    private static final CashFlow.Type defaultType = CashFlow.Type.INCOME;
 
     private Long id;
     private String amount;
@@ -69,7 +69,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         }
     }
 
-    public CashFlowDetailsParcelableState(Parcel in) {
+    private CashFlowDetailsParcelableState(Parcel in) {
         id = (Long) in.readValue(Long.class.getClassLoader());
         amount = in.readString();
         comment = in.readString();
@@ -111,7 +111,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         return id;
     }
 
-    public void setId(Long id) {
+    void setId(Long id) {
         this.id = id;
     }
 

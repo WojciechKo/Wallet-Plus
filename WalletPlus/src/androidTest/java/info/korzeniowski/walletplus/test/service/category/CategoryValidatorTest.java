@@ -38,7 +38,8 @@ public class CategoryValidatorTest {
 
     @Before
     public void setUp() {
-        Dao<Category, Long> categoryDao = mock(Dao.class);
+        @SuppressWarnings("unchecked")
+        Dao<Category, Long> categoryDao =  mock(Dao.class);
         validatorService = mock(CategoryService.class);
         categoryService = new LocalCategoryService(categoryDao, new CategoryValidator(validatorService));
     }

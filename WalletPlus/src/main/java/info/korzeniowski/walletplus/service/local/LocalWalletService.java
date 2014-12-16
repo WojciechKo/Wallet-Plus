@@ -17,7 +17,7 @@ import info.korzeniowski.walletplus.service.local.validation.WalletValidator;
 public class LocalWalletService implements WalletService {
     private WalletValidator walletValidator;
     private final Dao<Wallet, Long> walletDao;
-    private Dao<CashFlow, Long> cashFlowDao;
+    private final Dao<CashFlow, Long> cashFlowDao;
 
     @Inject
     public LocalWalletService(Dao<Wallet, Long> walletDao, Dao<CashFlow, Long> cashFlowDao) {
@@ -84,7 +84,7 @@ public class LocalWalletService implements WalletService {
     public void deleteById(Long id) {
         try {
             walletValidator.validateDelete(id);
-            DeleteBuilder db = cashFlowDao.deleteBuilder();
+            DeleteBuilder<CashFlow, Long> db = cashFlowDao.deleteBuilder();
             db.where()
                 .eq("fromWallet_id", id)
                 .or()

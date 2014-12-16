@@ -26,7 +26,7 @@ import info.korzeniowski.walletplus.test.service.wallet.WalletValidatorTest;
 )
 public class TestDatabaseModule {
 
-    private UserDatabaseHelper userDatabaseHelper;
+    private final UserDatabaseHelper userDatabaseHelper;
 
     public TestDatabaseModule() {
         userDatabaseHelper = new UserDatabaseHelper(Robolectric.application);

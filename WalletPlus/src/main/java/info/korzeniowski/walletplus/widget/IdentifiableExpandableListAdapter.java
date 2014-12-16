@@ -21,10 +21,10 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
     private final List<T> items;
     private final int groupItemLayout;
     private final int childItemLayout;
-    private OnContentClickListener clickListener;
-    private OnContentLongClickListener longClickListener;
+    private final OnContentClickListener<T> clickListener;
+    private OnContentLongClickListener<T> longClickListener;
 
-    public IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener clickListener) {
+    protected IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener<T> clickListener) {
         this.context = context;
         this.items = items;
         this.groupItemLayout = groupItemLayout;
@@ -32,7 +32,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
         this.clickListener = clickListener;
     }
 
-    public IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener clickListener, OnContentLongClickListener longClickListener) {
+    protected IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener<T> clickListener, OnContentLongClickListener<T> longClickListener) {
         this(context, items, groupItemLayout, childItemLayout, clickListener);
         this.longClickListener = longClickListener;
     }
@@ -234,7 +234,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identityable &
         return true;
     }
 
-    public Context getContext() {
+    protected Context getContext() {
         return context;
     }
 }

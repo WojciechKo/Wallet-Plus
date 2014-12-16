@@ -107,7 +107,7 @@ public class LocalCategoryServiceTest {
 
     @Test
     public void shouldEditNameInMainCategoryWithChildren() {
-        Category main1 = insertMainAndSubs(new Category().setName("Main 1"), 2);
+        insertMainAndSubs(new Category().setName("Main 1"), 2);
         Category main2 = insertMainAndSubs(new Category().setName("Main 2"), 3);
 
         Long oldCategoryCount = categoryService.count();

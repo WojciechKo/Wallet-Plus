@@ -18,7 +18,7 @@ public class TestWalletPlus extends WalletPlus {
     }
 
     @Override
-    protected List<Object> getModules() {
+    List<Object> getModules() {
         if (modules == null) {
             modules = Lists.newArrayList();
             modules = super.getModules();
@@ -37,7 +37,7 @@ public class TestWalletPlus extends WalletPlus {
         graph = ObjectGraph.create(getModules().toArray());
     }
 
-    public void removeModule(Class<? extends Object> moduleClass) {
+    public void removeModule(Class<?> moduleClass) {
         List<Object> modules = getModules();
         for (Object module : modules) {
             if (module.getClass().equals(moduleClass)) {

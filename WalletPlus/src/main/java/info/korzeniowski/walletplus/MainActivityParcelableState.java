@@ -24,7 +24,7 @@ public class MainActivityParcelableState implements Parcelable {
 
     }
 
-    public MainActivityParcelableState(Parcel in) {
+    private MainActivityParcelableState(Parcel in) {
         selectedFragmentTitle = in.readString();
         fragmentTag = in.readString();
         selectedDrawerPosition = in.readInt();

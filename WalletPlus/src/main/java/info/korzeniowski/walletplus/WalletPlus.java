@@ -25,7 +25,7 @@ public class WalletPlus extends Application {
     private static final String FIRST_RUN = "FIRST_RUN";
     private static final String LAST_LOGGED_ID = "LAST_LOGGED_ID";
 
-    protected ObjectGraph graph;
+    ObjectGraph graph;
     private Account currentAccount;
 
     /**
@@ -69,7 +69,7 @@ public class WalletPlus extends Application {
         graph.inject(object);
     }
 
-    protected List<Object> getModules() {
+    List<Object> getModules() {
         List<Object> modules = new ArrayList<>();
         modules.add(new MainModule(this));
         modules.add(new DatabaseModule(this));

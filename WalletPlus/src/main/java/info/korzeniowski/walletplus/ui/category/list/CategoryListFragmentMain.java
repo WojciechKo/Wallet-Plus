@@ -111,7 +111,7 @@ public class CategoryListFragmentMain extends Fragment {
         return mainCategories;
     }
 
-    public void setupViews() {
+    void setupViews() {
         CategoryListPagerAdapter pagerAdapter = new CategoryListPagerAdapter();
         pager.setAdapter(pagerAdapter);
         pager.setOnPageChangeListener(pagerAdapter);
@@ -265,16 +265,16 @@ public class CategoryListFragmentMain extends Fragment {
         }
 
         private class Node {
-            private List<CategoryService.CategoryStats> stats;
-            private int index;
+            private final List<CategoryService.CategoryStats> stats;
+            private final int index;
             private Node left;
             private Node right;
 
             Node(List<CategoryService.CategoryStats> stats, int index) {
-                Node.this.stats = stats;
-                Node.this.index = index;
-                left = null;
-                right = null;
+                this.stats = stats;
+                this.index = index;
+                this.left = null;
+                this.right = null;
             }
 
             void setOnLeft(Node node) {

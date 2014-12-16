@@ -5,7 +5,6 @@
 
     <!-- Common strings -->
     <string name="add">Add</string>
-    <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
@@ -25,8 +24,6 @@
     <string name="categoryMenu">Categories</string>
     <string name="cashflowMenu">Cash flow</string>
     <string name="walletMenu">Wallets</string>
-    <string name="main_drawer_open">Open drawer</string>
-    <string name="main_drawer_close">Close drawer</string>
 
     <string name="newAccount">New account</string>
     <string name="accountLinkWithGoogle">Link with Google</string>
@@ -41,7 +38,6 @@
     <!-- Category details fragment -->
     <string name="categoryNameLabel">Name:</string>
     <string name="categoryNameHint">name</string>
-    <string name="categoryTypeLabel">Type:</string>
     <string name="categoryParentLabel">Parent:</string>
     <string name="categoryCantDeleteCategoryWithSubs">Cannot delete category which have subcategories.</string>
     <string name="categoryMustHaveName">Category must have name.</string>
@@ -56,10 +52,6 @@
     <string name="walletNameIsRequired">wallet name is required.</string>
     <string name="walletInitialAmountIsRequired">Initial amount is required.</string>
     <string name="walletInitialAmountIsNotADigit">Initial amount is not a digit.</string>
-
-
-    <!-- Wallet list fragment -->
-    <string name="walletListInitialValue">Initial value:</string>
 
     <!-- Cashflow list fragment -->
     <string name="cashflowListFromWalletLabel">From: </string>

@@ -102,21 +102,21 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
 
     class CashFlowViewHolder extends MyBaseViewHolder {
         @InjectView(R.id.fromWallet)
-        protected TextView fromWallet;
+        TextView fromWallet;
 
         @InjectView(R.id.toWallet)
-        protected TextView toWallet;
+        TextView toWallet;
 
         @InjectView(R.id.amount)
-        protected TextView amount;
+        TextView amount;
 
         @InjectView(R.id.category)
-        protected TextView category;
+        TextView category;
 
         @InjectView(R.id.comment)
-        protected TextView comment;
+        TextView comment;
 
         @InjectView(R.id.date)
-        protected TextView date;
+        TextView date;
     }
 }

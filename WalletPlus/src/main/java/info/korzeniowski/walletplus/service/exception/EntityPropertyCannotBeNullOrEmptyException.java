@@ -1,8 +1,8 @@
 package info.korzeniowski.walletplus.service.exception;
 
 public class EntityPropertyCannotBeNullOrEmptyException extends RuntimeException {
-    private String entity;
-    private String property;
+    private final String entity;
+    private final String property;
 
     public EntityPropertyCannotBeNullOrEmptyException(String entity, String property) {
         super ("Property: " + property + " of Entity: " + entity + ", can't be null.");

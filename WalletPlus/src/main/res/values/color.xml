@@ -6,10 +6,6 @@
 
     <color name="background">#EEEEEE</color>
 
-    <!--Card colors -->
-    <color name="cardShadow">#DBDBDB</color>
-    <color name="cardColor">#FFFFFF</color>
-
     <!-- My colors -->
     <color name="green">#99CC00</color>
     <color name="red">#FF4444</color>
@@ -17,8 +13,6 @@
 
     <!--Drawer -->
     <color name="drawerBackground">#FFFFFF</color>
-    <color name="drawerItemSelected">#EDEDED</color>
-    <color name="drawerItemPressed">#EBEBEB</color>
 
     <!-- Lists -->
     <color name="listItemBackground">#FFFFFF</color>
@@ -26,8 +20,6 @@
     <color name="listItemBackgroundPressed">#D9D9D9</color>
     <color name="listItemDivider">#CCCCCC</color>
 
-    <!-- Grey scale -->
-    <color name="whiteFF">#FFFFFF</color>
     <color name="whiteE5">#E5E5E5</color>
 
     <color name="black12A">#1F000000</color>

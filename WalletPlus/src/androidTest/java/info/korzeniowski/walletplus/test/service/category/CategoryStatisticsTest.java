@@ -78,7 +78,7 @@ public class CategoryStatisticsTest {
         cashFlowService.insert(new CashFlow().setCategory(category).setFromWallet(walletService.getMyWallets().get(1)).setAmount(300.0).setDateTime(tomorrow));
         cashFlowService.insert(new CashFlow().setCategory(category).setToWallet(walletService.getMyWallets().get(1)).setAmount(700.0).setDateTime(tomorrow));
 
-        CategoryService.CategoryStats stats = null;
+        CategoryService.CategoryStats stats;
 
         stats = categoryService.getCategoryStats(category, yesterday, Period.days(1), 0);
         assertThat(stats.getIncome()).isEqualTo(7.0);

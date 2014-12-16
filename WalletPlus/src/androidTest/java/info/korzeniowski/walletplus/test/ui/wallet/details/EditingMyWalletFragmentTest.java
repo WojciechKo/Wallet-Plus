@@ -155,8 +155,6 @@ public class EditingMyWalletFragmentTest {
         assertThat(walletInitialAmount).hasError(R.string.walletInitialAmountIsNotADigit);
         assertThat(walletCurrentAmount).hasTextString(previousCurrentAmount);
 
-        previousCurrentAmount = walletCurrentAmount.getText().toString();
-
         walletInitialAmount.setText("");
         assertThat(walletInitialAmountLabel).isVisible();
         assertThat(walletInitialAmount).hasError(R.string.walletInitialAmountIsRequired);

@@ -14,6 +14,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/amount"
                 android:textSize="@dimen/mediumFontSize"
                 android:textStyle="bold"/>
 
@@ -46,7 +47,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
-                android:layout_toRightOf="@id/category"
                 android:textSize="@dimen/xLargeFontSize"/>
 
         <TextView android:id="@+id/date"

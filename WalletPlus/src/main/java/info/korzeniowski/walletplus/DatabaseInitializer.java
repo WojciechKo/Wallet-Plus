@@ -1,5 +1,6 @@
 package info.korzeniowski.walletplus;
 
+import java.lang.ref.WeakReference;
 import java.util.Calendar;
 
 import javax.inject.Inject;
@@ -28,18 +29,18 @@ public class DatabaseInitializer {
     @Named("local")
     CategoryService localCategoryService;
 
-    private WalletPlus walletPlus;
+    private final WeakReference<WalletPlus> walletPlus;
 
     public DatabaseInitializer(WalletPlus walletPlus) {
-        this.walletPlus = walletPlus;
+        this.walletPlus = new WeakReference<>(walletPlus);
     }
 
     public Account createExampleAccount() {
-        LocalAccountService localAccountService1 = walletPlus.getGraph().get(LocalAccountService.class);
+        LocalAccountService localAccountService1 = walletPlus.get().getGraph().get(LocalAccountService.class);
         Account result = new Account().setName("Example Account");
         localAccountService1.insert(result);
-        walletPlus.setCurrentAccount(result);
-        walletPlus.inject(this);
+        walletPlus.get().setCurrentAccount(result);
+        walletPlus.get().inject(this);
         fillExampleDatabase();
         return result;
     }

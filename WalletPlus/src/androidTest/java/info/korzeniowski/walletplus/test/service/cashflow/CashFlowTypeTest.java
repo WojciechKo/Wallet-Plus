@@ -14,8 +14,8 @@ import static org.fest.assertions.api.Assertions.assertThat;
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class CashFlowTypeTest {
-    Wallet myWallet;
-    Wallet contractorWallet;
+    private Wallet myWallet;
+    private Wallet contractorWallet;
 
     @Before
     public void setUp() {

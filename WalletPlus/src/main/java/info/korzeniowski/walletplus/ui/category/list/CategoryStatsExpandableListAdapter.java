@@ -49,13 +49,13 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
 
     class CategoryGroupViewHolder extends MyBaseGroupViewHolder {
         @InjectView(R.id.categoryName)
-        protected TextView categoryName;
+        TextView categoryName;
 
         @InjectView(R.id.income)
-        protected TextView income;
+        TextView income;
 
         @InjectView(R.id.expense)
-        protected TextView expense;
+        TextView expense;
     }
 
     @Override
@@ -89,12 +89,12 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
 
     class CategoryChildViewHolder extends MyBaseChildViewHolder {
         @InjectView(R.id.categoryName)
-        protected TextView categoryName;
+        TextView categoryName;
 
         @InjectView(R.id.income)
-        protected TextView flow;
+        TextView flow;
 
         @InjectView(R.id.expense)
-        protected TextView difference;
+        TextView difference;
     }
 }

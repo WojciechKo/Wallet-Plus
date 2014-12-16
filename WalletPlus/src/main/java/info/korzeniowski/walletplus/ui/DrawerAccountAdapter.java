@@ -32,6 +32,6 @@ public class DrawerAccountAdapter extends IdentifiableListAdapter<Account> {
 
     static class AccountViewHolder extends MyBaseViewHolder {
         @InjectView(android.R.id.text1)
-        protected TextView name;
+        TextView name;
     }
 }

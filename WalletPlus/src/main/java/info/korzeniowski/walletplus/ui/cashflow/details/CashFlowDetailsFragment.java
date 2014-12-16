@@ -57,7 +57,7 @@ public class CashFlowDetailsFragment extends Fragment {
 
     public static final String CASH_FLOW_ID = "CASH_FLOW_ID";
 
-    public static final String CASH_FLOW_DETAILS_STATE = "cashFlowDetailsState";
+    private static final String CASH_FLOW_DETAILS_STATE = "cashFlowDetailsState";
 
     public static final String digitRegex = "^(\\+|\\-)?(([0-9]+(\\.[0-9]{0,4})?)|(\\.[0-9]{0,4}))$";
 
@@ -87,7 +87,6 @@ public class CashFlowDetailsFragment extends Fragment {
 
     @InjectView(R.id.removeCategory)
     ImageButton removeCategory;
-
 
     @InjectView(R.id.datePicker)
     Button datePicker;
@@ -165,7 +164,7 @@ public class CashFlowDetailsFragment extends Fragment {
         fillViewsWithDataFromState();
     }
 
-    protected void initFields() {
+    void initFields() {
         detailsMode = cashFlowDetailsState.getId() == null ? DetailsMode.ADD : DetailsMode.EDIT;
         categoryList = localCategoryService.getMainCategories();
         myWallets = localWalletService.getMyWallets();
@@ -488,7 +487,7 @@ public class CashFlowDetailsFragment extends Fragment {
         }
     }
 
-    public void actionSave() {
+    void actionSave() {
         if (preValidations() && handleActionSave()) {
             getActivity().getSupportFragmentManager().popBackStack();
         }
@@ -547,9 +546,8 @@ public class CashFlowDetailsFragment extends Fragment {
     private enum DetailsMode {ADD, EDIT}
 
     class WalletAdapter extends BaseAdapter {
-        List<Wallet> wallets;
-
-        WeakReference<Context> context;
+        final List<Wallet> wallets;
+        final WeakReference<Context> context;
 
         private WalletAdapter(Context context, List<Wallet> list) {
             this.context = new WeakReference<>(context);
