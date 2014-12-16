@@ -50,7 +50,6 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.ui.category.list.CategoryExpandableListAdapter;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 public class CashFlowDetailsFragment extends Fragment {
@@ -373,8 +372,7 @@ public class CashFlowDetailsFragment extends Fragment {
 
     @OnClick(R.id.category)
     void onCategoryClick() {
-        //TODO: Should null be fixed?
-        ExpandableListView expandableListView = (ExpandableListView) LayoutInflater.from(getActivity()).inflate(R.layout.category_list, null);
+        ExpandableListView expandableListView = (ExpandableListView) View.inflate(getActivity(), R.layout.category_list, null);
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.cashflowCategoryChooseAlertTitle))

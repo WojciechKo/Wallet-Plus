@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingLeft="@dimen/edgePadding"
-    android:paddingRight="@dimen/edgePadding">
-
-    <ImageView
-        android:id="@+id/divider"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/light_divider" />
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/edgePadding"
+        android:paddingRight="@dimen/edgePadding">
 
-    <FrameLayout
-        android:id="@+id/child_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/edgePadding">
-
-        <ViewStub
-            android:id="@+id/content_stub"
+    <ImageView android:id="@+id/divider"
             android:layout_width="match_parent"
-            android:layout_height="44dp" />
+            android:layout_height="wrap_content"
+            android:contentDescription="Divider"
+            android:src="@drawable/light_divider"/>
+
+    <FrameLayout android:id="@+id/child_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/edgePadding"
+            tools:ignore="RtlSymmetry">
+
+        <ViewStub android:id="@+id/content_stub"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"/>
     </FrameLayout>
 
 </LinearLayout>

@@ -57,7 +57,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="20dp"
                         android:padding="0dp"
-                        android:text="Link with Google"
+                        android:text="@string/accountLinkWithGoogle"
                         android:textSize="10sp"/>
             </LinearLayout>
 

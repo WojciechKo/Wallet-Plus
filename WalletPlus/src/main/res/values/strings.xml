@@ -7,7 +7,7 @@
     <string name="add">Add</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
@@ -25,6 +25,7 @@
     <string name="main_drawer_close">Close drawer</string>
 
     <string name="newAccount">New account</string>
+    <string name="accountLinkWithGoogle">Link with Google</string>
 
     <!-- Commons -->
     <string name="transferCategoryName">Transfer</string>

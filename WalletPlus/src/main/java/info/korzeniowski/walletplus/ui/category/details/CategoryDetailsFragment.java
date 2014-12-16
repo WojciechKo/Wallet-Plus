@@ -32,7 +32,6 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
-import info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton;
 
 public class CategoryDetailsFragment extends Fragment {
     public static final String TAG = "categoryDetails";

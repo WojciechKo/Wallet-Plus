@@ -33,7 +33,7 @@ public class WalletDetailsFragment extends Fragment {
     public static final String TAG = "walletDetails";
     public static final String WALLET_ID = "WALLET_ID";
 
-    private enum DetailsType {ADD, EDIT;}
+    private enum DetailsType {ADD, EDIT}
 
     @InjectView(R.id.walletNameLabel)
     TextView walletNameLabel;
