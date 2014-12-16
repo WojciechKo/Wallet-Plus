@@ -36,7 +36,6 @@ import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
 
-
 @Config(emulateSdk = 18, reportSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class EditingMyWalletFragmentTest {
@@ -98,11 +97,7 @@ public class EditingMyWalletFragmentTest {
             Method method = walletListView.getClass().getDeclaredMethod("onClickFrontView", int.class);
             method.setAccessible(true);
             method.invoke(walletListView, position);
-        } catch (NoSuchMethodException e) {
-            fail("Failed init.");
-        } catch (InvocationTargetException e) {
-            fail("Failed init.");
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             fail("Failed init.");
         }
         wallet = (Wallet) walletListView.getAdapter().getItem(position);

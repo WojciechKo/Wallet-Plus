@@ -11,7 +11,7 @@
     <ImageView android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:contentDescription="Divider"
+            android:contentDescription="@string/divider"
             android:src="@drawable/light_divider"/>
 
     <FrameLayout android:id="@+id/child_content"

@@ -145,12 +145,11 @@ public class CategoryStatisticsTest {
     private CategoryService.CategoryStats getCategoryStatsFromCategoryStateList(final Category category, Date yesterday, Period period, Integer iteration) {
         List<CategoryService.CategoryStats> categoryStatsList = categoryService.getCategoryStatsList(yesterday, period, iteration);
 
-        CategoryService.CategoryStats categoryStat = Iterables.find(categoryStatsList, new Predicate<CategoryService.CategoryStats>() {
+        return Iterables.find(categoryStatsList, new Predicate<CategoryService.CategoryStats>() {
             @Override
             public boolean apply(CategoryService.CategoryStats input) {
                 return category.getId().equals(input.getCategoryId());
             }
         });
-        return categoryStat;
     }
 }

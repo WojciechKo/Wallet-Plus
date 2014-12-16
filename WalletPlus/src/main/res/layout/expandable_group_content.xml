@@ -12,7 +12,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:contentDescription="Divider"
+            android:contentDescription="@string/divider"
             android:src="@drawable/dark_divider"/>
 
     <FrameLayout android:id="@+id/group_content"
@@ -36,6 +36,6 @@
             android:layout_below="@id/divider"
             android:layout_centerInParent="true"
             android:background="@null"
-            android:contentDescription="Group indicator"
+            android:contentDescription="@string/groupIndicator"
             android:scaleType="center"/>
 </RelativeLayout>

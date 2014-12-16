@@ -2,6 +2,7 @@ package info.korzeniowski.walletplus.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.ForeignCollection;
@@ -14,11 +15,15 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Category implements Comparable<Category>, Identityable, Childable<Category>, Parcelable {
-    public enum Type {
-        TRANSFER,
-        NO_CATEGORY
-    }
+    public static final Parcelable.Creator<Category> CREATOR = new Parcelable.Creator<Category>() {
+        public Category createFromParcel(Parcel in) {
+            return new Category(in);
+        }
 
+        public Category[] newArray(int size) {
+            return new Category[size];
+        }
+    };
     @DatabaseField(generatedId = true)
     private Long id;
 
@@ -33,16 +38,6 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
 
     @ForeignCollectionField(orderColumnName = "name")
     private ForeignCollection<Category> children;
-
-    public static final Parcelable.Creator<Category> CREATOR = new Parcelable.Creator<Category>() {
-        public Category createFromParcel(Parcel in) {
-            return new Category(in);
-        }
-
-        public Category[] newArray(int size) {
-            return new Category[size];
-        }
-    };
 
     public Category() {
 
@@ -156,8 +151,13 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
     }
 
     @Override
-    public final int compareTo(Category other) {
+    public final int compareTo(@NonNull Category other) {
         return Comparators.NAME.compare(this, other);
+    }
+
+    public enum Type {
+        TRANSFER,
+        NO_CATEGORY
     }
 
     public static class Comparators {

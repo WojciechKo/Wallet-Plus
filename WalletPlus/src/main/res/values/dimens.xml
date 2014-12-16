@@ -4,8 +4,8 @@
     <dimen name="navigation_drawer_width">240dp</dimen>
     <dimen name="cardContentPadding">16dp</dimen>
     <dimen name="cardContentMargin">8dp</dimen>
-    <dimen name="edgePadding">12dp</dimen> <!-- after changed, change doubleCardPadding value -->
-    <dimen name="doubleEdgePadding">32dp</dimen>
+    <dimen name="edgePadding">12dp</dimen>
+
     <!-- font size -->
     <dimen name="verySmallFontSize">9sp</dimen>
     <dimen name="smallFontSize">12sp</dimen>
