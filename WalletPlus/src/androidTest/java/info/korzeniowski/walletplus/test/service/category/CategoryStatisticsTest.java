@@ -61,19 +61,19 @@ public class CategoryStatisticsTest {
         Date tomorrow = new DateTime(today).plusDays(1).toDate();
 
         // yesterday
-        // -5 +7 -1 = +1
+        // -5 +7 -1
         cashFlowService.insert(new CashFlow().setCategory(category).setFromWallet(walletService.getMyWallets().get(0)).setAmount(5.0).setDateTime(yesterday));
         cashFlowService.insert(new CashFlow().setCategory(category).setToWallet(walletService.getMyWallets().get(1)).setAmount(7.0).setDateTime(yesterday));
         cashFlowService.insert(new CashFlow().setCategory(category).setFromWallet(walletService.getMyWallets().get(0)).setAmount(1.0).setDateTime(yesterday));
 
         // today
-        // +50 +70 -90 = +30
+        // +50 +70 -90
         cashFlowService.insert(new CashFlow().setCategory(category).setToWallet(walletService.getMyWallets().get(0)).setAmount(50.0).setDateTime(today));
         cashFlowService.insert(new CashFlow().setCategory(category).setToWallet(walletService.getMyWallets().get(1)).setAmount(70.0).setDateTime(today));
         cashFlowService.insert(new CashFlow().setCategory(category).setFromWallet(walletService.getMyWallets().get(1)).setAmount(90.0).setDateTime(today));
 
         // tomorrow
-        // +100 -300 +700 = 500
+        // +100 -300 +700
         cashFlowService.insert(new CashFlow().setCategory(category).setToWallet(walletService.getMyWallets().get(1)).setAmount(100.0).setDateTime(tomorrow));
         cashFlowService.insert(new CashFlow().setCategory(category).setFromWallet(walletService.getMyWallets().get(1)).setAmount(300.0).setDateTime(tomorrow));
         cashFlowService.insert(new CashFlow().setCategory(category).setToWallet(walletService.getMyWallets().get(1)).setAmount(700.0).setDateTime(tomorrow));
@@ -81,33 +81,33 @@ public class CategoryStatisticsTest {
         CategoryService.CategoryStats stats = null;
 
         stats = categoryService.getCategoryStats(category, yesterday, Period.days(1), 0);
-        assertThat(stats.getDifference()).isEqualTo(1.0);
-        assertThat(stats.getFlow()).isEqualTo(13.0);
+        assertThat(stats.getIncome()).isEqualTo(7.0);
+        assertThat(stats.getExpense()).isEqualTo(6.0);
         assertThat(stats).isEqualTo(getCategoryStatsFromCategoryStateList(category, yesterday, Period.days(1), 0));
 
         stats = categoryService.getCategoryStats(category, yesterday, Period.days(1), 1);
-        assertThat(stats.getDifference()).isEqualTo(30.0);
-        assertThat(stats.getFlow()).isEqualTo(210.0);
+        assertThat(stats.getIncome()).isEqualTo(120.0);
+        assertThat(stats.getExpense()).isEqualTo(90.0);
         assertThat(stats).isEqualTo(getCategoryStatsFromCategoryStateList(category, yesterday, Period.days(1), 1));
 
         stats = categoryService.getCategoryStats(category, yesterday, Period.days(2), 0);
-        assertThat(stats.getDifference()).isEqualTo(31.0);
-        assertThat(stats.getFlow()).isEqualTo(223.0);
+        assertThat(stats.getIncome()).isEqualTo(127.0);
+        assertThat(stats.getExpense()).isEqualTo(96.0);
         assertThat(stats).isEqualTo(getCategoryStatsFromCategoryStateList(category, yesterday, Period.days(2), 0));
 
         stats = categoryService.getCategoryStats(category, today, Period.days(1), -1);
-        assertThat(stats.getDifference()).isEqualTo(1.0);
-        assertThat(stats.getFlow()).isEqualTo(13.0);
+        assertThat(stats.getIncome()).isEqualTo(7.0);
+        assertThat(stats.getExpense()).isEqualTo(6.0);
         assertThat(stats).isEqualTo(getCategoryStatsFromCategoryStateList(category, today, Period.days(1), -1));
 
         stats = categoryService.getCategoryStats(category, today, Period.days(1), 0);
-        assertThat(stats.getDifference()).isEqualTo(30.0);
-        assertThat(stats.getFlow()).isEqualTo(210.0);
+        assertThat(stats.getIncome()).isEqualTo(120.0);
+        assertThat(stats.getExpense()).isEqualTo(90.0);
         assertThat(stats).isEqualTo(getCategoryStatsFromCategoryStateList(category, today, Period.days(1), 0));
 
         stats = categoryService.getCategoryStats(category, today, Period.days(2), 0);
-        assertThat(stats.getDifference()).isEqualTo(530.0);
-        assertThat(stats.getFlow()).isEqualTo(1310.0);
+        assertThat(stats.getIncome()).isEqualTo(920.0);
+        assertThat(stats.getExpense()).isEqualTo(390.0);
         assertThat(stats).isEqualTo(getCategoryStatsFromCategoryStateList(category, today, Period.days(2), 0));
     }
 
@@ -128,17 +128,17 @@ public class CategoryStatisticsTest {
         cashFlowService.insert(new CashFlow().setCategory(mainCategory).setToWallet(walletService.getMyWallets().get(0)).setAmount(11.0).setDateTime(today));
 
         CategoryService.CategoryStats mainCategoryStats = categoryService.getCategoryStats(mainCategory, today, Period.days(1), 0);
-        assertThat(mainCategoryStats.getDifference()).isEqualTo(8.0);
-        assertThat(mainCategoryStats.getTotalDifference()).isEqualTo(6.0);
-        assertThat(mainCategoryStats.getFlow()).isEqualTo(14.0);
-        assertThat(mainCategoryStats.getTotalFlow()).isEqualTo(26.0);
+        assertThat(mainCategoryStats.getIncome()).isEqualTo(11.0);
+        assertThat(mainCategoryStats.getExpense()).isEqualTo(3.0);
+        assertThat(mainCategoryStats.getTotalIncome()).isEqualTo(16.0);
+        assertThat(mainCategoryStats.getTotalExpense()).isEqualTo(10.0);
         assertThat(mainCategoryStats).isEqualTo(getCategoryStatsFromCategoryStateList(mainCategory, today, Period.days(1), 0));
 
         CategoryService.CategoryStats subCategoryStats = categoryService.getCategoryStats(subCategory, today, Period.days(1), 0);
-        assertThat(subCategoryStats.getDifference()).isEqualTo(-2.0);
-        assertThat(subCategoryStats.getTotalDifference()).isEqualTo(-2.0);
-        assertThat(subCategoryStats.getFlow()).isEqualTo(12.0);
-        assertThat(subCategoryStats.getTotalFlow()).isEqualTo(12.0);
+        assertThat(subCategoryStats.getIncome()).isEqualTo(5.0);
+        assertThat(subCategoryStats.getExpense()).isEqualTo(7.0);
+        assertThat(subCategoryStats.getTotalIncome()).isEqualTo(5.0);
+        assertThat(subCategoryStats.getTotalExpense()).isEqualTo(7.0);
         assertThat(subCategoryStats).isEqualTo(getCategoryStatsFromCategoryStateList(subCategory, today, Period.days(1), 0));
     }
 

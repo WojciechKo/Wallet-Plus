@@ -18,17 +18,16 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
 import info.korzeniowski.walletplus.service.local.LocalAccountService;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
 import info.korzeniowski.walletplus.service.local.MainDatabaseHelper;
+import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment;
-import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment2;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListFragmentMain;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
@@ -44,9 +43,8 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
                 DashboardFragment.class,
 
                 CategoryDetailsFragment.class,
-                CategoryListFragment.class,
                 CategoryListFragmentMain.class,
-                CategoryListFragment2.class,
+                CategoryListFragment.class,
 
                 CashFlowDetailsFragment.class,
                 CashFlowListFragment.class,

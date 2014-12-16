@@ -43,19 +43,19 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
         holder.categoryName.setText(item.getName());
         holder.categoryName.setTypeface(holder.categoryName.getTypeface(), Typeface.BOLD);
         CategoryService.CategoryStats stats = getStats(item);
-        holder.flow.setText("Total flow: " + stats.getTotalFlow() + " (" + stats.getFlow() + ")");
-        holder.difference.setText("Total diff: " + stats.getTotalDifference() + " (" + stats.getDifference() + ")");
+        holder.income.setText("Income: " + stats.getTotalIncome() + " (" + stats.getIncome() + ")");
+        holder.expense.setText("Expense: " + stats.getTotalExpense() + " (" + stats.getExpense() + ")");
     }
 
     class CategoryGroupViewHolder extends MyBaseGroupViewHolder {
         @InjectView(R.id.categoryName)
         protected TextView categoryName;
 
-        @InjectView(R.id.flow)
-        protected TextView flow;
+        @InjectView(R.id.income)
+        protected TextView income;
 
-        @InjectView(R.id.difference)
-        protected TextView difference;
+        @InjectView(R.id.expense)
+        protected TextView expense;
     }
 
     @Override
@@ -71,8 +71,8 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
         holder.categoryName.setTextColor(getContext().getResources().getColor(R.color.black54A));
         holder.categoryName.setText(item.getName());
         CategoryService.CategoryStats stats = getStats(item);
-        holder.flow.setText("Flow: " + stats.getFlow().toString());
-        holder.difference.setText("Diff:" + stats.getDifference().toString());
+        holder.flow.setText("Income: " + stats.getIncome().toString());
+        holder.difference.setText("Expense: " + stats.getExpense().toString());
     }
 
     private CategoryService.CategoryStats getStats(final Category category) {
@@ -91,10 +91,10 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
         @InjectView(R.id.categoryName)
         protected TextView categoryName;
 
-        @InjectView(R.id.flow)
+        @InjectView(R.id.income)
         protected TextView flow;
 
-        @InjectView(R.id.difference)
+        @InjectView(R.id.expense)
         protected TextView difference;
     }
 }

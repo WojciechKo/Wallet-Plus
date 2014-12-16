@@ -167,8 +167,8 @@ public class CategoryListFragmentMain extends Fragment {
         private Fragment getFragmentByIteration(int iteration) {
             Bundle args = new Bundle();
             args.putParcelable(CATEGORY_LIST_STATE, categoryListState);
-            args.putInt(CategoryListFragment2.ITERATION, iteration);
-            CategoryListFragment2 fragment = new CategoryListFragment2();
+            args.putInt(CategoryListFragment.ITERATION, iteration);
+            CategoryListFragment fragment = new CategoryListFragment();
             fragment.setArguments(args);
             return fragment;
         }
