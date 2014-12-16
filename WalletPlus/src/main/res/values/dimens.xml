@@ -3,7 +3,7 @@
 
     <dimen name="navigation_drawer_width">240dp</dimen>
     <dimen name="cardContentPadding">16dp</dimen>
-    <dimen name="cardContentMargin">8dp</dimen>
+    <dimen name="cardMargin">8dp</dimen>
     <dimen name="edgePadding">12dp</dimen>
 
     <!-- font size -->
