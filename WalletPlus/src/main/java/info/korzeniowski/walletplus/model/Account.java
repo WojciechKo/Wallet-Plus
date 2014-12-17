@@ -2,7 +2,7 @@ package info.korzeniowski.walletplus.model;
 
 import com.j256.ormlite.field.DatabaseField;
 
-public class Account {
+public class Account implements Identifiable {
 
     @DatabaseField(generatedId = true)
     private Long id;
@@ -11,7 +11,10 @@ public class Account {
     private String name;
 
     @DatabaseField
-    private String passwordHash;
+    private String gmailAccount;
+
+    @DatabaseField
+    private String databaseFileName;
 
     public Account() {
 
@@ -25,23 +28,35 @@ public class Account {
         return id;
     }
 
-    public void setId(Long id) {
+    public Account setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Account setName(String name) {
         this.name = name;
+        return this;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getGmailAccount() {
+        return gmailAccount;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public Account setGmailAccount(String gmailAccount) {
+        this.gmailAccount = gmailAccount;
+        return this;
+    }
+
+    public String getDatabaseFileName() {
+        return databaseFileName;
+    }
+
+    public Account setDatabaseFileName(String databaseFileName) {
+        this.databaseFileName = databaseFileName;
+        return this;
     }
 }

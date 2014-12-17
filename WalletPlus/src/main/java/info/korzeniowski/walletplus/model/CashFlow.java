@@ -4,9 +4,7 @@ import com.j256.ormlite.field.DatabaseField;
 
 import java.util.Date;
 
-import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsParcelableState;
-
-public class CashFlow implements Identityable {
+public class CashFlow implements Identifiable {
 
     @DatabaseField(generatedId = true)
     private Long id;
@@ -28,15 +26,6 @@ public class CashFlow implements Identityable {
 
     @DatabaseField
     private String comment;
-
-    /**
-     * ORMLite requirement *
-     */
-    public CashFlow() {
-
-    }
-
-    public enum Type {INCOME, EXPANSE, TRANSFER}
 
     @Override
     public Long getId() {
@@ -117,5 +106,11 @@ public class CashFlow implements Identityable {
             }
         }
         throw new RuntimeException("Unknown type of CashFlow");
+    }
+
+    public enum Type {
+        INCOME,
+        EXPANSE,
+        TRANSFER
     }
 }

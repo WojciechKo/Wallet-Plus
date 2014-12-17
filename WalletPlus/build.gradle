@@ -7,38 +7,27 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:1.0.0'
         classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
-        classpath "org.robolectric:robolectric-gradle-plugin:0.13.2"
+        classpath 'com.github.jcandksolutions.gradle:android-unit-test:2.1.1'
     }
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'robolectric'
-
-apt {
-    arguments {
-        androidManifestFile variant.outputs[0].processResources.manifestFile
-        resourcePackageName android.defaultConfig.applicationId
-    }
-}
 
 android {
     compileSdkVersion 21
     buildToolsVersion '21.1.1'
 
     defaultConfig {
-        versionCode 12
-
-        versionName "2.0"
+        versionCode 1
+        versionName "0.1"
         applicationId 'info.korzeniowski.walletplus'
 
-        minSdkVersion 14
+        minSdkVersion 17
         targetSdkVersion 21
     }
 
     lintOptions {
         abortOnError false
-        disable 'InvalidPackage'
     }
 
     packagingOptions {
@@ -50,7 +39,7 @@ android {
     }
 
     sourceSets {
-        androidTest.setRoot('src/androidTest')
+        androidTest.setRoot('src/test')
     }
 
     signingConfigs {
@@ -73,10 +62,33 @@ android {
     }
 }
 
-robolectric {
-    include '**/*Test.class'
-    exclude '**/espresso/**/*.class'
-    maxHeapSize = "2048m"
+apply plugin: 'com.neenbedankt.android-apt'
+
+apt {
+    arguments {
+        androidManifestFile variant.outputs[0].processResources.manifestFile
+        resourcePackageName android.defaultConfig.applicationId
+    }
+}
+
+apply plugin: 'android-unit-test'
+
+androidUnitTest {
+    downloadDependenciesSources true
+    downloadDependenciesJavadoc true
+    downloadTestDependenciesSources true
+    downloadTestDependenciesJavadoc true
+
+    testTasks {
+        all {
+            //Allows to run tests in parallel by specifying how many threads to run tests on.
+            maxParallelForks = 4
+            //Allow to group a number of tests for each thread to run.
+            forkEvery = 5
+            minHeapSize = '128m'
+            maxHeapSize = '1024m'
+        }
+    }
 }
 
 repositories {
@@ -96,6 +108,7 @@ dependencies {
     compile "com.android.support:recyclerview-v7:$androidSupportVersion"
 
     //Google Drive API
+    //noinspection GradleDynamicVersion
     compile 'com.google.android.gms:play-services:6.5.+'
 
     // OrmLite
@@ -109,7 +122,7 @@ dependencies {
     // Dagger
     def daggerVersion = '1.2.+'
     apt "com.squareup.dagger:dagger-compiler:$daggerVersion"
-    androidTestCompile "com.squareup.dagger:dagger-compiler:$daggerVersion"
+    testCompile "com.squareup.dagger:dagger-compiler:$daggerVersion"
     compile "com.squareup.dagger:dagger:$daggerVersion"
 
     // Otto
@@ -133,34 +146,16 @@ dependencies {
     }
 
     // JUnit
-    androidTestCompile 'junit:junit:4.11'
+    testCompile 'junit:junit:4.11'
 
     // Mockito
-    androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile 'org.mockito:mockito-core:1.9.5'
 
     // Robolectric
-    androidTestCompile('org.robolectric:robolectric:2.4') {
-        exclude module: 'classworlds'
-        exclude module: 'maven-artifact'
-        exclude module: 'maven-artifact-manager'
-        exclude module: 'maven-error-diagnostics'
-        exclude module: 'maven-model'
-        exclude module: 'maven-plugin-registry'
-        exclude module: 'maven-profile'
-        exclude module: 'maven-project'
-        exclude module: 'maven-settings'
-        exclude module: 'nekohtml'
-        exclude module: 'plexus-container-default'
-        exclude module: 'plexus-interpolation'
-        exclude module: 'plexus-utils'
-        exclude module: 'wagon-file'
-        exclude module: 'wagon-http-lightweight'
-        exclude module: 'wagon-http-shared'
-        exclude module: 'wagon-provider-api'
-    }
+    testCompile 'org.robolectric:robolectric:2.4'
 
     //Fest Android
-    androidTestCompile 'com.squareup:fest-android:1.0.8'
+    testCompile 'com.squareup:fest-android:1.0.8'
 }
 
 apply plugin: "jacoco"
@@ -168,8 +163,7 @@ apply plugin: "jacoco"
 jacoco {
     toolVersion = "0.7.1.201405082137"
 }
-// Define coverage source.
-// If you have rs/aidl etc... add them here.
+
 def coverageSourceDirs = [
         'src/main/java',
         'src/gen'
@@ -195,27 +189,6 @@ task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {
             ])
     sourceDirectories = files(coverageSourceDirs)
     executionData = files('build/jacoco/testDebug.exec')
-
-    def renamedFilesMap = [:]
-
-    // Hacky fix for issue: https://code.google.com/p/android/issues/detail?id=69174.
-    // Rename files with '$$' before generating report, and then rename back after
-    doFirst {
-        new File('WalletPlus/build/intermediates/classes/').eachFileRecurse { file ->
-            if (file.name.contains('$$')) {
-                def oldPath = file.path
-                def newPath = oldPath.replace('$$', '$')
-                file.renameTo(newPath)
-                renamedFilesMap[newPath] = oldPath
-            }
-        }
-    }
-    doLast {
-        renamedFilesMap.each() {
-            newPath, oldPath ->
-                new File(newPath).renameTo(oldPath)
-        }
-    }
 }
 
 apply plugin: 'idea'

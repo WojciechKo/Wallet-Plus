@@ -233,14 +233,14 @@ public class LocalCategoryService implements CategoryService {
 
         List<CashFlow> cashFlowList = getCashFlowList(firstDay, period, iteration);
         for (final CashFlow cashFlow : cashFlowList) {
-            CategoryStats found = findByCategory(result, cashFlow.getCategory());
+            CategoryStats found = findCategoryStats(result, cashFlow.getCategory());
             if (cashFlow.getType() == CashFlow.Type.INCOME) {
                 found.incomeAmount(cashFlow.getAmount());
             } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
                 found.expanseAmount(cashFlow.getAmount());
             }
             if (cashFlow.getCategory() != null && cashFlow.getCategory().getParent() != null) {
-                CategoryStats foundParent = findByCategory(result, cashFlow.getCategory().getParent());
+                CategoryStats foundParent = findCategoryStats(result, cashFlow.getCategory().getParent());
                 if (cashFlow.getType() == CashFlow.Type.INCOME) {
                     foundParent.incomeAmountFromSub(cashFlow.getAmount());
                 } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
@@ -271,7 +271,7 @@ public class LocalCategoryService implements CategoryService {
     }
 
 
-    private CategoryStats findByCategory(List<CategoryStats> list, final Category category) {
+    private CategoryStats findCategoryStats(List<CategoryStats> list, final Category category) {
         return Iterables.find(list, new Predicate<CategoryStats>() {
             @Override
             public boolean apply(CategoryStats input) {

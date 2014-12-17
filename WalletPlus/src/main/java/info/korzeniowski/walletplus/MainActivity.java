@@ -1,6 +1,8 @@
 package info.korzeniowski.walletplus;
 
-import android.content.res.Configuration;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,37 +12,58 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import info.korzeniowski.walletplus.ui.DrawerListAdapter;
+import info.korzeniowski.walletplus.model.Account;
+import info.korzeniowski.walletplus.service.local.LocalAccountService;
+import info.korzeniowski.walletplus.ui.DrawerAccountAdapter;
+import info.korzeniowski.walletplus.ui.DrawerMenuAdapter;
+import info.korzeniowski.walletplus.ui.MainDrawerContent;
 import info.korzeniowski.walletplus.ui.MainDrawerItem;
+import info.korzeniowski.walletplus.widget.SquareImageButton;
 
 public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
 
     @InjectView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
 
-    @InjectView(R.id.drawer)
-    ListView drawer;
-
     @InjectView(R.id.toolbar)
     Toolbar toolbar;
 
-    @Inject
-    DrawerListAdapter drawerListAdapter;
+    @InjectView(R.id.drawer)
+    LinearLayout drawer;
 
-    private ActionBarDrawerToggle drawerToggle;
+    @InjectView(R.id.accountName)
+    TextView selectedAccount;
+
+    @InjectView(R.id.switchAccount)
+    SquareImageButton switchAccount;
+
+    @InjectView(R.id.drawerList)
+    ListView drawerList;
+
+    @Inject
+    LocalAccountService localAccountService;
+
+    @Inject
+    MainDrawerContent mainDrawerContent;
+
+    private DrawerMenuAdapter drawerMenuAdapter;
+    private DrawerAccountAdapter drawerAccountAdapter;
+    private View accountListFooter;
     private MainActivityParcelableState state;
 
     @Override
@@ -57,25 +80,102 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         if (savedInstanceState != null) {
             state = savedInstanceState.getParcelable(MainActivityParcelableState.TAG);
         } else {
-            state = new MainActivityParcelableState();
-            state.setAppName(getString(R.string.appName));
-            state.setSelectedDrawerPosition(0);
+            initMainActivityState();
         }
     }
 
+    private void initMainActivityState() {
+        state = new MainActivityParcelableState();
+        state.setSelectedDrawerPosition(0);
+    }
+
     void setupViews() {
-        setSupportActionBar(toolbar);
-        setTitle(state.getAppName());
-        drawerToggle = new MainActivityDrawerToggle();
+        drawerMenuAdapter = new DrawerMenuAdapter(this, mainDrawerContent);
+        drawerAccountAdapter = getDrawerAccountAdapter();
+        accountListFooter = getNewAccountFooter();
+
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        drawerLayout.setDrawerListener(drawerToggle);
-
-        drawer.setAdapter(drawerListAdapter);
-
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setupDrawerListAsMenu();
+        setupAccountFrame();
+        setupToolbar();
+        setupContentFrame();
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
+    }
+
+    private DrawerAccountAdapter getDrawerAccountAdapter() {
+        return new DrawerAccountAdapter(this, localAccountService.getAll());
+    }
+
+    private View getNewAccountFooter() {
+        TextView accountListFooter = (TextView) getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);
+        accountListFooter.setText(getString(R.string.newAccount));
+        accountListFooter.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_plus_grey600_24dp), null, null, null);
+        accountListFooter.setBackgroundResource(R.drawable.selector_list_item);
+        accountListFooter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final EditText input = new EditText(MainActivity.this);
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage("Enter new account name")
+                        .setView(input)
+                        .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                localAccountService.insert(new Account().setName(input.getText().toString()));
+                                drawerAccountAdapter = getDrawerAccountAdapter();
+                                drawerList.setAdapter(drawerAccountAdapter);
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .create()
+                        .show();
+            }
+        });
+        return accountListFooter;
+    }
+
+    private void setupDrawerListAsMenu() {
+        drawerList.setAdapter(drawerMenuAdapter);
+        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                drawerMenuClicked(position);
+            }
+        });
+
+        if (drawerList.getFooterViewsCount() != 0) {
+            drawerList.removeFooterView(accountListFooter);
+        }
+    }
+
+    private void setupAccountFrame() {
+        selectedAccount.setText(((WalletPlus) getApplication()).getCurrentAccount().getName());
+
+        switchAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (switchAccount.isChecked()) {
+                    setupDrawerListAsAccountList();
+                } else {
+                    setupDrawerListAsMenu();
+                }
+            }
+        });
+    }
+
+    private void setupToolbar() {
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
+    }
+
+    private void setupContentFrame() {
         if (state.getFragmentTag() != null) {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             Fragment lastFragment = getSupportFragmentManager().findFragmentByTag(state.getFragmentTag());
@@ -84,13 +184,28 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         } else {
             setSelectedDrawerItem(state.getSelectedDrawerPosition());
         }
+    }
 
-        drawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    private void setupDrawerListAsAccountList() {
+        drawerList.setAdapter(drawerAccountAdapter);
+        drawerList.addFooterView(accountListFooter, null, true);
+        drawerList.setFooterDividersEnabled(true);
+        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                drawerItemClicked(position);
+                drawerAccountClicked(position);
             }
         });
+    }
+
+    private void drawerAccountClicked(int position) {
+        drawerLayout.closeDrawer(drawer);
+        ((WalletPlus) getApplication()).setCurrentAccount(drawerAccountAdapter.getItem(position));
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        ((WalletPlus) getApplication()).reinitializeObjectGraph();
+        initMainActivityState();
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
     }
 
     @Override
@@ -100,18 +215,9 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            homeSelected(item);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void homeSelected(MenuItem item) {
-        if (!drawerToggle.onOptionsItemSelected(item)) {
-            getSupportFragmentManager().popBackStack();
-        }
+    protected void onDestroy() {
+        getSupportFragmentManager().removeOnBackStackChangedListener(this);
+        super.onDestroy();
     }
 
     @Override
@@ -123,15 +229,14 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        drawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        drawerToggle.onConfigurationChanged(newConfig);
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(drawer)) {
+            drawerLayout.closeDrawer(drawer);
+        } else if (isTopFragment() && state.getSelectedDrawerPosition() != 0) {
+            drawerMenuClicked(0);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -143,7 +248,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         return super.onKeyUp(keyCode, event);
     }
 
-    void drawerItemClicked(int position) {
+    void drawerMenuClicked(int position) {
         if (state.getSelectedDrawerPosition() != position) {
             setSelectedDrawerItem(position);
         }
@@ -151,10 +256,12 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     private void setSelectedDrawerItem(int position) {
-        state.setSelectedDrawerPosition(position);
-        drawerListAdapter.setSelected(position);
-        MainDrawerItem selectedMainDrawerItem = drawerListAdapter.getItem(position);
+        drawerMenuAdapter.setSelected(state.getSelectedDrawerPosition());
+        MainDrawerItem selectedMainDrawerItem = drawerMenuAdapter.getItem(position);
         setContentFragment(selectedMainDrawerItem.getFragment(), false, selectedMainDrawerItem.getTag());
+        setTitle(selectedMainDrawerItem.getTitle());
+
+        state.setSelectedDrawerPosition(position);
         state.setSelectedFragmentTitle(selectedMainDrawerItem.getTitle());
         state.setFragmentTag(selectedMainDrawerItem.getTag());
     }
@@ -171,14 +278,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         fragmentTransaction.commit();
     }
 
-    private void toggleDrawer() {
-        if (drawerLayout.isDrawerOpen(drawer)) {
-            drawerLayout.closeDrawer(drawer);
-        } else {
-            drawerLayout.openDrawer(drawer);
-        }
-    }
-
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (drawerLayout.isDrawerOpen(drawer)) {
@@ -190,53 +289,46 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            homeClicked();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void homeClicked() {
+        if (isTopFragment()) {
+            toggleDrawer();
+        } else {
+            getSupportFragmentManager().popBackStack();
+        }
+    }
+
+    private void toggleDrawer() {
+        if (drawerLayout.isDrawerOpen(drawer)) {
+            drawerLayout.closeDrawer(drawer);
+        } else {
+            drawerLayout.openDrawer(drawer);
+        }
+    }
+
+    @Override
     public void onBackStackChanged() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
         state.setFragmentTag(fragment.getTag());
-        drawerToggle.setDrawerIndicatorEnabled(isTopFragment());
+        if (isTopFragment()) {
+            toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_menu_white_24dp));
+        } else {
+            toolbar.setNavigationIcon(getResources().getDrawable(R.drawable.ic_arrow_left_white_24dp));
+        }
     }
 
     private boolean isTopFragment() {
         return getSupportFragmentManager().getBackStackEntryCount() == 0;
     }
 
-    @Override
-    protected void onDestroy() {
-        getSupportFragmentManager().removeOnBackStackChangedListener(this);
-        drawerToggle = null;
-        super.onDestroy();
-    }
-
-    public void setToolbarBackground(int color) {
-        toolbar.setBackgroundColor(color);
-    }
-
     public Toolbar getToolbar() {
         return toolbar;
-    }
-
-    private class MainActivityDrawerToggle extends ActionBarDrawerToggle {
-        MainActivityDrawerToggle() {
-            super(MainActivity.this,
-                    drawerLayout,
-                    toolbar,
-                    R.string.appName,
-                    R.string.appName);
-        }
-
-        @Override
-        public void onDrawerOpened(View drawerView) {
-            state.setSelectedFragmentTitle(getTitle().toString());
-            setTitle(state.getAppName());
-            super.onDrawerOpened(drawerView);
-            MainActivity.this.invalidateOptionsMenu();
-        }
-
-        @Override
-        public void onDrawerClosed(View drawerView) {
-            setTitle(state.getSelectedFragmentTitle());
-            super.onDrawerClosed(drawerView);
-            MainActivity.this.invalidateOptionsMenu();
-        }
     }
 }

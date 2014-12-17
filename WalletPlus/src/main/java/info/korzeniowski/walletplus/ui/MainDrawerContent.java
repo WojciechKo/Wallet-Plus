@@ -23,11 +23,11 @@ public class MainDrawerContent {
 
     @Inject
     public MainDrawerContent(Context context) {
-        mainDrawerItems = new LinkedList<MainDrawerItem>();
+        mainDrawerItems = new LinkedList<>();
 
         mainDrawerItems.add(
                 new MainDrawerItem(
-                        context.getString(R.string.appName),
+                        context.getString(R.string.dashboardMenu),
                         R.drawable.ic_menu_dashboard,
                         DashboardFragment.class,
                         DashboardFragment.TAG));

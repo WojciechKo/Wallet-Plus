@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
         package="info.korzeniowski.walletplus"
-        xmlns:android="http://schemas.android.com/apk/res/android">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:installLocation="auto">
 
     <application
             android:name=".WalletPlus"
             android:allowBackup="true"
             android:icon="@drawable/ic_launcher_walletplus"
             android:label="@string/appName"
+            android:supportsRtl="false"
             android:theme="@style/WalletPlusStyle">
 
         <meta-data

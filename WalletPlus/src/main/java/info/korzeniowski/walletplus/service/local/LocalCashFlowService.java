@@ -173,9 +173,6 @@ public class LocalCashFlowService implements CashFlowService {
         boolean isFirst = true;
 
         if (from != null) {
-//            if (!isFirst) {
-//                where.and();
-//            }
             where.ge("dateTime", from);
             isFirst = false;
         }
@@ -205,7 +202,6 @@ public class LocalCashFlowService implements CashFlowService {
                 where.and();
             }
             where.eq("toWallet_id", toWalletId);
-//            isFirst = false;
         }
 
         return where;

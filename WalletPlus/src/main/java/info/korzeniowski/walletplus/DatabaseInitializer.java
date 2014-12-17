@@ -1,11 +1,6 @@
 package info.korzeniowski.walletplus;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
-import com.j256.ormlite.table.TableUtils;
-
-import java.sql.SQLException;
+import java.lang.ref.WeakReference;
 import java.util.Calendar;
 
 import javax.inject.Inject;
@@ -18,8 +13,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.service.exception.DatabaseException;
-import info.korzeniowski.walletplus.service.local.DatabaseHelper;
+import info.korzeniowski.walletplus.service.local.LocalAccountService;
 
 public class DatabaseInitializer {
 
@@ -35,48 +29,23 @@ public class DatabaseInitializer {
     @Named("local")
     CategoryService localCategoryService;
 
-    @Inject
-    DatabaseHelper databaseHelper;
+    private final WeakReference<WalletPlus> walletPlus;
 
-    private WalletPlus walletPlus;
-
-    DatabaseInitializer(WalletPlus walletPlus) {
-        this.walletPlus = walletPlus;
-        walletPlus.inject(this);
+    public DatabaseInitializer(WalletPlus walletPlus) {
+        this.walletPlus = new WeakReference<>(walletPlus);
     }
 
-    public void initDatabaseAfterInstallation() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(walletPlus);
-        boolean isFirstRun = sharedPreferences.getBoolean("firstRun", true);
-        if (isFirstRun) {
-            clearDatabase();
-            initDatabase();
-            initExampleDatabase();
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("firstRun", false);
-            editor.commit();
-        }
+    public Account createExampleAccount() {
+        LocalAccountService localAccountService1 = walletPlus.get().getGraph().get(LocalAccountService.class);
+        Account result = new Account().setName("Example Account");
+        localAccountService1.insert(result);
+        walletPlus.get().setCurrentAccount(result);
+        walletPlus.get().inject(this);
+        fillExampleDatabase();
+        return result;
     }
 
-    private void clearDatabase() {
-        try {
-            TableUtils.clearTable(databaseHelper.getConnectionSource(), Account.class);
-            TableUtils.clearTable(databaseHelper.getConnectionSource(), CashFlow.class);
-            TableUtils.clearTable(databaseHelper.getConnectionSource(), Category.class);
-            TableUtils.clearTable(databaseHelper.getConnectionSource(), Wallet.class);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    private void initDatabase() {
-        localCategoryService.insert(
-                new Category()
-                        .setType(Category.Type.TRANSFER)
-                        .setName(walletPlus.getString(R.string.transferCategoryName)));
-    }
-
-    private void initExampleDatabase() {
+    private void fillExampleDatabase() {
         /** Init my wallets **/
         Wallet personalWallet = new Wallet().setType(Wallet.Type.MY_WALLET).setName("Personal wallet").setInitialAmount(100.0).setCurrentAmount(100.0);
         localWalletService.insert(personalWallet);

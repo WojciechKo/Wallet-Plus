@@ -5,9 +5,16 @@ import android.os.Parcelable;
 
 import com.j256.ormlite.field.DatabaseField;
 
-public class Wallet implements Identityable, Parcelable {
-    public enum Type {MY_WALLET, CONTRACTOR}
+public class Wallet implements Identifiable, Parcelable {
+    public static final Parcelable.Creator<Wallet> CREATOR = new Parcelable.Creator<Wallet>() {
+        public Wallet createFromParcel(Parcel in) {
+            return new Wallet(in);
+        }
 
+        public Wallet[] newArray(int size) {
+            return new Wallet[size];
+        }
+    };
     @DatabaseField(generatedId = true)
     private Long id;
 
@@ -22,16 +29,6 @@ public class Wallet implements Identityable, Parcelable {
 
     @DatabaseField(canBeNull = false)
     private Double currentAmount;
-
-    public static final Parcelable.Creator<Wallet> CREATOR = new Parcelable.Creator<Wallet>() {
-        public Wallet createFromParcel(Parcel in) {
-            return new Wallet(in);
-        }
-
-        public Wallet[] newArray(int size) {
-            return new Wallet[size];
-        }
-    };
 
     public Wallet() {
 
@@ -57,39 +54,6 @@ public class Wallet implements Identityable, Parcelable {
         dest.writeInt(type.ordinal());
         dest.writeDouble(initialAmount);
         dest.writeDouble(currentAmount);
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Wallet)) return false;
-
-        Wallet wallet = (Wallet) o;
-
-        if (id != null ? !id.equals(wallet.id) : wallet.id != null) return false;
-        if (name != null ? !name.equals(wallet.name) : wallet.name != null) return false;
-        if (type != wallet.type) return false;
-
-        return true;
-    }
-
-    @Override
-    public final int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Wallet{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", type=" + type +
-                ", initialAmount=" + initialAmount +
-                ", currentAmount=" + currentAmount +
-                '}';
     }
 
     @Override
@@ -136,5 +100,53 @@ public class Wallet implements Identityable, Parcelable {
     public Wallet setCurrentAmount(Double currentAmount) {
         this.currentAmount = currentAmount;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Wallet wallet = (Wallet) o;
+
+        if (currentAmount != null ? !currentAmount.equals(wallet.currentAmount) : wallet.currentAmount != null)
+            return false;
+        if (id != null ? !id.equals(wallet.id) : wallet.id != null)
+            return false;
+        if (initialAmount != null ? !initialAmount.equals(wallet.initialAmount) : wallet.initialAmount != null)
+            return false;
+        if (name != null ? !name.equals(wallet.name) : wallet.name != null)
+            return false;
+        if (type != wallet.type) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (initialAmount != null ? initialAmount.hashCode() : 0);
+        result = 31 * result + (currentAmount != null ? currentAmount.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Wallet{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", type=" + type +
+                ", initialAmount=" + initialAmount +
+                ", currentAmount=" + currentAmount +
+                '}';
+    }
+
+    public enum Type {
+        MY_WALLET,
+        CONTRACTOR
     }
 }

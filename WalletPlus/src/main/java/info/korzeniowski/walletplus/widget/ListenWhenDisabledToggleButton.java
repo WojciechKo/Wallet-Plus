@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.widget;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.ToggleButton;
@@ -25,7 +26,7 @@ public class ListenWhenDisabledToggleButton extends ToggleButton {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN
                 && !isEnabled()
                 && disabledListener != null) {

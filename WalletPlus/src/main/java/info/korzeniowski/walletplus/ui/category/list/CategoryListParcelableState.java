@@ -38,7 +38,7 @@ public class CategoryListParcelableState implements Parcelable {
         return new DateTime(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth(), 0, 0).toDate();
     }
 
-    public CategoryListParcelableState(Parcel in) {
+    private CategoryListParcelableState(Parcel in) {
         startDate = new Date(in.readLong());
         period = CategoryListFragmentMain.Period.values()[in.readInt()];
         categoryList = Arrays.asList((Category[]) in.readParcelableArray(Category.class.getClassLoader()));

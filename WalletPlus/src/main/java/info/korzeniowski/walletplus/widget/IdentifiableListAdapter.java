@@ -6,20 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.google.common.collect.Iterables;
-
 import java.util.List;
 
-import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.Identityable;
+import info.korzeniowski.walletplus.model.Identifiable;
 
-public abstract class IdentifiableListAdapter<T extends Identityable> extends BaseAdapter {
+public abstract class IdentifiableListAdapter<T extends Identifiable> extends BaseAdapter {
 
     private final Context context;
     private final List<T> items;
-    private int itemResourceLayout;
+    private final int itemResourceLayout;
 
-    public IdentifiableListAdapter(Context context, List<T> items, int itemLayout) {
+    protected IdentifiableListAdapter(Context context, List<T> items, int itemLayout) {
         this.context = context;
         this.items = items;
         this.itemResourceLayout = itemLayout;
@@ -61,7 +58,7 @@ public abstract class IdentifiableListAdapter<T extends Identityable> extends Ba
         items.remove(entity);
     }
 
-    public final Context getContext() {
+    protected final Context getContext() {
         return context;
     }
 

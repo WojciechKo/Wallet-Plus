@@ -15,7 +15,7 @@ import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.ui.DrawerListAdapter;
+import info.korzeniowski.walletplus.ui.DrawerMenuAdapter;
 import info.korzeniowski.walletplus.ui.MainDrawerContent;
 import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
 
@@ -27,7 +27,7 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
         injects = {
                 MainActivity.class,
                 MainDrawerContent.class,
-                DrawerListAdapter.class,
+                DrawerMenuAdapter.class,
                 WalletListAdapter.class
         }
 )

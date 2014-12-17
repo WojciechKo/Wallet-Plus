@@ -2,12 +2,4 @@
 <resources>
     <style name="WalletPlusStyle" parent="Theme.AppCompat.Light.NoActionBar">
     </style>
-
-    <!-- CardIU -->
-    <style name="Card">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@drawable/selector_card_background</item>
-        <item name="android:padding">@dimen/cardContentPadding</item>
-    </style>
 </resources>

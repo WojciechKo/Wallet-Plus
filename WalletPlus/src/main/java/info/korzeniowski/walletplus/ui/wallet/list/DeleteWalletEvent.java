@@ -1,6 +1,6 @@
 package info.korzeniowski.walletplus.ui.wallet.list;
 
-public class DeleteWalletEvent {
+class DeleteWalletEvent {
     private Long id;
 
     public DeleteWalletEvent(Long id) {

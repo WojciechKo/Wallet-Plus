@@ -2,7 +2,6 @@ package info.korzeniowski.walletplus.service.local;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.stmt.PreparedQuery;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -18,7 +17,7 @@ import info.korzeniowski.walletplus.service.local.validation.WalletValidator;
 public class LocalWalletService implements WalletService {
     private WalletValidator walletValidator;
     private final Dao<Wallet, Long> walletDao;
-    private Dao<CashFlow, Long> cashFlowDao;
+    private final Dao<CashFlow, Long> cashFlowDao;
 
     @Inject
     public LocalWalletService(Dao<Wallet, Long> walletDao, Dao<CashFlow, Long> cashFlowDao) {
@@ -85,7 +84,7 @@ public class LocalWalletService implements WalletService {
     public void deleteById(Long id) {
         try {
             walletValidator.validateDelete(id);
-            DeleteBuilder db = cashFlowDao.deleteBuilder();
+            DeleteBuilder<CashFlow, Long> db = cashFlowDao.deleteBuilder();
             db.where()
                 .eq("fromWallet_id", id)
                 .or()

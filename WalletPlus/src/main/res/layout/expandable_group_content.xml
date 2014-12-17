@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:descendantFocusability="afterDescendants"
-    android:paddingLeft="@dimen/edgePadding">
-
-    <ImageView
-        android:id="@+id/divider"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:src="@drawable/dark_divider" />
+        android:descendantFocusability="afterDescendants"
+        android:paddingLeft="@dimen/edgePadding"
+        tools:ignore="RtlSymmetry">
 
-    <FrameLayout
-        android:id="@+id/group_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/divider"
-        android:layout_toLeftOf="@+id/group_indicator">
+    <ImageView android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:contentDescription="@string/divider"
+            android:src="@drawable/dark_divider"/>
 
-        <ViewStub
-            android:id="@+id/content_stub"
-            android:layout_width="wrap_content"
-            android:layout_height="64dp" />
+    <FrameLayout android:id="@+id/group_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/divider"
+            android:layout_toLeftOf="@+id/group_indicator">
+
+        <ViewStub android:id="@+id/content_stub"
+                android:layout_width="wrap_content"
+                android:layout_height="64dp"/>
     </FrameLayout>
 
-    <ImageView
-        android:id="@+id/group_indicator"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_below="@id/divider"
-        android:layout_centerInParent="true"
-        android:background="@null"
-        android:scaleType="center" />
+    <ImageView android:id="@+id/group_indicator"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_below="@id/divider"
+            android:layout_centerInParent="true"
+            android:background="@null"
+            android:contentDescription="@string/groupIndicator"
+            android:scaleType="center"/>
 </RelativeLayout>

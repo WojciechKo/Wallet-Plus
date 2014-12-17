@@ -1,10 +1,8 @@
 package info.korzeniowski.walletplus.module;
 
-import android.content.Context;
-
-import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
+import java.lang.ref.WeakReference;
 import java.sql.SQLException;
 
 import javax.inject.Named;
@@ -14,21 +12,23 @@ import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.DatabaseInitializer;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.service.local.DatabaseHelper;
+import info.korzeniowski.walletplus.service.local.LocalAccountService;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
+import info.korzeniowski.walletplus.service.local.MainDatabaseHelper;
+import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment;
-import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment2;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListFragmentMain;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
@@ -44,30 +44,52 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
                 DashboardFragment.class,
 
                 CategoryDetailsFragment.class,
-                CategoryListFragment.class,
                 CategoryListFragmentMain.class,
-                CategoryListFragment2.class,
+                CategoryListFragment.class,
 
                 CashFlowDetailsFragment.class,
                 CashFlowListFragment.class,
 
                 WalletDetailsFragment.class,
-                WalletListFragment.class
+                WalletListFragment.class,
+
+                LocalAccountService.class
         },
         complete = false
 )
 public class DatabaseModule {
 
-    private Context context;
+    private final WeakReference<WalletPlus> application;
 
     public DatabaseModule(WalletPlus application) {
-        context = application.getApplicationContext();
+        this.application = new WeakReference<>(application);
     }
 
     @Provides
     @Singleton
-    public DatabaseHelper provideDatabaseHelper() {
-        return OpenHelperManager.getHelper(context, DatabaseHelper.class);
+    public MainDatabaseHelper provideMainDatabaseHelper() {
+        return new MainDatabaseHelper(application.get());
+    }
+
+    @Provides
+    @Singleton
+    public UserDatabaseHelper provideDatabaseHelper() {
+        return new UserDatabaseHelper(application.get());
+    }
+
+    /**
+     * *************
+     * ACCOUNT
+     * *************
+     */
+    @Provides
+    public Dao<Account, Long> provideAccountDao(MainDatabaseHelper mainDatabaseHelper) {
+        try {
+            return mainDatabaseHelper.getAccountDao();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -76,9 +98,9 @@ public class DatabaseModule {
      * *************
      */
     @Provides
-    public Dao<Category, Long> provideCategoryDao(DatabaseHelper databaseHelper) {
+    public Dao<Category, Long> provideCategoryDao(UserDatabaseHelper userDatabaseHelper) {
         try {
-            return databaseHelper.getCategoryDao();
+            return userDatabaseHelper.getCategoryDao();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -98,9 +120,9 @@ public class DatabaseModule {
      * *************
      */
     @Provides
-    public Dao<CashFlow, Long> provideCashFlowDao(DatabaseHelper databaseHelper) {
+    public Dao<CashFlow, Long> provideCashFlowDao(UserDatabaseHelper userDatabaseHelper) {
         try {
-            return databaseHelper.getCashFlowDao();
+            return userDatabaseHelper.getCashFlowDao();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -120,9 +142,9 @@ public class DatabaseModule {
      * *************
      */
     @Provides
-    public Dao<Wallet, Long> provideWalletDao(DatabaseHelper databaseHelper) {
+    public Dao<Wallet, Long> provideWalletDao(UserDatabaseHelper userDatabaseHelper) {
         try {
-            return databaseHelper.getWalletDao();
+            return userDatabaseHelper.getWalletDao();
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -32,7 +32,6 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
-import info.korzeniowski.walletplus.widget.ListenWhenDisabledToggleButton;
 
 public class CategoryDetailsFragment extends Fragment {
     public static final String TAG = "categoryDetails";
@@ -215,8 +214,8 @@ public class CategoryDetailsFragment extends Fragment {
     }
 
     class ParentCategoryAdapter extends BaseAdapter {
-        private Context context;
-        private List<Category> mainCategories;
+        private final Context context;
+        private final List<Category> mainCategories;
 
         ParentCategoryAdapter(Context context, List<Category> mainCategories) {
             mainCategories.add(0, new Category().setName(context.getString(R.string.categoryNoParentSelected)));
