@@ -14,9 +14,9 @@ import java.util.List;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.Childable;
-import info.korzeniowski.walletplus.model.Identityable;
+import info.korzeniowski.walletplus.model.Identifiable;
 
-public abstract class IdentifiableExpandableListAdapter<T extends Identityable & Childable<T>> extends BaseExpandableListAdapter {
+public abstract class IdentifiableExpandableListAdapter<T extends Identifiable & Childable<T>> extends BaseExpandableListAdapter {
     private final Context context;
     private final List<T> items;
     private final int groupItemLayout;

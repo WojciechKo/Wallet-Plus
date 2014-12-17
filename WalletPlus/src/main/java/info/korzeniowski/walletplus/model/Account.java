@@ -2,7 +2,7 @@ package info.korzeniowski.walletplus.model;
 
 import com.j256.ormlite.field.DatabaseField;
 
-public class Account implements Identityable{
+public class Account implements Identifiable {
 
     @DatabaseField(generatedId = true)
     private Long id;

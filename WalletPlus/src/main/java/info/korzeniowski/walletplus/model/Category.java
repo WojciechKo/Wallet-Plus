@@ -14,7 +14,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class Category implements Comparable<Category>, Identityable, Childable<Category>, Parcelable {
+public class Category implements Comparable<Category>, Identifiable, Childable<Category>, Parcelable {
     public static final Parcelable.Creator<Category> CREATOR = new Parcelable.Creator<Category>() {
         public Category createFromParcel(Parcel in) {
             return new Category(in);
@@ -24,6 +24,7 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
             return new Category[size];
         }
     };
+
     @DatabaseField(generatedId = true)
     private Long id;
 
@@ -71,41 +72,6 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
         dest.writeValue(type);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Category)) return false;
-
-        Category category = (Category) o;
-
-        if (id != null ? !id.equals(category.id) : category.id != null) return false;
-        if (name != null ? !name.equals(category.name) : category.name != null) return false;
-        if (parent != null ? !parent.getId().equals(category.parent.getId()) : category.parent != null)
-            return false;
-        if (type != category.type) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (parent != null ? parent.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public final String toString() {
-        return "Category{" +
-                "id=" + id +
-                ", parent=" + parent +
-                ", name='" + name + '\'' +
-                ", type=" + type +
-                '}';
-    }
-
     public Long getId() {
         return id;
     }
@@ -140,6 +106,46 @@ public class Category implements Comparable<Category>, Identityable, Childable<C
     public Category setType(Type type) {
         this.type = type;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Category category = (Category) o;
+
+        if (id != null ? !id.equals(category.id) : category.id != null)
+            return false;
+        if (name != null ? !name.equals(category.name) : category.name != null)
+            return false;
+        if (parent != null ? !parent.equals(category.parent) : category.parent != null)
+            return false;
+        if (type != category.type)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (parent != null ? parent.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public final String toString() {
+        return "Category{" +
+                "id=" + id +
+                ", parent=" + parent +
+                ", name='" + name + '\'' +
+                ", type=" + type +
+                '}';
     }
 
     @Override

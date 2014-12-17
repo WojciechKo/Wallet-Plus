@@ -1,5 +1,5 @@
 package info.korzeniowski.walletplus.model;
 
-public interface Identityable {
+public interface Identifiable {
     Long getId();
 }

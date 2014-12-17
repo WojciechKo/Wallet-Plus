@@ -8,9 +8,9 @@ import android.widget.BaseAdapter;
 
 import java.util.List;
 
-import info.korzeniowski.walletplus.model.Identityable;
+import info.korzeniowski.walletplus.model.Identifiable;
 
-public abstract class IdentifiableListAdapter<T extends Identityable> extends BaseAdapter {
+public abstract class IdentifiableListAdapter<T extends Identifiable> extends BaseAdapter {
 
     private final Context context;
     private final List<T> items;

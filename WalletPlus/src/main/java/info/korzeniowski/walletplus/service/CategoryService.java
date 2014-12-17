@@ -81,19 +81,22 @@ public interface CategoryService extends BaseService<Category> {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
 
             CategoryStats that = (CategoryStats) o;
 
             if (categoryId != null ? !categoryId.equals(that.categoryId) : that.categoryId != null)
                 return false;
-            if (income != null ? !income.equals(that.income) : that.income != null) return false;
             if (expense != null ? !expense.equals(that.expense) : that.expense != null)
                 return false;
-            if (totalIncome != null ? !totalIncome.equals(that.totalIncome) : that.totalIncome != null)
+            if (income != null ? !income.equals(that.income) : that.income != null)
                 return false;
             if (totalExpense != null ? !totalExpense.equals(that.totalExpense) : that.totalExpense != null)
+                return false;
+            if (totalIncome != null ? !totalIncome.equals(that.totalIncome) : that.totalIncome != null)
                 return false;
 
             return true;
