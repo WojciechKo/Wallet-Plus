@@ -15,22 +15,19 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.module.DatabaseModule;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
-import info.korzeniowski.walletplus.test.service.cashflow.LocalCashFlowServiceTest;
 import info.korzeniowski.walletplus.test.ui.wallet.details.AddingMyWalletFragmentTest;
 import info.korzeniowski.walletplus.test.ui.wallet.details.EditingMyWalletFragmentTest;
 import info.korzeniowski.walletplus.test.ui.wallet.list.WalletListFragmentTest;
 
 @Module(
-        addsTo = DatabaseModule.class,
+        includes = DatabaseModule.class,
         injects = {
                 AddingMyWalletFragmentTest.class,
                 EditingMyWalletFragmentTest.class,
-                WalletListFragmentTest.class,
-                LocalCashFlowServiceTest.class
+                WalletListFragmentTest.class
         },
         overrides = true,
-        complete = false,
-        library = true
+        complete = false
 )
 public class MockDatabaseModule {
 

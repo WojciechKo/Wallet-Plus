@@ -29,7 +29,6 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
@@ -80,7 +79,6 @@ public class EditingMyWalletFragmentTest {
     }
 
     private void daggerInjection() {
-        ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
         ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
         ((TestWalletPlus) Robolectric.application).inject(this);
     }

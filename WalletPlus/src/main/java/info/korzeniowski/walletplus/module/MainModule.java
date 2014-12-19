@@ -13,10 +13,9 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.ui.DrawerMenuAdapter;
 import info.korzeniowski.walletplus.ui.MainDrawerContent;
+import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
 import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
 
 /**
@@ -25,10 +24,10 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
 @Module(
         includes = DatabaseModule.class,
         injects = {
-                MainActivity.class,
+                WalletListAdapter.class,
+
                 MainDrawerContent.class,
-                DrawerMenuAdapter.class,
-                WalletListAdapter.class
+                WalletDetailsFragment.class
         }
 )
 public class MainModule {

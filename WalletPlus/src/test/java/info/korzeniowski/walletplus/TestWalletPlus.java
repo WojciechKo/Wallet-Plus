@@ -1,9 +1,5 @@
 package info.korzeniowski.walletplus;
 
-import com.google.common.collect.Lists;
-
-import net.danlew.android.joda.JodaTimeAndroid;
-
 import java.util.List;
 
 import dagger.ObjectGraph;
@@ -15,19 +11,16 @@ public class TestWalletPlus extends WalletPlus {
     private List<Object> modules;
 
     @Override
-    public void onCreate() {
-        graph = ObjectGraph.create(getModules().toArray());
-        JodaTimeAndroid.init(this);
-    }
-
-    @Override
     List<Object> getModules() {
         if (modules == null) {
-            modules = Lists.newArrayList();
             modules = super.getModules();
             modules.add(new TestDatabaseModule());
         }
         return modules;
+    }
+
+    @Override
+    public void initApplication() {
     }
 
     public void addModules(Object module) {

@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.DatabaseInitializer;
+import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
@@ -39,7 +40,7 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
  */
 @Module(
         injects = {
-                DatabaseInitializer.class,
+                MainActivity.class,
 
                 DashboardFragment.class,
 
@@ -53,6 +54,7 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
                 WalletDetailsFragment.class,
                 WalletListFragment.class,
 
+                DatabaseInitializer.class,
                 LocalAccountService.class
         },
         complete = false

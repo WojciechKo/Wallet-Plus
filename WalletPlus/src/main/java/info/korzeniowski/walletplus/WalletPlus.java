@@ -40,15 +40,18 @@ public class WalletPlus extends Application {
     public void onCreate() {
         super.onCreate();
         graph = ObjectGraph.create(getModules().toArray());
+        JodaTimeAndroid.init(this);
+        initApplication();
+    }
+
+    void initApplication() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (isFirstRun(sharedPreferences)) {
             handleFirstRun(sharedPreferences);
         } else {
             setCurrentAccount(getLastLoggedAccount(sharedPreferences));
         }
-        JodaTimeAndroid.init(this);
     }
-
     private boolean isFirstRun(SharedPreferences sharedPreferences) {
         return sharedPreferences.getBoolean(FIRST_RUN, true);
     }
