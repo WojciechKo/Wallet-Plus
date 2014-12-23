@@ -86,6 +86,11 @@ public class WalletDetailsFragment extends Fragment {
         wallet = savedInstanceState.getParcelable("wallet");
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.reset(this);
+    }
     private void initFields() {
         Long walletId = getArguments() != null ? getArguments().getLong(WALLET_ID) : 0;
         if (walletId == 0) {

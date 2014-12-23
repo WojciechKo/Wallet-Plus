@@ -94,6 +94,12 @@ public class CategoryListFragmentMain extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.reset(this);
+    }
+
     private void updateCategoryListState(CategoryListParcelableState state) {
         state.setCategoryList(getMainCategories());
     }
@@ -117,8 +123,8 @@ public class CategoryListFragmentMain extends Fragment {
         pager.setOnPageChangeListener(pagerAdapter);
 
         tabs.setTextColor(getResources().getColor(R.color.white));
-        tabs.setBackgroundColor(getResources().getColor(R.color.mainColor));
-        tabs.setTabIndicatorColor(getResources().getColor(R.color.lightMainColor));
+        tabs.setBackgroundColor(getResources().getColor(R.color.theme_primary));
+        tabs.setTabIndicatorColor(getResources().getColor(R.color.theme_primary_light));
         pager.setCurrentItem(pager.getAdapter().getCount() / 2);
     }
 
