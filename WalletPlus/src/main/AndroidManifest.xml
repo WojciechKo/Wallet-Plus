@@ -17,17 +17,28 @@
                 android:value="@integer/google_play_services_version"/>
 
         <activity
-                android:name=".MainActivity"
-                android:label="@string/appName"
-                android:windowSoftInputMode="stateHidden">
+                android:name=".ui.dashboard.DashboardActivity"
+                android:label="@string/appName">
 
             <intent-filter>
-
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+        </activity>
+
+        <activity
+                android:name=".ui.category.list.CategoryListActivity"
+                android:label="@string/categoryListLabel"/>
+
+        <activity
+                android:name=".ui.category.details.CategoryDetailsActivity"
+                android:label="@string/categoryDetailsLabel"
+                android:parentActivityName=".ui.category.list.CategoryListActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.category.list.CategoryListActivity"/>
         </activity>
     </application>
 </manifest>

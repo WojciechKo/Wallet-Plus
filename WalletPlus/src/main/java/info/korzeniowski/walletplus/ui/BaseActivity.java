@@ -6,11 +6,9 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -34,10 +32,16 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
+import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.service.AccountService;
+import info.korzeniowski.walletplus.ui.cashflow.CashFlowActivity;
+import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
+import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
+import info.korzeniowski.walletplus.ui.wallet.list.WalletListActivity;
 import info.korzeniowski.walletplus.util.AccountUtils;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import info.korzeniowski.walletplus.util.UIUtils;
@@ -46,6 +50,7 @@ import info.korzeniowski.walletplus.util.UIUtils;
 public class BaseActivity extends ActionBarActivity {
 
     private static final String TAG = BaseActivity.class.getSimpleName();
+
     // delay to launch nav drawer type, to allow close animation to play
     private static final int NAVDRAWER_LAUNCH_DELAY = 250;
     // fade in and fade out durations for the main content when switching between
@@ -54,6 +59,7 @@ public class BaseActivity extends ActionBarActivity {
     private static final int MAIN_CONTENT_FADEIN_DURATION = 250;
     private static final int ACCOUNT_BOX_EXPAND_ANIM_DURATION = 200;
     @Inject
+    @Named("local")
     AccountService accountService;
     private Toolbar mActionBarToolbar;
     private DrawerLayout mDrawerLayout;
@@ -75,6 +81,17 @@ public class BaseActivity extends ActionBarActivity {
     private List<DrawerItemType> navigationDrawerItemList = Lists.newArrayList();
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        ((WalletPlus) getApplication()).inject(this);
+        mHandler = new Handler();
+
+        mThemedStatusBarColor = getResources().getColor(R.color.theme_primary_dark);
+        mNormalStatusBarColor = mThemedStatusBarColor;
+    }
+
+    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         setupNavDrawer();
@@ -87,6 +104,71 @@ public class BaseActivity extends ActionBarActivity {
         } else {
             Log.w(TAG, "No view with ID main_content to fade in.");
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Perform one-time bootstrap setup, if needed
+        if (!PrefUtils.isDataBootstrapDone(this) && mDataBootstrapThread == null) {
+            Log.d(TAG, "One-time data bootstrap not done yet. Doing now.");
+            performDataBootstrap();
+        }
+
+        startLoginProcess();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (isNavDrawerOpen()) {
+            closeNavDrawer();
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    protected boolean isNavDrawerOpen() {
+        return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.START);
+    }
+
+    protected void closeNavDrawer() {
+        if (mDrawerLayout != null) {
+            mDrawerLayout.closeDrawer(Gravity.START);
+        }
+    }
+
+    private void startLoginProcess() {
+        Long accountId = AccountUtils.getActiveAccountId(this);
+        if (accountId == -1) {
+            List<Account> accountList = accountService.getAll();
+            if (!accountList.isEmpty()) {
+                AccountUtils.setActiveAccountId(this, accountList.get(0).getId());
+            } else {
+                throw new RuntimeException("No accounts available. HANDLE THIS!");
+            }
+        }
+    }
+
+    /**
+     * Performs the one-time data bootstrap. This means taking our prepackaged conference data
+     * from the R.raw.bootstrap_data resource, and parsing it to populate the database. This
+     * data contains the sessions, speakers, etc.
+     */
+    private void performDataBootstrap() {
+        final Context appContext = getApplicationContext();
+        mDataBootstrapThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Starting data bootstrap process.");
+                // Load data from bootstrap raw resource
+                //...
+                mDataBootstrapThread = null;
+                PrefUtils.markDataBootstrapDone(appContext);
+            }
+        });
+        mDataBootstrapThread.start();
     }
 
     private void setupNavDrawer() {
@@ -170,63 +252,21 @@ public class BaseActivity extends ActionBarActivity {
         openDrawerOnWelcome();
     }
 
-    protected void onNavDrawerSlide(float offset) {
-    }
-
-    private void openDrawerOnWelcome() {
-        // When the user runs the app for the first time, we want to land them with the
-        // navigation drawer open. But just the first time.
-        if (!PrefUtils.isWelcomeDone(this)) {
-            // first run of the app starts with the nav drawer open
-            PrefUtils.markWelcomeDone(this);
-            mDrawerLayout.openDrawer(Gravity.START);
-        }
-    }
-
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
         getActionBarToolbar();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mHandler = new Handler();
-        populateNavigationDrawer();
-
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
-
-        ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setDisplayHomeAsUpEnabled(true);
+    protected Toolbar getActionBarToolbar() {
+        if (mActionBarToolbar == null) {
+            mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+            if (mActionBarToolbar != null) {
+                setSupportActionBar(mActionBarToolbar);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
         }
-
-        mThemedStatusBarColor = getResources().getColor(R.color.theme_primary_dark);
-        mNormalStatusBarColor = mThemedStatusBarColor;
-    }
-
-    private void populateNavigationDrawer() {
-        if (navigationDrawerMap.isEmpty()) {
-            navigationDrawerMap.put(DrawerItemType.DASHBOARD,
-                    new DrawerItemContent(android.R.drawable.ic_media_pause, "Dashboard", DashboardActivity.class));
-            navigationDrawerMap.put(DrawerItemType.CASH_FLOW,
-                    new DrawerItemContent(android.R.drawable.ic_popup_sync, "Cash flow", CashFlowActivity.class));
-            navigationDrawerMap.put(DrawerItemType.CATEGORY,
-                    new DrawerItemContent(android.R.drawable.ic_menu_camera, "Category", CategoryActivity.class));
-            navigationDrawerMap.put(DrawerItemType.WALLET,
-                    new DrawerItemContent(android.R.drawable.ic_menu_week, "Wallet", WalletActivity.class));
-        }
-        if (navigationDrawerItemList.isEmpty()) {
-            navigationDrawerItemList.add(DrawerItemType.DASHBOARD);
-            navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
-            navigationDrawerItemList.add(DrawerItemType.CASH_FLOW);
-            navigationDrawerItemList.add(DrawerItemType.CATEGORY);
-            navigationDrawerItemList.add(DrawerItemType.WALLET);
-            navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
-        }
-        setupNavDrawerViewContent();
+        return mActionBarToolbar;
     }
 
     private void setupNavDrawerViewContent() {
@@ -307,6 +347,28 @@ public class BaseActivity extends ActionBarActivity {
                 getResources().getColor(R.color.navdrawer_icon_tint));
     }
 
+    private void populateNavigationDrawer() {
+        if (navigationDrawerMap.isEmpty()) {
+            navigationDrawerMap.put(DrawerItemType.DASHBOARD,
+                    new DrawerItemContent(android.R.drawable.ic_media_pause, "Dashboard", DashboardActivity.class));
+            navigationDrawerMap.put(DrawerItemType.CASH_FLOW,
+                    new DrawerItemContent(android.R.drawable.ic_popup_sync, "Cash flow", CashFlowActivity.class));
+            navigationDrawerMap.put(DrawerItemType.CATEGORY,
+                    new DrawerItemContent(android.R.drawable.ic_menu_camera, "Category", CategoryListActivity.class));
+            navigationDrawerMap.put(DrawerItemType.WALLET,
+                    new DrawerItemContent(android.R.drawable.ic_menu_week, "Wallet", WalletListActivity.class));
+        }
+        if (navigationDrawerItemList.isEmpty()) {
+            navigationDrawerItemList.add(DrawerItemType.DASHBOARD);
+            navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
+            navigationDrawerItemList.add(DrawerItemType.CASH_FLOW);
+            navigationDrawerItemList.add(DrawerItemType.CATEGORY);
+            navigationDrawerItemList.add(DrawerItemType.WALLET);
+            navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
+        }
+        setupNavDrawerViewContent();
+    }
+
     private void onNavDrawerItemClicked(final DrawerItemType type) {
         if (type == getSelfNavDrawerItem()) {
             mDrawerLayout.closeDrawer(Gravity.START);
@@ -341,7 +403,7 @@ public class BaseActivity extends ActionBarActivity {
     }
 
     private void goToNavDrawerItem(DrawerItemType type) {
-        Intent intent = new Intent(this, navigationDrawerMap.get(type).getClass());
+        Intent intent = new Intent(this, navigationDrawerMap.get(type).getActivityClass());
         startActivity(intent);
         finish();
     }
@@ -361,14 +423,17 @@ public class BaseActivity extends ActionBarActivity {
         }
     }
 
-    protected Toolbar getActionBarToolbar() {
-        if (mActionBarToolbar == null) {
-            mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
-            if (mActionBarToolbar != null) {
-                setSupportActionBar(mActionBarToolbar);
-            }
+    protected void onNavDrawerSlide(float offset) {
+    }
+
+    private void openDrawerOnWelcome() {
+        // When the user runs the app for the first time, we want to land them with the
+        // navigation drawer open. But just the first time.
+        if (!PrefUtils.isWelcomeDone(this)) {
+            // first run of the app starts with the nav drawer open
+            PrefUtils.markWelcomeDone(this);
+            mDrawerLayout.openDrawer(Gravity.START);
         }
-        return mActionBarToolbar;
     }
 
     /**
@@ -386,7 +451,7 @@ public class BaseActivity extends ActionBarActivity {
 
         final View chosenAccountView = findViewById(R.id.chosen_account_view);
         final Long chosenAccountId = AccountUtils.getActiveAccountId(this);
-        if (chosenAccountId == null) {
+        if (chosenAccountId == -1) {
             // No account logged in; hide account box
             chosenAccountView.setVisibility(View.GONE);
             mAccountListContainer.setVisibility(View.GONE);
@@ -453,37 +518,6 @@ public class BaseActivity extends ActionBarActivity {
             });
             mAccountListContainer.addView(itemView);
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // Perform one-time bootstrap setup, if needed
-        if (!PrefUtils.isDataBootstrapDone(this) && mDataBootstrapThread == null) {
-            Log.d(TAG, "One-time data bootstrap not done yet. Doing now.");
-            performDataBootstrap();
-        }
-    }
-
-    /**
-     * Performs the one-time data bootstrap. This means taking our prepackaged conference data
-     * from the R.raw.bootstrap_data resource, and parsing it to populate the database. This
-     * data contains the sessions, speakers, etc.
-     */
-    private void performDataBootstrap() {
-        final Context appContext = getApplicationContext();
-        mDataBootstrapThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Starting data bootstrap process.");
-                // Load data from bootstrap raw resource
-                //...
-                mDataBootstrapThread = null;
-                PrefUtils.markDataBootstrapDone(appContext);
-            }
-        });
-        mDataBootstrapThread.start();
     }
 
     private void setupAccountBoxToggle() {
@@ -560,14 +594,26 @@ public class BaseActivity extends ActionBarActivity {
     }
 
     private class DrawerItemContent {
-        String tittle;
-        int icon;
-        Class<? extends BaseActivity> activity;
+        private String tittle;
+        private int icon;
+        private Class<? extends BaseActivity> activityClass;
 
-        private DrawerItemContent(int icon, String tittle, Class<? extends BaseActivity> activity) {
+        private DrawerItemContent(int icon, String tittle, Class<? extends BaseActivity> activityClass) {
             this.tittle = tittle;
             this.icon = icon;
-            this.activity = activity;
+            this.activityClass = activityClass;
+        }
+
+        public String getTittle() {
+            return tittle;
+        }
+
+        public int getIcon() {
+            return icon;
+        }
+
+        public Class<? extends BaseActivity> getActivityClass() {
+            return activityClass;
         }
     }
 }

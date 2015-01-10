@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NavUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -55,6 +56,16 @@ public class CategoryDetailsFragment extends Fragment {
     private DetailsType type;
     private List<Category> parentCategoryList;
     private Category category;
+
+    public static Fragment newInstance(Long id) {
+        Fragment fragment = new CategoryDetailsFragment();
+        Bundle bundle = new Bundle();
+        if (id != null) {
+            bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, id);
+            fragment.setArguments(bundle);
+        }
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -147,7 +158,7 @@ public class CategoryDetailsFragment extends Fragment {
 
     void selectedOptionDelete() {
         if (handleDeleteOption()) {
-            getActivity().getSupportFragmentManager().popBackStack();
+            getActivity().finish();
         }
     }
 
@@ -170,7 +181,7 @@ public class CategoryDetailsFragment extends Fragment {
         if (preValidation()) {
             getDataFromViews();
             if (handleSaveOption()) {
-                getActivity().getSupportFragmentManager().popBackStack();
+                getActivity().finish();
             }
         }
     }

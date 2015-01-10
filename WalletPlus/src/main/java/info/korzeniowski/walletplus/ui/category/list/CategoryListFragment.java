@@ -2,6 +2,7 @@ package info.korzeniowski.walletplus.ui.category.list;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -20,14 +21,13 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
-import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
+import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsActivity;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
 import info.korzeniowski.walletplus.widget.OnContentLongClickListener;
 
@@ -45,53 +45,39 @@ public class CategoryListFragment extends Fragment {
     @Named("local")
     CashFlowService localCashFlowService;
 
-    private CategoryListParcelableState categoryListState;
+    private CategoryListActivityState categoryListState;
     private int iteration;
+
+    public static CategoryListFragment newInstance(int iteration, CategoryListActivityState state) {
+        CategoryListFragment fragment = new CategoryListFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(ITERATION, iteration);
+        bundle.putParcelable(CategoryListActivity.CATEGORY_LIST_STATE, state);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
-        categoryListState = getArguments().getParcelable(CategoryListFragmentMain.CATEGORY_LIST_STATE);
+        categoryListState = getArguments().getParcelable(CategoryListActivity.CATEGORY_LIST_STATE);
         iteration = getArguments().getInt(ITERATION);
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        ButterKnife.reset(this);
-    }
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.category_list, container, false);
         ButterKnife.inject(this, view);
-        setupViews();
         return view;
     }
 
-    private void setupViews() {
-        setupAdapters();
-    }
-
-    private Period getPeriod(CategoryListFragmentMain.Period period) {
-        switch (period) {
-            case DAY:
-                return Period.days(1);
-            case WEEK:
-                return Period.weeks(1);
-            case MONTH:
-                return Period.months(1);
-            case YEAR:
-                return Period.years(1);
-        }
-        return null;
-    }
-
-    private void setupAdapters() {
+    @Override
+    public void onStart() {
+        super.onStart();
         list.setAdapter(getCategoryListAdapter());
-        removeListListeners();
-    }
+        removeListListeners();    }
 
     private CategoryStatsExpandableListAdapter getCategoryListAdapter() {
         return new CategoryStatsExpandableListAdapter(
@@ -104,7 +90,7 @@ public class CategoryListFragment extends Fragment {
                         if (category.getType() == Category.Type.NO_CATEGORY) {
                             Toast.makeText(getActivity(), getResources().getString(R.string.categoryNoCategoryClicked), Toast.LENGTH_SHORT).show();
                         } else {
-                            startCategoryDetailsFragment(category.getId());
+                            startCategoryDetailsActivity(category.getId());
                         }
                     }
                 },
@@ -123,6 +109,52 @@ public class CategoryListFragment extends Fragment {
     private List<CategoryService.CategoryStats> getCategoryStatsList() {
         return localCategoryService.getCategoryStatsList(categoryListState.getStartDate(), getPeriod(categoryListState.getPeriod()), iteration);
     }
+
+    private Period getPeriod(CategoryListActivity.Period period) {
+        switch (period) {
+            case DAY:
+                return Period.days(1);
+            case WEEK:
+                return Period.weeks(1);
+            case MONTH:
+                return Period.months(1);
+            case YEAR:
+                return Period.years(1);
+        }
+        return null;
+    }
+
+    private void startCategoryDetailsActivity(Long id) {
+        Intent intent = new Intent(getActivity(), CategoryDetailsActivity.class);
+        intent.putExtra(CategoryDetailsActivity.CATEGORY_ID, id);
+        startActivity(intent);
+    }
+
+    private void removeListListeners() {
+        list.setOnGroupClickListener(
+                new ExpandableListView.OnGroupClickListener() {
+                    @Override
+                    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                        return true;
+                    }
+                }
+        );
+        list.setOnChildClickListener(
+                new ExpandableListView.OnChildClickListener() {
+                    @Override
+                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                        return true;
+                    }
+                }
+        );
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.reset(this);
+    }
+
 
     private void showDeleteConfirmationAlert(final Category category) {
         new AlertDialog.Builder(getActivity())
@@ -148,7 +180,6 @@ public class CategoryListFragment extends Fragment {
         return "Do you want to delete category:\n" + category.getName() + "\n\n" + count + " cashflows will be assigned to no category.";
     }
 
-
     private void tryDeleteCategory(Category category) {
         try {
             localCategoryService.deleteById(category.getId());
@@ -158,32 +189,5 @@ public class CategoryListFragment extends Fragment {
             //TODO: alert if delete with subs
             Toast.makeText(getActivity(), R.string.categoryCantDeleteCategoryWithSubs, Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private void startCategoryDetailsFragment(Long id) {
-        Fragment fragment = new CategoryDetailsFragment();
-        Bundle bundle = new Bundle();
-        bundle.putLong(CategoryDetailsFragment.CATEGORY_ID, id);
-        fragment.setArguments(bundle);
-        ((MainActivity) getActivity()).setContentFragment(fragment, true, CategoryDetailsFragment.TAG);
-    }
-
-    private void removeListListeners() {
-        list.setOnGroupClickListener(
-                new ExpandableListView.OnGroupClickListener() {
-                    @Override
-                    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                        return true;
-                    }
-                }
-        );
-        list.setOnChildClickListener(
-                new ExpandableListView.OnChildClickListener() {
-                    @Override
-                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                        return true;
-                    }
-                }
-        );
     }
 }

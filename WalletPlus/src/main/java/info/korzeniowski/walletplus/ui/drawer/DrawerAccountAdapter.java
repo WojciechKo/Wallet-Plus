@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui;
+package info.korzeniowski.walletplus.ui.drawer;
 
 import android.content.Context;
 import android.view.View;

@@ -14,7 +14,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.ui.MainDrawerContent;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
 import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
 
@@ -26,7 +25,6 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
         injects = {
                 WalletListAdapter.class,
 
-                MainDrawerContent.class,
                 WalletDetailsFragment.class
         }
 )
@@ -35,11 +33,6 @@ public class MainModule {
 
     public MainModule(WalletPlus application) {
         this.application = application;
-    }
-
-    @Provides
-    Context provideContext() {
-        return application.getApplicationContext();
     }
 
     @Provides

@@ -11,36 +11,35 @@ import java.util.List;
 
 import info.korzeniowski.walletplus.model.Category;
 
+import static info.korzeniowski.walletplus.ui.category.list.CategoryListActivity.Period;
 
-public class CategoryListParcelableState implements Parcelable {
+public class CategoryListActivityState implements Parcelable {
 
-    private Date startDate;
-    private CategoryListFragmentMain.Period period;
-    private List<Category> categoryList;
-
-    public static final Parcelable.Creator<CategoryListParcelableState> CREATOR = new Parcelable.Creator<CategoryListParcelableState>() {
-        public CategoryListParcelableState createFromParcel(Parcel in) {
-            return new CategoryListParcelableState(in);
+    public static final Parcelable.Creator<CategoryListActivityState> CREATOR = new Parcelable.Creator<CategoryListActivityState>() {
+        public CategoryListActivityState createFromParcel(Parcel in) {
+            return new CategoryListActivityState(in);
         }
 
-        public CategoryListParcelableState[] newArray(int size) {
-            return new CategoryListParcelableState[size];
+        public CategoryListActivityState[] newArray(int size) {
+            return new CategoryListActivityState[size];
         }
     };
 
-    public CategoryListParcelableState(CategoryListFragmentMain.Period period, List<Category> categoryList) {
+    private Date startDate;
+    private Period period;
+    private List<Category> categoryList;
+
+    public CategoryListActivityState() {
         this.startDate = getStartDate(DateTime.now());
-        this.period = period;
-        this.categoryList = categoryList;
     }
 
     private Date getStartDate(DateTime dateTime) {
         return new DateTime(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth(), 0, 0).toDate();
     }
 
-    private CategoryListParcelableState(Parcel in) {
+    private CategoryListActivityState(Parcel in) {
         startDate = new Date(in.readLong());
-        period = CategoryListFragmentMain.Period.values()[in.readInt()];
+        period = Period.values()[in.readInt()];
         categoryList = Arrays.asList((Category[]) in.readParcelableArray(Category.class.getClassLoader()));
     }
 
@@ -64,11 +63,11 @@ public class CategoryListParcelableState implements Parcelable {
         this.startDate = startDate;
     }
 
-    public CategoryListFragmentMain.Period getPeriod() {
+    public Period getPeriod() {
         return period;
     }
 
-    public void setPeriod(CategoryListFragmentMain.Period period) {
+    public void setPeriod(Period period) {
         this.period = period;
     }
 

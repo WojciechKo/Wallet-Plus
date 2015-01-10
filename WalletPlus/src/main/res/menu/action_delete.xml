@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:wallet="http://schemas.android.com/apk/res-auto" >
 
-    <type
+    <item
         android:id="@+id/menu_delete"
         android:icon="@drawable/ic_action_discard"
         android:title="@string/delete"

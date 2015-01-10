@@ -17,6 +17,7 @@ import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
@@ -26,11 +27,14 @@ import info.korzeniowski.walletplus.service.local.LocalCategoryService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
 import info.korzeniowski.walletplus.service.local.MainDatabaseHelper;
 import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
+import info.korzeniowski.walletplus.ui.BaseActivity;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
+import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsActivity;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
+import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment;
-import info.korzeniowski.walletplus.ui.category.list.CategoryListFragmentMain;
+import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
 import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
@@ -40,13 +44,18 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
  */
 @Module(
         injects = {
+                BaseActivity.class,
+
                 MainActivity.class,
 
+                DashboardActivity.class,
                 DashboardFragment.class,
 
-                CategoryDetailsFragment.class,
-                CategoryListFragmentMain.class,
+                CategoryListActivity.class,
                 CategoryListFragment.class,
+
+                CategoryDetailsActivity.class,
+                CategoryDetailsFragment.class,
 
                 CashFlowDetailsFragment.class,
                 CashFlowListFragment.class,
@@ -92,6 +101,13 @@ public class DatabaseModule {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Provides
+    @Named("local")
+    @Singleton
+    public AccountService provideAccountService(LocalAccountService localAccountService) {
+        return localAccountService;
     }
 
     /**

@@ -13,12 +13,12 @@ public class AccountUtils {
         return true;
     }
 
-    private static SharedPreferences getSharedPreferences(final Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context);
-    }
-
     public static Long getActiveAccountId(final Context context) {
         SharedPreferences sp = getSharedPreferences(context);
         return sp.getLong(PREF_ACTIVE_ACCOUNT, -1);
+    }
+
+    private static SharedPreferences getSharedPreferences(final Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context);
     }
 }

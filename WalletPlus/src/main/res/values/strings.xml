@@ -21,7 +21,6 @@
 
     <!-- Navigation drawer -->
     <string name="dashboardMenu">Dashboard</string>
-    <string name="categoryMenu">Categories</string>
     <string name="cashflowMenu">Cash flow</string>
     <string name="walletMenu">Wallets</string>
 
@@ -32,10 +31,14 @@
     <string name="totalAmountLabel">Total:</string>
 
     <!-- Category list fragment -->
+    <string name="categoryListLabel">Categories</string>
+
     <string name="categoryNoCategoryName">No category</string>
     <string name="categoryNoCategoryClicked">This category disappears after setting category to every cashflows.</string>
 
     <!-- Category details fragment -->
+    <string name="categoryDetailsLabel">Category</string>
+
     <string name="categoryNameLabel">Name:</string>
     <string name="categoryNameHint">name</string>
     <string name="categoryParentLabel">Parent:</string>
