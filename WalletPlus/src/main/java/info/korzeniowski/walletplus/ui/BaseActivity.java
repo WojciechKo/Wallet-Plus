@@ -40,6 +40,7 @@ import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.ui.cashflow.CashFlowActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
+import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.ui.wallet.list.WalletListActivity;
 import info.korzeniowski.walletplus.util.AccountUtils;
@@ -58,9 +59,7 @@ public class BaseActivity extends ActionBarActivity {
     private static final int MAIN_CONTENT_FADEOUT_DURATION = 150;
     private static final int MAIN_CONTENT_FADEIN_DURATION = 250;
     private static final int ACCOUNT_BOX_EXPAND_ANIM_DURATION = 200;
-    @Inject
-    @Named("local")
-    AccountService accountService;
+
     private Toolbar mActionBarToolbar;
     private DrawerLayout mDrawerLayout;
     // A Runnable that we should execute when the navigation drawer finishes its closing animation
@@ -79,6 +78,13 @@ public class BaseActivity extends ActionBarActivity {
     // Navigation drawer menu items
     private Map<DrawerItemType, DrawerItemContent> navigationDrawerMap = Maps.newHashMap();
     private List<DrawerItemType> navigationDrawerItemList = Lists.newArrayList();
+
+    @Inject
+    @Named("local")
+    AccountService accountService;
+
+    @Inject
+    protected CategoryListActivityState categoryListActivityState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -373,6 +379,10 @@ public class BaseActivity extends ActionBarActivity {
         if (type == getSelfNavDrawerItem()) {
             mDrawerLayout.closeDrawer(Gravity.START);
             return;
+        }
+
+        if (getSelfNavDrawerItem() == DrawerItemType.CATEGORY) {
+            categoryListActivityState.clear();
         }
 
         if (isSpecialItem(type)) {

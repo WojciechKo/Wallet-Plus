@@ -9,7 +9,11 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 import org.joda.time.Interval;
 
 import java.text.DateFormat;
@@ -34,7 +38,6 @@ import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 
 public class CategoryListActivity extends BaseActivity {
     public static final String TAG = CategoryListActivity.class.getSimpleName();
-    public static final String CATEGORY_LIST_STATE = "cashFlowDetailsState";
 
     @InjectView(R.id.tabs)
     PagerTabStrip tabs;
@@ -50,8 +53,6 @@ public class CategoryListActivity extends BaseActivity {
     @Named("local")
     CashFlowService localCashFlowService;
 
-    private CategoryListActivityState activityState;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,8 +64,17 @@ public class CategoryListActivity extends BaseActivity {
         ButterKnife.inject(this);
         setupViews();
 
-        ((WalletPlus) getApplication()).inject(this);
-        activityState = initOrRestoreState(savedInstanceState);
+        if (categoryListActivityState.getStartDate() == null) {
+            categoryListActivityState.setStartDate(DateTime
+                    .now()
+                    .withField(DateTimeFieldType.hourOfDay(), 0)
+                    .withField(DateTimeFieldType.minuteOfDay(), 0)
+                    .toDate());
+        }
+        if (categoryListActivityState.getPeriod() == null) {
+            categoryListActivityState.setPeriod(Period.WEEK);
+        }
+        categoryListActivityState.setCategoryList(getMainCategories());
 
         overridePendingTransition(0, 0);
     }
@@ -78,21 +88,6 @@ public class CategoryListActivity extends BaseActivity {
         tabs.setBackgroundColor(getResources().getColor(R.color.theme_primary));
         tabs.setTabIndicatorColor(getResources().getColor(R.color.theme_primary_light));
         pager.setCurrentItem(pager.getAdapter().getCount() / 2);
-    }
-
-    private CategoryListActivityState initOrRestoreState(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            return (CategoryListActivityState) savedInstanceState.getParcelable(CATEGORY_LIST_STATE);
-        } else {
-            return initState();
-        }
-    }
-
-    private CategoryListActivityState initState() {
-        CategoryListActivityState state = new CategoryListActivityState();
-        state.setPeriod(Period.WEEK);
-        state.setCategoryList(getMainCategories());
-        return state;
     }
 
     private List<Category> getMainCategories() {
@@ -113,12 +108,6 @@ public class CategoryListActivity extends BaseActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(CATEGORY_LIST_STATE, activityState);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.action_new, menu);
         return true;
@@ -127,15 +116,31 @@ public class CategoryListActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_new) {
-            startCategoryDetailsActivity();
+            Intent intent = new Intent(this, CategoryDetailsActivity.class);
+            startActivityForResult(intent, CategoryDetailsActivity.REQUEST_CODE_NEW_CATEGORY);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void startCategoryDetailsActivity() {
-        Intent intent = new Intent(this, CategoryDetailsActivity.class);
-        startActivity(intent);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CategoryDetailsActivity.REQUEST_CODE_NEW_CATEGORY) {
+            if (resultCode == RESULT_OK) {
+                categoryListActivityState.setCategoryList(getMainCategories());
+            }
+        } else if (requestCode == CategoryDetailsActivity.REQUEST_CODE_SHOW_DETAILS) {
+            if (resultCode == CategoryDetailsActivity.RESULT_DELETED) {
+                final Long categoryId = data.getExtras().getLong(CategoryDetailsActivity.RESULT_DATA_DELETED_CATEGORY_ID);
+                Iterables.removeIf(categoryListActivityState.getCategoryList(), new Predicate<Category>() {
+                    @Override
+                    public boolean apply(Category input) {
+                        return input.getId().equals(categoryId);
+                    }
+                });
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -166,7 +171,7 @@ public class CategoryListActivity extends BaseActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return CategoryListFragment.newInstance(getIterationFromPosition(position), activityState);
+            return CategoryListFragment.newInstance(getIterationFromPosition(position));
         }
 
         private int getIterationFromPosition(int position) {
@@ -180,8 +185,8 @@ public class CategoryListActivity extends BaseActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            Date fromDate = activityState.getStartDate();
-            org.joda.time.Period period = getPeriodInJoda(activityState.getPeriod());
+            Date fromDate = categoryListActivityState.getStartDate();
+            org.joda.time.Period period = getPeriodInJoda(categoryListActivityState.getPeriod());
             int iteration = getIterationFromPosition(position);
 
             Interval interval = KorzeniowskiUtils.Times.getInterval(new DateTime(fromDate), period, iteration);

@@ -1,7 +1,5 @@
 package info.korzeniowski.walletplus.ui.category.list;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -26,10 +24,8 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
-import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsActivity;
 import info.korzeniowski.walletplus.widget.OnContentClickListener;
-import info.korzeniowski.walletplus.widget.OnContentLongClickListener;
 
 public class CategoryListFragment extends Fragment {
     public static final String ITERATION = "iteration";
@@ -45,14 +41,15 @@ public class CategoryListFragment extends Fragment {
     @Named("local")
     CashFlowService localCashFlowService;
 
-    private CategoryListActivityState categoryListState;
+    @Inject
+    CategoryListActivityState categoryListActivityState;
+
     private int iteration;
 
-    public static CategoryListFragment newInstance(int iteration, CategoryListActivityState state) {
+    public static CategoryListFragment newInstance(int iteration) {
         CategoryListFragment fragment = new CategoryListFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(ITERATION, iteration);
-        bundle.putParcelable(CategoryListActivity.CATEGORY_LIST_STATE, state);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -61,7 +58,6 @@ public class CategoryListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((WalletPlus) getActivity().getApplication()).inject(this);
-        categoryListState = getArguments().getParcelable(CategoryListActivity.CATEGORY_LIST_STATE);
         iteration = getArguments().getInt(ITERATION);
     }
 
@@ -70,19 +66,20 @@ public class CategoryListFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.category_list, container, false);
         ButterKnife.inject(this, view);
+        removeListListeners();
         return view;
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
         list.setAdapter(getCategoryListAdapter());
-        removeListListeners();    }
+    }
 
     private CategoryStatsExpandableListAdapter getCategoryListAdapter() {
         return new CategoryStatsExpandableListAdapter(
                 getActivity(),
-                categoryListState.getCategoryList(),
+                categoryListActivityState.getCategoryList(),
                 getCategoryStatsList(),
                 new OnContentClickListener<Category>() {
                     @Override
@@ -94,20 +91,11 @@ public class CategoryListFragment extends Fragment {
                         }
                     }
                 },
-                new OnContentLongClickListener<Category>() {
-                    @Override
-                    public void onContentLongClick(Category category) {
-                        if (category.getType() == Category.Type.NO_CATEGORY) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.categoryNoCategoryClicked), Toast.LENGTH_SHORT).show();
-                        } else {
-                            showDeleteConfirmationAlert(category);
-                        }
-                    }
-                });
+                null);
     }
 
     private List<CategoryService.CategoryStats> getCategoryStatsList() {
-        return localCategoryService.getCategoryStatsList(categoryListState.getStartDate(), getPeriod(categoryListState.getPeriod()), iteration);
+        return localCategoryService.getCategoryStatsList(categoryListActivityState.getStartDate(), getPeriod(categoryListActivityState.getPeriod()), iteration);
     }
 
     private Period getPeriod(CategoryListActivity.Period period) {
@@ -126,7 +114,7 @@ public class CategoryListFragment extends Fragment {
 
     private void startCategoryDetailsActivity(Long id) {
         Intent intent = new Intent(getActivity(), CategoryDetailsActivity.class);
-        intent.putExtra(CategoryDetailsActivity.CATEGORY_ID, id);
+        intent.putExtra(CategoryDetailsActivity.EXTRAS_CATEGORY_ID, id);
         startActivity(intent);
     }
 
@@ -153,41 +141,5 @@ public class CategoryListFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.reset(this);
-    }
-
-
-    private void showDeleteConfirmationAlert(final Category category) {
-        new AlertDialog.Builder(getActivity())
-                .setMessage(getConfirmationMessage(category))
-                .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        tryDeleteCategory(category);
-                    }
-                })
-                .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-                .create()
-                .show();
-    }
-
-    private String getConfirmationMessage(Category category) {
-        Integer count = localCashFlowService.findCashFlow(null, null, category.getId(), null, null).size();
-        return "Do you want to delete category:\n" + category.getName() + "\n\n" + count + " cashflows will be assigned to no category.";
-    }
-
-    private void tryDeleteCategory(Category category) {
-        try {
-            localCategoryService.deleteById(category.getId());
-            categoryListState.getCategoryList().remove(category);
-            list.setAdapter(getCategoryListAdapter());
-        } catch (CategoryHaveSubsException e) {
-            //TODO: alert if delete with subs
-            Toast.makeText(getActivity(), R.string.categoryCantDeleteCategoryWithSubs, Toast.LENGTH_SHORT).show();
-        }
     }
 }

@@ -31,7 +31,6 @@ import info.korzeniowski.walletplus.ui.BaseActivity;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsActivity;
-import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
@@ -55,7 +54,6 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
                 CategoryListFragment.class,
 
                 CategoryDetailsActivity.class,
-                CategoryDetailsFragment.class,
 
                 CashFlowDetailsFragment.class,
                 CashFlowListFragment.class,

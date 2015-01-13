@@ -3,9 +3,8 @@ package info.korzeniowski.walletplus.ui.category.list;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.joda.time.DateTime;
+import com.google.common.collect.Lists;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +12,7 @@ import info.korzeniowski.walletplus.model.Category;
 
 import static info.korzeniowski.walletplus.ui.category.list.CategoryListActivity.Period;
 
+//TODO: Czy Parcelable jest jeszcze używany?
 public class CategoryListActivityState implements Parcelable {
 
     public static final Parcelable.Creator<CategoryListActivityState> CREATOR = new Parcelable.Creator<CategoryListActivityState>() {
@@ -30,17 +30,20 @@ public class CategoryListActivityState implements Parcelable {
     private List<Category> categoryList;
 
     public CategoryListActivityState() {
-        this.startDate = getStartDate(DateTime.now());
-    }
-
-    private Date getStartDate(DateTime dateTime) {
-        return new DateTime(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth(), 0, 0).toDate();
     }
 
     private CategoryListActivityState(Parcel in) {
-        startDate = new Date(in.readLong());
+        long tmpStartDate = in.readLong();
+        startDate = tmpStartDate != -1 ? new Date(tmpStartDate) : null;
         period = Period.values()[in.readInt()];
-        categoryList = Arrays.asList((Category[]) in.readParcelableArray(Category.class.getClassLoader()));
+        categoryList = Lists.newArrayList();
+        in.readList(categoryList, Category.class.getClassLoader());
+    }
+
+    public void clear() {
+        startDate = null;
+        period = null;
+        categoryList = null;
     }
 
     @Override
@@ -50,9 +53,9 @@ public class CategoryListActivityState implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(startDate.getTime());
+        dest.writeLong(startDate != null ? startDate.getTime() : -1L);
         dest.writeInt(period.ordinal());
-        dest.writeParcelableArray(categoryList.toArray(new Category[categoryList.size()]), flags);
+        dest.writeList(categoryList);
     }
 
     public Date getStartDate() {

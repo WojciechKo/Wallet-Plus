@@ -42,7 +42,7 @@
     <string name="categoryNameLabel">Name:</string>
     <string name="categoryNameHint">name</string>
     <string name="categoryParentLabel">Parent:</string>
-    <string name="categoryCantDeleteCategoryWithSubs">Cannot delete category which have subcategories.</string>
+    <string name="categoryCantDeleteCategoryWithSubs">Cannot delete category with subcategories.\nDelete subcategories first.</string>
     <string name="categoryMustHaveName">Category must have name.</string>
     <string name="categorySubCantHaveSubs">Subcategory cannot have subcategories.</string>
     <string name="categoryNoParentSelected">No parent (main category)</string>

@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
 import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
 
@@ -48,5 +49,11 @@ public class MainModule {
     @Singleton
     Bus provideBus() {
         return new Bus();
+    }
+
+    @Provides
+    @Singleton
+    CategoryListActivityState provideCategoryListActivityState() {
+        return new CategoryListActivityState();
     }
 }
