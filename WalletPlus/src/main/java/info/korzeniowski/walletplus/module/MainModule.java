@@ -1,9 +1,5 @@
 package info.korzeniowski.walletplus.module;
 
-import android.content.Context;
-
-import com.squareup.otto.Bus;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -14,9 +10,9 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
 
 /**
  * Module for common objects.
@@ -24,7 +20,7 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
 @Module(
         includes = DatabaseModule.class,
         injects = {
-                WalletListAdapter.class,
+                CategoryListActivity.class,
 
                 WalletDetailsFragment.class
         }
@@ -43,12 +39,6 @@ public class MainModule {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setDecimalSeparator('.');
         return new DecimalFormat("0.00", symbols);
-    }
-
-    @Provides
-    @Singleton
-    Bus provideBus() {
-        return new Bus();
     }
 
     @Provides

@@ -11,7 +11,6 @@
             android:label="@string/appName"
             android:supportsRtl="false"
             android:theme="@style/WalletPlusTheme">
-
         <meta-data
                 android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version"/>
@@ -19,7 +18,6 @@
         <activity
                 android:name=".ui.dashboard.DashboardActivity"
                 android:label="@string/appName">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -29,8 +27,31 @@
         </activity>
 
         <activity
+                android:name=".ui.wallet.list.WalletListActivity"
+                android:label="@string/walletListLabel"
+                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.dashboard.DashboardActivity"/>
+        </activity>
+
+        <activity
+                android:name=".ui.wallet.details.WalletDetailsActivity"
+                android:label="@string/title_activity_wallet_details"
+                android:parentActivityName=".ui.wallet.list.WalletListActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.wallet.list.WalletListActivity"/>
+        </activity>
+
+        <activity
                 android:name=".ui.category.list.CategoryListActivity"
-                android:label="@string/categoryListLabel"/>
+                android:label="@string/categoryListLabel"
+                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.dashboard.DashboardActivity"/>
+        </activity>
 
         <activity
                 android:name=".ui.category.details.CategoryDetailsActivity"
@@ -40,5 +61,6 @@
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".ui.category.list.CategoryListActivity"/>
         </activity>
+
     </application>
 </manifest>

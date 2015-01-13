@@ -36,7 +36,6 @@ import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 
 public class CategoryDetailsActivity extends BaseActivity {
-
     public static final String TAG = CategoryDetailsActivity.class.getSimpleName();
     public static final String EXTRAS_CATEGORY_ID = "CATEGORY_ID";
 
