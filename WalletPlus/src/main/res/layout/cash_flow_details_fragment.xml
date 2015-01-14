@@ -76,20 +76,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/cashflowAmountLabel"
-                    android:textSize="@dimen/smallFontSize"/>
+                    android:textSize="@dimen/smallFontSize"
+                    android:visibility="invisible"/>
 
             <EditText android:id="@+id/amount"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/cashflowAmountHint"
-                    android:inputType="number|numberDecimal"
+                    android:inputType="numberDecimal|numberSigned"
                     android:textSize="@dimen/mediumFontSize"/>
 
             <TextView android:id="@+id/commentLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/cashflowCommentLabel"
-                    android:textSize="@dimen/smallFontSize"/>
+                    android:textSize="@dimen/smallFontSize"
+                    android:visibility="invisible"/>
 
             <EditText android:id="@+id/comment"
                     android:layout_width="match_parent"

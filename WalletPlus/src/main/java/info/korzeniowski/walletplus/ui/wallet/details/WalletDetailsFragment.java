@@ -77,10 +77,9 @@ public class WalletDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((WalletPlus) getActivity().getApplication()).inject(this);
-
-        //TODO: czy potrzebne?
         setHasOptionsMenu(true);
+
+        ((WalletPlus) getActivity().getApplication()).inject(this);
 
         walletId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_WALLET_ID);
 

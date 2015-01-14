@@ -1,6 +1,8 @@
 package info.korzeniowski.walletplus.ui.category.list;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -79,6 +81,7 @@ public class CategoryListActivity extends BaseActivity {
         overridePendingTransition(0, 0);
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     void setupViews() {
         CategoryListPagerAdapter pagerAdapter = new CategoryListPagerAdapter();
         pager.setAdapter(pagerAdapter);
@@ -88,6 +91,9 @@ public class CategoryListActivity extends BaseActivity {
         tabs.setBackgroundColor(getResources().getColor(R.color.theme_primary));
         tabs.setTabIndicatorColor(getResources().getColor(R.color.theme_primary_light));
         pager.setCurrentItem(pager.getAdapter().getCount() / 2);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getActionBarToolbar().setElevation(0);
+        }
     }
 
     private List<Category> getMainCategories() {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <type android:drawable="@color/listItemBackgroundPressed" android:state_pressed="true" />
-    <type android:drawable="@color/listItemBackgroundChecked" android:state_checked="true" />
-    <type android:drawable="@color/listItemBackground" />
+    <item android:drawable="@color/listItemBackgroundPressed" android:state_pressed="true" />
+    <item android:drawable="@color/listItemBackgroundChecked" android:state_checked="true" />
+    <item android:drawable="@color/listItemBackground" />
 </selector>

@@ -38,7 +38,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.service.AccountService;
-import info.korzeniowski.walletplus.ui.cashflow.CashFlowActivity;
+import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
@@ -264,7 +264,7 @@ public class BaseActivity extends ActionBarActivity {
         getActionBarToolbar();
     }
 
-    protected Toolbar getActionBarToolbar() {
+    public Toolbar getActionBarToolbar() {
         if (mActionBarToolbar == null) {
             mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
             if (mActionBarToolbar != null) {
@@ -358,7 +358,7 @@ public class BaseActivity extends ActionBarActivity {
             navigationDrawerMap.put(DrawerItemType.DASHBOARD,
                     new DrawerItemContent(android.R.drawable.ic_media_pause, "Dashboard", DashboardActivity.class));
             navigationDrawerMap.put(DrawerItemType.CASH_FLOW,
-                    new DrawerItemContent(android.R.drawable.ic_popup_sync, "Cash flow", CashFlowActivity.class));
+                    new DrawerItemContent(android.R.drawable.ic_popup_sync, "Cash flow", CashFlowListActivity.class));
             navigationDrawerMap.put(DrawerItemType.CATEGORY,
                     new DrawerItemContent(android.R.drawable.ic_menu_camera, "Category", CategoryListActivity.class));
             navigationDrawerMap.put(DrawerItemType.WALLET,

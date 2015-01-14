@@ -15,7 +15,7 @@ public class RegexTest {
 
     @Test
     public void testDigitRegex() {
-        String regex = CashFlowDetailsFragment.digitRegex;
+        String regex = "^(\\+|\\-)?(([0-9]+(\\.[0-9]{0,4})?)|(\\.[0-9]{0,4}))$";
 
         assertThat(".".matches(regex)).isTrue();
         assertThat(".2".matches(regex)).isTrue();
