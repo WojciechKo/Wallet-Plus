@@ -8,5 +8,5 @@
 
     <include layout="@layout/toolbar_actionbar"/>
 
-    <include layout="@layout/wallet_details"/>
+    <include layout="@layout/fragment_wallet_details"/>
 </LinearLayout>

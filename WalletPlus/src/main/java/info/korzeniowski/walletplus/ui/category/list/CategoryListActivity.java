@@ -30,7 +30,6 @@ import javax.inject.Named;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
-import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
@@ -62,7 +61,7 @@ public class CategoryListActivity extends BaseActivity {
         if (isFinishing()) {
             return;
         }
-        setContentView(R.layout.activity_categories);
+        setContentView(R.layout.activity_category_list);
         ButterKnife.inject(this);
         setupViews();
 

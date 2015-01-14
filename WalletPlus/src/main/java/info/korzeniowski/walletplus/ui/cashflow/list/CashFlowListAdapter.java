@@ -21,7 +21,7 @@ import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
 
     public CashFlowListAdapter(Context context, List<CashFlow> casFlows) {
-        super(context, casFlows, R.layout.cash_flow_list_item);
+        super(context, casFlows, R.layout.item_cash_flow_list);
     }
 
     @Override

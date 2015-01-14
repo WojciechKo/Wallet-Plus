@@ -17,7 +17,7 @@ import info.korzeniowski.walletplus.widget.OnContentClickListener;
 public class CategoryExpandableListAdapter extends IdentifiableExpandableListAdapter<Category> {
 
     public CategoryExpandableListAdapter(Context context, List<Category> items, OnContentClickListener onContentClickListener) {
-        super(context, items, R.layout.category_main_list_item, R.layout.category_sub_list_item, onContentClickListener);
+        super(context, items, R.layout.item_category_list, R.layout.item_category_list_sub, onContentClickListener);
     }
 
     @Override

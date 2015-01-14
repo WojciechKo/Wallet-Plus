@@ -8,5 +8,5 @@
 
     <include layout="@layout/toolbar_actionbar"/>
 
-    <include layout="@layout/category_details"/>
+    <include layout="@layout/fragment_category_details"/>
 </LinearLayout>

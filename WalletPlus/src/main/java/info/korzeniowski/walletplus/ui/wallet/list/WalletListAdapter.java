@@ -17,7 +17,7 @@ import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 public class WalletListAdapter extends IdentifiableListAdapter<Wallet> {
 
     public WalletListAdapter(Context context, List<Wallet> myWallets) {
-        super(context, myWallets, R.layout.wallet_item_list);
+        super(context, myWallets, R.layout.item_wallet_list);
     }
 
     @Override

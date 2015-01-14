@@ -17,5 +17,4 @@
             android:textColor="@color/body_text_1"
             android:textSize="@dimen/text_size_medium"
             android:textStyle="@integer/font_textStyle_medium"/>
-
 </FrameLayout>

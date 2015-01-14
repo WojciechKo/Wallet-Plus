@@ -9,12 +9,13 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,7 +73,7 @@ public class BaseActivity extends ActionBarActivity {
     private int mThemedStatusBarColor;
     private int mNormalStatusBarColor;
     private ViewGroup mDrawerItemsListContainer;
-    // views that correspond to each navdrawer type, null if not yet created
+    // views that correspond to each navigation_drawer type, null if not yet created
     private View[] mNavDrawerItemViews = null;
     private Thread mDataBootstrapThread;
     // Navigation drawer menu items
@@ -135,6 +136,19 @@ public class BaseActivity extends ActionBarActivity {
         }
     }
 
+    @Override
+    public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            if (isNavDrawerOpen()) {
+                closeNavDrawer();
+            } else {
+                openNavDrawer();
+            }
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
     protected boolean isNavDrawerOpen() {
         return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.START);
     }
@@ -142,6 +156,12 @@ public class BaseActivity extends ActionBarActivity {
     protected void closeNavDrawer() {
         if (mDrawerLayout != null) {
             mDrawerLayout.closeDrawer(Gravity.START);
+        }
+    }
+
+    protected void openNavDrawer() {
+        if (mDrawerLayout != null) {
+            mDrawerLayout.openDrawer(Gravity.START);
         }
     }
 
@@ -295,9 +315,9 @@ public class BaseActivity extends ActionBarActivity {
         boolean selected = getSelfNavDrawerItem() == type;
         int layoutToInflate;
         if (type == DrawerItemType.SEPARATOR) {
-            layoutToInflate = R.layout.navdrawer_separator;
+            layoutToInflate = R.layout.navigation_drawer_separator;
         } else {
-            layoutToInflate = R.layout.navdrawer_item;
+            layoutToInflate = R.layout.navigation_drawer_item;
         }
         View view = getLayoutInflater().inflate(layoutToInflate, container, false);
 
@@ -419,7 +439,7 @@ public class BaseActivity extends ActionBarActivity {
     }
 
     /**
-     * Sets up the given navdrawer type's appearance to the selected state. Note: this could
+     * Sets up the given navigation_drawer type's appearance to the selected state. Note: this could
      * also be accomplished (perhaps more cleanly) with state-based layouts.
      */
     private void setSelectedNavDrawerItem(DrawerItemType drawerItemType) {
@@ -514,7 +534,7 @@ public class BaseActivity extends ActionBarActivity {
 
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         for (final Account account : accounts) {
-            View itemView = layoutInflater.inflate(R.layout.list_item_account, mAccountListContainer, false);
+            View itemView = layoutInflater.inflate(R.layout.item_account_list, mAccountListContainer, false);
             ((TextView) itemView.findViewById(R.id.account_name)).setText(account.getName());
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

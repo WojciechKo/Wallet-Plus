@@ -55,7 +55,7 @@ public class CashFlowListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.cash_flow_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_cash_flow_list, container, false);
         ButterKnife.inject(this, view);
         setupList();
         return view;

@@ -162,7 +162,7 @@ public class CashFlowDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.cash_flow_details_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_cash_flow_details, container, false);
         ButterKnife.inject(this, view);
 
         setupTypeDependentViews();
@@ -249,7 +249,7 @@ public class CashFlowDetailsFragment extends Fragment {
 
     @OnClick(R.id.category)
     void onCategoryClick() {
-        ExpandableListView expandableListView = (ExpandableListView) View.inflate(getActivity(), R.layout.category_list, null);
+        ExpandableListView expandableListView = (ExpandableListView) View.inflate(getActivity(), R.layout.fragment_category_list, null);
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.cashflowCategoryChooseAlertTitle))

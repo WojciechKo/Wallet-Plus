@@ -72,7 +72,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
         GroupViewHolder groupViewHolder;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_group_content, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.widget_expandable_group_content, parent, false);
             groupViewHolder = getGroupViewHolder(convertView);
             convertView.setTag(groupViewHolder);
         } else {
@@ -173,7 +173,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
     public final View getChildView(final int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         ChildViewHolder holder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_child_content, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.widget_expandable_child_content, parent, false);
             holder = getChildViewHolder(convertView);
             convertView.setTag(holder);
         } else {
