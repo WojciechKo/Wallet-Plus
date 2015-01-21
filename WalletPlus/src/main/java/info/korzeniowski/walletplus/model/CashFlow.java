@@ -95,13 +95,13 @@ public class CashFlow implements Identifiable {
         if (getFromWallet() != null && getFromWallet().getType() == Wallet.Type.MY_WALLET) {
             if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
                 return Type.TRANSFER;
-            } else if (getToWallet() == null || getToWallet().getType() == Wallet.Type.CONTRACTOR) {
+            } else if (getToWallet() == null || getToWallet().getType() == Wallet.Type.OTHER) {
                 return Type.EXPANSE;
             } else {
                 throw new RuntimeException("Unknown type of CashFlow");
             }
         } else if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
-            if (getFromWallet() == null || getFromWallet().getType() == Wallet.Type.CONTRACTOR) {
+            if (getFromWallet() == null || getFromWallet().getType() == Wallet.Type.OTHER) {
                 return Type.INCOME;
             }
         }

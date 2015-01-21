@@ -42,6 +42,10 @@ import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsActivity
 import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsFragment;
 import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListActivity;
 import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListFragment;
+import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsActivity;
+import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
+import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListFragment;
 
 /**
  * Module for Database objects.
@@ -72,6 +76,12 @@ import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListFragment;
 
                 MyWalletDetailsActivity.class,
                 MyWalletDetailsFragment.class,
+
+                OtherWalletListActivity.class,
+                OtherWalletListFragment.class,
+
+                OtherWalletDetailsActivity.class,
+                OtherWalletDetailsFragment.class,
 
                 DatabaseInitializer.class,
                 LocalAccountService.class

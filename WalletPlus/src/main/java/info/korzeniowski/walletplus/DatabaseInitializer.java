@@ -57,13 +57,13 @@ public class DatabaseInitializer {
         localWalletService.insert(bankAccount);
 
         /** Init other wallets **/
-        Wallet sevenEleven = new Wallet().setType(Wallet.Type.CONTRACTOR).setName("7-Eleven").setInitialAmount(0.0).setCurrentAmount(100.0);
+        Wallet sevenEleven = new Wallet().setType(Wallet.Type.OTHER).setName("7-Eleven").setInitialAmount(0.0).setCurrentAmount(100.0);
         localWalletService.insert(sevenEleven);
-        Wallet tesco = new Wallet().setType(Wallet.Type.CONTRACTOR).setName("Tesco").setInitialAmount(0.0).setCurrentAmount(100.0);
+        Wallet tesco = new Wallet().setType(Wallet.Type.OTHER).setName("Tesco").setInitialAmount(0.0).setCurrentAmount(100.0);
         localWalletService.insert(tesco);
-        Wallet walMart = new Wallet().setType(Wallet.Type.CONTRACTOR).setName("Wal-Mart").setInitialAmount(0.0).setCurrentAmount(100.0);
+        Wallet walMart = new Wallet().setType(Wallet.Type.OTHER).setName("Wal-Mart").setInitialAmount(0.0).setCurrentAmount(100.0);
         localWalletService.insert(walMart);
-        Wallet amazon = new Wallet().setType(Wallet.Type.CONTRACTOR).setName("Amazon").setInitialAmount(0.0).setCurrentAmount(100.0);
+        Wallet amazon = new Wallet().setType(Wallet.Type.OTHER).setName("Amazon").setInitialAmount(0.0).setCurrentAmount(100.0);
         localWalletService.insert(amazon);
 
         /** Init categories **/

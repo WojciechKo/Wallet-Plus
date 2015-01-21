@@ -44,6 +44,7 @@ import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListActivity;
+import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
 import info.korzeniowski.walletplus.util.AccountUtils;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import info.korzeniowski.walletplus.util.UIUtils;
@@ -383,6 +384,8 @@ public class BaseActivity extends ActionBarActivity {
                     new DrawerItemContent(android.R.drawable.ic_menu_camera, "Categories", CategoryListActivity.class));
             navigationDrawerMap.put(DrawerItemType.MY_WALLETS,
                     new DrawerItemContent(android.R.drawable.ic_menu_week, "My Wallets", MyWalletListActivity.class));
+            navigationDrawerMap.put(DrawerItemType.OTHER_WALLETS,
+                    new DrawerItemContent(android.R.drawable.ic_menu_agenda, "Other Wallets", OtherWalletListActivity.class));
         }
         if (navigationDrawerItemList.isEmpty()) {
             navigationDrawerItemList.add(DrawerItemType.DASHBOARD);
@@ -390,6 +393,7 @@ public class BaseActivity extends ActionBarActivity {
             navigationDrawerItemList.add(DrawerItemType.CASH_FLOW);
             navigationDrawerItemList.add(DrawerItemType.CATEGORY);
             navigationDrawerItemList.add(DrawerItemType.MY_WALLETS);
+            navigationDrawerItemList.add(DrawerItemType.OTHER_WALLETS);
             navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
         }
         setupNavDrawerViewContent();
@@ -619,6 +623,7 @@ public class BaseActivity extends ActionBarActivity {
         CASH_FLOW,
         CATEGORY,
         MY_WALLETS,
+        OTHER_WALLETS,
         INVALID,
         SETTINGS, SEPARATOR
     }

@@ -144,7 +144,7 @@ public class CashFlowDetailsFragment extends Fragment {
 
         categoryList = localCategoryService.getMainCategories();
         myWallets = localWalletService.getMyWallets();
-        otherWallets = localWalletService.getContractors();
+        otherWallets = localWalletService.getOtherWallets();
     }
 
     private CashFlowDetailsParcelableState initCashFlowDetailsState(Long cashFlowId) {

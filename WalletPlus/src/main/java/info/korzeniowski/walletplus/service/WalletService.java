@@ -7,7 +7,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 public interface WalletService extends BaseService<Wallet> {
     public List<Wallet> getMyWallets();
 
-    public List<Wallet> getContractors();
+    public List<Wallet> getOtherWallets();
 
-    long countDependentCashFlows(Long walletId);
+    public long countDependentCashFlows(Long walletId);
 }
