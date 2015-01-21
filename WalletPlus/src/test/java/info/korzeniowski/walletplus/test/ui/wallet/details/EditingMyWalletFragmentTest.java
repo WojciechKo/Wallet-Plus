@@ -29,7 +29,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsFragment;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -66,7 +66,7 @@ public class EditingMyWalletFragmentTest {
     CashFlowService mockCashFlowService;
 
     private Wallet wallet;
-    private WalletDetailsFragment fragment;
+    private MyWalletDetailsFragment fragment;
 
     @Before
     public void setUp() {
@@ -74,7 +74,7 @@ public class EditingMyWalletFragmentTest {
         ActionBarActivity activity = Robolectric.buildActivity(MainActivity.class).create().start().resume().get();
         selectWalletSection(activity);
         selectWalletToEditByPosition(activity, 1);
-        fragment = (WalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(WalletDetailsFragment.TAG);
+        fragment = (MyWalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(MyWalletDetailsFragment.TAG);
         ButterKnife.inject(this, fragment.getView());
     }
 

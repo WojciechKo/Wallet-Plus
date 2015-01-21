@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.wallet.list;
+package info.korzeniowski.walletplus.ui.mywallets.list;
 
 import android.content.Context;
 import android.view.View;
@@ -14,10 +14,10 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 
-public class WalletListAdapter extends IdentifiableListAdapter<Wallet> {
+public class MyWalletListAdapter extends IdentifiableListAdapter<Wallet> {
 
-    public WalletListAdapter(Context context, List<Wallet> myWallets) {
-        super(context, myWallets, R.layout.item_wallet_list);
+    public MyWalletListAdapter(Context context, List<Wallet> myWallets) {
+        super(context, myWallets, R.layout.item_my_wallet_list);
     }
 
     @Override

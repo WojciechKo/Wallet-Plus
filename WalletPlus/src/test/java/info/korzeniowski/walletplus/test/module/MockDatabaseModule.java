@@ -17,14 +17,14 @@ import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
 import info.korzeniowski.walletplus.test.ui.wallet.details.AddingMyWalletFragmentTest;
 import info.korzeniowski.walletplus.test.ui.wallet.details.EditingMyWalletFragmentTest;
-import info.korzeniowski.walletplus.test.ui.wallet.list.WalletListFragmentTest;
+import info.korzeniowski.walletplus.test.ui.wallet.list.MyWalletListFragmentTest;
 
 @Module(
         includes = DatabaseModule.class,
         injects = {
                 AddingMyWalletFragmentTest.class,
                 EditingMyWalletFragmentTest.class,
-                WalletListFragmentTest.class
+                MyWalletListFragmentTest.class
         },
         overrides = true,
         complete = false

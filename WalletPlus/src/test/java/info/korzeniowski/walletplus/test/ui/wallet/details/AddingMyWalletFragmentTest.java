@@ -26,8 +26,8 @@ import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
+import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListFragment;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 
@@ -58,7 +58,7 @@ public class AddingMyWalletFragmentTest {
     @Named("local")
     WalletService mockWalletService;
 
-    private WalletDetailsFragment fragment;
+    private MyWalletDetailsFragment fragment;
 
     @Before
     public void setUp() {
@@ -68,9 +68,9 @@ public class AddingMyWalletFragmentTest {
         ActionBarActivity activity = Robolectric.buildActivity(MainActivity.class).create().start().resume().get();
         ListView menuList = (ListView) activity.findViewById(R.id.drawerList);
         Robolectric.shadowOf(menuList).performItemClick(3);
-        Fragment walletList = activity.getSupportFragmentManager().findFragmentByTag(WalletListFragment.TAG);
+        Fragment walletList = activity.getSupportFragmentManager().findFragmentByTag(MyWalletListFragment.TAG);
         walletList.onOptionsItemSelected(new TestMenuItem(R.id.menu_new));
-        fragment = (WalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(WalletDetailsFragment.TAG);
+        fragment = (MyWalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(MyWalletDetailsFragment.TAG);
 
         ButterKnife.inject(this, fragment.getView());
     }

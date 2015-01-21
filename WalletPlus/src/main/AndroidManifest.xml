@@ -27,7 +27,7 @@
         </activity>
 
         <activity
-                android:name=".ui.wallet.list.WalletListActivity"
+                android:name=".ui.mywallets.list.MyWalletListActivity"
                 android:label="@string/walletListLabel"
                 android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
@@ -36,12 +36,12 @@
         </activity>
 
         <activity
-                android:name=".ui.wallet.details.WalletDetailsActivity"
+                android:name=".ui.mywallets.details.MyWalletDetailsActivity"
                 android:label="@string/title_activity_wallet_details"
-                android:parentActivityName=".ui.wallet.list.WalletListActivity">
+                android:parentActivityName=".ui.mywallets.list.MyWalletListActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.wallet.list.WalletListActivity"/>
+                    android:value=".ui.mywallets.list.MyWalletListActivity"/>
         </activity>
 
         <activity
