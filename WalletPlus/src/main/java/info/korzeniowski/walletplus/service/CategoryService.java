@@ -21,6 +21,8 @@ public interface CategoryService extends BaseService<Category> {
 
     public List<CategoryStats> getCategoryStatsList(Date firstDay, Period period, Integer iteration);
 
+    long countDependentCashFlows(Long categoryId);
+
     public class CategoryStats {
         private final Long categoryId;
         private Double income;

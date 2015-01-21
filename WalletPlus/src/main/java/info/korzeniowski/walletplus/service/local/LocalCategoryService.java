@@ -251,6 +251,11 @@ public class LocalCategoryService implements CategoryService {
         return result;
     }
 
+    @Override
+    public long countDependentCashFlows(Long categoryId) {
+        return cashFlowService.countAssignedWithCategory(categoryId);
+    }
+
     private List<CategoryStats> createCategoryStatsResults(List<Category> categories) {
         List<CategoryStats> result = Lists.newArrayListWithCapacity(categories.size());
         Lists.newArrayListWithCapacity(categories.size());

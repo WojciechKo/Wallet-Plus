@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
-import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 
@@ -29,10 +28,6 @@ public class WalletDetailsActivity extends BaseActivity {
     @Inject
     @Named("local")
     WalletService localWalletService;
-
-    @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
 
     private Long walletId;
     private DetailsAction detailsAction;
@@ -111,7 +106,7 @@ public class WalletDetailsActivity extends BaseActivity {
     }
 
     private String getConfirmationMessage() {
-        int count = (int) localCashFlowService.countAssignedToWallet(walletId);
+        int count = (int) localWalletService.countDependentCashFlows(walletId);
         String msg = getString(R.string.walletDeleteConfirmation);
         return MessageFormat.format(msg, count);
     }

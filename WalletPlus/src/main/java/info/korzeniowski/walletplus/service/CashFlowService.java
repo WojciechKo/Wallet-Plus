@@ -7,7 +7,9 @@ import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 
 public interface CashFlowService extends BaseService<CashFlow> {
-    long countAssignedToWallet(Long walletId);
+    public long countAssignedWithWallet(Long walletId);
+
+    public long countAssignedWithCategory(Long categoryId);
 
     public Category getTransferCategory();
 

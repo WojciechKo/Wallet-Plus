@@ -7,17 +7,25 @@ import java.sql.SQLException;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.local.validation.WalletValidator;
 
 public class LocalWalletService implements WalletService {
-    private WalletValidator walletValidator;
     private final Dao<Wallet, Long> walletDao;
+    //TODO: usunąć
     private final Dao<CashFlow, Long> cashFlowDao;
+
+    @Inject
+    @Named("local")
+    CashFlowService cashFlowService;
+
+    private WalletValidator walletValidator;
 
     @Inject
     public LocalWalletService(Dao<Wallet, Long> walletDao, Dao<CashFlow, Long> cashFlowDao) {
@@ -86,7 +94,7 @@ public class LocalWalletService implements WalletService {
             walletValidator.validateDelete(id);
             DeleteBuilder<CashFlow, Long> db = cashFlowDao.deleteBuilder();
             db.where()
-                .eq("fromWallet_id", id)
+                    .eq("fromWallet_id", id)
                 .or()
                     .eq("toWallet_id", id);
             cashFlowDao.delete(db.prepare());
@@ -112,6 +120,11 @@ public class LocalWalletService implements WalletService {
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    @Override
+    public long countDependentCashFlows(Long walletId) {
+        return cashFlowService.countAssignedWithWallet(walletId);
     }
 
     public WalletValidator getWalletValidator() {

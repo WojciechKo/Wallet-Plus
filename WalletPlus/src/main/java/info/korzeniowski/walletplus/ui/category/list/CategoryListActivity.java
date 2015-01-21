@@ -122,7 +122,7 @@ public class CategoryListActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_new) {
             Intent intent = new Intent(this, CategoryDetailsActivity.class);
-            startActivityForResult(intent, CategoryDetailsActivity.REQUEST_CODE_NEW_CATEGORY);
+            startActivityForResult(intent, CategoryDetailsActivity.REQUEST_CODE_ADD_CATEGORY);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -130,11 +130,11 @@ public class CategoryListActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CategoryDetailsActivity.REQUEST_CODE_NEW_CATEGORY) {
+        if (requestCode == CategoryDetailsActivity.REQUEST_CODE_ADD_CATEGORY) {
             if (resultCode == RESULT_OK) {
                 categoryListActivityState.setCategoryList(getMainCategories());
             }
-        } else if (requestCode == CategoryDetailsActivity.REQUEST_CODE_SHOW_DETAILS) {
+        } else if (requestCode == CategoryDetailsActivity.REQUEST_CODE_EDIT_CATEGORY) {
             if (resultCode == CategoryDetailsActivity.RESULT_DELETED) {
                 final Long categoryId = data.getExtras().getLong(CategoryDetailsActivity.RESULT_DATA_DELETED_CATEGORY_ID);
                 Iterables.removeIf(categoryListActivityState.getCategoryList(), new Predicate<Category>() {

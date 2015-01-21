@@ -54,7 +54,7 @@ import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 public class CashFlowDetailsFragment extends Fragment {
     public static final String TAG = "CashFlowDetailsFragment";
-    public static final String ARGUMENT_CASH_FLOW_ID = "CASH_FLOW_ID";
+    private static final String ARGUMENT_CASH_FLOW_ID = "CASH_FLOW_ID";
     private static final String CASH_FLOW_DETAILS_STATE = "cashFlowDetailsState";
     @InjectView(R.id.fromWallet)
     Spinner fromWallet;
@@ -108,13 +108,10 @@ public class CashFlowDetailsFragment extends Fragment {
     CategoryService localCategoryService;
 
     private List<Wallet> myWallets;
-
     private List<Wallet> otherWallets;
-
     private List<Category> categoryList;
 
     private CashFlowDetailsParcelableState cashFlowDetailsState;
-
     private DetailsAction detailsAction;
 
     public static CashFlowDetailsFragment newInstance(Long cashFlowId) {
