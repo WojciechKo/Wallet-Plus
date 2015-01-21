@@ -8,4 +8,6 @@ public interface WalletService extends BaseService<Wallet> {
     public List<Wallet> getMyWallets();
 
     public List<Wallet> getContractors();
+
+    long countDependentCashFlows(Long walletId);
 }

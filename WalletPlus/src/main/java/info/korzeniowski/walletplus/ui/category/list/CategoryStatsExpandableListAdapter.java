@@ -24,7 +24,7 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
     private final List<CategoryService.CategoryStats> stats;
 
     public CategoryStatsExpandableListAdapter(Context context, List<Category> items, List<CategoryService.CategoryStats> stats, OnContentClickListener onContentClickListener, OnContentLongClickListener onContentLongClickListener) {
-        super(context, items, R.layout.category_stats_list_item, R.layout.category_stats_list_item, onContentClickListener, onContentLongClickListener);
+        super(context, items, R.layout.item_category_stats_list, R.layout.item_category_stats_list, onContentClickListener, onContentLongClickListener);
         this.stats = stats;
     }
 

@@ -1,0 +1,20 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="?android:listPreferredItemHeightSmall"
+        android:background="?android:selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+    <TextView android:id="@+id/account_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/keyline_2"
+            android:ellipsize="end"
+            android:fontFamily="@string/font_fontFamily_medium"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="@color/body_text_1"
+            android:textSize="@dimen/text_size_medium"
+            android:textStyle="@integer/font_textStyle_medium"/>
+</FrameLayout>

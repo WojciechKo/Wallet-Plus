@@ -29,10 +29,8 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.service.local.LocalAccountService;
-import info.korzeniowski.walletplus.ui.DrawerAccountAdapter;
-import info.korzeniowski.walletplus.ui.DrawerMenuAdapter;
-import info.korzeniowski.walletplus.ui.MainDrawerContent;
-import info.korzeniowski.walletplus.ui.MainDrawerItem;
+import info.korzeniowski.walletplus.ui.drawer.DrawerAccountAdapter;
+import info.korzeniowski.walletplus.ui.drawer.MainDrawerItem;
 import info.korzeniowski.walletplus.widget.SquareImageButton;
 
 public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
@@ -58,10 +56,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     @Inject
     LocalAccountService localAccountService;
 
-    @Inject
-    MainDrawerContent mainDrawerContent;
-
-    private DrawerMenuAdapter drawerMenuAdapter;
     private DrawerAccountAdapter drawerAccountAdapter;
     private View accountListFooter;
     private MainActivityParcelableState state;
@@ -90,7 +84,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     void setupViews() {
-        drawerMenuAdapter = new DrawerMenuAdapter(this, mainDrawerContent);
+//        drawerMenuAdapter = new DrawerMenuAdapter(this, mainDrawerContent);
         drawerAccountAdapter = getDrawerAccountAdapter();
         accountListFooter = getNewAccountFooter();
 
@@ -142,7 +136,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     private void setupDrawerListAsMenu() {
-        drawerList.setAdapter(drawerMenuAdapter);
+//        drawerList.setAdapter(drawerMenuAdapter);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -256,14 +250,14 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     private void setSelectedDrawerItem(int position) {
-        drawerMenuAdapter.setSelected(state.getSelectedDrawerPosition());
-        MainDrawerItem selectedMainDrawerItem = drawerMenuAdapter.getItem(position);
-        setContentFragment(selectedMainDrawerItem.getFragment(), false, selectedMainDrawerItem.getTag());
-        setTitle(selectedMainDrawerItem.getTitle());
-
-        state.setSelectedDrawerPosition(position);
-        state.setSelectedFragmentTitle(selectedMainDrawerItem.getTitle());
-        state.setFragmentTag(selectedMainDrawerItem.getTag());
+//        drawerMenuAdapter.setSelected(state.getSelectedDrawerPosition());
+//        MainDrawerItem selectedMainDrawerItem = drawerMenuAdapter.getItem(position);
+//        setContentFragment(selectedMainDrawerItem.getFragment(), false, selectedMainDrawerItem.getTag());
+//        setTitle(selectedMainDrawerItem.getTitle());
+//
+//        state.setSelectedDrawerPosition(position);
+//        state.setSelectedFragmentTitle(selectedMainDrawerItem.getTitle());
+//        state.setFragmentTag(selectedMainDrawerItem.getTag());
     }
 
     public void setContentFragment(Fragment fragment, Boolean addToBackStack, String tag) {

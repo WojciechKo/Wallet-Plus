@@ -43,7 +43,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = View.inflate(getActivity(), R.layout.dashboard_fragment, null);
+        View view = View.inflate(getActivity(), R.layout.fragment_dashboard, null);
         ButterKnife.inject(this, view);
         setupViews();
         return view;

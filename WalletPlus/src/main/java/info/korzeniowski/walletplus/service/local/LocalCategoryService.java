@@ -18,7 +18,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import info.korzeniowski.walletplus.KorzeniowskiUtils;
+import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CashFlowService;
@@ -249,6 +249,11 @@ public class LocalCategoryService implements CategoryService {
             }
         }
         return result;
+    }
+
+    @Override
+    public long countDependentCashFlows(Long categoryId) {
+        return cashFlowService.countAssignedWithCategory(categoryId);
     }
 
     private List<CategoryStats> createCategoryStatsResults(List<Category> categories) {

@@ -34,6 +34,7 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
     @DatabaseField
     private String name;
 
+    //TODO: rename to specialType
     @DatabaseField
     private Type type;
 

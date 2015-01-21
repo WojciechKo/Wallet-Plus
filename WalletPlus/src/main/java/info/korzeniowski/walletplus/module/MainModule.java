@@ -1,9 +1,5 @@
 package info.korzeniowski.walletplus.module;
 
-import android.content.Context;
-
-import com.squareup.otto.Bus;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -14,9 +10,9 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.ui.MainDrawerContent;
+import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
+import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
 import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
 
 /**
  * Module for common objects.
@@ -24,9 +20,8 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListAdapter;
 @Module(
         includes = DatabaseModule.class,
         injects = {
-                WalletListAdapter.class,
+                CategoryListActivity.class,
 
-                MainDrawerContent.class,
                 WalletDetailsFragment.class
         }
 )
@@ -35,11 +30,6 @@ public class MainModule {
 
     public MainModule(WalletPlus application) {
         this.application = application;
-    }
-
-    @Provides
-    Context provideContext() {
-        return application.getApplicationContext();
     }
 
     @Provides
@@ -53,7 +43,7 @@ public class MainModule {
 
     @Provides
     @Singleton
-    Bus provideBus() {
-        return new Bus();
+    CategoryListActivityState provideCategoryListActivityState() {
+        return new CategoryListActivityState();
     }
 }

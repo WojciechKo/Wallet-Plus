@@ -24,6 +24,11 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
     private final OnContentClickListener<T> clickListener;
     private OnContentLongClickListener<T> longClickListener;
 
+    protected IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener<T> clickListener, OnContentLongClickListener<T> longClickListener) {
+        this(context, items, groupItemLayout, childItemLayout, clickListener);
+        this.longClickListener = longClickListener;
+    }
+
     protected IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener<T> clickListener) {
         this.context = context;
         this.items = items;
@@ -32,29 +37,9 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
         this.clickListener = clickListener;
     }
 
-    protected IdentifiableExpandableListAdapter(Context context, List<T> items, int groupItemLayout, int childItemLayout, OnContentClickListener<T> clickListener, OnContentLongClickListener<T> longClickListener) {
-        this(context, items, groupItemLayout, childItemLayout, clickListener);
-        this.longClickListener = longClickListener;
-    }
-
     @Override
     public int getGroupCount() {
         return items.size();
-    }
-
-    @Override
-    public int getChildrenCount(int groupPosition) {
-        return getGroup(groupPosition).getChildren().size();
-    }
-
-    @Override
-    public T getGroup(int groupPosition) {
-        return items.get(groupPosition);
-    }
-
-    @Override
-    public T getChild(int groupPosition, int childPosition) {
-        return getGroup(groupPosition).getChildren().get(childPosition);
     }
 
     @Override
@@ -63,8 +48,18 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
     }
 
     @Override
+    public T getGroup(int groupPosition) {
+        return items.get(groupPosition);
+    }
+
+    @Override
     public long getChildId(int groupPosition, int childPosition) {
         return getChild(groupPosition, childPosition).getId();
+    }
+
+    @Override
+    public T getChild(int groupPosition, int childPosition) {
+        return getGroup(groupPosition).getChildren().get(childPosition);
     }
 
     @Override
@@ -77,7 +72,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
         GroupViewHolder groupViewHolder;
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_group_content, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.widget_expandable_group_content, parent, false);
             groupViewHolder = getGroupViewHolder(convertView);
             convertView.setTag(groupViewHolder);
         } else {
@@ -90,7 +85,7 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
             groupViewHolder.divider.setVisibility(View.VISIBLE);
         }
 
-        setupContent(groupViewHolder, groupPosition);
+        setupContentListeners(groupViewHolder, groupPosition);
 
         if (getChildrenCount(groupPosition) > 0) {
             setupIndicatorAsExpandable(groupViewHolder, (ExpandableListView) parent, groupPosition);
@@ -100,6 +95,11 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
 
         fillGroupViewWithItem(groupViewHolder.contentViewHolder, getGroup(groupPosition), isExpanded);
         return convertView;
+    }
+
+    @Override
+    public int getChildrenCount(int groupPosition) {
+        return getGroup(groupPosition).getChildren().size();
     }
 
     private GroupViewHolder getGroupViewHolder(View convertView) {
@@ -113,18 +113,25 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
         return groupViewHolder;
     }
 
-    private void setupContent(GroupViewHolder groupViewHolder, final int groupPosition) {
+    protected abstract MyBaseGroupViewHolder createGroupViewHolder(View convertView);
+
+    private void setupContentListeners(GroupViewHolder groupViewHolder, final int groupPosition) {
         groupViewHolder.content.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                clickListener.onContentClick(getGroup(groupPosition));
+                if (clickListener != null) {
+                    clickListener.onContentClick(getGroup(groupPosition));
+                }
             }
         });
         groupViewHolder.content.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                longClickListener.onContentLongClick(getGroup(groupPosition));
-                return true;
+                if (longClickListener != null) {
+                    longClickListener.onContentLongClick(getGroup(groupPosition));
+                    return true;
+                }
+                return false;
             }
         });
     }
@@ -160,26 +167,13 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
         });
     }
 
-    protected abstract MyBaseGroupViewHolder createGroupViewHolder(View convertView);
-
     protected abstract void fillGroupViewWithItem(MyBaseGroupViewHolder holder, T item, boolean isExpanded);
-
-    public class MyBaseGroupViewHolder {
-
-    }
-
-    public class GroupViewHolder {
-        ImageView divider;
-        ImageView groupIndicator;
-        View content;
-        MyBaseGroupViewHolder contentViewHolder;
-    }
 
     @Override
     public final View getChildView(final int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         ChildViewHolder holder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.expandable_child_content, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.widget_expandable_child_content, parent, false);
             holder = getChildViewHolder(convertView);
             convertView.setTag(holder);
         } else {
@@ -219,6 +213,26 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
 
     protected abstract void fillChildViewWithItem(MyBaseChildViewHolder holder, T item);
 
+    @Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
+        return true;
+    }
+
+    protected Context getContext() {
+        return context;
+    }
+
+    public class MyBaseGroupViewHolder {
+
+    }
+
+    public class GroupViewHolder {
+        ImageView divider;
+        ImageView groupIndicator;
+        View content;
+        MyBaseGroupViewHolder contentViewHolder;
+    }
+
     public class MyBaseChildViewHolder {
 
     }
@@ -227,14 +241,5 @@ public abstract class IdentifiableExpandableListAdapter<T extends Identifiable &
         ImageView divider;
         View content;
         MyBaseChildViewHolder contentViewHolder;
-    }
-
-    @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
-    }
-
-    protected Context getContext() {
-        return context;
     }
 }

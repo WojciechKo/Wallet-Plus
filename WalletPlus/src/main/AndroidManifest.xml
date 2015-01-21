@@ -10,24 +10,75 @@
             android:icon="@drawable/ic_launcher_walletplus"
             android:label="@string/appName"
             android:supportsRtl="false"
-            android:theme="@style/WalletPlusStyle">
-
+            android:theme="@style/WalletPlusTheme">
         <meta-data
                 android:name="com.google.android.gms.version"
                 android:value="@integer/google_play_services_version"/>
 
         <activity
-                android:name=".MainActivity"
-                android:label="@string/appName"
-                android:windowSoftInputMode="stateHidden">
-
+                android:name=".ui.dashboard.DashboardActivity"
+                android:label="@string/appName">
             <intent-filter>
-
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+
+        <activity
+                android:name=".ui.wallet.list.WalletListActivity"
+                android:label="@string/walletListLabel"
+                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.dashboard.DashboardActivity"/>
+        </activity>
+
+        <activity
+                android:name=".ui.wallet.details.WalletDetailsActivity"
+                android:label="@string/title_activity_wallet_details"
+                android:parentActivityName=".ui.wallet.list.WalletListActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.wallet.list.WalletListActivity"/>
+        </activity>
+
+        <activity
+                android:name=".ui.cashflow.list.CashFlowListActivity"
+                android:label="@string/walletListLabel"
+                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.dashboard.DashboardActivity"/>
+        </activity>
+
+        <activity
+                android:name=".ui.cashflow.details.CashFlowDetailsActivity"
+                android:label="@string/title_activity_wallet_details"
+                android:parentActivityName=".ui.cashflow.list.CashFlowListActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.cashflow.list.CashFlowListActivity"/>
+        </activity>
+
+        <activity
+                android:name=".ui.category.list.CategoryListActivity"
+                android:label="@string/categoryListLabel"
+                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.dashboard.DashboardActivity"/>
+        </activity>
+
+        <activity
+                android:name=".ui.category.details.CategoryDetailsActivity"
+                android:label="@string/categoryDetailsLabel"
+                android:parentActivityName=".ui.category.list.CategoryListActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.category.list.CategoryListActivity"/>
+        </activity>
+
     </application>
 </manifest>

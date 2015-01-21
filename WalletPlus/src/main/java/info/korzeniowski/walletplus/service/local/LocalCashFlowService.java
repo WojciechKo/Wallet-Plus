@@ -137,9 +137,18 @@ public class LocalCashFlowService implements CashFlowService {
     }
 
     @Override
-    public long countAssignedToWallet(Long walletId) {
+    public long countAssignedWithWallet(Long walletId) {
         try {
             return cashFlowDao.queryBuilder().where().eq("fromWallet_id", walletId).or().eq("toWallet_id", walletId).countOf();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public long countAssignedWithCategory(Long categoryId) {
+        try {
+            return cashFlowDao.queryBuilder().where().eq("category_id", categoryId).countOf();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

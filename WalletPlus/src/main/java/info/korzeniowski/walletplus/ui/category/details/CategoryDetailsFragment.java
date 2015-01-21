@@ -1,24 +1,23 @@
 package info.korzeniowski.walletplus.ui.category.details;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -26,7 +25,6 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnItemSelected;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
@@ -34,10 +32,9 @@ import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 
 public class CategoryDetailsFragment extends Fragment {
-    public static final String TAG = "categoryDetails";
-    public static final String CATEGORY_ID = "CATEGORY_ID";
+    public static final String TAG = CategoryDetailsActivity.class.getSimpleName();
 
-    private enum DetailsType {ADD, EDIT}
+    public static final String ARGUMENT_CATEGORY_ID = "CATEGORY_ID";
 
     @InjectView(R.id.categoryNameLabel)
     TextView categoryNameLabel;
@@ -52,185 +49,110 @@ public class CategoryDetailsFragment extends Fragment {
     @Named("local")
     CategoryService localCategoryService;
 
-    private DetailsType type;
-    private List<Category> parentCategoryList;
-    private Category category;
+    private DetailsAction detailsAction;
+    private Optional<Category> categoryToEdit;
+
+    public static CategoryDetailsFragment newInstance(Long categoryId) {
+        CategoryDetailsFragment fragment = new CategoryDetailsFragment();
+        Bundle arguments = new Bundle();
+        arguments.putLong(ARGUMENT_CATEGORY_ID, categoryId);
+        fragment.setArguments(arguments);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        ((WalletPlus) getActivity().getApplication()).inject(this);
+
+        Long categoryId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_CATEGORY_ID);
+
+        if (categoryId == -1) {
+            detailsAction = DetailsAction.ADD;
+            categoryToEdit = Optional.absent();
+        } else {
+            detailsAction = DetailsAction.EDIT;
+            categoryToEdit = Optional.of(localCategoryService.findById(categoryId));
+        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.category_details, container, false);
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        View view = inflater.inflate(R.layout.fragment_category_details, container, false);
         ButterKnife.inject(this, view);
-        setupViews();
+
+        List<Category> mainCategories = localCategoryService.getMainCategories();
+        mainCategories.add(0, new Category().setId(null).setName(getString(R.string.categoryNoParentSelected)));
+        parentCategoryView.setAdapter(new ParentCategoryAdapter(getActivity(), mainCategories));
+
+        if (savedInstanceState == null && detailsAction == DetailsAction.EDIT) {
+            mainCategories.remove(categoryToEdit.get());
+            categoryName.setText(categoryToEdit.get().getName());
+            if (categoryToEdit.get().getParent() != null) {
+                parentCategoryView.setSelection(mainCategories.indexOf(categoryToEdit.get().getParent()));
+            }
+        }
+
         return view;
     }
 
-
-    void setupViews() {
-        initState();
-        setupAdapters();
-        fillViewsWithData();
-    }
-
-    private void initState() {
-        Long categoryId = getArguments() != null ? getArguments().getLong(CATEGORY_ID) : 0;
-        if (categoryId == 0) {
-            category = new Category();
-            type = DetailsType.ADD;
-        } else {
-            category = localCategoryService.findById(categoryId);
-            type = DetailsType.EDIT;
-        }
-    }
-
-    private void setupAdapters() {
-        parentCategoryList = localCategoryService.getMainCategories();
-        parentCategoryView.setAdapter(new ParentCategoryAdapter(getActivity(), parentCategoryList));
-    }
-
-    private void fillViewsWithData() {
-        categoryName.setText(category.getName());
-        if (category.getParent() != null) {
-            Category parentCategory = localCategoryService.findById(category.getParent().getId());
-            parentCategoryView.setSelection(parentCategoryList.indexOf(parentCategory));
-        }
-    }
-
-    @OnItemSelected(R.id.parentCategory)
-    public void onParentCategorySelected(AdapterView<?> parentView, int position) {
-        if (position == 0) {
-            noParentSelected();
-        } else {
-            parentSelected((Category) parentView.getSelectedItem());
-        }
-    }
-
-    private void noParentSelected() {
-        category.setParent(null);
-    }
-
-    private void parentSelected(Category selectedParent) {
-        category.setParent(selectedParent);
-    }
-
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.action_delete, menu);
-        inflater.inflate(R.menu.action_save, menu);
-        super.onCreateOptionsMenu(menu, inflater);
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.reset(this);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_delete) {
-            selectedOptionDelete();
-            return true;
-        } else if (item.getItemId() == R.id.menu_save) {
-            selectedOptionSave();
+        boolean result = super.onOptionsItemSelected(item);
+        if (item.getItemId() == R.id.menu_save) {
+            onSaveOptionSelected();
             return true;
         }
-        return super.onOptionsItemSelected(item);
+        return result;
     }
 
-    void selectedOptionDelete() {
-        if (handleDeleteOption()) {
-            getActivity().getSupportFragmentManager().popBackStack();
+    void onSaveOptionSelected() {
+        if (Strings.isNullOrEmpty(categoryName.getText().toString())) {
+            categoryName.setError(getString(R.string.categoryMustHaveName));
+            return;
         }
-    }
 
-    private boolean handleDeleteOption() {
-        return type != DetailsType.EDIT || tryDelete();
-    }
+        if (categoryName.getError() == null) {
+            Category categoryToSave = new Category();
+            categoryToSave.setParent((Category) parentCategoryView.getSelectedItem());
+            categoryToSave.setName(categoryName.getText().toString());
 
-    private boolean tryDelete() {
-        try {
-            //TODO: show warning alert about number of cashflows to be deleted
-            localCategoryService.deleteById(category.getId());
-            return true;
-        } catch (CategoryHaveSubsException e) {
-            showToast(getActivity().getString(R.string.categoryCantDeleteCategoryWithSubs));
-        }
-        return false;
-    }
+            if (detailsAction == DetailsAction.ADD) {
+                localCategoryService.insert(categoryToSave);
+                getActivity().setResult(Activity.RESULT_OK);
+                getActivity().finish();
 
-    void selectedOptionSave() {
-        if (preValidation()) {
-            getDataFromViews();
-            if (handleSaveOption()) {
-                getActivity().getSupportFragmentManager().popBackStack();
+            } else if (detailsAction == DetailsAction.EDIT) {
+                try {
+                    categoryToSave.setId(categoryToEdit.get().getId());
+                    localCategoryService.update(categoryToSave);
+                    getActivity().setResult(Activity.RESULT_OK);
+                    getActivity().finish();
+                } catch (CategoryHaveSubsException e) {
+                    Toast.makeText(getActivity(), R.string.categorySubCantHaveSubs, Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
 
-    private boolean preValidation() {
-        return validateName();
-    }
+    private enum DetailsAction {ADD, EDIT}
 
-    private boolean validateName() {
-        if (Strings.isNullOrEmpty(categoryName.getText().toString())) {
-            categoryName.setError(getActivity().getString(R.string.categoryMustHaveName));
-            return false;
-        }
-        return true;
-    }
-
-    private void getDataFromViews() {
-        category.setName(categoryName.getText().toString().trim());
-    }
-
-    private boolean handleSaveOption() {
-        if (type == DetailsType.ADD) {
-            return tryInsert();
-        } else if (type == DetailsType.EDIT) {
-            return tryUpdate();
-        }
-        return false;
-    }
-
-    private boolean tryInsert() {
-        localCategoryService.insert(category);
-        return true;
-    }
-
-    private boolean tryUpdate() {
-        try {
-            localCategoryService.update(category);
-            return true;
-        } catch (CategoryHaveSubsException e) {
-            showToast(getActivity().getString(R.string.categorySubCantHaveSubs));
-        }
-        return false;
-    }
-
-    private void showToast(String msg) {
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
-    }
-
-    class ParentCategoryAdapter extends BaseAdapter {
-        private final Context context;
-        private final List<Category> mainCategories;
+    static class ParentCategoryAdapter extends ArrayAdapter<Category> {
+        private final WeakReference<Context> context;
 
         ParentCategoryAdapter(Context context, List<Category> mainCategories) {
-            mainCategories.add(0, new Category().setName(context.getString(R.string.categoryNoParentSelected)));
-            this.context = context;
-            this.mainCategories = mainCategories;
-        }
-
-        @Override
-        public int getCount() {
-            return mainCategories.size();
-        }
-
-        @Override
-        public Category getItem(int position) {
-            return mainCategories.get(position);
+            super(context, 0);
+            this.context = new WeakReference<>(context);
+            addAll(mainCategories);
         }
 
         @Override
@@ -243,7 +165,7 @@ public class CategoryDetailsFragment extends Fragment {
             ParentCategoryViewHolder holder;
 
             if (convertView == null) {
-                convertView = LayoutInflater.from(context).inflate(android.R.layout.simple_spinner_item, null);
+                convertView = LayoutInflater.from(context.get()).inflate(android.R.layout.simple_spinner_item, null);
                 holder = new ParentCategoryViewHolder();
                 ButterKnife.inject(holder, convertView);
                 convertView.setTag(holder);
@@ -255,6 +177,11 @@ public class CategoryDetailsFragment extends Fragment {
             holder.categoryName.setText(item.getName());
 
             return convertView;
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return getView(position, convertView, parent);
         }
 
         class ParentCategoryViewHolder {
