@@ -34,6 +34,7 @@ public class CashFlowListActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.action_switch, menu);
         getMenuInflater().inflate(R.menu.action_new, menu);
         return true;
     }
@@ -46,6 +47,13 @@ public class CashFlowListActivity extends BaseActivity {
                     .startActivityForResult(
                             new Intent(this, CashFlowDetailsActivity.class), CashFlowDetailsActivity.REQUEST_CODE_ADD_CASH_FLOW);
             return true;
+        } else if (item.getItemId() == R.id.menu_switch) {
+            item.setChecked(!item.isChecked());
+            if (item.isChecked()) {
+                item.setIcon(R.drawable.ic_toggle_switch);
+            } else {
+                item.setIcon(R.drawable.ic_toggle_switch_off);
+            }
         }
         return super.onOptionsItemSelected(item);
     }

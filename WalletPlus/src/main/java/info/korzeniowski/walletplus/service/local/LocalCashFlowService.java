@@ -108,7 +108,9 @@ public class LocalCashFlowService implements CashFlowService {
     }
 
     private void validateInsert(CashFlow cashFlow) {
-
+        if (cashFlow.getType() == CashFlow.Type.TRANSFER) {
+            cashFlow.setCompleted(true);
+        }
     }
 
     @Override

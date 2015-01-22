@@ -34,11 +34,13 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     private CashFlow.Type type;
     private CashFlow.Type previousType;
     private Long date;
+    private Boolean completed;
 
     public CashFlowDetailsParcelableState() {
         setDate(Calendar.getInstance().getTimeInMillis());
         setType(defaultType);
         this.previousType = defaultType;
+        setCompleted(true);
     }
 
     public CashFlowDetailsParcelableState(CashFlow cashFlow) {
@@ -47,6 +49,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         setComment(cashFlow.getComment());
         setDate(cashFlow.getDateTime().getTime());
         setType(cashFlow.getType());
+        setCompleted(cashFlow.isCompleted());
 
         this.previousType = defaultType;
 
@@ -81,6 +84,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         Integer previousTypeOrdinal = (Integer) in.readValue(Integer.class.getClassLoader());
         previousType = previousTypeOrdinal != null ? CashFlow.Type.values()[previousTypeOrdinal] : null;
         date = (Long) in.readValue(Long.class.getClassLoader());
+        completed = (Boolean) in.readValue(Boolean.class.getClassLoader());
     }
 
     @Override
@@ -101,6 +105,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         dest.writeValue(type != null ? type.ordinal() : null);
         dest.writeValue(previousType != null ? previousType.ordinal() : null);
         dest.writeValue(date);
+        dest.writeValue(completed);
     }
 
     public void swapWallets() {
@@ -124,6 +129,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         cashFlow.setFromWallet(getFromWallet());
         cashFlow.setToWallet(getToWallet());
         cashFlow.setCategory(getCategory());
+        cashFlow.setCompleted(isCompleted());
 
         return cashFlow;
     }
@@ -230,5 +236,13 @@ public class CashFlowDetailsParcelableState implements Parcelable {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(Boolean completed) {
+        this.completed = completed;
     }
 }

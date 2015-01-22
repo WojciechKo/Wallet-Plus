@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
@@ -95,6 +96,12 @@ public class CashFlowDetailsFragment extends Fragment {
     @InjectView(R.id.timePicker)
     Button timePicker;
 
+    @InjectView(R.id.extraLabel)
+    TextView extraLabel;
+
+    @InjectView(R.id.isCompleted)
+    CheckedTextView isCompleted;
+
     @Inject
     @Named("local")
     CashFlowService localCashFlowService;
@@ -167,6 +174,8 @@ public class CashFlowDetailsFragment extends Fragment {
             amount.setText(Strings.nullToEmpty(cashFlowDetailsState.getAmount()));
             comment.setText(cashFlowDetailsState.getComment());
         }
+        category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
+        isCompleted.setChecked(cashFlowDetailsState.isCompleted());
         datePicker.setText(DateFormat.getDateFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
         timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
 
@@ -315,10 +324,16 @@ public class CashFlowDetailsFragment extends Fragment {
         ).show();
     }
 
+    @OnClick(R.id.isCompleted)
+    public void isCompletedToggle() {
+        isCompleted.toggle();
+        cashFlowDetailsState.setCompleted(isCompleted.isChecked());
+    }
+
     private void setupTypeDependentViews() {
         setupToggles();
         setupWallets();
-        setupCategory();
+        setupVisibility();
     }
 
     private void setupToggles() {
@@ -382,16 +397,19 @@ public class CashFlowDetailsFragment extends Fragment {
         ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
     }
 
-    private void setupCategory() {
+    private void setupVisibility() {
         if (cashFlowDetailsState.getType() == CashFlow.Type.TRANSFER) {
             category.setVisibility(View.GONE);
             categoryLabel.setVisibility(View.GONE);
             removeCategory.setVisibility(View.GONE);
+            extraLabel.setVisibility(View.GONE);
+            isCompleted.setVisibility(View.GONE);
         } else {
             category.setVisibility(View.VISIBLE);
             categoryLabel.setVisibility(View.VISIBLE);
             removeCategory.setVisibility(View.VISIBLE);
-            category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
+            extraLabel.setVisibility(View.VISIBLE);
+            isCompleted.setVisibility(View.VISIBLE);
         }
     }
 

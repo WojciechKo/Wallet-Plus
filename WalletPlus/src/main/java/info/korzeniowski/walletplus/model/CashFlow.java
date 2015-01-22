@@ -27,6 +27,9 @@ public class CashFlow implements Identifiable {
     @DatabaseField
     private String comment;
 
+    @DatabaseField
+    private Boolean completed;
+
     @Override
     public Long getId() {
         return id;
@@ -89,6 +92,14 @@ public class CashFlow implements Identifiable {
     public CashFlow setComment(String comment) {
         this.comment = comment;
         return this;
+    }
+
+    public Boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(Boolean completed) {
+        this.completed = completed;
     }
 
     public Type getType() {
