@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.wallet.details;
+package info.korzeniowski.walletplus.ui.otherwallets.details;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -17,8 +17,8 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 
-public class WalletDetailsActivity extends BaseActivity {
-    public static final String TAG = WalletDetailsActivity.class.getSimpleName();
+public class OtherWalletDetailsActivity extends BaseActivity {
+    public static final String TAG = OtherWalletDetailsActivity.class.getSimpleName();
     public static final String EXTRAS_WALLET_ID = "WALLET_ID";
 
     public static final int REQUEST_CODE_ADD_WALLET = 601;
@@ -53,14 +53,14 @@ public class WalletDetailsActivity extends BaseActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.container, WalletDetailsFragment.newInstance(walletId))
+                    .replace(R.id.container, OtherWalletDetailsFragment.newInstance(walletId))
                     .commit();
         }
 
         getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NavUtils.navigateUpFromSameTask(WalletDetailsActivity.this);
+                NavUtils.navigateUpFromSameTask(OtherWalletDetailsActivity.this);
             }
         });
     }

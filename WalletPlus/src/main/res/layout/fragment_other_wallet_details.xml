@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
+
+    <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
+
+        <TextView android:id="@+id/walletNameLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="16dp"
+                android:text="@string/walletNameLabel"
+                android:textSize="@dimen/smallFontSize"
+                android:visibility="invisible"/>
+
+        <EditText android:id="@+id/walletName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:hint="@string/walletNameLabel"
+                android:inputType="textAutoCorrect"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:textSize="@dimen/mediumFontSize"/>
+    </LinearLayout>
+</ScrollView>

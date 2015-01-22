@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.wallet.details;
+package info.korzeniowski.walletplus.ui.mywallets.details;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -28,7 +28,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 
-public class WalletDetailsFragment extends Fragment {
+public class MyWalletDetailsFragment extends Fragment {
     public static final String TAG = "walletDetails";
     public static final String ARGUMENT_WALLET_ID = "WALLET_ID";
 
@@ -66,8 +66,8 @@ public class WalletDetailsFragment extends Fragment {
     private DetailsAction detailsAction;
     private Optional<Wallet> walletToEdit;
 
-    public static WalletDetailsFragment newInstance(Long walletId) {
-        WalletDetailsFragment fragment = new WalletDetailsFragment();
+    public static MyWalletDetailsFragment newInstance(Long walletId) {
+        MyWalletDetailsFragment fragment = new MyWalletDetailsFragment();
         Bundle arguments = new Bundle();
         arguments.putLong(ARGUMENT_WALLET_ID, walletId);
         fragment.setArguments(arguments);
@@ -95,7 +95,7 @@ public class WalletDetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_wallet_details, container, false);
+        View view = inflater.inflate(R.layout.fragment_my_wallet_details, container, false);
         ButterKnife.inject(this, view);
 
         if (detailsAction == DetailsAction.ADD) {

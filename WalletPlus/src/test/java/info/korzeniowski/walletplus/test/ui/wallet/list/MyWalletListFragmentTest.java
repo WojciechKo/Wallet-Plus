@@ -25,15 +25,15 @@ import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
+import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListFragment;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @Config(emulateSdk = 18, reportSdk = 18)
 @RunWith(RobolectricTestRunner.class)
-public class WalletListFragmentTest {
+public class MyWalletListFragmentTest {
 
     @InjectView(R.id.swipe_list)
     SwipeListView list;
@@ -42,7 +42,7 @@ public class WalletListFragmentTest {
     @Named("local")
     WalletService mockWalletService;
 
-    private WalletListFragment fragment;
+    private MyWalletListFragment fragment;
     private ActionBarActivity activity;
 
     @Before
@@ -54,7 +54,7 @@ public class WalletListFragmentTest {
         ListView menuList = (ListView) activity.findViewById(R.id.drawerList);
         Robolectric.shadowOf(menuList).performItemClick(3);
 
-        fragment = (WalletListFragment) activity.getSupportFragmentManager().findFragmentByTag(WalletListFragment.TAG);
+        fragment = (MyWalletListFragment) activity.getSupportFragmentManager().findFragmentByTag(MyWalletListFragment.TAG);
 
         ButterKnife.inject(this, fragment.getView());
     }
@@ -70,7 +70,7 @@ public class WalletListFragmentTest {
     @Test
     public void shouldOpenFragmentToCreateNewWallet() {
         fragment.onOptionsItemSelected(new TestMenuItem(R.id.menu_new));
-        WalletDetailsFragment detailsFragment = (WalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(WalletDetailsFragment.TAG);
+        MyWalletDetailsFragment detailsFragment = (MyWalletDetailsFragment) activity.getSupportFragmentManager().findFragmentByTag(MyWalletDetailsFragment.TAG);
         assertThat(detailsFragment).isNotNull();
         assertThat((EditText) detailsFragment.getView().findViewById(R.id.walletName)).hasTextString("");
         assertThat((EditText) detailsFragment.getView().findViewById(R.id.walletInitialAmount)).hasTextString("");

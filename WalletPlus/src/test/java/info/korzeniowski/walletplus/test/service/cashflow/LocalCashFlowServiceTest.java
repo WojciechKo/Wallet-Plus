@@ -53,7 +53,7 @@ public class LocalCashFlowServiceTest {
     public void shouldFixRelatedWalletsAfterInsertOfCashFlow() {
         Double amount = 53.1;
         Wallet from = new Wallet().setName("from").setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0);
-        Wallet to = new Wallet().setName("to").setType(Wallet.Type.CONTRACTOR).setInitialAmount(0.0);
+        Wallet to = new Wallet().setName("to").setType(Wallet.Type.OTHER).setInitialAmount(0.0);
         walletService.insert(from);
         walletService.insert(to);
         double fromCurrentAmount = walletService.findById(from.getId()).getCurrentAmount();
@@ -74,7 +74,7 @@ public class LocalCashFlowServiceTest {
     @Test
     public void shouldFilterCashFlows() {
         Wallet myWallet = new Wallet().setName("from").setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0);
-        Wallet to = new Wallet().setName("to").setType(Wallet.Type.CONTRACTOR).setInitialAmount(0.0);
+        Wallet to = new Wallet().setName("to").setType(Wallet.Type.OTHER).setInitialAmount(0.0);
         Category category = new Category().setName("Category");
 
         walletService.insert(myWallet);

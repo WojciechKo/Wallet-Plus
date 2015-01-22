@@ -38,10 +38,14 @@ import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
-import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsActivity;
-import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.wallet.list.WalletListActivity;
-import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
+import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsActivity;
+import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListActivity;
+import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListFragment;
+import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsActivity;
+import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
+import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListFragment;
 
 /**
  * Module for Database objects.
@@ -67,11 +71,17 @@ import info.korzeniowski.walletplus.ui.wallet.list.WalletListFragment;
                 CashFlowDetailsActivity.class,
                 CashFlowDetailsFragment.class,
 
-                WalletListActivity.class,
-                WalletListFragment.class,
+                MyWalletListActivity.class,
+                MyWalletListFragment.class,
 
-                WalletDetailsActivity.class,
-                WalletDetailsFragment.class,
+                MyWalletDetailsActivity.class,
+                MyWalletDetailsFragment.class,
+
+                OtherWalletListActivity.class,
+                OtherWalletListFragment.class,
+
+                OtherWalletDetailsActivity.class,
+                OtherWalletDetailsFragment.class,
 
                 DatabaseInitializer.class,
                 LocalAccountService.class

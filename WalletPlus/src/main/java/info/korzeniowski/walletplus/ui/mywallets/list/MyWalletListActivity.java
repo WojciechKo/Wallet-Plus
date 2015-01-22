@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.cashflow.list;
+package info.korzeniowski.walletplus.ui.mywallets.list;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,10 +7,10 @@ import android.view.MenuItem;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.ui.BaseActivity;
-import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsActivity;
+import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsActivity;
 
-public class CashFlowListActivity extends BaseActivity {
-    public static final String TAG = CashFlowListActivity.class.getSimpleName();
+public class MyWalletListActivity extends BaseActivity {
+    public static final String TAG = MyWalletListActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +25,7 @@ public class CashFlowListActivity extends BaseActivity {
         if (null == savedInstanceState) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.container, new CashFlowListFragment())
+                    .replace(R.id.container, new MyWalletListFragment())
                     .commit();
         }
 
@@ -34,7 +34,6 @@ public class CashFlowListActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_switch, menu);
         getMenuInflater().inflate(R.menu.action_new, menu);
         return true;
     }
@@ -42,24 +41,14 @@ public class CashFlowListActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_new) {
-            getSupportFragmentManager()
-                    .findFragmentById(R.id.container)
-                    .startActivityForResult(
-                            new Intent(this, CashFlowDetailsActivity.class), CashFlowDetailsActivity.REQUEST_CODE_ADD_CASH_FLOW);
+            getSupportFragmentManager().findFragmentById(R.id.container).startActivityForResult(new Intent(this, MyWalletDetailsActivity.class), MyWalletDetailsActivity.REQUEST_CODE_ADD_WALLET);
             return true;
-        } else if (item.getItemId() == R.id.menu_switch) {
-            item.setChecked(!item.isChecked());
-            if (item.isChecked()) {
-                item.setIcon(R.drawable.ic_toggle_switch);
-            } else {
-                item.setIcon(R.drawable.ic_toggle_switch_off);
-            }
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected DrawerItemType getSelfNavDrawerItem() {
-        return DrawerItemType.CASH_FLOW;
+        return DrawerItemType.MY_WALLETS;
     }
 }

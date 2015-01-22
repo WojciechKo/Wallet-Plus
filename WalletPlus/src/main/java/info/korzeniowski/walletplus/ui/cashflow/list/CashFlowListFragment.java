@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -137,6 +139,18 @@ public class CashFlowListFragment extends Fragment {
         if (item.getItemId() == R.id.menu_delete) {
             deleteSelectedCashFlows();
             return true;
+        } else if (item.getItemId() == R.id.menu_switch) {
+            if (item.isChecked()) {
+                Predicate<CashFlow> notCompleted = new Predicate<CashFlow>() {
+                    @Override
+                    public boolean apply(CashFlow input) {
+                        return !input.isCompleted();
+                    }
+                };
+                list.setAdapter(new CashFlowListAdapter(getActivity(), Lists.newArrayList(Iterables.filter(cashFlows, notCompleted))));
+            } else {
+                list.setAdapter(new CashFlowListAdapter(getActivity(), cashFlows));
+            }
         }
         return false;
     }

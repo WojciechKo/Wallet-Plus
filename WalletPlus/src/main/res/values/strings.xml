@@ -68,6 +68,8 @@
     <string name="cashflowCommentHint">comment</string>
     <string name="cashflowCategoryLabel">Category:</string>
     <string name="cashflowCategoryChooseAlertTitle">Choose category:</string>
+    <string name="cashflowDateLabel">Date:</string>
+    <string name="cashflowExtraLabel">Extra:</string>
 
     <string name="cashFlowFromAndToWalletsNeedToBeDifferent">From and to wallets need to be different.</string>
     <string name="cashFlowDeleteConfirmation">Do you want to delete this cash flow?</string>

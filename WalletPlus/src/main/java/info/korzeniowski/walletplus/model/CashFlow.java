@@ -27,6 +27,9 @@ public class CashFlow implements Identifiable {
     @DatabaseField
     private String comment;
 
+    @DatabaseField
+    private Boolean completed;
+
     @Override
     public Long getId() {
         return id;
@@ -91,17 +94,25 @@ public class CashFlow implements Identifiable {
         return this;
     }
 
+    public Boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(Boolean completed) {
+        this.completed = completed;
+    }
+
     public Type getType() {
         if (getFromWallet() != null && getFromWallet().getType() == Wallet.Type.MY_WALLET) {
             if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
                 return Type.TRANSFER;
-            } else if (getToWallet() == null || getToWallet().getType() == Wallet.Type.CONTRACTOR) {
+            } else if (getToWallet() == null || getToWallet().getType() == Wallet.Type.OTHER) {
                 return Type.EXPANSE;
             } else {
                 throw new RuntimeException("Unknown type of CashFlow");
             }
         } else if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
-            if (getFromWallet() == null || getFromWallet().getType() == Wallet.Type.CONTRACTOR) {
+            if (getFromWallet() == null || getFromWallet().getType() == Wallet.Type.OTHER) {
                 return Type.INCOME;
             }
         }

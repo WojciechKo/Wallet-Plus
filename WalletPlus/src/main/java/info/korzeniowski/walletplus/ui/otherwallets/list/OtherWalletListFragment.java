@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.ui.wallet.list;
+package info.korzeniowski.walletplus.ui.otherwallets.list;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,9 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.fortysevendeg.swipelistview.BaseSwipeListViewListener;
-import com.fortysevendeg.swipelistview.SwipeListView;
+import android.widget.ListView;
 
 import java.util.List;
 
@@ -19,23 +17,22 @@ import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnItemClick;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.ui.wallet.details.WalletDetailsActivity;
+import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsActivity;
 
-public class WalletListFragment extends Fragment {
-    public static final String TAG = WalletListFragment.class.getSimpleName();
+public class OtherWalletListFragment extends Fragment {
+    public static final String TAG = OtherWalletListFragment.class.getSimpleName();
 
-    @InjectView(R.id.swipe_list)
-    SwipeListView list;
+    @InjectView(R.id.list)
+    ListView list;
 
     @Inject
     @Named("local")
     WalletService localWalletService;
-
-    private List<Wallet> walletList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,47 +43,38 @@ public class WalletListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_wallet_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_other_wallet_list, container, false);
         ButterKnife.inject(this, view);
         setupList();
         return view;
     }
 
-    private void setupList() {
-        walletList = localWalletService.getMyWallets();
-        list.setSwipeListViewListener(new BaseSwipeListViewListener() {
-            @Override
-            public void onClickFrontView(int position) {
-                Intent intent = new Intent(getActivity(), WalletDetailsActivity.class);
-                intent.putExtra(WalletDetailsActivity.EXTRAS_WALLET_ID, list.getAdapter().getItemId(position));
-                startActivityForResult(intent, WalletDetailsActivity.REQUEST_CODE_EDIT_WALLET);
-            }
+    @OnItemClick(R.id.list)
+    void listItemClicked(int position) {
+        Intent intent = new Intent(getActivity(), OtherWalletDetailsActivity.class);
+        intent.putExtra(OtherWalletDetailsActivity.EXTRAS_WALLET_ID, list.getAdapter().getItemId(position));
+        startActivityForResult(intent, OtherWalletDetailsActivity.REQUEST_CODE_EDIT_WALLET);
+    }
 
-            @Override
-            public void onDismiss(int[] reverseSortedPositions) {
-                for (int index : reverseSortedPositions) {
-                    walletList.remove(index);
-                }
-                list.setAdapter(new WalletListAdapter(getActivity(), walletList));
-            }
-        });
-        list.setAdapter(new WalletListAdapter(getActivity(), walletList));
+    private void setupList() {
+        List<Wallet> walletList = localWalletService.getOtherWallets();
+        list.setAdapter(new OtherWalletListAdapter(getActivity(), walletList));
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == WalletDetailsActivity.REQUEST_CODE_ADD_WALLET) {
+        if (requestCode == OtherWalletDetailsActivity.REQUEST_CODE_ADD_WALLET) {
             switch (resultCode) {
                 case Activity.RESULT_OK:
                     setupList();
                     return;
             }
-        } else if (requestCode == WalletDetailsActivity.REQUEST_CODE_EDIT_WALLET) {
+        } else if (requestCode == OtherWalletDetailsActivity.REQUEST_CODE_EDIT_WALLET) {
             switch (resultCode) {
                 case Activity.RESULT_OK:
                     setupList();
                     return;
-                case WalletDetailsActivity.RESULT_DELETED:
+                case OtherWalletDetailsActivity.RESULT_DELETED:
                     setupList();
                     return;
             }
