@@ -16,4 +16,6 @@ public interface CashFlowService extends BaseService<CashFlow> {
     public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long fromWalletId, Long toWalletId);
 
     public List<CashFlow> findCashFlow(Date from, Date to, Category.Type categoryType, Long fromWalletId, Long toWalletId);
+
+    List<CashFlow> getLastNCashFlows(int n);
 }

@@ -244,4 +244,13 @@ public class LocalCashFlowService implements CashFlowService {
             throw new DatabaseException(e);
         }
     }
+
+    @Override
+    public List<CashFlow> getLastNCashFlows(int n) {
+        try {
+            return cashFlowDao.queryBuilder().orderBy("dateTime", false).limit((long) n).query();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
 }

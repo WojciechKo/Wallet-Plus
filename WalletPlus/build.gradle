@@ -142,6 +142,9 @@ dependencies {
         transitive = true
     }
 
+    // HelloCharts
+    compile project(':hellocharts-library')
+
     // JUnit
     testCompile 'junit:junit:4.11'
 
