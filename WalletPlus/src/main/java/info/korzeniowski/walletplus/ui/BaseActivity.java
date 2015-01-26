@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +24,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.drive.Drive;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.samples.apps.iosched.ui.widget.ScrimInsetsScrollView;
@@ -50,7 +56,8 @@ import info.korzeniowski.walletplus.util.ProfileUtils;
 import info.korzeniowski.walletplus.util.UIUtils;
 
 
-public class BaseActivity extends ActionBarActivity {
+public class BaseActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = BaseActivity.class.getSimpleName();
 
@@ -61,6 +68,8 @@ public class BaseActivity extends ActionBarActivity {
     private static final int MAIN_CONTENT_FADEOUT_DURATION = 150;
     private static final int MAIN_CONTENT_FADEIN_DURATION = 250;
     private static final int ACCOUNT_BOX_EXPAND_ANIM_DURATION = 200;
+
+    private static final int RESOLVE_CONNECTION_REQUEST_CODE = 6969;
 
     @Inject
     protected CategoryListActivityState categoryListActivityState;
@@ -91,6 +100,7 @@ public class BaseActivity extends ActionBarActivity {
     // Navigation drawer menu items
     private Map<DrawerItemType, DrawerItemContent> navigationDrawerMap = Maps.newHashMap();
     private List<DrawerItemType> navigationDrawerItemList = Lists.newArrayList();
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +111,13 @@ public class BaseActivity extends ActionBarActivity {
 
         mThemedStatusBarColor = getResources().getColor(R.color.theme_primary_dark);
         mNormalStatusBarColor = mThemedStatusBarColor;
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Drive.API)
+                .addScope(Drive.SCOPE_FILE)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
     }
 
     @Override
@@ -504,6 +521,13 @@ public class BaseActivity extends ActionBarActivity {
         TextView nameView = (TextView) chosenAccountView.findViewById(R.id.profile_name);
         TextView emailView = (TextView) chosenAccountView.findViewById(R.id.account_email);
         mExpandAccountBoxIndicator = (ImageView) findViewById(R.id.expand_account_box_indicator);
+        SignInButton mSignInGoogle = (SignInButton) findViewById(R.id.sign_in_google);
+
+        mSignInGoogle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mGoogleApiClient.connect();
+        }});
 
 //      TODO: Remove this.
 //        if (profiles.isEmpty()) {
@@ -515,7 +539,7 @@ public class BaseActivity extends ActionBarActivity {
 //        }
 
         Profile activeProfile = profileService.findById(activeProfileId);
-        nameView.setText(activeProfile.getAccount().getName());
+        nameView.setText(activeProfile.getName());
         emailView.setText(activeProfile.getAccount().getGmailAccount());
 
         chosenAccountView.setEnabled(true);
@@ -532,17 +556,51 @@ public class BaseActivity extends ActionBarActivity {
         populateProfileList(profiles);
     }
 
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        if (connectionResult.hasResolution()) {
+            try {
+                connectionResult.startResolutionForResult(this, RESOLVE_CONNECTION_REQUEST_CODE);
+            } catch (IntentSender.SendIntentException e) {
+                // Unable to resolve, message user appropriately
+            }
+        } else {
+            GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), this, 0).show();
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case RESOLVE_CONNECTION_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    mGoogleApiClient.connect();
+                }
+                break;
+        }
+    }
+
     private void populateProfileList(List<Profile> profiles) {
         mAccountListContainer.removeAllViews();
 
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         for (final Profile profile : profiles) {
             View itemView = layoutInflater.inflate(R.layout.item_profile_list, mAccountListContainer, false);
-            TextView nameView = (TextView) itemView.findViewById(R.id.profile_name);
-            nameView.setText(profile.getName());
+            TextView profileNameView = (TextView) itemView.findViewById(R.id.profile_name);
+            profileNameView.setText(profile.getName());
 
             if (profile.getId().equals(ProfileUtils.getActiveProfileId(BaseActivity.this))) {
-                nameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color_selected));
+                profileNameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color_selected));
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -554,7 +612,7 @@ public class BaseActivity extends ActionBarActivity {
                     }
                 });
             } else {
-                nameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color));
+                profileNameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color));
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
