@@ -36,6 +36,7 @@ import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
 
 public class DashboardFragment extends Fragment {
@@ -55,7 +56,7 @@ public class DashboardFragment extends Fragment {
     @Inject
     @Named("local")
     CashFlowService localCashFlowService;
-    private List<PointValue> chartValues;
+
     private Double currentAmountSumFromMyWallets;
 
     @Override
@@ -75,20 +76,39 @@ public class DashboardFragment extends Fragment {
 
     void setupViews() {
         totalAmount.setText(getTotalAmountText());
+
         chart.setLineChartData(getMainLineChartData());
+        chart.setZoomEnabled(false);
+        chart.setValueSelectionEnabled(true);
+        chart.setViewportCalculationEnabled(false);
+        final Viewport v = new Viewport(chart.getMaximumViewport());
+        float diff = v.top - v.bottom;
+        v.bottom -= 0.2 * diff;
+        v.top += 0.2 * diff;
+        chart.setMaximumViewport(v);
+        chart.setCurrentViewportWithAnimation(v);
     }
 
     private LineChartData getMainLineChartData() {
         List<PointValue> values = Lists.newArrayList();
         List<AxisValue> dateAxisValues = Lists.newArrayList();
         ListIterator<CashFlow> cashFlowListIterator = localCashFlowService.getLastNCashFlows(MAX_NUMBER_OF_POINTS_IN_CHART).listIterator();
-        float tempWalletValue = currentAmountSumFromMyWallets.floatValue();
 
+        float tempWalletValue = currentAmountSumFromMyWallets.floatValue();
+        float minWalletValue = tempWalletValue;
+        float maxWalletValue = tempWalletValue;
         for (int i = MAX_NUMBER_OF_POINTS_IN_CHART; i > 0; i--) {
             if (!cashFlowListIterator.hasNext()) {
                 break;
             }
             CashFlow cashFlow = cashFlowListIterator.next();
+
+            if (tempWalletValue > maxWalletValue) {
+                maxWalletValue = tempWalletValue;
+            }
+            if (tempWalletValue < minWalletValue) {
+                minWalletValue = tempWalletValue;
+            }
 
             values.add(new PointValue(i, tempWalletValue));
             dateAxisValues.add(new AxisValue(i, getAxisLabel(cashFlow.getDateTime())));
@@ -103,19 +123,24 @@ public class DashboardFragment extends Fragment {
         mainLine.setColor(getResources().getColor(R.color.green));
         mainLine.setFilled(true);
         mainLine.setHasLabelsOnlyForSelected(true);
-        ArrayList<Line> lines = Lists.newArrayList(mainLine);
-        LineChartData lineChartData = new LineChartData(lines);
 
-        Axis dateAxis = new Axis(dateAxisValues);
-        dateAxis.setHasTiltedLabels(true);
-        lineChartData.setAxisXBottom(dateAxis);
+        LineChartData lineChartData = new LineChartData(Lists.newArrayList(mainLine));
+
+        // setup axis with dates.
+        lineChartData.setAxisXBottom(new Axis(dateAxisValues).setHasTiltedLabels(true));
+
+        // setup axis with values.
+        lineChartData.setAxisYLeft(new Axis().setHasLines(true));
 
         return lineChartData;
     }
 
     private char[] getAxisLabel(Date dateTime) {
+//        int flags = DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE;
+//        return DateUtils.formatDateTime(getActivity(), dateTime.getTime(), flags).toCharArray();
         String dateLabel = DateFormat.getDateFormat(DashboardFragment.this.getActivity()).format(dateTime.getTime());
-        return dateLabel.toCharArray();
+        String timeLabel = DateFormat.getTimeFormat(DashboardFragment.this.getActivity()).format(dateTime.getTime());
+        return (dateLabel + "\n" + timeLabel).toCharArray();
     }
 
     private CharSequence getTotalAmountText() {

@@ -27,8 +27,8 @@ public class CashFlow implements Identifiable {
     @DatabaseField
     private String comment;
 
-    @DatabaseField
-    private Boolean completed;
+    @DatabaseField(canBeNull = false)
+    private boolean completed;
 
     @Override
     public Long getId() {
