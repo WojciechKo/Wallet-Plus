@@ -9,11 +9,14 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.local.LocalAccountService;
+import info.korzeniowski.walletplus.service.local.LocalProfileService;
+import info.korzeniowski.walletplus.util.ProfileUtils;
 
 public class DatabaseInitializer {
 
@@ -35,14 +38,30 @@ public class DatabaseInitializer {
         this.walletPlus = new WeakReference<>(walletPlus);
     }
 
-    public Account createExampleAccount() {
-        LocalAccountService localAccountService1 = walletPlus.get().getGraph().get(LocalAccountService.class);
-        Account result = new Account().setName("Example Account");
-        localAccountService1.insert(result);
-        walletPlus.get().setCurrentAccount(result);
+    public void createExampleAccountWithProfile() {
+        LocalAccountService localAccountService = walletPlus.get().getGraph().get(LocalAccountService.class);
+        Account exampleAccount = new Account().setName("Example Account");
+        localAccountService.insert(exampleAccount);
+        LocalProfileService localProfileService = walletPlus.get().getGraph().get(LocalProfileService.class);
+        Profile exampleProfile = new Profile().setName("Personal example").setAccount(exampleAccount);
+        localProfileService.insert(exampleProfile);
+        ProfileUtils.setActiveProfileId(walletPlus.get().getBaseContext(), exampleProfile.getId());
         walletPlus.get().inject(this);
         fillExampleDatabase();
-        return result;
+
+        Profile bestCompany = new Profile().setName("Best company").setAccount(exampleAccount);
+        localProfileService.insert(bestCompany);
+        ProfileUtils.setActiveProfileId(walletPlus.get().getBaseContext(), bestCompany.getId());
+        walletPlus.get().reinitializeObjectGraph();
+        walletPlus.get().inject(this);
+        fillExampleDatabase();
+
+        Profile oldCompany = new Profile().setName("Old company").setAccount(exampleAccount);
+        localProfileService.insert(oldCompany);
+        ProfileUtils.setActiveProfileId(walletPlus.get().getBaseContext(), oldCompany.getId());
+        walletPlus.get().reinitializeObjectGraph();
+        walletPlus.get().inject(this);
+        fillExampleDatabase();
     }
 
     private void fillExampleDatabase() {

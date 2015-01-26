@@ -46,7 +46,7 @@ public class TestWalletPlus extends WalletPlus {
     }
 
     @Override
-    public Account getCurrentAccount() {
+    public Account getCurrentProfile() {
         return new Account().setName("Test Account").setDatabaseFileName("Test Account.db");
     }
 }

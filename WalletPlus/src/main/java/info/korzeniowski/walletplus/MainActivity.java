@@ -30,7 +30,7 @@ import butterknife.InjectView;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.service.local.LocalAccountService;
 import info.korzeniowski.walletplus.ui.drawer.DrawerAccountAdapter;
-import info.korzeniowski.walletplus.ui.drawer.MainDrawerItem;
+import info.korzeniowski.walletplus.util.ProfileUtils;
 import info.korzeniowski.walletplus.widget.SquareImageButton;
 
 public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
@@ -150,7 +150,8 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     private void setupAccountFrame() {
-        selectedAccount.setText(((WalletPlus) getApplication()).getCurrentAccount().getName());
+//        ProfileUtils.getActiveProfileId(this)
+//        selectedAccount.setText(((WalletPlus) getApplication()).getCurrentProfile().getName());
 
         switchAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,7 +195,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
     private void drawerAccountClicked(int position) {
         drawerLayout.closeDrawer(drawer);
-        ((WalletPlus) getApplication()).setCurrentAccount(drawerAccountAdapter.getItem(position));
+//        ((WalletPlus) getApplication()).setCurrentProfile(drawerAccountAdapter.getItem(position));
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         ((WalletPlus) getApplication()).reinitializeObjectGraph();
         initMainActivityState();

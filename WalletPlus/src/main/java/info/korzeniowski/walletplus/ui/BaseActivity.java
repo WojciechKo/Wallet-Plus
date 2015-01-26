@@ -23,8 +23,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.samples.apps.iosched.ui.widget.ScrimInsetsScrollView;
@@ -38,15 +36,17 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Account;
+import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.AccountService;
+import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListActivity;
 import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
-import info.korzeniowski.walletplus.util.AccountUtils;
 import info.korzeniowski.walletplus.util.PrefUtils;
+import info.korzeniowski.walletplus.util.ProfileUtils;
 import info.korzeniowski.walletplus.util.UIUtils;
 
 
@@ -61,6 +61,17 @@ public class BaseActivity extends ActionBarActivity {
     private static final int MAIN_CONTENT_FADEOUT_DURATION = 150;
     private static final int MAIN_CONTENT_FADEIN_DURATION = 250;
     private static final int ACCOUNT_BOX_EXPAND_ANIM_DURATION = 200;
+
+    @Inject
+    protected CategoryListActivityState categoryListActivityState;
+
+    @Inject
+    @Named("local")
+    AccountService accountService;
+
+    @Inject
+    @Named("local")
+    ProfileService profileService;
 
     private Toolbar mActionBarToolbar;
     private DrawerLayout mDrawerLayout;
@@ -80,13 +91,6 @@ public class BaseActivity extends ActionBarActivity {
     // Navigation drawer menu items
     private Map<DrawerItemType, DrawerItemContent> navigationDrawerMap = Maps.newHashMap();
     private List<DrawerItemType> navigationDrawerItemList = Lists.newArrayList();
-
-    @Inject
-    @Named("local")
-    AccountService accountService;
-
-    @Inject
-    protected CategoryListActivityState categoryListActivityState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,13 +171,13 @@ public class BaseActivity extends ActionBarActivity {
     }
 
     private void startLoginProcess() {
-        Long accountId = AccountUtils.getActiveAccountId(this);
-        if (accountId == -1) {
+        Long profileId = ProfileUtils.getActiveProfileId(this);
+        if (profileId == -1) {
             List<Account> accountList = accountService.getAll();
             if (!accountList.isEmpty()) {
-                AccountUtils.setActiveAccountId(this, accountList.get(0).getId());
+                ProfileUtils.setActiveProfileId(this, accountList.get(0).getProfiles().get(0).getId());
             } else {
-                throw new RuntimeException("No accounts available. HANDLE THIS!");
+                throw new RuntimeException("No account or profile available. TODO.");
             }
         }
     }
@@ -484,8 +488,8 @@ public class BaseActivity extends ActionBarActivity {
         }
 
         final View chosenAccountView = findViewById(R.id.chosen_account_view);
-        final Long chosenAccountId = AccountUtils.getActiveAccountId(this);
-        if (chosenAccountId == -1) {
+        final Long activeProfileId = ProfileUtils.getActiveProfileId(this);
+        if (activeProfileId == -1) {
             // No account logged in; hide account box
             chosenAccountView.setVisibility(View.GONE);
             mAccountListContainer.setVisibility(View.GONE);
@@ -495,29 +499,24 @@ public class BaseActivity extends ActionBarActivity {
             mAccountListContainer.setVisibility(View.INVISIBLE);
         }
 
-        List<Account> accounts = accountService.getAll();
-        Iterables.removeIf(accounts, new Predicate<Account>() {
-            @Override
-            public boolean apply(Account input) {
-                return input.getId().equals(chosenAccountId);
-            }
-        });
+        List<Profile> profiles = profileService.getAll();
 
-        TextView nameView = (TextView) chosenAccountView.findViewById(R.id.account_name);
+        TextView nameView = (TextView) chosenAccountView.findViewById(R.id.profile_name);
         TextView emailView = (TextView) chosenAccountView.findViewById(R.id.account_email);
         mExpandAccountBoxIndicator = (ImageView) findViewById(R.id.expand_account_box_indicator);
 
-        if (accounts.isEmpty()) {
-            // There's only one account on the device, so no need for a switcher.
-            mExpandAccountBoxIndicator.setVisibility(View.GONE);
-            mAccountListContainer.setVisibility(View.GONE);
-            chosenAccountView.setEnabled(false);
-            return;
-        }
+//      TODO: Remove this.
+//        if (profiles.isEmpty()) {
+//            // There's only one account on the device, so no need for a switcher.
+//            mExpandAccountBoxIndicator.setVisibility(View.GONE);
+//            mAccountListContainer.setVisibility(View.GONE);
+//            chosenAccountView.setEnabled(false);
+//            return;
+//        }
 
-        Account account = accountService.findById(chosenAccountId);
-        nameView.setText(account.getName());
-        emailView.setText(account.getGmailAccount());
+        Profile activeProfile = profileService.findById(activeProfileId);
+        nameView.setText(activeProfile.getAccount().getName());
+        emailView.setText(activeProfile.getAccount().getGmailAccount());
 
         chosenAccountView.setEnabled(true);
         mExpandAccountBoxIndicator.setVisibility(View.VISIBLE);
@@ -530,26 +529,43 @@ public class BaseActivity extends ActionBarActivity {
         });
         setupAccountBoxToggle();
 
-        populateAccountList(accounts);
+        populateProfileList(profiles);
     }
 
-    private void populateAccountList(List<Account> accounts) {
+    private void populateProfileList(List<Profile> profiles) {
         mAccountListContainer.removeAllViews();
 
         LayoutInflater layoutInflater = LayoutInflater.from(this);
-        for (final Account account : accounts) {
-            View itemView = layoutInflater.inflate(R.layout.item_account_list, mAccountListContainer, false);
-            ((TextView) itemView.findViewById(R.id.account_name)).setText(account.getName());
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AccountUtils.setActiveAccountId(BaseActivity.this, account.getId());
-                    mAccountBoxExpanded = false;
-                    setupAccountBoxToggle();
-                    mDrawerLayout.closeDrawer(Gravity.START);
-                    setupAccountBox();
-                }
-            });
+        for (final Profile profile : profiles) {
+            View itemView = layoutInflater.inflate(R.layout.item_profile_list, mAccountListContainer, false);
+            TextView nameView = (TextView) itemView.findViewById(R.id.profile_name);
+            nameView.setText(profile.getName());
+
+            if (profile.getId().equals(ProfileUtils.getActiveProfileId(BaseActivity.this))) {
+                nameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color_selected));
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mAccountBoxExpanded = false;
+                        setupAccountBoxToggle();
+                        mDrawerLayout.closeDrawer(Gravity.START);
+//                      setupAccountBox();
+                    }
+                });
+            } else {
+                nameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color));
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ProfileUtils.setActiveProfileId(BaseActivity.this, profile.getId());
+                        ((WalletPlus) getApplication()).reinitializeObjectGraph();
+                        startActivity(new Intent(BaseActivity.this, DashboardActivity.class));
+                        finish();
+                    }
+                });
+            }
             mAccountListContainer.addView(itemView);
         }
     }

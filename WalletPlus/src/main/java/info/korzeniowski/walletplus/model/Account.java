@@ -1,6 +1,11 @@
 package info.korzeniowski.walletplus.model;
 
+import com.google.common.collect.Lists;
+import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+
+import java.util.List;
 
 public class Account implements Identifiable {
 
@@ -13,8 +18,8 @@ public class Account implements Identifiable {
     @DatabaseField
     private String gmailAccount;
 
-    @DatabaseField
-    private String databaseFileName;
+    @ForeignCollectionField(orderColumnName = "name")
+    private ForeignCollection<Profile> profiles;
 
     public Account() {
 
@@ -51,12 +56,10 @@ public class Account implements Identifiable {
         return this;
     }
 
-    public String getDatabaseFileName() {
-        return databaseFileName;
-    }
-
-    public Account setDatabaseFileName(String databaseFileName) {
-        this.databaseFileName = databaseFileName;
-        return this;
+    public List<Profile> getProfiles() {
+        if (profiles == null) {
+            return Lists.newArrayList();
+        }
+        return Lists.newArrayList(profiles);
     }
 }
