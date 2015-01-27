@@ -52,6 +52,7 @@ import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListActivity;
 import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
 import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
+import info.korzeniowski.walletplus.ui.synchronize.SynchronizeActivity;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import info.korzeniowski.walletplus.util.ProfileUtils;
 import info.korzeniowski.walletplus.util.UIUtils;
@@ -100,7 +101,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     // Navigation drawer menu items
     private Map<DrawerItemType, DrawerItemContent> navigationDrawerMap = Maps.newHashMap();
     private List<DrawerItemType> navigationDrawerItemList = Lists.newArrayList();
-    private GoogleApiClient mGoogleApiClient;
 
     private LinearLayout mAccountListContainer;
     private LinearLayout mAccountListFooter;
@@ -117,13 +117,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
         mThemedStatusBarColor = getResources().getColor(R.color.theme_primary_dark);
         mNormalStatusBarColor = mThemedStatusBarColor;
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Drive.API)
-                .addScope(Drive.SCOPE_FILE)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
     }
 
     @Override
@@ -393,14 +386,15 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             navigationDrawerMap.put(DrawerItemType.DASHBOARD,
                     new DrawerItemContent(android.R.drawable.ic_media_pause, "Dashboard", DashboardActivity.class));
             navigationDrawerMap.put(DrawerItemType.CASH_FLOW,
-                    new DrawerItemContent(android.R.drawable.ic_popup_sync, "Cash flows", CashFlowListActivity.class));
+                    new DrawerItemContent(android.R.drawable.ic_lock_silent_mode, "Cash flows", CashFlowListActivity.class));
             navigationDrawerMap.put(DrawerItemType.CATEGORY,
                     new DrawerItemContent(android.R.drawable.ic_menu_camera, "Categories", CategoryListActivity.class));
             navigationDrawerMap.put(DrawerItemType.MY_WALLETS,
                     new DrawerItemContent(android.R.drawable.ic_menu_week, "My Wallets", MyWalletListActivity.class));
             navigationDrawerMap.put(DrawerItemType.OTHER_WALLETS,
                     new DrawerItemContent(android.R.drawable.ic_menu_agenda, "Other Wallets", OtherWalletListActivity.class));
-        }
+            navigationDrawerMap.put(DrawerItemType.SYNCHRONIZE,
+                    new DrawerItemContent(android.R.drawable.stat_notify_sync_noanim, "Synchronization", SynchronizeActivity.class));        }
         if (navigationDrawerItemList.isEmpty()) {
             navigationDrawerItemList.add(DrawerItemType.DASHBOARD);
             navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
@@ -408,6 +402,8 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             navigationDrawerItemList.add(DrawerItemType.CATEGORY);
             navigationDrawerItemList.add(DrawerItemType.MY_WALLETS);
             navigationDrawerItemList.add(DrawerItemType.OTHER_WALLETS);
+            navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
+            navigationDrawerItemList.add(DrawerItemType.SYNCHRONIZE);
         }
         setupNavDrawerViewContent();
         setupNavDrawerFooter();
@@ -542,14 +538,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         TextView nameView = (TextView) chosenAccountView.findViewById(R.id.profile_name);
         TextView emailView = (TextView) chosenAccountView.findViewById(R.id.account_email);
         mExpandAccountBoxIndicator = (ImageView) findViewById(R.id.expand_account_box_indicator);
-        SignInButton mSignInGoogle = (SignInButton) findViewById(R.id.sign_in_google);
-
-        mSignInGoogle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mGoogleApiClient.connect();
-            }
-        });
 
 //      TODO: Remove this.
 //        if (profiles.isEmpty()) {
@@ -605,11 +593,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case RESOLVE_CONNECTION_REQUEST_CODE:
-                if (resultCode == RESULT_OK) {
-                    mGoogleApiClient.connect();
-                }
-                break;
             case RC_NEW_PROFILE:
                 if (resultCode == RESULT_OK) {
                     selectProfileById(ProfileUtils.getActiveProfileId(BaseActivity.this));
@@ -784,7 +767,9 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         MY_WALLETS,
         OTHER_WALLETS,
         INVALID,
-        SETTINGS, SEPARATOR
+        SETTINGS,
+        SEPARATOR,
+        SYNCHRONIZE
     }
 
     private class DrawerItemContent {

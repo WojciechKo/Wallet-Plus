@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    <com.google.android.gms.common.SignInButton android:id="@+id/signInGoogle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <Button android:id="@+id/createBackup" android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create backup on Google drive."/>
+
+    <Button android:id="@+id/uploadUpdate" android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send actual data to Google drive."/>
+
+    <Button android:id="@+id/downloadUpdate" android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Download actual data from Google drive."/>
+</LinearLayout>

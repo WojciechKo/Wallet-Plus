@@ -17,7 +17,7 @@ public class Profile implements Identifiable {
     private String name;
 
     @DatabaseField(canBeNull = false)
-    private String databaseFileName;
+    private String databaseFilePath;
 
     @Override
     public Long getId() {
@@ -56,12 +56,12 @@ public class Profile implements Identifiable {
         return this;
     }
 
-    public String getDatabaseFileName() {
-        return databaseFileName;
+    public String getDatabaseFilePath() {
+        return databaseFilePath;
     }
 
-    public Profile setDatabaseFileName(String databaseFileName) {
-        this.databaseFileName = databaseFileName;
+    public Profile setDatabaseFilePath(String databaseFilePath) {
+        this.databaseFilePath = databaseFilePath;
         return this;
     }
 }

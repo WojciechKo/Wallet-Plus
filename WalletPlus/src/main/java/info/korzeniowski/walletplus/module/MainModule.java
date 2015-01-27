@@ -1,5 +1,7 @@
 package info.korzeniowski.walletplus.module;
 
+import android.content.Context;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -27,6 +29,12 @@ import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsFragment
 )
 public class MainModule {
     private final WalletPlus application;
+
+    @Provides
+    @Singleton
+    Context provideContext() {
+        return application;
+    }
 
     public MainModule(WalletPlus application) {
         this.application = application;

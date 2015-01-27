@@ -99,6 +99,15 @@
         </activity>
 
         <activity
+                android:name=".ui.synchronize.SynchronizeActivity"
+                android:label="@string/synchronizeLabel"
+                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.dashboard.DashboardActivity"/>
+        </activity>
+
+        <activity
                 android:name=".ui.profile.ProfileActivity"
                 android:label="@string/profileLabel"
                 android:parentActivityName=".ui.dashboard.DashboardActivity">
