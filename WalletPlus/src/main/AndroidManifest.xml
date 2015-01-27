@@ -98,5 +98,13 @@
                     android:value=".ui.category.list.CategoryListActivity"/>
         </activity>
 
+        <activity
+                android:name=".ui.profile.ProfileActivity"
+                android:label="@string/profileLabel"
+                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.dashboard.DashboardActivity"/>
+        </activity>
     </application>
 </manifest>

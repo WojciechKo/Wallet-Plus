@@ -51,6 +51,7 @@ import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListActivity;
 import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
+import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import info.korzeniowski.walletplus.util.ProfileUtils;
 import info.korzeniowski.walletplus.util.UIUtils;
@@ -70,6 +71,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     private static final int ACCOUNT_BOX_EXPAND_ANIM_DURATION = 200;
 
     private static final int RESOLVE_CONNECTION_REQUEST_CODE = 6969;
+    private static final int RC_NEW_PROFILE = 150;
 
     @Inject
     protected CategoryListActivityState categoryListActivityState;
@@ -608,6 +610,11 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
                     mGoogleApiClient.connect();
                 }
                 break;
+            case RC_NEW_PROFILE:
+                if (resultCode == RESULT_OK) {
+                    selectProfileById(ProfileUtils.getActiveProfileId(BaseActivity.this));
+                }
+                break;
         }
     }
 
@@ -629,7 +636,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
                         mAccountBoxExpanded = false;
                         setupAccountBoxToggle();
                         mDrawerLayout.closeDrawer(Gravity.START);
-//                      setupAccountBox();
                     }
                 });
             } else {
@@ -638,15 +644,19 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ProfileUtils.setActiveProfileId(BaseActivity.this, profile.getId());
-                        ((WalletPlus) getApplication()).reinitializeObjectGraph();
-                        startActivity(new Intent(BaseActivity.this, DashboardActivity.class));
-                        finish();
+                        selectProfileById(profile.getId());
                     }
                 });
             }
             mAccountListContainer.addView(itemView);
         }
+    }
+
+    private void selectProfileById(Long id) {
+        ProfileUtils.setActiveProfileId(this, id);
+        ((WalletPlus) getApplication()).reinitializeObjectGraph();
+        startActivity(new Intent(this, DashboardActivity.class));
+        finish();
     }
 
 
@@ -655,11 +665,18 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
         mAccountListFooter.addView(makeNavDrawerItem(DrawerItemType.SEPARATOR, mAccountListFooter));
 
-        View itemView = getLayoutInflater().inflate(R.layout.item_navigation_drawer, mAccountListFooter, false);
-        TextView title = (TextView) itemView.findViewById(R.id.title);
+        View newProfileView = getLayoutInflater().inflate(R.layout.item_navigation_drawer, mAccountListFooter, false);
+        TextView title = (TextView) newProfileView.findViewById(R.id.title);
         title.setText("Add profile");
 
-        mAccountListFooter.addView(itemView);
+        newProfileView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
+                startActivityForResult(intent, RC_NEW_PROFILE);
+            }
+        });
+        mAccountListFooter.addView(newProfileView);
     }
 
     private void setupAccountBoxToggle() {

@@ -49,6 +49,7 @@ import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsAc
 import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsFragment;
 import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
 import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListFragment;
+import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
 import info.korzeniowski.walletplus.util.ProfileUtils;
 
 /**
@@ -86,6 +87,9 @@ import info.korzeniowski.walletplus.util.ProfileUtils;
 
                 OtherWalletDetailsActivity.class,
                 OtherWalletDetailsFragment.class,
+
+                ProfileActivity.class,
+                ProfileActivity.CreateProfileFragment.class,
 
                 DatabaseInitializer.class,
                 LocalAccountService.class,

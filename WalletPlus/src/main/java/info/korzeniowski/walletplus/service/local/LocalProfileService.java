@@ -51,6 +51,15 @@ public class LocalProfileService implements ProfileService {
     }
 
     @Override
+    public Profile findByName(String name) {
+        try {
+            return profileDao.queryBuilder().where().eq("name", name).queryForFirst();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
     public List<Profile> getAll() {
         try {
             return profileDao.queryBuilder().orderByRaw("name COLLATE NOCASE").query();

@@ -4,6 +4,8 @@
     <string name="appName" translatable="false">Wallet Plus</string>
 
     <!-- Common strings -->
+    <string name="create">Create</string>
+    <string name="download">Download</string>
     <string name="add">Add</string>
     <string name="delete">Delete</string>
     <string name="ok">OK</string>
@@ -74,9 +76,12 @@
     <string name="cashFlowFromAndToWalletsNeedToBeDifferent">From and to wallets need to be different.</string>
     <string name="cashFlowDeleteConfirmation">Do you want to delete this cash flow?</string>
 
+    <!-- Create Profile fragment -->
+    <string name="profileLabel">Profile</string>
+    <string name="profileCreateLocalLabel">Create local profile</string>
+    <string name="profileName">Profile name</string>
+    <string name="profileDownloadProfileLabel">Download profile from server</string>
 
     <string name="title_activity_wallet_details">WalletDetailsActivity</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
 
 </resources>

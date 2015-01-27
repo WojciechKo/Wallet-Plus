@@ -13,7 +13,7 @@ public class Profile implements Identifiable {
     @DatabaseField(foreign = true, foreignAutoRefresh = true)
     private Account account;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(uniqueIndex = true)
     private String name;
 
     @DatabaseField(canBeNull = false)
