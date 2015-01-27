@@ -88,12 +88,10 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     private Runnable mDeferredOnDrawerClosedRunnable;
     private boolean mAccountBoxExpanded = false;
     private boolean mActionBarShown = true;
-    private LinearLayout mAccountListContainer;
     private ImageView mExpandAccountBoxIndicator;
     private Handler mHandler;
     private int mThemedStatusBarColor;
     private int mNormalStatusBarColor;
-    private ViewGroup mDrawerItemsListContainer;
     // views that correspond to each navigation_drawer type, null if not yet created
     private View[] mNavDrawerItemViews = null;
     private Thread mDataBootstrapThread;
@@ -101,6 +99,12 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     private Map<DrawerItemType, DrawerItemContent> navigationDrawerMap = Maps.newHashMap();
     private List<DrawerItemType> navigationDrawerItemList = Lists.newArrayList();
     private GoogleApiClient mGoogleApiClient;
+
+    private LinearLayout mAccountListContainer;
+    private LinearLayout mAccountListFooter;
+
+    private ViewGroup mNavDrawerListContainer;
+    private LinearLayout mNavDrawerListFooter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,7 +230,8 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         }
         mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.theme_primary_dark));
 
-        final ScrimInsetsScrollView navDrawer = (ScrimInsetsScrollView) mDrawerLayout.findViewById(R.id.navdrawer);
+        final LinearLayout navDrawer = (LinearLayout) mDrawerLayout.findViewById(R.id.navdrawer);
+
         if (getSelfNavDrawerItem() == DrawerItemType.INVALID) {
             // do not show a nav drawer
             if (navDrawer != null) {
@@ -236,11 +241,13 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             return;
         }
 
-        if (navDrawer != null) {
+        final ScrimInsetsScrollView navDrawerContent = (ScrimInsetsScrollView) navDrawer.findViewById(R.id.navdrawer_content);
+
+        if (navDrawerContent != null) {
             final View chosenAccountContentView = findViewById(R.id.chosen_account_content_view);
             final View chosenAccountView = findViewById(R.id.chosen_account_view);
             final int navDrawerChosenAccountHeight = getResources().getDimensionPixelSize(R.dimen.navdrawer_chosen_account_height);
-            navDrawer.setOnInsetsCallback(new ScrimInsetsScrollView.OnInsetsCallback() {
+            navDrawerContent.setOnInsetsCallback(new ScrimInsetsScrollView.OnInsetsCallback() {
                 @Override
                 public void onInsetsChanged(Rect insets) {
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) chosenAccountContentView.getLayoutParams();
@@ -317,29 +324,13 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         return mActionBarToolbar;
     }
 
-    private void setupNavDrawerViewContent() {
-        mDrawerItemsListContainer = (ViewGroup) findViewById(R.id.navdrawer_items_list);
-        if (mDrawerItemsListContainer == null) {
-            return;
-        }
-
-        mNavDrawerItemViews = new View[navigationDrawerItemList.size()];
-        mDrawerItemsListContainer.removeAllViews();
-        int i = 0;
-        for (DrawerItemType type : navigationDrawerItemList) {
-            mNavDrawerItemViews[i] = makeNavDrawerItem(type, mDrawerItemsListContainer);
-            mDrawerItemsListContainer.addView(mNavDrawerItemViews[i]);
-            ++i;
-        }
-    }
-
     private View makeNavDrawerItem(final DrawerItemType type, ViewGroup container) {
         boolean selected = getSelfNavDrawerItem() == type;
         int layoutToInflate;
         if (type == DrawerItemType.SEPARATOR) {
-            layoutToInflate = R.layout.navigation_drawer_separator;
+            layoutToInflate = R.layout.item_navigation_drawer_separator;
         } else {
-            layoutToInflate = R.layout.navigation_drawer_item;
+            layoutToInflate = R.layout.item_navigation_drawer;
         }
         View view = getLayoutInflater().inflate(layoutToInflate, container, false);
 
@@ -415,9 +406,36 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             navigationDrawerItemList.add(DrawerItemType.CATEGORY);
             navigationDrawerItemList.add(DrawerItemType.MY_WALLETS);
             navigationDrawerItemList.add(DrawerItemType.OTHER_WALLETS);
-            navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
         }
         setupNavDrawerViewContent();
+        setupNavDrawerFooter();
+    }
+
+    private void setupNavDrawerViewContent() {
+        mNavDrawerListContainer = (ViewGroup) findViewById(R.id.navdrawer_list);
+
+        if (mNavDrawerListContainer == null) {
+            return;
+        }
+
+        mNavDrawerItemViews = new View[navigationDrawerItemList.size()];
+        mNavDrawerListContainer.removeAllViews();
+        int i = 0;
+        for (DrawerItemType type : navigationDrawerItemList) {
+            mNavDrawerItemViews[i] = makeNavDrawerItem(type, mNavDrawerListContainer);
+            mNavDrawerListContainer.addView(mNavDrawerItemViews[i]);
+            ++i;
+        }
+    }
+
+    private void setupNavDrawerFooter() {
+        mNavDrawerListFooter = (LinearLayout) findViewById(R.id.navdrawer_list_footer);
+        mNavDrawerListFooter.removeAllViews();
+        mNavDrawerListFooter.addView(makeNavDrawerItem(DrawerItemType.SEPARATOR, mNavDrawerListFooter));
+        View footerItem = getLayoutInflater().inflate(R.layout.item_navigation_drawer, mNavDrawerListFooter, false);
+        TextView title = (TextView) footerItem.findViewById(R.id.title);
+        title.setText("Settings");
+        mNavDrawerListFooter.addView(footerItem);
     }
 
     private void onNavDrawerItemClicked(final DrawerItemType type) {
@@ -498,6 +516,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
      */
     private void setupAccountBox() {
         mAccountListContainer = (LinearLayout) findViewById(R.id.account_list);
+        mAccountListFooter = (LinearLayout) findViewById(R.id.account_list_footer);
 
         if (mAccountListContainer == null) {
             //This activity does not have an account box
@@ -527,7 +546,8 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             @Override
             public void onClick(View v) {
                 mGoogleApiClient.connect();
-        }});
+            }
+        });
 
 //      TODO: Remove this.
 //        if (profiles.isEmpty()) {
@@ -554,8 +574,9 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         setupAccountBoxToggle();
 
         populateProfileList(profiles);
-    }
 
+        setupAccountListFooter();
+    }
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -595,8 +616,8 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
         LayoutInflater layoutInflater = LayoutInflater.from(this);
         for (final Profile profile : profiles) {
-            View itemView = layoutInflater.inflate(R.layout.item_profile_list, mAccountListContainer, false);
-            TextView profileNameView = (TextView) itemView.findViewById(R.id.profile_name);
+            View itemView = layoutInflater.inflate(R.layout.item_navigation_drawer, mAccountListContainer, false);
+            TextView profileNameView = (TextView) itemView.findViewById(R.id.title);
             profileNameView.setText(profile.getName());
 
             if (profile.getId().equals(ProfileUtils.getActiveProfileId(BaseActivity.this))) {
@@ -628,6 +649,19 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         }
     }
 
+
+    private void setupAccountListFooter() {
+        mAccountListFooter.removeAllViews();
+
+        mAccountListFooter.addView(makeNavDrawerItem(DrawerItemType.SEPARATOR, mAccountListFooter));
+
+        View itemView = getLayoutInflater().inflate(R.layout.item_navigation_drawer, mAccountListFooter, false);
+        TextView title = (TextView) itemView.findViewById(R.id.title);
+        title.setText("Add profile");
+
+        mAccountListFooter.addView(itemView);
+    }
+
     private void setupAccountBoxToggle() {
         DrawerItemType selfDrawerType = getSelfNavDrawerItem();
         if (mDrawerLayout == null || selfDrawerType == DrawerItemType.INVALID) {
@@ -642,6 +676,9 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             // initial setup
             mAccountListContainer.setAlpha(0);
             mAccountListContainer.setTranslationY(hideTranslateY);
+
+            mAccountListFooter.setAlpha(0);
+            mAccountListFooter.setTranslationY(-hideTranslateY);
         }
 
         AnimatorSet set = new AnimatorSet();
@@ -653,40 +690,71 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                mDrawerItemsListContainer.setVisibility(mAccountBoxExpanded
+                mNavDrawerListContainer.setVisibility(mAccountBoxExpanded
                         ? View.INVISIBLE : View.VISIBLE);
+                mNavDrawerListFooter.setVisibility(mAccountBoxExpanded
+                        ? View.INVISIBLE : View.VISIBLE);
+
                 mAccountListContainer.setVisibility(mAccountBoxExpanded
+                        ? View.VISIBLE : View.INVISIBLE);
+                mAccountListFooter.setVisibility(mAccountBoxExpanded
                         ? View.VISIBLE : View.INVISIBLE);
             }
         });
 
         if (mAccountBoxExpanded) {
             mAccountListContainer.setVisibility(View.VISIBLE);
-            AnimatorSet subSet = new AnimatorSet();
-            subSet.playTogether(
+            mAccountListFooter.setVisibility(View.VISIBLE);
+
+            AnimatorSet hideNavDrawerList = new AnimatorSet();
+            hideNavDrawerList.playTogether(
+                    ObjectAnimator.ofFloat(mNavDrawerListContainer, View.ALPHA, 0)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
+                    ObjectAnimator.ofFloat(mNavDrawerListFooter, View.ALPHA, 0)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION)
+            );
+
+            AnimatorSet showAccountList = new AnimatorSet();
+            showAccountList.playTogether(
                     ObjectAnimator.ofFloat(mAccountListContainer, View.ALPHA, 1)
                             .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
                     ObjectAnimator.ofFloat(mAccountListContainer, View.TRANSLATION_Y, 0)
-                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION));
-            set.playSequentially(
-                    ObjectAnimator.ofFloat(mDrawerItemsListContainer, View.ALPHA, 0)
                             .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
-                    subSet);
-            set.start();
+
+                    ObjectAnimator.ofFloat(mAccountListFooter, View.ALPHA, 1)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
+                    ObjectAnimator.ofFloat(mAccountListFooter, View.TRANSLATION_Y, 0)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION));
+
+            set.playSequentially(
+                    hideNavDrawerList,
+                    showAccountList);
         } else {
-            mDrawerItemsListContainer.setVisibility(View.VISIBLE);
-            AnimatorSet subSet = new AnimatorSet();
-            subSet.playTogether(
+            mNavDrawerListContainer.setVisibility(View.VISIBLE);
+            mNavDrawerListFooter.setVisibility(View.VISIBLE);
+
+            AnimatorSet hideAccountList = new AnimatorSet();
+            hideAccountList.playTogether(
                     ObjectAnimator.ofFloat(mAccountListContainer, View.ALPHA, 0)
                             .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
-                    ObjectAnimator.ofFloat(mAccountListContainer, View.TRANSLATION_Y,
-                            hideTranslateY)
+                    ObjectAnimator.ofFloat(mAccountListContainer, View.TRANSLATION_Y, hideTranslateY)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
+
+                    ObjectAnimator.ofFloat(mAccountListFooter, View.ALPHA, 0)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
+                    ObjectAnimator.ofFloat(mAccountListFooter, View.TRANSLATION_Y, -hideTranslateY)
                             .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION));
+
+            AnimatorSet showNavDrawerList = new AnimatorSet();
+            showNavDrawerList.playTogether(
+                    ObjectAnimator.ofFloat(mNavDrawerListFooter, View.ALPHA, 1)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
+                    ObjectAnimator.ofFloat(mNavDrawerListContainer, View.ALPHA, 1)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION));
+
             set.playSequentially(
-                    subSet,
-                    ObjectAnimator.ofFloat(mDrawerItemsListContainer, View.ALPHA, 1)
-                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION));
-            set.start();
+                    hideAccountList,
+                    showNavDrawerList);
         }
 
         set.start();
