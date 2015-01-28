@@ -188,7 +188,7 @@ public class SynchronizeActivity extends BaseActivity {
                             Profile activeProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
 
                             MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                                    .setTitle(activeProfile.getDatabaseFilePath())
+                                    .setTitle(activeProfile.getName())
                                     .setMimeType("application/x-sqlite3")
                                     .build();
 

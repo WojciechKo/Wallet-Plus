@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.google.common.collect.Lists;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
@@ -119,20 +118,24 @@ public class DashboardFragment extends Fragment {
             }
 
         }
-        Line mainLine = new Line(values);
-        mainLine.setColor(getResources().getColor(R.color.green));
-        mainLine.setFilled(true);
-        mainLine.setHasLabelsOnlyForSelected(true);
+        if (values.size() > 1) {
+            Line mainLine = new Line(values);
+            mainLine.setColor(getResources().getColor(R.color.green));
+            mainLine.setFilled(true);
+            mainLine.setHasLabelsOnlyForSelected(true);
 
-        LineChartData lineChartData = new LineChartData(Lists.newArrayList(mainLine));
+            LineChartData lineChartData = new LineChartData(Lists.newArrayList(mainLine));
 
-        // setup axis with dates.
-        lineChartData.setAxisXBottom(new Axis(dateAxisValues).setHasTiltedLabels(true));
+            // setup axis with dates.
+            lineChartData.setAxisXBottom(new Axis(dateAxisValues).setHasTiltedLabels(true));
 
-        // setup axis with values.
-        lineChartData.setAxisYLeft(new Axis().setHasLines(true));
+            // setup axis with values.
+            lineChartData.setAxisYLeft(new Axis().setHasLines(true));
 
-        return lineChartData;
+            return lineChartData;
+        } else {
+            return new LineChartData(Lists.<Line>newArrayList());
+        }
     }
 
     private char[] getAxisLabel(Date dateTime) {

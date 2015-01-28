@@ -7,8 +7,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.format.Formatter;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -21,10 +24,15 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.google.common.collect.Lists;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,13 +42,18 @@ import javax.inject.Named;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import butterknife.OnItemClick;
 import butterknife.OnTextChanged;
+import dagger.Provides;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
+import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 import info.korzeniowski.walletplus.util.ProfileUtils;
+import info.korzeniowski.walletplus.util.UIUtils;
 
 public class ProfileActivity extends BaseActivity {
     @Override
@@ -76,6 +89,7 @@ public class ProfileActivity extends BaseActivity {
         ProfileService localProfileService;
 
         private GoogleApiClient mGoogleApiClient;
+        private int lastPosition;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -199,11 +213,75 @@ public class ProfileActivity extends BaseActivity {
                             return view;
                         }
                     });
-//                    remoteProfiles.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, files));
+
+                    remoteProfiles.setOnTouchListener(new ListView.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            int action = event.getAction();
+                            switch (action) {
+                                case MotionEvent.ACTION_DOWN:
+                                    // Disallow ScrollView to intercept touch events.
+                                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                                    break;
+
+                                case MotionEvent.ACTION_UP:
+                                    // Allow ScrollView to intercept touch events.
+                                    v.getParent().requestDisallowInterceptTouchEvent(false);
+                                    break;
+                            }
+
+                            // Handle ListView touch events.
+                            v.onTouchEvent(event);
+                            return true;
+                        }
+                    });
                 }
             };
-
             Drive.DriveApi.getAppFolder(mGoogleApiClient).listChildren(mGoogleApiClient).setResultCallback(resultCallback);
+        }
+
+        @OnItemClick(R.id.remoteProfiles)
+        void onRemoteProfilesItemClicked(View view, int position) {
+            remoteProfiles.setItemChecked(lastPosition, false);
+            remoteProfiles.setItemChecked(position, true);
+            lastPosition = position;
+        }
+
+        @OnClick(R.id.downloadProfile)
+        void onDownloadProfileClicked() {
+            final Metadata item = (Metadata) remoteProfiles.getItemAtPosition(lastPosition);
+            if (item != null) {
+                Drive.DriveApi.getFile(mGoogleApiClient, item.getDriveId()).open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(
+                        new ResultCallback<DriveApi.DriveContentsResult>() {
+                            @Override
+                            public void onResult(DriveApi.DriveContentsResult driveContentsResult) {
+                                InputStream inputStream = driveContentsResult.getDriveContents().getInputStream();
+                                FileOutputStream outputStream = null;
+                                try {
+                                    Account currentAccount = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity())).getAccount();
+                                    Profile entity = new Profile().setName(item.getTitle()).setAccount(currentAccount).setDriveId(item.getDriveId().encodeToString());
+                                    localProfileService.insert(entity);
+                                    outputStream = new FileOutputStream(CreateProfileFragment.this.getActivity().getApplicationInfo().dataDir
+                                            + "/databases/"
+                                            + item.getTitle()
+                                            + ".db");
+
+                                    int i;
+                                    while ((i = inputStream.read()) != -1) {
+                                        outputStream.write(i);
+                                    }
+                                    outputStream.close();
+                                    getActivity().finish();
+
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                );
+            }
         }
 
         @Override
