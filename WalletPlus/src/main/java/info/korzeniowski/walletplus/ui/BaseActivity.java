@@ -26,9 +26,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.drive.Drive;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.samples.apps.iosched.ui.widget.ScrimInsetsScrollView;
@@ -599,6 +597,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
                 }
                 break;
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void populateProfileList(List<Profile> profiles) {
