@@ -107,8 +107,14 @@ dependencies {
     compile "com.android.support:recyclerview-v7:$androidSupportVersion"
 
     //Google Drive API
-    //noinspection GradleDynamicVersion
-    compile 'com.google.android.gms:play-services:6.5.+'
+    compile 'com.google.android.gms:play-services-identity:6.5.87'
+    compile 'com.google.android.gms:play-services-drive:6.5.87'
+
+    // Retrofit
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+
+    //OkHttp
+    compile 'com.squareup.okhttp:okhttp:2.2.0'
 
     // OrmLite
     def ormLiteVersion = '4.48'

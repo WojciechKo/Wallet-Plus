@@ -1,7 +1,8 @@
 package info.korzeniowski.walletplus.ui.profile;
 
-import android.content.Intent;
-import android.content.IntentSender;
+import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,30 +11,20 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveApi;
-import com.google.android.gms.drive.DriveFile;
-import com.google.android.gms.drive.Metadata;
-import com.google.android.gms.drive.MetadataBuffer;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -44,18 +35,21 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemClick;
 import butterknife.OnTextChanged;
-import dagger.Provides;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.ProfileService;
+import info.korzeniowski.walletplus.service.google.GoogleDriveReadService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
-import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
+import info.korzeniowski.walletplus.util.PrefUtils;
 import info.korzeniowski.walletplus.util.ProfileUtils;
-import info.korzeniowski.walletplus.util.UIUtils;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class ProfileActivity extends BaseActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,9 +69,7 @@ public class ProfileActivity extends BaseActivity {
         });
     }
 
-    public static class CreateProfileFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-        private static final int RC_RESOLVE_CONNECTION = 1217;
-
+    public static class CreateProfileFragment extends Fragment {
         @InjectView(R.id.profile_name)
         EditText profileName;
 
@@ -88,8 +80,12 @@ public class ProfileActivity extends BaseActivity {
         @Named("local")
         ProfileService localProfileService;
 
-        private GoogleApiClient mGoogleApiClient;
+        @Inject
+        @Named("read")
+        RestAdapter googleDriveReadRestAdapter;
+
         private int lastPosition;
+        private List<GoogleDriveReadService.DriveFile> profiles;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -101,39 +97,65 @@ public class ProfileActivity extends BaseActivity {
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_create_profile, container, false);
             ButterKnife.inject(this, view);
+            enableListViewScrolling();
+            profiles = Lists.newArrayList();
+            remoteProfiles.setAdapter(new RemoteProfileAdapter(getActivity(), profiles));
             return view;
+        }
+
+        private void enableListViewScrolling() {
+            // http://stackoverflow.com/a/25725568/2399340
+            remoteProfiles.setOnTouchListener(new ListView.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    int action = event.getAction();
+                    switch (action) {
+                        case MotionEvent.ACTION_DOWN:
+                            // Disallow ScrollView to intercept touch events.
+                            v.getParent().requestDisallowInterceptTouchEvent(true);
+                            break;
+
+                        case MotionEvent.ACTION_UP:
+                            // Allow ScrollView to intercept touch events.
+                            v.getParent().requestDisallowInterceptTouchEvent(false);
+                            break;
+                    }
+
+                    // Handle ListView touch events.
+                    v.onTouchEvent(event);
+                    return true;
+                }
+            });
         }
 
         @Override
         public void onResume() {
             super.onResume();
-            if (mGoogleApiClient == null) {
-                mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                        .addApi(Drive.API)
-                        .addScope(Drive.SCOPE_APPFOLDER)
-                        .addConnectionCallbacks(this)
-                        .addOnConnectionFailedListener(this)
-                        .build();
-            }
-            mGoogleApiClient.connect();
-        }
+            final GoogleDriveReadService googleDriveReadService = googleDriveReadRestAdapter.create(GoogleDriveReadService.class);
+            googleDriveReadService.getChildren("appfolder", new Callback<GoogleDriveReadService.FileChildren>() {
+                @Override
+                public void success(GoogleDriveReadService.FileChildren fileChildren, Response response) {
+                    for (GoogleDriveReadService.FileChildren.FileId fileId : fileChildren.getChildren()) {
+                        googleDriveReadService.getFile(fileId.getId(), new Callback<GoogleDriveReadService.DriveFile>() {
+                            @Override
+                            public void success(GoogleDriveReadService.DriveFile driveFile, Response response) {
+                                profiles.add(driveFile);
+                                ((BaseAdapter) remoteProfiles.getAdapter()).notifyDataSetChanged();
+                            }
 
-        @Override
-        public void onPause() {
-            if (mGoogleApiClient != null) {
-                mGoogleApiClient.disconnect();
-            }
-            super.onPause();
-        }
-
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            switch (requestCode) {
-                case RC_RESOLVE_CONNECTION:
-                    if (resultCode == RESULT_OK) {
-                        mGoogleApiClient.connect();
+                            @Override
+                            public void failure(RetrofitError error) {
+                                Toast.makeText(getActivity(), "Error podczas pobierania informacji o dziecku", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
-            }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Toast.makeText(getActivity(), "Error pobierania dzieci:\n" + error, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         @OnTextChanged(value = R.id.profile_name, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
@@ -159,85 +181,53 @@ public class ProfileActivity extends BaseActivity {
             }
         }
 
-        @Override
-        public void onConnected(Bundle bundle) {
-            ResultCallback<DriveApi.MetadataBufferResult> resultCallback = new ResultCallback<DriveApi.MetadataBufferResult>() {
-                @Override
-                public void onResult(DriveApi.MetadataBufferResult metadataBufferResult) {
-                    if (!metadataBufferResult.getStatus().isSuccess()) {
-                        Toast.makeText(getActivity(), "Error while trying to create new file contents", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    final MetadataBuffer metadataBuffer = metadataBufferResult.getMetadataBuffer();
-                    Iterator<Metadata> metadataIterator = metadataBuffer.iterator();
-                    List<String> files = Lists.newArrayListWithCapacity(metadataBuffer.getCount());
-                    while (metadataIterator.hasNext()) {
-                        files.add(metadataIterator.next().getTitle());
-                    }
-                    remoteProfiles.setAdapter(new BaseAdapter() {
-                        @Override
-                        public int getCount() {
-                            return metadataBuffer.getCount();
-                        }
 
-                        @Override
-                        public Metadata getItem(int position) {
-                            return metadataBuffer.get(position);
-                        }
+        public static class RemoteProfileAdapter extends BaseAdapter {
+            private Context context;
+            private List<GoogleDriveReadService.DriveFile> profiles;
 
-                        @Override
-                        public long getItemId(int position) {
-                            return position;
-                        }
+            public RemoteProfileAdapter(Context context, List<GoogleDriveReadService.DriveFile> profiles) {
+                this.context = context;
+                this.profiles = profiles;
+            }
 
-                        @Override
-                        public View getView(int position, View convertView, ViewGroup parent) {
-                            View view = getActivity().getLayoutInflater().inflate(R.layout.item_profile_list_remote, parent, false);
-                            Metadata item = getItem(position);
+            @Override
+            public int getCount() {
+                return profiles.size();
+            }
 
-                            ((TextView) view.findViewById(R.id.name)).setText(item.getTitle());
-                            String fileSize = Formatter.formatFileSize(getActivity(), item.getFileSize());
-                            ((TextView) view.findViewById(R.id.size)).setText(fileSize);
+            @Override
+            public GoogleDriveReadService.DriveFile getItem(int position) {
+                return profiles.get(position);
+            }
 
-                            String createdDate =
-                                    android.text.format.DateFormat.getDateFormat(getActivity()).format(item.getCreatedDate())
-                                            + " "
-                                            + android.text.format.DateFormat.getTimeFormat(getActivity()).format(item.getCreatedDate());
-                            ((TextView) view.findViewById(R.id.created)).setText(createdDate);
+            @Override
+            public long getItemId(int position) {
+                return position;
+            }
 
-                            String modifiedDate =
-                                    android.text.format.DateFormat.getDateFormat(getActivity()).format(item.getModifiedDate())
-                                            + " "
-                                            + android.text.format.DateFormat.getTimeFormat(getActivity()).format(item.getModifiedDate());
-                            ((TextView) view.findViewById(R.id.modified)).setText(modifiedDate);
-                            return view;
-                        }
-                    });
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = LayoutInflater.from(context).inflate(R.layout.item_profile_list_remote, parent, false);
+                GoogleDriveReadService.DriveFile item = getItem(position);
 
-                    remoteProfiles.setOnTouchListener(new ListView.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
-                            int action = event.getAction();
-                            switch (action) {
-                                case MotionEvent.ACTION_DOWN:
-                                    // Disallow ScrollView to intercept touch events.
-                                    v.getParent().requestDisallowInterceptTouchEvent(true);
-                                    break;
+                ((TextView) view.findViewById(R.id.name)).setText(item.getTitle());
+                String fileSize = Formatter.formatFileSize(context, item.getFileSize());
+                ((TextView) view.findViewById(R.id.size)).setText(fileSize);
 
-                                case MotionEvent.ACTION_UP:
-                                    // Allow ScrollView to intercept touch events.
-                                    v.getParent().requestDisallowInterceptTouchEvent(false);
-                                    break;
-                            }
+                String createdDate =
+                        android.text.format.DateFormat.getDateFormat(context).format(item.getCreatedDate())
+                                + " "
+                                + android.text.format.DateFormat.getTimeFormat(context).format(item.getCreatedDate());
+                ((TextView) view.findViewById(R.id.created)).setText(createdDate);
 
-                            // Handle ListView touch events.
-                            v.onTouchEvent(event);
-                            return true;
-                        }
-                    });
-                }
-            };
-            Drive.DriveApi.getAppFolder(mGoogleApiClient).listChildren(mGoogleApiClient).setResultCallback(resultCallback);
+                String modifiedDate =
+                        android.text.format.DateFormat.getDateFormat(context).format(item.getModifiedDate())
+                                + " "
+                                + android.text.format.DateFormat.getTimeFormat(context).format(item.getModifiedDate());
+                ((TextView) view.findViewById(R.id.modified)).setText(modifiedDate);
+                return view;
+            }
         }
 
         @OnItemClick(R.id.remoteProfiles)
@@ -249,57 +239,59 @@ public class ProfileActivity extends BaseActivity {
 
         @OnClick(R.id.downloadProfile)
         void onDownloadProfileClicked() {
-            final Metadata item = (Metadata) remoteProfiles.getItemAtPosition(lastPosition);
-            if (item != null) {
-                Drive.DriveApi.getFile(mGoogleApiClient, item.getDriveId()).open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(
-                        new ResultCallback<DriveApi.DriveContentsResult>() {
-                            @Override
-                            public void onResult(DriveApi.DriveContentsResult driveContentsResult) {
-                                InputStream inputStream = driveContentsResult.getDriveContents().getInputStream();
-                                FileOutputStream outputStream = null;
-                                try {
-                                    Account currentAccount = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity())).getAccount();
-                                    Profile entity = new Profile().setName(item.getTitle()).setAccount(currentAccount).setDriveId(item.getDriveId().encodeToString());
-                                    localProfileService.insert(entity);
-                                    outputStream = new FileOutputStream(CreateProfileFragment.this.getActivity().getApplicationInfo().dataDir
-                                            + "/databases/"
-                                            + item.getTitle()
-                                            + ".db");
+            final GoogleDriveReadService.DriveFile selectedProfile = (GoogleDriveReadService.DriveFile) remoteProfiles.getItemAtPosition(lastPosition);
+            selectedProfile.getId();
 
-                                    int i;
-                                    while ((i = inputStream.read()) != -1) {
-                                        outputStream.write(i);
-                                    }
-                                    outputStream.close();
-                                    getActivity().finish();
+            new AsyncTask<Void, Void, Boolean>() {
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    Request request = new Request.Builder()
+                            .url(Uri.parse(selectedProfile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", PrefUtils.getGoogleToken(getActivity())).toString())
+                            .build();
 
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                );
-            }
-        }
+                    try {
+                        InputStream inputStream = okHttpClient.newCall(request).execute().body().byteStream();
+                        Profile newProfile = new Profile()
+                                .setName(selectedProfile.getTitle())
+                                .setDriveId(selectedProfile.getId())
+                                .setAccount(localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity())).getAccount());
 
-        @Override
-        public void onConnectionSuspended(int i) {
+                        localProfileService.insert(newProfile);
+                        ByteStreams.copy(inputStream, new FileOutputStream(newProfile.getDatabaseFilePath()));
 
-        }
-
-        @Override
-        public void onConnectionFailed(ConnectionResult connectionResult) {
-            if (connectionResult.hasResolution()) {
-                try {
-                    connectionResult.startResolutionForResult(getActivity(), RC_RESOLVE_CONNECTION);
-                } catch (IntentSender.SendIntentException e) {
-                    // Unable to resolve, message user appropriately
+                        return true;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return false;
                 }
-            } else {
-                GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), getActivity(), 0).show();
-            }
+
+                @Override
+                protected void onPostExecute(Boolean successed) {
+                    if (successed) {
+                        Toast.makeText(getActivity(), "Profil lokalny zosatał uaktualniony.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(), "Pobranie pliku z Profilem nie powiodło się.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }.execute();
+
+//            Account currentAccount = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity())).getAccount();
+//            Profile entity = new Profile().setName(item.getTitle()).setAccount(currentAccount).setDriveId(item.getDriveId().encodeToString());
+//            localProfileService.insert(entity);
+//            outputStream = new FileOutputStream(CreateProfileFragment.this.getActivity().getApplicationInfo().dataDir
+//                    + "/databases/"
+//                    + item.getTitle()
+//                    + ".db");
+//
+//            int i;
+//            while ((i = inputStream.read()) != -1) {
+//                outputStream.write(i);
+//            }
+//            outputStream.close();
+//            getActivity().finish();
+
         }
     }
 }

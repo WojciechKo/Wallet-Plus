@@ -1,7 +1,13 @@
 package info.korzeniowski.walletplus.ui.synchronize;
 
+import android.accounts.AccountManager;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,23 +17,20 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveApi;
-import com.google.android.gms.drive.DriveContents;
-import com.google.android.gms.drive.DriveFile;
-import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.DriveId;
-import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.UserRecoverableAuthException;
+import com.google.android.gms.common.AccountPicker;
 import com.google.common.base.Strings;
-import com.google.common.io.Files;
+import com.google.common.io.ByteStreams;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -39,8 +42,16 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.ProfileService;
+import info.korzeniowski.walletplus.service.google.GoogleDriveReadService;
+import info.korzeniowski.walletplus.service.google.GoogleDriveUploadService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
+import info.korzeniowski.walletplus.util.PrefUtils;
 import info.korzeniowski.walletplus.util.ProfileUtils;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+import retrofit.mime.TypedFile;
 
 public class SynchronizeActivity extends BaseActivity {
 
@@ -69,11 +80,10 @@ public class SynchronizeActivity extends BaseActivity {
         return DrawerItemType.SYNCHRONIZE;
     }
 
-    public static class SynchronizeFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-        private static final int RC_RESOLVE_CONNECTION = 1215;
-
-        @InjectView(R.id.signInGoogle)
-        SignInButton signInButton;
+    public static class SynchronizeFragment extends Fragment {
+        static final int RC_PICK_ACCOUNT = 6955;
+        static final String SCOPE_APPDATA = "https://www.googleapis.com/auth/drive.appdata";
+        static final String SCOPE_PREFIX = "oauth2:";
 
         @InjectView(R.id.createBackup)
         Button createBackup;
@@ -88,7 +98,13 @@ public class SynchronizeActivity extends BaseActivity {
         @Named("local")
         ProfileService localProfileService;
 
-        private GoogleApiClient mGoogleApiClient;
+        @Inject
+        @Named("read")
+        RestAdapter googleDriveReadAdapter;
+
+        @Inject
+        @Named("upload")
+        RestAdapter googleDriveUploadAdapter;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -102,12 +118,12 @@ public class SynchronizeActivity extends BaseActivity {
             ButterKnife.inject(this, view);
 
             Profile profile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
-            setupViewss(!Strings.isNullOrEmpty(profile.getDriveId()));
+            setupVisibility(!Strings.isNullOrEmpty(profile.getDriveId()));
 
             return view;
         }
 
-        private void setupViewss(boolean isBackupCreated) {
+        private void setupVisibility(boolean isBackupCreated) {
             if (isBackupCreated) {
                 createBackup.setVisibility(View.INVISIBLE);
                 uploadUpdate.setVisibility(View.VISIBLE);
@@ -119,156 +135,190 @@ public class SynchronizeActivity extends BaseActivity {
             }
         }
 
-        @Override
-        public void onResume() {
-            super.onResume();
-            if (mGoogleApiClient == null) {
-                mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                        .addApi(Drive.API)
-                        .addScope(Drive.SCOPE_APPFOLDER)
-                        .addConnectionCallbacks(this)
-                        .addOnConnectionFailedListener(this)
-                        .build();
-            }
-            ensureIsConnecting();
+        @OnClick(R.id.signInGoogle)
+        void signInGoogle() {
+            pickUserAccount();
         }
 
-        @Override
-        public void onPause() {
-            if (mGoogleApiClient != null) {
-                mGoogleApiClient.disconnect();
-            }
-            super.onPause();
+        private void pickUserAccount() {
+            String[] accountTypes = new String[]{"com.google"};
+            Intent intent = AccountPicker.newChooseAccountIntent(null, null,
+                    accountTypes, false, null, null, null, null);
+            startActivityForResult(intent, RC_PICK_ACCOUNT);
+        }
+
+        @OnClick(R.id.createBackup)
+        void onCreateBackupClicked() {
+            final GoogleDriveUploadService googleDriveUploadService = googleDriveUploadAdapter.create(GoogleDriveUploadService.class);
+
+            final Profile activeProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
+            GoogleDriveUploadService.FileMetadata metadata = new GoogleDriveUploadService.FileMetadata();
+            metadata.setTitle(activeProfile.getName() + ".db");
+            metadata.setParentId("appfolder");
+            TypedFile typedFile = new TypedFile("application/x-sqlite3", new File(activeProfile.getDatabaseFilePath()));
+            googleDriveUploadService.insert(metadata, typedFile, "Bearer " + PrefUtils.getGoogleToken(getActivity()), new Callback<GoogleDriveUploadService.FileMetadata>() {
+                @Override
+                public void success(GoogleDriveUploadService.FileMetadata metadata, Response response) {
+                    activeProfile.setDriveId(metadata.getId());
+                    localProfileService.update(activeProfile);
+                    Toast.makeText(getActivity(), "Plik z bazą danych został utworzony na serwerze.", Toast.LENGTH_SHORT).show();
+                    setupVisibility(true);
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Toast.makeText(getActivity(), "Nie udało się przesłać pliku na serwer.\n" + error.toString(), Toast.LENGTH_SHORT).show();
+
+                }
+            });
+        }
+
+        @OnClick(R.id.uploadUpdate)
+        void onUploadUpdateClicked() {
+            final GoogleDriveUploadService googleDriveUploadService = googleDriveUploadAdapter.create(GoogleDriveUploadService.class);
+
+            final Profile activeProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
+
+            TypedFile typedFile = new TypedFile("application/x-sqlite3", new File(activeProfile.getDatabaseFilePath()));
+            googleDriveUploadService.update(activeProfile.getDriveId(), typedFile, "Bearer " + PrefUtils.getGoogleToken(getActivity()), new Callback<GoogleDriveUploadService.FileMetadata>() {
+                @Override
+                public void success(GoogleDriveUploadService.FileMetadata metadata, Response response) {
+                    Toast.makeText(getActivity(), "Profil został uaktualniony na serwerze.", Toast.LENGTH_SHORT).show();
+
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Toast.makeText(getActivity(), "Uaktualnienie Profilu na serwerze nie powiodło się.", Toast.LENGTH_SHORT).show();
+
+                }
+            });
+        }
+
+        @OnClick(R.id.downloadUpdate)
+        void onDownloadUpdateClicked() {
+            GoogleDriveReadService googleDriveReadService = googleDriveReadAdapter.create(GoogleDriveReadService.class);
+            final Profile activeProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
+
+            googleDriveReadService.getFile(activeProfile.getDriveId(), new Callback<GoogleDriveReadService.DriveFile>() {
+                @Override
+                public void success(final GoogleDriveReadService.DriveFile driveFile, Response response) {
+                    new AsyncTask<Void, Void, Boolean>() {
+                        @Override
+                        protected Boolean doInBackground(Void... params) {
+                            OkHttpClient okHttpClient = new OkHttpClient();
+                            Request request = new Request.Builder()
+                                    .url(Uri.parse(driveFile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", PrefUtils.getGoogleToken(getActivity())).toString())
+                                    .build();
+
+                            try {
+                                InputStream inputStream = okHttpClient.newCall(request).execute().body().byteStream();
+                                OutputStream outputStream = new FileOutputStream(activeProfile.getDatabaseFilePath());
+                                ByteStreams.copy(inputStream, outputStream);
+
+                                return true;
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            return false;
+                        }
+
+                        @Override
+                        protected void onPostExecute(Boolean successed) {
+                            if (successed) {
+                                Toast.makeText(getActivity(), "Profil lokalny zosatał uaktualniony.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getActivity(), "Pobranie pliku z Profilem nie powiodło się.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }.execute();
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Toast.makeText(getActivity(), "Pobranie informacji o pliku z Profilem nie powiodło się.", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         @Override
         public void onActivityResult(int requestCode, int resultCode, Intent data) {
             switch (requestCode) {
-                case RC_RESOLVE_CONNECTION:
+                case RC_PICK_ACCOUNT:
+                    // Receiving a result from the AccountPicker
                     if (resultCode == RESULT_OK) {
-                        mGoogleApiClient.connect();
+                        String mEmail = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                        // With the account name acquired, go get the auth token
+                        setGoogleToken(mEmail);
+                    } else if (resultCode == RESULT_CANCELED) {
+                        // The account picker dialog closed without selecting an account.
+                        // Notify users that they must pick an account to proceed.
+                        Toast.makeText(getActivity(), "Wybierz konto", Toast.LENGTH_SHORT).show();
                     }
             }
         }
 
-        @OnClick(R.id.signInGoogle)
-        void onSignInGoogleClicked() {
-
-        }
-
-        @OnClick(R.id.createBackup)
-        void onCreateBackupClicked() {
-            final ResultCallback<DriveFolder.DriveFileResult> fileCallback = new ResultCallback<DriveFolder.DriveFileResult>() {
-                @Override
-                public void onResult(DriveFolder.DriveFileResult result) {
-                    if (!result.getStatus().isSuccess()) {
-                        Toast.makeText(getActivity(), "Error while trying to create the file", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    Profile actualProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
-                    actualProfile.setDriveId(result.getDriveFile().getDriveId().encodeToString());
-                    localProfileService.update(actualProfile);
-                    setupViewss(true);
-                    Toast.makeText(getActivity(), "Created a file in App Folder: " + result.getDriveFile().getDriveId(), Toast.LENGTH_SHORT).show();
-                }
-            };
-
-            final ResultCallback<DriveApi.DriveContentsResult> driveContentsReceived = new ResultCallback<DriveApi.DriveContentsResult>() {
-                @Override
-                public void onResult(DriveApi.DriveContentsResult driveContentsResult) {
-                    if (!driveContentsResult.getStatus().isSuccess()) {
-                        Toast.makeText(getActivity(), "Error while trying to create new file contents", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    final DriveContents driveContents = driveContentsResult.getDriveContents();
-                    new Thread() {
-                        @Override
-                        public void run() {
-
-                            Profile activeProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
-
-                            MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                                    .setTitle(activeProfile.getName())
-                                    .setMimeType("application/x-sqlite3")
-                                    .build();
-
-                            File database = new File(activeProfile.getDatabaseFilePath());
-                            try {
-                                driveContents.getOutputStream().write(Files.toByteArray(database));
-                            } catch (IOException e) {
-                                throw new RuntimeException("Nie znaleziono pliku bazy", e);
-                            }
-
-                            Drive.DriveApi.getAppFolder(mGoogleApiClient)
-                                    .createFile(mGoogleApiClient, changeSet, driveContents)
-                                    .setResultCallback(fileCallback);
-                        }
-                    }.start();
-                }
-            };
-            ensureIsConnecting();
-
-            Drive.DriveApi.newDriveContents(mGoogleApiClient).setResultCallback(driveContentsReceived);
-        }
-
-        @OnClick(R.id.uploadUpdate)
-        void onUploadUpdateClicked() {
-            DriveFile.DownloadProgressListener downloadProgressListener = new DriveFile.DownloadProgressListener() {
-                @Override
-                public void onProgress(long bytesDownloaded, long bytesExpected) {
-
-                }
-            };
-
-            ResultCallback<DriveApi.DriveContentsResult> resultCallback = new ResultCallback<DriveApi.DriveContentsResult>() {
-                @Override
-                public void onResult(DriveApi.DriveContentsResult driveContentsResult) {
-                    if (!driveContentsResult.getStatus().isSuccess()) {
-                        Toast.makeText(getActivity(), "Error while trying to create new file contents", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    final DriveContents driveContents = driveContentsResult.getDriveContents();
-
-                    Profile activeProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
-                    File database = new File(activeProfile.getDatabaseFilePath());
-                    try {
-                        driveContents.getOutputStream().write(Files.toByteArray(database));
-                    } catch (IOException e) {
-                        throw new RuntimeException("Nie znaleziono pliku bazy", e);
-                    }
-                    driveContents.commit(mGoogleApiClient, null);
-                }
-            };
-
-            Profile actualProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
-            Drive.DriveApi.getFile(mGoogleApiClient, DriveId.decodeFromString(actualProfile.getDriveId())).open(mGoogleApiClient, DriveFile.MODE_WRITE_ONLY, downloadProgressListener).setResultCallback(resultCallback);
-        }
-        private void ensureIsConnecting() {
-            if (!mGoogleApiClient.isConnected() && !mGoogleApiClient.isConnecting()) {
-                mGoogleApiClient.connect();
-            }
-        }
-
-        @Override
-        public void onConnected(Bundle bundle) {
-
-        }
-
-        @Override
-        public void onConnectionSuspended(int i) {
-
-        }
-
-        @Override
-        public void onConnectionFailed(ConnectionResult connectionResult) {
-            if (connectionResult.hasResolution()) {
-                try {
-                    connectionResult.startResolutionForResult(getActivity(), RC_RESOLVE_CONNECTION);
-                } catch (IntentSender.SendIntentException e) {
-                    // Unable to resolve, message user appropriately
-                }
+        private void setGoogleToken(String mEmail) {
+            if (mEmail == null) {
+                pickUserAccount();
             } else {
-                GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), getActivity(), 0).show();
+                if (isDeviceOnline()) {
+                    new SetGoogleToken(getActivity(), mEmail, SCOPE_PREFIX + SCOPE_APPDATA).execute();
+                } else {
+                    Toast.makeText(getActivity(), "Brak połączenia z internetem.", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+
+        private boolean isDeviceOnline() {
+            ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+            return networkInfo != null && networkInfo.isConnected();
+        }
+
+        public static class SetGoogleToken extends AsyncTask<Void, Void, String> {
+            Activity mActivity;
+            String mScope;
+            String mEmail;
+
+            SetGoogleToken(Activity activity, String name, String scope) {
+                this.mActivity = activity;
+                this.mScope = scope;
+                this.mEmail = name;
+            }
+
+            @Override
+            protected String doInBackground(Void... params) {
+                try {
+                    String token = fetchToken();
+                    if (token != null) {
+                        PrefUtils.setGoogleToken(mActivity, token);
+                        return token;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                Toast.makeText(mActivity, "Zalogowano do konta: " + mEmail, Toast.LENGTH_SHORT).show();
+            }
+
+            protected String fetchToken() throws IOException {
+                try {
+                    return GoogleAuthUtil.getToken(mActivity, mEmail, mScope);
+
+                } catch (UserRecoverableAuthException userRecoverableException) {
+                    Intent recoveryIntent = userRecoverableException.getIntent();
+                    mActivity.startActivityForResult(recoveryIntent, RC_PICK_ACCOUNT);
+
+                } catch (GoogleAuthException fatalException) {
+                    fatalException.printStackTrace();
+
+                }
+                return null;
             }
         }
     }
