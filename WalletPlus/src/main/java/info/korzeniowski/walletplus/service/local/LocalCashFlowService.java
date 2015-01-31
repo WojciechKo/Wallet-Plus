@@ -81,6 +81,9 @@ public class LocalCashFlowService implements CashFlowService {
 
     private void validateUpdate(CashFlow old, CashFlow newValue) {
         //TODO: if exists
+        if (newValue.getType().equals(CashFlow.Type.TRANSFER)) {
+            newValue.setCategory(getTransferCategory());
+        }
     }
 
     @Override
@@ -110,8 +113,8 @@ public class LocalCashFlowService implements CashFlowService {
     }
 
     private void validateInsert(CashFlow cashFlow) {
-        if (cashFlow.getType() == CashFlow.Type.TRANSFER) {
-            cashFlow.setCompleted(true);
+        if (cashFlow.getType().equals(CashFlow.Type.TRANSFER)) {
+            cashFlow.setCategory(getTransferCategory());
         }
     }
 
@@ -162,7 +165,7 @@ public class LocalCashFlowService implements CashFlowService {
     public Category getTransferCategory() {
         try {
             if (transfer == null) {
-                transfer = categoryDao.queryBuilder().where().eq("spedialType", Category.Type.TRANSFER).queryForFirst();
+                transfer = categoryDao.queryBuilder().where().eq("specialType", Category.Type.TRANSFER).queryForFirst();
             }
             return transfer;
         } catch (SQLException e) {
