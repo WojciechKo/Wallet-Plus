@@ -34,9 +34,8 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
     @DatabaseField
     private String name;
 
-    //TODO: rename to specialType
     @DatabaseField
-    private Type type;
+    private Type specialType;
 
     @ForeignCollectionField(orderColumnName = "name")
     private ForeignCollection<Category> children;
@@ -50,14 +49,14 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
         setId(category.getId());
         setParent(category.getParent() == null ? null : new Category(category.getParent()));
         setName(category.getName());
-        setType(category.getType());
+        setSpecialType(category.getSpecialType());
     }
 
     private Category(Parcel in) {
         id = in.readLong();
         parent = in.readParcelable(Category.class.getClassLoader());
         name = in.readString();
-        type = (Type) in.readValue(Type.class.getClassLoader());
+        specialType = (Type) in.readValue(Type.class.getClassLoader());
     }
 
     @Override
@@ -70,7 +69,7 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
         dest.writeLong(id);
         dest.writeParcelable(parent, flags);
         dest.writeString(name);
-        dest.writeValue(type);
+        dest.writeValue(specialType);
     }
 
     public Long getId() {
@@ -100,12 +99,12 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
         return this;
     }
 
-    public Type getType() {
-        return type;
+    public Type getSpecialType() {
+        return specialType;
     }
 
-    public Category setType(Type type) {
-        this.type = type;
+    public Category setSpecialType(Type specialType) {
+        this.specialType = specialType;
         return this;
     }
 
@@ -124,7 +123,7 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
             return false;
         if (parent != null ? !parent.equals(category.parent) : category.parent != null)
             return false;
-        if (type != category.type)
+        if (specialType != category.specialType)
             return false;
 
         return true;
@@ -135,7 +134,7 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (parent != null ? parent.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (specialType != null ? specialType.hashCode() : 0);
         return result;
     }
 
@@ -145,7 +144,7 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
                 "id=" + id +
                 ", parent=" + parent +
                 ", name='" + name + '\'' +
-                ", type=" + type +
+                ", specialType=" + specialType +
                 '}';
     }
 
@@ -163,8 +162,7 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
     }
 
     public enum Type {
-        TRANSFER,
-        NO_CATEGORY
+        TRANSFER
     }
 
     public static class Comparators {

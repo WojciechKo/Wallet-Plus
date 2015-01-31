@@ -5,11 +5,11 @@ import com.google.common.base.Strings;
 
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.exception.CategoryCantHaveTypeException;
 import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.EntityAlreadyExistsException;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 import info.korzeniowski.walletplus.service.exception.ParentCategoryIsNotMainCategoryException;
-import info.korzeniowski.walletplus.service.exception.SubCategoryCantHaveTypeException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,6 +23,7 @@ public class CategoryValidator implements Validator<Category> {
     @Override
     public void validateInsert(Category category) {
         checkNotNull(category);
+        validateIfCategoryHaveNoType(category);
         validateIfNameIsNotNullOrEmpty(category);
         validateIfIdIsUnique(category);
         if (category.getParent() == null) {
@@ -38,7 +39,6 @@ public class CategoryValidator implements Validator<Category> {
 
     private void validateInsertSub(Category category) {
         validateIfParentCategoryIsMain(category);
-        validateIfCategoryHaveNoType(category);
     }
 
     @Override
@@ -62,6 +62,7 @@ public class CategoryValidator implements Validator<Category> {
     @Override
     public void validateUpdate(Category newCategory) {
         checkNotNull(newCategory);
+        validateIfCategoryHaveNoType(newCategory);
         Category oldCategory = categoryService.findById(newCategory.getId());
         validateIfNameIsNotNullOrEmpty(newCategory);
         validateIfNewIdIsUnique(newCategory, oldCategory);
@@ -81,7 +82,6 @@ public class CategoryValidator implements Validator<Category> {
     }
 
     private void validateUpdateMainToSub(Category newValue, Category toUpdate) {
-        validateIfCategoryHaveNoType(newValue);
         validateIfCategoryHaveNoChildren(toUpdate);
     }
 
@@ -89,7 +89,6 @@ public class CategoryValidator implements Validator<Category> {
     }
 
     private void validateSubToSub(Category newValue) {
-        validateIfCategoryHaveNoType(newValue);
         validateIfParentCategoryIsMain(newValue);
     }
 
@@ -112,20 +111,20 @@ public class CategoryValidator implements Validator<Category> {
     }
 
     private void validateIfCategoryHaveNoType(Category category) {
-        if (category.getType() == null) {
+        if (category.getSpecialType() == null) {
             return;
         }
-        throw new SubCategoryCantHaveTypeException();
-    }
-
-    private boolean isMainCategory(final Long id) {
-        return categoryService.findById(id).getParent() == null;
+        throw new CategoryCantHaveTypeException();
     }
 
     private void validateIfParentCategoryIsMain(Category category) {
         if (!isMainCategory(category.getParent().getId())) {
             throw new ParentCategoryIsNotMainCategoryException();
         }
+    }
+
+    private boolean isMainCategory(final Long id) {
+        return categoryService.findById(id).getParent() == null;
     }
 
     private void validateIfCategoryHaveNoChildren(Category category) {

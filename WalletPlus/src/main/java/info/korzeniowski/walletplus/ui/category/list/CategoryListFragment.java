@@ -84,7 +84,7 @@ public class CategoryListFragment extends Fragment {
                 new OnContentClickListener<Category>() {
                     @Override
                     public void onContentClick(Category category) {
-                        if (category.getType() == Category.Type.NO_CATEGORY) {
+                        if (CategoryService.CATEGORY_NULL_ID.equals(category.getId())) {
                             Toast.makeText(getActivity(), getResources().getString(R.string.categoryNoCategoryClicked), Toast.LENGTH_SHORT).show();
                         } else {
                             startCategoryDetailsActivity(category.getId());

@@ -14,6 +14,8 @@ import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 
 public class LocalCashFlowService implements CashFlowService {
@@ -160,7 +162,7 @@ public class LocalCashFlowService implements CashFlowService {
     public Category getTransferCategory() {
         try {
             if (transfer == null) {
-                transfer = categoryDao.queryBuilder().where().eq("type", Category.Type.TRANSFER).queryForFirst();
+                transfer = categoryDao.queryBuilder().where().eq("spedialType", Category.Type.TRANSFER).queryForFirst();
             }
             return transfer;
         } catch (SQLException e) {
@@ -198,51 +200,36 @@ public class LocalCashFlowService implements CashFlowService {
             if (!isFirst) {
                 where.and();
             }
-            where.eq("category_id", categoryId);
+            if (categoryId == CategoryService.CATEGORY_NULL_ID) {
+                where.isNull("category_id");
+            } else {
+                where.eq("category_id", categoryId);
+            }
             isFirst = false;
         }
         if (fromWalletId != null) {
             if (!isFirst) {
                 where.and();
             }
-            where.eq("fromWallet_id", fromWalletId);
+            if (fromWalletId == WalletService.WALLET_NULL_ID) {
+                where.isNull("fromWallet_id");
+            } else {
+                where.eq("fromWallet_id", fromWalletId);
+            }
             isFirst = false;
         }
         if (toWalletId != null) {
             if (!isFirst) {
                 where.and();
             }
-            where.eq("toWallet_id", toWalletId);
+            if (toWalletId == WalletService.WALLET_NULL_ID) {
+                where.isNull("toWallet_id");
+            } else {
+                where.eq("toWallet_id", toWalletId);
+            }
         }
 
         return where;
-    }
-
-    @Override
-    public List<CashFlow> findCashFlow(Date from, Date to, Category.Type categoryType, Long fromWalletId, Long toWalletId) {
-        try {
-            QueryBuilder<CashFlow, Long> queryBuilder = cashFlowDao.queryBuilder();
-
-            if (from != null) {
-                queryBuilder.where().ge("dateTime", from);
-            }
-            if (to != null) {
-                queryBuilder.where().lt("dateTime", to);
-            }
-            if (categoryType == Category.Type.NO_CATEGORY) {
-                queryBuilder.where().isNull("category_id");
-            }
-            if (fromWalletId != null) {
-                queryBuilder.where().eq("fromWallet_id", fromWalletId);
-            }
-            if (toWalletId != null) {
-                queryBuilder.where().eq("toWallet_id", toWalletId);
-            }
-
-            return queryBuilder.query();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.util.List;
 import info.korzeniowski.walletplus.model.Category;
 
 public interface CategoryService extends BaseService<Category> {
+    public static final Long CATEGORY_NULL_ID = -1L;
 
     Category findByName(String name);
 

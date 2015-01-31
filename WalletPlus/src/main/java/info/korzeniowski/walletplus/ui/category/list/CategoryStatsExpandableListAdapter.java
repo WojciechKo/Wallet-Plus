@@ -39,7 +39,7 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
     protected void fillGroupViewWithItem(MyBaseGroupViewHolder baseHolder, Category item, boolean isExpanded) {
         CategoryGroupViewHolder holder = (CategoryGroupViewHolder) baseHolder;
         holder.categoryName.setTextColor(getContext().getResources()
-                .getColor(item.getType() == Category.Type.NO_CATEGORY ? R.color.black54A : R.color.black87A));
+                .getColor(item.getId().equals(CategoryService.CATEGORY_NULL_ID) ? R.color.black54A : R.color.black87A));
         holder.categoryName.setText(item.getName());
         holder.categoryName.setTypeface(holder.categoryName.getTypeface(), Typeface.BOLD);
         CategoryService.CategoryStats stats = getStats(item);
@@ -79,10 +79,7 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
         return Iterables.find(stats, new Predicate<CategoryService.CategoryStats>() {
             @Override
             public boolean apply(CategoryService.CategoryStats input) {
-                if (category.getType() == Category.Type.NO_CATEGORY) {
-                    return input.getCategoryId() == null;
-                }
-                return input.getCategoryId().equals(category.getId());
+                return category.getId().equals(input.getCategoryId());
             }
         });
     }
