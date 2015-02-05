@@ -3,11 +3,13 @@ package info.korzeniowski.walletplus.ui.category.list;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import java.text.NumberFormat;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -32,6 +34,8 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
     protected MyBaseGroupViewHolder createGroupViewHolder(View convertView) {
         CategoryGroupViewHolder holder = new CategoryGroupViewHolder();
         ButterKnife.inject(holder, convertView);
+        holder.incomeIcon.setColorFilter(getContext().getResources().getColor(R.color.green));
+        holder.expenseIcon.setColorFilter(getContext().getResources().getColor(R.color.red));
         return holder;
     }
 
@@ -43,16 +47,22 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
         holder.categoryName.setText(item.getName());
         holder.categoryName.setTypeface(holder.categoryName.getTypeface(), Typeface.BOLD);
         CategoryService.CategoryStats stats = getStats(item);
-        holder.income.setText("Income: " + stats.getTotalIncome() + " (" + stats.getIncome() + ")");
-        holder.expense.setText("Expense: " + stats.getTotalExpense() + " (" + stats.getExpense() + ")");
+        holder.income.setText(NumberFormat.getCurrencyInstance().format(stats.getIncome()));
+        holder.expense.setText(NumberFormat.getCurrencyInstance().format(stats.getExpense()));
     }
 
     class CategoryGroupViewHolder extends MyBaseGroupViewHolder {
         @InjectView(R.id.categoryName)
         TextView categoryName;
 
+        @InjectView(R.id.incomeIcon)
+        ImageView incomeIcon;
+
         @InjectView(R.id.income)
         TextView income;
+
+        @InjectView(R.id.expenseIcon)
+        ImageView expenseIcon;
 
         @InjectView(R.id.expense)
         TextView expense;
@@ -62,6 +72,8 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
     protected MyBaseChildViewHolder createChildHolder(View convertView) {
         CategoryChildViewHolder holder = new CategoryChildViewHolder();
         ButterKnife.inject(holder, convertView);
+        holder.incomeIcon.setColorFilter(getContext().getResources().getColor(R.color.green));
+        holder.expenseIcon.setColorFilter(getContext().getResources().getColor(R.color.red));
         return holder;
     }
 
@@ -71,8 +83,8 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
         holder.categoryName.setTextColor(getContext().getResources().getColor(R.color.black54A));
         holder.categoryName.setText(item.getName());
         CategoryService.CategoryStats stats = getStats(item);
-        holder.flow.setText("Income: " + stats.getIncome().toString());
-        holder.difference.setText("Expense: " + stats.getExpense().toString());
+        holder.income.setText(NumberFormat.getCurrencyInstance().format(stats.getIncome()));
+        holder.expense.setText(NumberFormat.getCurrencyInstance().format(stats.getExpense()));
     }
 
     private CategoryService.CategoryStats getStats(final Category category) {
@@ -88,10 +100,16 @@ public class CategoryStatsExpandableListAdapter extends IdentifiableExpandableLi
         @InjectView(R.id.categoryName)
         TextView categoryName;
 
+        @InjectView(R.id.incomeIcon)
+        ImageView incomeIcon;
+
         @InjectView(R.id.income)
-        TextView flow;
+        TextView income;
+
+        @InjectView(R.id.expenseIcon)
+        ImageView expenseIcon;
 
         @InjectView(R.id.expense)
-        TextView difference;
+        TextView expense;
     }
 }
