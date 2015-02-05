@@ -18,6 +18,9 @@ public class CashFlow implements Identifiable {
     @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES category(id) ON DELETE SET NULL")
     private Category category;
 
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES event(id) ON DELETE SET NULL")
+    private Event event;
+
     @DatabaseField(canBeNull = false)
     private Double amount;
 
@@ -64,6 +67,15 @@ public class CashFlow implements Identifiable {
 
     public CashFlow setCategory(Category category) {
         this.category = category;
+        return this;
+    }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public CashFlow setEvent(Event event) {
+        this.event = event;
         return this;
     }
 
