@@ -1,8 +1,6 @@
 package info.korzeniowski.walletplus;
 
 import android.app.Application;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -14,6 +12,7 @@ import javax.inject.Inject;
 import dagger.ObjectGraph;
 import info.korzeniowski.walletplus.module.DatabaseModule;
 import info.korzeniowski.walletplus.module.MainModule;
+import info.korzeniowski.walletplus.util.PrefUtils;
 
 /**
  * Main Application class.
@@ -38,25 +37,14 @@ public class WalletPlus extends Application {
         super.onCreate();
         graph = ObjectGraph.create(getModules().toArray());
         JodaTimeAndroid.init(this);
-        initApplication();
+        initExampleData();
     }
 
-    void initApplication() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (isFirstRun(sharedPreferences)) {
-            handleFirstRun(sharedPreferences);
+    void initExampleData() {
+        if (!PrefUtils.isDataBootstrapDone(this)) {
+            new DatabaseInitializer(this).createExampleAccountWithProfile();
+            PrefUtils.markDataBootstrapDone(this);
         }
-    }
-
-    private boolean isFirstRun(SharedPreferences sharedPreferences) {
-        return sharedPreferences.getBoolean(FIRST_RUN, true);
-    }
-
-    private void handleFirstRun(SharedPreferences sharedPreferences) {
-        new DatabaseInitializer(this).createExampleAccountWithProfile();
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(FIRST_RUN, false);
-        editor.apply();
     }
 
     public void inject(Object object) {

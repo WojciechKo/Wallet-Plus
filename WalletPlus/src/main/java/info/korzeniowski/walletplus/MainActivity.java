@@ -30,7 +30,6 @@ import butterknife.InjectView;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.service.local.LocalAccountService;
 import info.korzeniowski.walletplus.ui.drawer.DrawerAccountAdapter;
-import info.korzeniowski.walletplus.util.ProfileUtils;
 import info.korzeniowski.walletplus.widget.SquareImageButton;
 
 public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
