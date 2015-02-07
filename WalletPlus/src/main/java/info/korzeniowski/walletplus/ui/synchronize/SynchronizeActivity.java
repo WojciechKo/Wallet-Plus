@@ -46,7 +46,6 @@ import info.korzeniowski.walletplus.service.google.GoogleDriveReadService;
 import info.korzeniowski.walletplus.service.google.GoogleDriveUploadService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 import info.korzeniowski.walletplus.util.PrefUtils;
-import info.korzeniowski.walletplus.util.ProfileUtils;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
@@ -117,7 +116,7 @@ public class SynchronizeActivity extends BaseActivity {
             View view = inflater.inflate(R.layout.fragment_synchronize, container, false);
             ButterKnife.inject(this, view);
 
-            Profile profile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
+            Profile profile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
             setupVisibility(!Strings.isNullOrEmpty(profile.getDriveId()));
 
             return view;
@@ -151,7 +150,7 @@ public class SynchronizeActivity extends BaseActivity {
         void onCreateBackupClicked() {
             final GoogleDriveUploadService googleDriveUploadService = googleDriveUploadAdapter.create(GoogleDriveUploadService.class);
 
-            final Profile activeProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
+            final Profile activeProfile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
             GoogleDriveUploadService.FileMetadata metadata = new GoogleDriveUploadService.FileMetadata();
             metadata.setTitle(activeProfile.getName() + ".db");
             metadata.setParentId("appfolder");
@@ -177,7 +176,7 @@ public class SynchronizeActivity extends BaseActivity {
         void onUploadUpdateClicked() {
             final GoogleDriveUploadService googleDriveUploadService = googleDriveUploadAdapter.create(GoogleDriveUploadService.class);
 
-            final Profile activeProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
+            final Profile activeProfile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
 
             TypedFile typedFile = new TypedFile("application/x-sqlite3", new File(activeProfile.getDatabaseFilePath()));
             googleDriveUploadService.update(activeProfile.getDriveId(), typedFile, "Bearer " + PrefUtils.getGoogleToken(getActivity()), new Callback<GoogleDriveUploadService.FileMetadata>() {
@@ -198,7 +197,7 @@ public class SynchronizeActivity extends BaseActivity {
         @OnClick(R.id.downloadUpdate)
         void onDownloadUpdateClicked() {
             GoogleDriveReadService googleDriveReadService = googleDriveReadAdapter.create(GoogleDriveReadService.class);
-            final Profile activeProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
+            final Profile activeProfile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
 
             googleDriveReadService.getFile(activeProfile.getDriveId(), new Callback<GoogleDriveReadService.DriveFile>() {
                 @Override

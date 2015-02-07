@@ -42,7 +42,6 @@ import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.google.GoogleDriveReadService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 import info.korzeniowski.walletplus.util.PrefUtils;
-import info.korzeniowski.walletplus.util.ProfileUtils;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
@@ -168,12 +167,12 @@ public class ProfileActivity extends BaseActivity {
             String name = profileName.getText().toString();
             Profile found = localProfileService.findByName(name);
             if (found == null) {
-                Profile actualProfile = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity()));
+                Profile actualProfile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
                 Profile profile = new Profile();
                 profile.setName(name);
                 profile.setAccount(actualProfile.getAccount());
                 localProfileService.insert(profile);
-                ProfileUtils.setActiveProfileId(getActivity(), profile.getId());
+                PrefUtils.setActiveProfileId(getActivity(), profile.getId());
                 getActivity().setResult(RESULT_OK);
                 getActivity().finish();
             } else {
@@ -255,7 +254,7 @@ public class ProfileActivity extends BaseActivity {
                         Profile newProfile = new Profile()
                                 .setName(selectedProfile.getTitle())
                                 .setDriveId(selectedProfile.getId())
-                                .setAccount(localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity())).getAccount());
+                                .setAccount(localProfileService.findById(PrefUtils.getActiveProfileId(getActivity())).getAccount());
 
                         localProfileService.insert(newProfile);
                         ByteStreams.copy(inputStream, new FileOutputStream(newProfile.getDatabaseFilePath()));

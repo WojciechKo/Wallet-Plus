@@ -52,7 +52,6 @@ import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity
 import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
 import info.korzeniowski.walletplus.ui.synchronize.SynchronizeActivity;
 import info.korzeniowski.walletplus.util.PrefUtils;
-import info.korzeniowski.walletplus.util.ProfileUtils;
 import info.korzeniowski.walletplus.util.UIUtils;
 
 
@@ -185,11 +184,11 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void startLoginProcess() {
-        Long profileId = ProfileUtils.getActiveProfileId(this);
+        Long profileId = PrefUtils.getActiveProfileId(this);
         if (profileId == -1) {
             List<Account> accountList = accountService.getAll();
             if (!accountList.isEmpty()) {
-                ProfileUtils.setActiveProfileId(this, accountList.get(0).getProfiles().get(0).getId());
+                PrefUtils.setActiveProfileId(this, accountList.get(0).getProfiles().get(0).getId());
             } else {
                 throw new RuntimeException("No account or profile available. TODO.");
             }
@@ -520,7 +519,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         }
 
         final View chosenAccountView = findViewById(R.id.chosen_account_view);
-        final Long activeProfileId = ProfileUtils.getActiveProfileId(this);
+        final Long activeProfileId = PrefUtils.getActiveProfileId(this);
         if (activeProfileId == -1) {
             // No account logged in; hide account box
             chosenAccountView.setVisibility(View.GONE);
@@ -593,7 +592,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         switch (requestCode) {
             case RC_NEW_PROFILE:
                 if (resultCode == RESULT_OK) {
-                    selectProfileById(ProfileUtils.getActiveProfileId(BaseActivity.this));
+                    selectProfileById(PrefUtils.getActiveProfileId(BaseActivity.this));
                 }
                 break;
         }
@@ -609,7 +608,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             TextView profileNameView = (TextView) itemView.findViewById(R.id.title);
             profileNameView.setText(profile.getName());
 
-            if (profile.getId().equals(ProfileUtils.getActiveProfileId(BaseActivity.this))) {
+            if (profile.getId().equals(PrefUtils.getActiveProfileId(BaseActivity.this))) {
                 profileNameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color_selected));
 
                 itemView.setOnClickListener(new View.OnClickListener() {
@@ -635,7 +634,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void selectProfileById(Long id) {
-        ProfileUtils.setActiveProfileId(this, id);
+        PrefUtils.setActiveProfileId(this, id);
         ((WalletPlus) getApplication()).reinitializeObjectGraph();
         startActivity(new Intent(this, DashboardActivity.class));
         finish();

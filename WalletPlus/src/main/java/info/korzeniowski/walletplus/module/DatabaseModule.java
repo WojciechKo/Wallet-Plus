@@ -51,7 +51,7 @@ import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity
 import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListFragment;
 import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
 import info.korzeniowski.walletplus.ui.synchronize.SynchronizeActivity;
-import info.korzeniowski.walletplus.util.ProfileUtils;
+import info.korzeniowski.walletplus.util.PrefUtils;
 
 /**
  * Module for Database objects.
@@ -119,7 +119,7 @@ public class DatabaseModule {
     @Provides
     @Singleton
     public UserDatabaseHelper provideDatabaseHelper(LocalProfileService profileService) {
-        Profile profile = profileService.findById(ProfileUtils.getActiveProfileId(application.get()));
+        Profile profile = profileService.findById(PrefUtils.getActiveProfileId(application.get()));
         return new UserDatabaseHelper(application.get(), profile.getDatabaseFilePath());
     }
 
