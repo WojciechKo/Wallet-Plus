@@ -118,9 +118,9 @@ public class DatabaseModule {
 
     @Provides
     @Singleton
-    public UserDatabaseHelper provideDatabaseHelper(LocalProfileService profileService) {
+    public UserDatabaseHelper provideUserDatabaseHelper(LocalProfileService profileService) {
         Profile profile = profileService.findById(PrefUtils.getActiveProfileId(application.get()));
-        return new UserDatabaseHelper(application.get(), profile.getDatabaseFilePath());
+        return new UserDatabaseHelper(application.get(), profile.getName());
     }
 
     /**
