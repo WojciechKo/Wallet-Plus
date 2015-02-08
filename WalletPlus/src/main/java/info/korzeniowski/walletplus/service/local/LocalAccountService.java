@@ -24,7 +24,6 @@ public class LocalAccountService implements AccountService {
     @Override
     public Long insert(Account entity) {
         try {
-            entity.setDatabaseFileName(entity.getName() + ".db");
             accountDao.create(entity);
             return entity.getId();
         } catch (SQLException e) {
@@ -61,22 +60,12 @@ public class LocalAccountService implements AccountService {
 
     @Override
     public void update(Account newValue) {
-        try {
-            accountDao.update(newValue);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
+        throw new RuntimeException("Not implemented!");
     }
 
     @Override
     public void deleteById(Long id) {
-        try {
-            Account account = accountDao.queryForId(id);
-            deleteDatabaseFile(account.getDatabaseFileName());
-            accountDao.deleteById(id);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
+        throw new RuntimeException("Not implemented!");
     }
 
     private void deleteDatabaseFile(String databaseFileName) {

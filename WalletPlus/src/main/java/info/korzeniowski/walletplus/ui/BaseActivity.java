@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,8 +24,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.samples.apps.iosched.ui.widget.ScrimInsetsScrollView;
@@ -38,19 +40,23 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Account;
+import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.AccountService;
+import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
 import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListActivity;
 import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
-import info.korzeniowski.walletplus.util.AccountUtils;
+import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
+import info.korzeniowski.walletplus.ui.synchronize.SynchronizeActivity;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import info.korzeniowski.walletplus.util.UIUtils;
 
 
-public class BaseActivity extends ActionBarActivity {
+public class BaseActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = BaseActivity.class.getSimpleName();
 
@@ -62,18 +68,30 @@ public class BaseActivity extends ActionBarActivity {
     private static final int MAIN_CONTENT_FADEIN_DURATION = 250;
     private static final int ACCOUNT_BOX_EXPAND_ANIM_DURATION = 200;
 
+    private static final int RESOLVE_CONNECTION_REQUEST_CODE = 6969;
+    private static final int RC_NEW_PROFILE = 150;
+
+    @Inject
+    protected CategoryListActivityState categoryListActivityState;
+
+    @Inject
+    @Named("local")
+    AccountService accountService;
+
+    @Inject
+    @Named("local")
+    ProfileService profileService;
+
     private Toolbar mActionBarToolbar;
     private DrawerLayout mDrawerLayout;
     // A Runnable that we should execute when the navigation drawer finishes its closing animation
     private Runnable mDeferredOnDrawerClosedRunnable;
     private boolean mAccountBoxExpanded = false;
     private boolean mActionBarShown = true;
-    private LinearLayout mAccountListContainer;
     private ImageView mExpandAccountBoxIndicator;
     private Handler mHandler;
     private int mThemedStatusBarColor;
     private int mNormalStatusBarColor;
-    private ViewGroup mDrawerItemsListContainer;
     // views that correspond to each navigation_drawer type, null if not yet created
     private View[] mNavDrawerItemViews = null;
     private Thread mDataBootstrapThread;
@@ -81,12 +99,11 @@ public class BaseActivity extends ActionBarActivity {
     private Map<DrawerItemType, DrawerItemContent> navigationDrawerMap = Maps.newHashMap();
     private List<DrawerItemType> navigationDrawerItemList = Lists.newArrayList();
 
-    @Inject
-    @Named("local")
-    AccountService accountService;
+    private LinearLayout mAccountListContainer;
+    private LinearLayout mAccountListFooter;
 
-    @Inject
-    protected CategoryListActivityState categoryListActivityState;
+    private ViewGroup mNavDrawerListContainer;
+    private LinearLayout mNavDrawerListFooter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,13 +184,13 @@ public class BaseActivity extends ActionBarActivity {
     }
 
     private void startLoginProcess() {
-        Long accountId = AccountUtils.getActiveAccountId(this);
-        if (accountId == -1) {
+        Long profileId = PrefUtils.getActiveProfileId(this);
+        if (profileId == -1) {
             List<Account> accountList = accountService.getAll();
             if (!accountList.isEmpty()) {
-                AccountUtils.setActiveAccountId(this, accountList.get(0).getId());
+                PrefUtils.setActiveProfileId(this, accountList.get(0).getProfiles().get(0).getId());
             } else {
-                throw new RuntimeException("No accounts available. HANDLE THIS!");
+                throw new RuntimeException("No account or profile available. TODO.");
             }
         }
     }
@@ -205,7 +222,8 @@ public class BaseActivity extends ActionBarActivity {
         }
         mDrawerLayout.setStatusBarBackgroundColor(getResources().getColor(R.color.theme_primary_dark));
 
-        final ScrimInsetsScrollView navDrawer = (ScrimInsetsScrollView) mDrawerLayout.findViewById(R.id.navdrawer);
+        final LinearLayout navDrawer = (LinearLayout) mDrawerLayout.findViewById(R.id.navdrawer);
+
         if (getSelfNavDrawerItem() == DrawerItemType.INVALID) {
             // do not show a nav drawer
             if (navDrawer != null) {
@@ -215,11 +233,13 @@ public class BaseActivity extends ActionBarActivity {
             return;
         }
 
-        if (navDrawer != null) {
+        final ScrimInsetsScrollView navDrawerContent = (ScrimInsetsScrollView) navDrawer.findViewById(R.id.navdrawer_content);
+
+        if (navDrawerContent != null) {
             final View chosenAccountContentView = findViewById(R.id.chosen_account_content_view);
             final View chosenAccountView = findViewById(R.id.chosen_account_view);
             final int navDrawerChosenAccountHeight = getResources().getDimensionPixelSize(R.dimen.navdrawer_chosen_account_height);
-            navDrawer.setOnInsetsCallback(new ScrimInsetsScrollView.OnInsetsCallback() {
+            navDrawerContent.setOnInsetsCallback(new ScrimInsetsScrollView.OnInsetsCallback() {
                 @Override
                 public void onInsetsChanged(Rect insets) {
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) chosenAccountContentView.getLayoutParams();
@@ -296,29 +316,13 @@ public class BaseActivity extends ActionBarActivity {
         return mActionBarToolbar;
     }
 
-    private void setupNavDrawerViewContent() {
-        mDrawerItemsListContainer = (ViewGroup) findViewById(R.id.navdrawer_items_list);
-        if (mDrawerItemsListContainer == null) {
-            return;
-        }
-
-        mNavDrawerItemViews = new View[navigationDrawerItemList.size()];
-        mDrawerItemsListContainer.removeAllViews();
-        int i = 0;
-        for (DrawerItemType type : navigationDrawerItemList) {
-            mNavDrawerItemViews[i] = makeNavDrawerItem(type, mDrawerItemsListContainer);
-            mDrawerItemsListContainer.addView(mNavDrawerItemViews[i]);
-            ++i;
-        }
-    }
-
     private View makeNavDrawerItem(final DrawerItemType type, ViewGroup container) {
         boolean selected = getSelfNavDrawerItem() == type;
         int layoutToInflate;
         if (type == DrawerItemType.SEPARATOR) {
-            layoutToInflate = R.layout.navigation_drawer_separator;
+            layoutToInflate = R.layout.item_navigation_drawer_separator;
         } else {
-            layoutToInflate = R.layout.navigation_drawer_item;
+            layoutToInflate = R.layout.item_navigation_drawer;
         }
         View view = getLayoutInflater().inflate(layoutToInflate, container, false);
 
@@ -379,14 +383,15 @@ public class BaseActivity extends ActionBarActivity {
             navigationDrawerMap.put(DrawerItemType.DASHBOARD,
                     new DrawerItemContent(android.R.drawable.ic_media_pause, "Dashboard", DashboardActivity.class));
             navigationDrawerMap.put(DrawerItemType.CASH_FLOW,
-                    new DrawerItemContent(android.R.drawable.ic_popup_sync, "Cash flows", CashFlowListActivity.class));
+                    new DrawerItemContent(android.R.drawable.ic_lock_silent_mode, "Cash flows", CashFlowListActivity.class));
             navigationDrawerMap.put(DrawerItemType.CATEGORY,
                     new DrawerItemContent(android.R.drawable.ic_menu_camera, "Categories", CategoryListActivity.class));
             navigationDrawerMap.put(DrawerItemType.MY_WALLETS,
                     new DrawerItemContent(android.R.drawable.ic_menu_week, "My Wallets", MyWalletListActivity.class));
             navigationDrawerMap.put(DrawerItemType.OTHER_WALLETS,
                     new DrawerItemContent(android.R.drawable.ic_menu_agenda, "Other Wallets", OtherWalletListActivity.class));
-        }
+            navigationDrawerMap.put(DrawerItemType.SYNCHRONIZE,
+                    new DrawerItemContent(android.R.drawable.stat_notify_sync_noanim, "Synchronization", SynchronizeActivity.class));        }
         if (navigationDrawerItemList.isEmpty()) {
             navigationDrawerItemList.add(DrawerItemType.DASHBOARD);
             navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
@@ -395,8 +400,37 @@ public class BaseActivity extends ActionBarActivity {
             navigationDrawerItemList.add(DrawerItemType.MY_WALLETS);
             navigationDrawerItemList.add(DrawerItemType.OTHER_WALLETS);
             navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
+            navigationDrawerItemList.add(DrawerItemType.SYNCHRONIZE);
         }
         setupNavDrawerViewContent();
+        setupNavDrawerFooter();
+    }
+
+    private void setupNavDrawerViewContent() {
+        mNavDrawerListContainer = (ViewGroup) findViewById(R.id.navdrawer_list);
+
+        if (mNavDrawerListContainer == null) {
+            return;
+        }
+
+        mNavDrawerItemViews = new View[navigationDrawerItemList.size()];
+        mNavDrawerListContainer.removeAllViews();
+        int i = 0;
+        for (DrawerItemType type : navigationDrawerItemList) {
+            mNavDrawerItemViews[i] = makeNavDrawerItem(type, mNavDrawerListContainer);
+            mNavDrawerListContainer.addView(mNavDrawerItemViews[i]);
+            ++i;
+        }
+    }
+
+    private void setupNavDrawerFooter() {
+        mNavDrawerListFooter = (LinearLayout) findViewById(R.id.navdrawer_list_footer);
+        mNavDrawerListFooter.removeAllViews();
+        mNavDrawerListFooter.addView(makeNavDrawerItem(DrawerItemType.SEPARATOR, mNavDrawerListFooter));
+        View footerItem = getLayoutInflater().inflate(R.layout.item_navigation_drawer, mNavDrawerListFooter, false);
+        TextView title = (TextView) footerItem.findViewById(R.id.title);
+        title.setText("Settings");
+        mNavDrawerListFooter.addView(footerItem);
     }
 
     private void onNavDrawerItemClicked(final DrawerItemType type) {
@@ -477,6 +511,7 @@ public class BaseActivity extends ActionBarActivity {
      */
     private void setupAccountBox() {
         mAccountListContainer = (LinearLayout) findViewById(R.id.account_list);
+        mAccountListFooter = (LinearLayout) findViewById(R.id.account_list_footer);
 
         if (mAccountListContainer == null) {
             //This activity does not have an account box
@@ -484,8 +519,8 @@ public class BaseActivity extends ActionBarActivity {
         }
 
         final View chosenAccountView = findViewById(R.id.chosen_account_view);
-        final Long chosenAccountId = AccountUtils.getActiveAccountId(this);
-        if (chosenAccountId == -1) {
+        final Long activeProfileId = PrefUtils.getActiveProfileId(this);
+        if (activeProfileId == -1) {
             // No account logged in; hide account box
             chosenAccountView.setVisibility(View.GONE);
             mAccountListContainer.setVisibility(View.GONE);
@@ -495,29 +530,24 @@ public class BaseActivity extends ActionBarActivity {
             mAccountListContainer.setVisibility(View.INVISIBLE);
         }
 
-        List<Account> accounts = accountService.getAll();
-        Iterables.removeIf(accounts, new Predicate<Account>() {
-            @Override
-            public boolean apply(Account input) {
-                return input.getId().equals(chosenAccountId);
-            }
-        });
+        List<Profile> profiles = profileService.getAll();
 
-        TextView nameView = (TextView) chosenAccountView.findViewById(R.id.account_name);
+        TextView nameView = (TextView) chosenAccountView.findViewById(R.id.profile_name);
         TextView emailView = (TextView) chosenAccountView.findViewById(R.id.account_email);
         mExpandAccountBoxIndicator = (ImageView) findViewById(R.id.expand_account_box_indicator);
 
-        if (accounts.isEmpty()) {
-            // There's only one account on the device, so no need for a switcher.
-            mExpandAccountBoxIndicator.setVisibility(View.GONE);
-            mAccountListContainer.setVisibility(View.GONE);
-            chosenAccountView.setEnabled(false);
-            return;
-        }
+//      TODO: Remove this.
+//        if (profiles.isEmpty()) {
+//            // There's only one account on the device, so no need for a switcher.
+//            mExpandAccountBoxIndicator.setVisibility(View.GONE);
+//            mAccountListContainer.setVisibility(View.GONE);
+//            chosenAccountView.setEnabled(false);
+//            return;
+//        }
 
-        Account account = accountService.findById(chosenAccountId);
-        nameView.setText(account.getName());
-        emailView.setText(account.getGmailAccount());
+        Profile activeProfile = profileService.findById(activeProfileId);
+        nameView.setText(activeProfile.getName());
+        emailView.setText(activeProfile.getAccount().getGmailAccount());
 
         chosenAccountView.setEnabled(true);
         mExpandAccountBoxIndicator.setVisibility(View.VISIBLE);
@@ -530,28 +560,104 @@ public class BaseActivity extends ActionBarActivity {
         });
         setupAccountBoxToggle();
 
-        populateAccountList(accounts);
+        populateProfileList(profiles);
+
+        setupAccountListFooter();
     }
 
-    private void populateAccountList(List<Account> accounts) {
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        if (connectionResult.hasResolution()) {
+            try {
+                connectionResult.startResolutionForResult(this, RESOLVE_CONNECTION_REQUEST_CODE);
+            } catch (IntentSender.SendIntentException e) {
+                // Unable to resolve, message user appropriately
+            }
+        } else {
+            GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), this, 0).show();
+        }
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case RC_NEW_PROFILE:
+                if (resultCode == RESULT_OK) {
+                    selectProfileById(PrefUtils.getActiveProfileId(BaseActivity.this));
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void populateProfileList(List<Profile> profiles) {
         mAccountListContainer.removeAllViews();
 
         LayoutInflater layoutInflater = LayoutInflater.from(this);
-        for (final Account account : accounts) {
-            View itemView = layoutInflater.inflate(R.layout.item_account_list, mAccountListContainer, false);
-            ((TextView) itemView.findViewById(R.id.account_name)).setText(account.getName());
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AccountUtils.setActiveAccountId(BaseActivity.this, account.getId());
-                    mAccountBoxExpanded = false;
-                    setupAccountBoxToggle();
-                    mDrawerLayout.closeDrawer(Gravity.START);
-                    setupAccountBox();
-                }
-            });
+        for (final Profile profile : profiles) {
+            View itemView = layoutInflater.inflate(R.layout.item_navigation_drawer, mAccountListContainer, false);
+            TextView profileNameView = (TextView) itemView.findViewById(R.id.title);
+            profileNameView.setText(profile.getName());
+
+            if (profile.getId().equals(PrefUtils.getActiveProfileId(BaseActivity.this))) {
+                profileNameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color_selected));
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mAccountBoxExpanded = false;
+                        setupAccountBoxToggle();
+                        mDrawerLayout.closeDrawer(Gravity.START);
+                    }
+                });
+            } else {
+                profileNameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color));
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        selectProfileById(profile.getId());
+                    }
+                });
+            }
             mAccountListContainer.addView(itemView);
         }
+    }
+
+    private void selectProfileById(Long id) {
+        PrefUtils.setActiveProfileId(this, id);
+        ((WalletPlus) getApplication()).reinitializeObjectGraph();
+        startActivity(new Intent(this, DashboardActivity.class));
+        finish();
+    }
+
+
+    private void setupAccountListFooter() {
+        mAccountListFooter.removeAllViews();
+
+        mAccountListFooter.addView(makeNavDrawerItem(DrawerItemType.SEPARATOR, mAccountListFooter));
+
+        View newProfileView = getLayoutInflater().inflate(R.layout.item_navigation_drawer, mAccountListFooter, false);
+        TextView title = (TextView) newProfileView.findViewById(R.id.title);
+        title.setText("Add profile");
+
+        newProfileView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(BaseActivity.this, ProfileActivity.class);
+                startActivityForResult(intent, RC_NEW_PROFILE);
+            }
+        });
+        mAccountListFooter.addView(newProfileView);
     }
 
     private void setupAccountBoxToggle() {
@@ -568,6 +674,9 @@ public class BaseActivity extends ActionBarActivity {
             // initial setup
             mAccountListContainer.setAlpha(0);
             mAccountListContainer.setTranslationY(hideTranslateY);
+
+            mAccountListFooter.setAlpha(0);
+            mAccountListFooter.setTranslationY(-hideTranslateY);
         }
 
         AnimatorSet set = new AnimatorSet();
@@ -579,40 +688,71 @@ public class BaseActivity extends ActionBarActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                mDrawerItemsListContainer.setVisibility(mAccountBoxExpanded
+                mNavDrawerListContainer.setVisibility(mAccountBoxExpanded
                         ? View.INVISIBLE : View.VISIBLE);
+                mNavDrawerListFooter.setVisibility(mAccountBoxExpanded
+                        ? View.INVISIBLE : View.VISIBLE);
+
                 mAccountListContainer.setVisibility(mAccountBoxExpanded
+                        ? View.VISIBLE : View.INVISIBLE);
+                mAccountListFooter.setVisibility(mAccountBoxExpanded
                         ? View.VISIBLE : View.INVISIBLE);
             }
         });
 
         if (mAccountBoxExpanded) {
             mAccountListContainer.setVisibility(View.VISIBLE);
-            AnimatorSet subSet = new AnimatorSet();
-            subSet.playTogether(
+            mAccountListFooter.setVisibility(View.VISIBLE);
+
+            AnimatorSet hideNavDrawerList = new AnimatorSet();
+            hideNavDrawerList.playTogether(
+                    ObjectAnimator.ofFloat(mNavDrawerListContainer, View.ALPHA, 0)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
+                    ObjectAnimator.ofFloat(mNavDrawerListFooter, View.ALPHA, 0)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION)
+            );
+
+            AnimatorSet showAccountList = new AnimatorSet();
+            showAccountList.playTogether(
                     ObjectAnimator.ofFloat(mAccountListContainer, View.ALPHA, 1)
                             .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
                     ObjectAnimator.ofFloat(mAccountListContainer, View.TRANSLATION_Y, 0)
-                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION));
-            set.playSequentially(
-                    ObjectAnimator.ofFloat(mDrawerItemsListContainer, View.ALPHA, 0)
                             .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
-                    subSet);
-            set.start();
+
+                    ObjectAnimator.ofFloat(mAccountListFooter, View.ALPHA, 1)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
+                    ObjectAnimator.ofFloat(mAccountListFooter, View.TRANSLATION_Y, 0)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION));
+
+            set.playSequentially(
+                    hideNavDrawerList,
+                    showAccountList);
         } else {
-            mDrawerItemsListContainer.setVisibility(View.VISIBLE);
-            AnimatorSet subSet = new AnimatorSet();
-            subSet.playTogether(
+            mNavDrawerListContainer.setVisibility(View.VISIBLE);
+            mNavDrawerListFooter.setVisibility(View.VISIBLE);
+
+            AnimatorSet hideAccountList = new AnimatorSet();
+            hideAccountList.playTogether(
                     ObjectAnimator.ofFloat(mAccountListContainer, View.ALPHA, 0)
                             .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
-                    ObjectAnimator.ofFloat(mAccountListContainer, View.TRANSLATION_Y,
-                            hideTranslateY)
+                    ObjectAnimator.ofFloat(mAccountListContainer, View.TRANSLATION_Y, hideTranslateY)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
+
+                    ObjectAnimator.ofFloat(mAccountListFooter, View.ALPHA, 0)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
+                    ObjectAnimator.ofFloat(mAccountListFooter, View.TRANSLATION_Y, -hideTranslateY)
                             .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION));
+
+            AnimatorSet showNavDrawerList = new AnimatorSet();
+            showNavDrawerList.playTogether(
+                    ObjectAnimator.ofFloat(mNavDrawerListFooter, View.ALPHA, 1)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION),
+                    ObjectAnimator.ofFloat(mNavDrawerListContainer, View.ALPHA, 1)
+                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION));
+
             set.playSequentially(
-                    subSet,
-                    ObjectAnimator.ofFloat(mDrawerItemsListContainer, View.ALPHA, 1)
-                            .setDuration(ACCOUNT_BOX_EXPAND_ANIM_DURATION));
-            set.start();
+                    hideAccountList,
+                    showNavDrawerList);
         }
 
         set.start();
@@ -625,7 +765,9 @@ public class BaseActivity extends ActionBarActivity {
         MY_WALLETS,
         OTHER_WALLETS,
         INVALID,
-        SETTINGS, SEPARATOR
+        SETTINGS,
+        SEPARATOR,
+        SYNCHRONIZE
     }
 
     private class DrawerItemContent {

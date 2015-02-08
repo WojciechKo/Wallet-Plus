@@ -44,11 +44,4 @@ public class WalletValidatorTest {
         exception.expectMessage("Type");
         walletService.insert(new Wallet().setName("TestName").setInitialAmount(11.1));
     }
-
-    @Test
-    public void shouldInitialAmountBeDefinedInMyWallet() {
-        exception.expect(EntityPropertyCannotBeNullOrEmptyException.class);
-        exception.expectMessage("InitialAmount");
-        walletService.insert(new Wallet().setType(Wallet.Type.MY_WALLET).setName("TestName"));
-    }
 }

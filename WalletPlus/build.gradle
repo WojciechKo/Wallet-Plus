@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.android.tools.build:gradle:1.0.1'
         classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
         classpath 'com.github.jcandksolutions.gradle:android-unit-test:2.1.1'
     }
@@ -54,7 +54,6 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.config
-            applicationIdSuffix ".debug"
         }
         release {
             signingConfig signingConfigs.config
@@ -108,8 +107,14 @@ dependencies {
     compile "com.android.support:recyclerview-v7:$androidSupportVersion"
 
     //Google Drive API
-    //noinspection GradleDynamicVersion
-    compile 'com.google.android.gms:play-services:6.5.+'
+    compile 'com.google.android.gms:play-services-identity:6.5.87'
+    compile 'com.google.android.gms:play-services-drive:6.5.87'
+
+    // Retrofit
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+
+    //OkHttp
+    compile 'com.squareup.okhttp:okhttp:2.2.0'
 
     // OrmLite
     def ormLiteVersion = '4.48'
@@ -141,6 +146,9 @@ dependencies {
     compile('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
         transitive = true
     }
+
+    // HelloCharts
+    compile project(':hellocharts-library')
 
     // JUnit
     testCompile 'junit:junit:4.11'

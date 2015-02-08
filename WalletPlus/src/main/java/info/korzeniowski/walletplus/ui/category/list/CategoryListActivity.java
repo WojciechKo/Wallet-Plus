@@ -22,7 +22,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -100,16 +99,15 @@ public class CategoryListActivity extends BaseActivity {
 
         if (isAnyCashFlowWithoutCategoryExists()) {
             mainCategories.add(new Category()
-                    .setType(Category.Type.NO_CATEGORY)
-                    .setName(getString(R.string.categoryNoCategoryName))
-                    .setId(UUID.randomUUID().getMostSignificantBits()));
+                    .setId(CategoryService.CATEGORY_NULL_ID)
+                    .setName(getString(R.string.categoryNoCategoryName)));
         }
 
         return mainCategories;
     }
 
     private boolean isAnyCashFlowWithoutCategoryExists() {
-        return !localCashFlowService.findCashFlow(null, null, Category.Type.NO_CATEGORY, null, null).isEmpty();
+        return !localCashFlowService.findCashFlow(null, null, CategoryService.CATEGORY_NULL_ID, null, null).isEmpty();
     }
 
     @Override

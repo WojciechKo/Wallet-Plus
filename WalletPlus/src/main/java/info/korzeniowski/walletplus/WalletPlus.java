@@ -1,8 +1,6 @@
 package info.korzeniowski.walletplus;
 
 import android.app.Application;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -12,10 +10,9 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.ObjectGraph;
-import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.module.DatabaseModule;
 import info.korzeniowski.walletplus.module.MainModule;
-import info.korzeniowski.walletplus.service.local.LocalAccountService;
+import info.korzeniowski.walletplus.util.PrefUtils;
 
 /**
  * Main Application class.
@@ -23,10 +20,9 @@ import info.korzeniowski.walletplus.service.local.LocalAccountService;
 public class WalletPlus extends Application {
     public static final String LOG_TAG = "WalletPlus";
     private static final String FIRST_RUN = "FIRST_RUN";
-    private static final String LAST_LOGGED_ID = "LAST_LOGGED_ID";
+    private static final String LAST_LOGGED_PROFILE_ID = "LAST_LOGGED_PROFILE_ID";
 
     ObjectGraph graph;
-    private Account currentAccount;
 
     /**
      * Just for Dagger DI.
@@ -41,31 +37,14 @@ public class WalletPlus extends Application {
         super.onCreate();
         graph = ObjectGraph.create(getModules().toArray());
         JodaTimeAndroid.init(this);
-        initApplication();
+        initExampleData();
     }
 
-    void initApplication() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (isFirstRun(sharedPreferences)) {
-            handleFirstRun(sharedPreferences);
-        } else {
-            setCurrentAccount(getLastLoggedAccount(sharedPreferences));
+    void initExampleData() {
+        if (!PrefUtils.isDataBootstrapDone(this)) {
+            new DatabaseInitializer(this).createExampleAccountWithProfile();
+            PrefUtils.markDataBootstrapDone(this);
         }
-    }
-    private boolean isFirstRun(SharedPreferences sharedPreferences) {
-        return sharedPreferences.getBoolean(FIRST_RUN, true);
-    }
-
-    private void handleFirstRun(SharedPreferences sharedPreferences) {
-        new DatabaseInitializer(this).createExampleAccount();
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(FIRST_RUN, false);
-        editor.apply();
-    }
-
-    private Account getLastLoggedAccount(SharedPreferences sharedPreferences) {
-        Long accountId = sharedPreferences.getLong(LAST_LOGGED_ID, 0);
-        return graph.get(LocalAccountService.class).findById(accountId);
     }
 
     public void inject(Object object) {
@@ -85,18 +64,5 @@ public class WalletPlus extends Application {
 
     public ObjectGraph getGraph() {
         return graph;
-    }
-
-    public Account getCurrentAccount() {
-        return currentAccount;
-    }
-
-    public void setCurrentAccount(Account currentAccount) {
-        this.currentAccount = currentAccount;
-
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .edit()
-                .putLong(LAST_LOGGED_ID, currentAccount.getId())
-                .apply();
     }
 }

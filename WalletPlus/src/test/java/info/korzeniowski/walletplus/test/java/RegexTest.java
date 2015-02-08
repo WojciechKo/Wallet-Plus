@@ -5,8 +5,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsFragment;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @Config(emulateSdk = 18)

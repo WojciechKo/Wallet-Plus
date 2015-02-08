@@ -253,33 +253,6 @@ public class CashFlowDetailsFragment extends Fragment {
         commentLabel.setVisibility(View.VISIBLE);
     }
 
-    @OnClick(R.id.category)
-    void onCategoryClick() {
-        ExpandableListView expandableListView = (ExpandableListView) View.inflate(getActivity(), R.layout.fragment_category_list, null);
-
-        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setTitle(getString(R.string.cashflowCategoryChooseAlertTitle))
-                .setView(expandableListView)
-                .create();
-
-        expandableListView.setAdapter(new CategoryExpandableListAdapter(getActivity(), categoryList, new OnContentClickListener<Category>() {
-            @Override
-            public void onContentClick(Category content) {
-                cashFlowDetailsState.setCategory(content);
-                category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
-                alertDialog.dismiss();
-            }
-        }));
-
-        alertDialog.show();
-    }
-
-    @OnClick(R.id.removeCategory)
-    void onRemoveCategoryClick() {
-        cashFlowDetailsState.setCategory(null);
-        category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
-    }
-
     @OnClick(R.id.datePicker)
     public void onDatePickerClick() {
         final Calendar calendar = Calendar.getInstance();
@@ -333,7 +306,7 @@ public class CashFlowDetailsFragment extends Fragment {
     private void setupTypeDependentViews() {
         setupToggles();
         setupWallets();
-        setupVisibility();
+        setupCategory();
     }
 
     private void setupToggles() {
@@ -397,19 +370,51 @@ public class CashFlowDetailsFragment extends Fragment {
         ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
     }
 
-    private void setupVisibility() {
+    private void setupCategory() {
         if (cashFlowDetailsState.getType() == CashFlow.Type.TRANSFER) {
-            category.setVisibility(View.GONE);
-            categoryLabel.setVisibility(View.GONE);
-            removeCategory.setVisibility(View.GONE);
-            extraLabel.setVisibility(View.GONE);
-            isCompleted.setVisibility(View.GONE);
+            category.setText(getCategoryText(localCashFlowService.getTransferCategory()));
+
+            category.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getActivity(), getActivity().getString(R.string.cashFlowTransferCategoryToast), Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            removeCategory.setOnClickListener(null);
+
         } else {
-            category.setVisibility(View.VISIBLE);
-            categoryLabel.setVisibility(View.VISIBLE);
-            removeCategory.setVisibility(View.VISIBLE);
-            extraLabel.setVisibility(View.VISIBLE);
-            isCompleted.setVisibility(View.VISIBLE);
+            category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
+
+            category.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ExpandableListView expandableListView = (ExpandableListView) View.inflate(getActivity(), R.layout.fragment_category_list, null);
+
+                    final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+                            .setTitle(getString(R.string.cashflowCategoryChooseAlertTitle))
+                            .setView(expandableListView)
+                            .create();
+
+                    expandableListView.setAdapter(new CategoryExpandableListAdapter(getActivity(), categoryList, new OnContentClickListener<Category>() {
+                        @Override
+                        public void onContentClick(Category content) {
+                            cashFlowDetailsState.setCategory(content);
+                            category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
+                            alertDialog.dismiss();
+                        }
+                    }));
+
+                    alertDialog.show();
+                }
+            });
+
+            removeCategory.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    cashFlowDetailsState.setCategory(null);
+                    category.setText(getCategoryText(cashFlowDetailsState.getCategory()));                }
+            });
         }
     }
 

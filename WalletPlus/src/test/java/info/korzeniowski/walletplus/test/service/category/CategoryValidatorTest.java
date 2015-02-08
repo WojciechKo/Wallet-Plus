@@ -59,7 +59,7 @@ public class CategoryValidatorTest {
         Category main = getSimpleMainIncomeCategory();
         when(validatorService.findById(main.getId())).thenReturn(main);
 
-        categoryService.insert(getSimpleMainIncomeCategory().setParent(main).setType(null));
+        categoryService.insert(getSimpleMainIncomeCategory().setParent(main).setSpecialType(null));
     }
 
     @Test
@@ -138,11 +138,11 @@ public class CategoryValidatorTest {
     @Test
     public void shouldUpdateCategoryFromSubToMain() {
         Category main = getSimpleMainIncomeCategory();
-        Category sub = getSimpleMainIncomeCategory().setType(null).setParent(main);
+        Category sub = getSimpleMainIncomeCategory().setSpecialType(null).setParent(main);
         when(validatorService.findById(main.getId())).thenReturn(main);
         when(validatorService.findById(sub.getId())).thenReturn(sub);
 
-        categoryService.update(sub.setType(sub.getParent().getType()).setParent(null));
+        categoryService.update(sub.setSpecialType(sub.getParent().getSpecialType()).setParent(null));
     }
 
     @Test
@@ -152,7 +152,7 @@ public class CategoryValidatorTest {
         when(validatorService.findById(main1.getId())).thenReturn(main1);
         when(validatorService.findById(main2.getId())).thenReturn(main2);
 
-        categoryService.update(main1.setType(null).setParent(main2));
+        categoryService.update(main1.setSpecialType(null).setParent(main2));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class CategoryValidatorTest {
         when(validatorService.getSubCategoriesOf(mainWithSub.getId())).thenReturn(Lists.newArrayList(subOfMain));
 
         exception.expect(CategoryHaveSubsException.class);
-        categoryService.update(new Category(mainWithSub).setType(null).setParent(new Category(otherMain)));
+        categoryService.update(new Category(mainWithSub).setSpecialType(null).setParent(new Category(otherMain)));
     }
 
     private Category getSimpleMainIncomeCategory() {

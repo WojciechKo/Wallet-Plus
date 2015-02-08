@@ -5,7 +5,7 @@
         android:clickable="true"
         android:focusable="true">
 
-    <TextView android:id="@+id/account_name"
+    <TextView android:id="@+id/profile_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

@@ -16,14 +16,17 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.local.LocalAccountService;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
 import info.korzeniowski.walletplus.service.local.LocalCategoryService;
+import info.korzeniowski.walletplus.service.local.LocalProfileService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
 import info.korzeniowski.walletplus.service.local.MainDatabaseHelper;
 import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
@@ -46,6 +49,9 @@ import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsAc
 import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsFragment;
 import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
 import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListFragment;
+import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
+import info.korzeniowski.walletplus.ui.synchronize.SynchronizeActivity;
+import info.korzeniowski.walletplus.util.PrefUtils;
 
 /**
  * Module for Database objects.
@@ -83,10 +89,18 @@ import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListFragment
                 OtherWalletDetailsActivity.class,
                 OtherWalletDetailsFragment.class,
 
+                SynchronizeActivity.class,
+                SynchronizeActivity.SynchronizeFragment.class,
+
+                ProfileActivity.class,
+                ProfileActivity.CreateProfileFragment.class,
+
                 DatabaseInitializer.class,
-                LocalAccountService.class
+                LocalAccountService.class,
+                LocalProfileService.class
         },
-        complete = false
+        complete = false,
+        library = true
 )
 public class DatabaseModule {
 
@@ -104,8 +118,9 @@ public class DatabaseModule {
 
     @Provides
     @Singleton
-    public UserDatabaseHelper provideDatabaseHelper() {
-        return new UserDatabaseHelper(application.get());
+    public UserDatabaseHelper provideUserDatabaseHelper(LocalProfileService profileService) {
+        Profile profile = profileService.findById(PrefUtils.getActiveProfileId(application.get()));
+        return new UserDatabaseHelper(application.get(), profile.getName());
     }
 
     /**
@@ -129,6 +144,29 @@ public class DatabaseModule {
     public AccountService provideAccountService(LocalAccountService localAccountService) {
         return localAccountService;
     }
+
+    /**
+     * *************
+     * PROFILE
+     * *************
+     */
+    @Provides
+    public Dao<Profile, Long> provideProfileDao(MainDatabaseHelper mainDatabaseHelper) {
+        try {
+            return mainDatabaseHelper.getProfileDao();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Provides
+    @Named("local")
+    @Singleton
+    public ProfileService provideProfileService(LocalProfileService localProfileService) {
+        return localProfileService;
+    }
+
 
     /**
      * *************

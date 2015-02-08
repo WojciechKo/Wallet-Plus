@@ -108,7 +108,7 @@ public class LocalCategoryService implements CategoryService {
     @Override
     public List<Category> getMainCategories() {
         try {
-            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().isNull("parent_id").and().isNull("type").query();
+            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().isNull("parent_id").and().isNull("specialType").query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -251,19 +251,19 @@ public class LocalCategoryService implements CategoryService {
         return result;
     }
 
-    @Override
-    public long countDependentCashFlows(Long categoryId) {
-        return cashFlowService.countAssignedWithCategory(categoryId);
-    }
-
     private List<CategoryStats> createCategoryStatsResults(List<Category> categories) {
         List<CategoryStats> result = Lists.newArrayListWithCapacity(categories.size());
         Lists.newArrayListWithCapacity(categories.size());
         for (Category category : categories) {
             result.add(new CategoryStats(category.getId()));
         }
-        result.add(new CategoryStats(null));
+        result.add(new CategoryStats(CATEGORY_NULL_ID));
         return result;
+    }
+
+    @Override
+    public long countDependentCashFlows(Long categoryId) {
+        return cashFlowService.countAssignedWithCategory(categoryId);
     }
 
     private List<CashFlow> getCashFlowList(Date firstDay, Period period, Integer iteration) {
@@ -280,12 +280,10 @@ public class LocalCategoryService implements CategoryService {
         return Iterables.find(list, new Predicate<CategoryStats>() {
             @Override
             public boolean apply(CategoryStats input) {
-                if (category != null) {
-                    return category.getId().equals(input.getCategoryId());
-                } else if (input.getCategoryId() == null) {
-                    return true;
+                if (category == null) {
+                    return input.getCategoryId().equals(CATEGORY_NULL_ID);
                 }
-                return false;
+                return category.getId().equals(input.getCategoryId());
             }
         });
     }

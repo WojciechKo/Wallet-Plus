@@ -20,11 +20,9 @@ public class WalletValidator implements Validator<Wallet>{
     public void validateInsert(Wallet wallet) {
         checkNotNull(wallet);
         validateIfTypeIsNotNull(wallet);
-        if (wallet.getCurrentAmount() == null) {
-            wallet.setCurrentAmount(wallet.getInitialAmount());
-        }
         if (wallet.getType().equals(Wallet.Type.MY_WALLET)) {
             validateIfInitialAmountIsNotNull(wallet);
+            wallet.setCurrentAmount(wallet.getInitialAmount());
         }
     }
 

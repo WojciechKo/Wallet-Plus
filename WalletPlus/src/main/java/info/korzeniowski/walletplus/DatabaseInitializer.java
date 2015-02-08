@@ -9,11 +9,15 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.local.LocalAccountService;
+import info.korzeniowski.walletplus.service.local.LocalProfileService;
+import info.korzeniowski.walletplus.util.PrefUtils;
 
 public class DatabaseInitializer {
 
@@ -35,14 +39,34 @@ public class DatabaseInitializer {
         this.walletPlus = new WeakReference<>(walletPlus);
     }
 
-    public Account createExampleAccount() {
-        LocalAccountService localAccountService1 = walletPlus.get().getGraph().get(LocalAccountService.class);
-        Account result = new Account().setName("Example Account");
-        localAccountService1.insert(result);
-        walletPlus.get().setCurrentAccount(result);
-        walletPlus.get().inject(this);
-        fillExampleDatabase();
-        return result;
+    public void createExampleAccountWithProfile() {
+        try {
+            LocalAccountService localAccountService = walletPlus.get().getGraph().get(LocalAccountService.class);
+            Account exampleAccount = new Account().setName("Example Account");
+            localAccountService.insert(exampleAccount);
+            LocalProfileService localProfileService = walletPlus.get().getGraph().get(LocalProfileService.class);
+            Profile exampleProfile = new Profile().setName("Personal example").setAccount(exampleAccount);
+            localProfileService.insert(exampleProfile);
+            PrefUtils.setActiveProfileId(walletPlus.get().getBaseContext(), exampleProfile.getId());
+            walletPlus.get().inject(this);
+            fillExampleDatabase();
+
+            Profile bestCompany = new Profile().setName("Best company").setAccount(exampleAccount);
+            localProfileService.insert(bestCompany);
+            PrefUtils.setActiveProfileId(walletPlus.get().getBaseContext(), bestCompany.getId());
+            walletPlus.get().reinitializeObjectGraph();
+            walletPlus.get().inject(this);
+            fillExampleDatabase();
+
+            Profile oldCompany = new Profile().setName("Old company").setAccount(exampleAccount);
+            localProfileService.insert(oldCompany);
+            PrefUtils.setActiveProfileId(walletPlus.get().getBaseContext(), oldCompany.getId());
+            walletPlus.get().reinitializeObjectGraph();
+            walletPlus.get().inject(this);
+            fillExampleDatabase();
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        }
     }
 
     private void fillExampleDatabase() {
@@ -87,24 +111,22 @@ public class DatabaseInitializer {
         /** Init cashflows **/
         Calendar date = Calendar.getInstance();
 
-        CashFlow cashFlow = new CashFlow();
-        localCashFlowService.insert(cashFlow.setAmount(100.0).setCategory(mainHouse).setFromWallet(personalWallet).setToWallet(walMart).setDateTime(date.getTime()).setComment("Food"));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setCategory(mainHouse).setFromWallet(personalWallet).setToWallet(walMart).setDateTime(date.getTime()).setComment("Food"));
 
         date.add(Calendar.DATE, -1);
-        localCashFlowService.insert(cashFlow.setAmount(150.0).setCategory(mainHouse).setFromWallet(personalWallet).setToWallet(walMart).setDateTime(date.getTime()).setComment("Cleaning products"));
+        localCashFlowService.insert(new CashFlow().setAmount(150.0).setCategory(mainHouse).setFromWallet(personalWallet).setToWallet(walMart).setDateTime(date.getTime()).setComment("Cleaning products"));
 
         date.add(Calendar.HOUR_OF_DAY, -1);
-        localCashFlowService.insert(cashFlow.setAmount(100.0).setCategory(localCashFlowService.getTransferCategory()).setFromWallet(sock).setToWallet(personalWallet).setDateTime(date.getTime()).setComment("Transfer to personal wallet"));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setFromWallet(sock).setToWallet(personalWallet).setDateTime(date.getTime()).setComment("Transfer to personal wallet"));
 
         date.add(Calendar.HOUR_OF_DAY, -1);
-        localCashFlowService.insert(cashFlow.setAmount(75.0).setCategory(energy).setFromWallet(bankAccount).setToWallet(null).setComment(null));
-        localCashFlowService.insert(cashFlow.setAmount(100.0).setCategory(water).setFromWallet(bankAccount).setToWallet(null).setComment(null));
-        localCashFlowService.insert(cashFlow.setAmount(50.0).setCategory(gas).setFromWallet(bankAccount).setToWallet(null).setComment(null));
+        localCashFlowService.insert(new CashFlow().setAmount(75.0).setCategory(energy).setFromWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setCategory(water).setFromWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(50.0).setCategory(gas).setFromWallet(bankAccount).setDateTime(date.getTime()));
 
         date.add(Calendar.DATE, -1);
-        localCashFlowService.insert(cashFlow.setAmount(500.0).setCategory(localCashFlowService.getTransferCategory()).setFromWallet(bankAccount).setToWallet(personalWallet).setComment(null));
-        localCashFlowService.insert(cashFlow.setAmount(1000.0).setCategory(localCashFlowService.getTransferCategory()).setFromWallet(bankAccount).setToWallet(wardrobe).setComment("Savings"));
-        localCashFlowService.insert(cashFlow.setAmount(3000.0).setCategory(null).setFromWallet(amazon).setToWallet(bankAccount).setComment("Payment"));
+        localCashFlowService.insert(new CashFlow().setAmount(500.0).setFromWallet(bankAccount).setToWallet(personalWallet).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(1000.0).setFromWallet(bankAccount).setToWallet(wardrobe).setComment("Savings").setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(3000.0).setCategory(null).setFromWallet(amazon).setToWallet(bankAccount).setComment("Payment").setDateTime(date.getTime()));
     }
-
 }

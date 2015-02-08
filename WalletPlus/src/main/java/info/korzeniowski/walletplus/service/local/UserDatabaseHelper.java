@@ -16,6 +16,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Event;
 import info.korzeniowski.walletplus.model.Wallet;
 
 public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
@@ -27,8 +28,8 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Dao<CashFlow, Long> cashFlowDao;
     private WeakReference<WalletPlus> walletPlus;
 
-    public UserDatabaseHelper(Context context) {
-        super(context, ((WalletPlus) context).getCurrentAccount().getDatabaseFileName(), null, DATABASE_VERSION);
+    public UserDatabaseHelper(Context context, String databaseFileName) {
+        super(context, databaseFileName, null, DATABASE_VERSION);
         this.walletPlus = new WeakReference<>((WalletPlus) context);
     }
 
@@ -56,6 +57,7 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
         try {
+            TableUtils.createTable(connectionSource, Event.class);
             TableUtils.createTable(connectionSource, Wallet.class);
             TableUtils.createTable(connectionSource, Category.class);
             TableUtils.createTable(connectionSource, CashFlow.class);
@@ -69,7 +71,7 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
     private void insertTransferCategory() throws SQLException {
         getCategoryDao().create(
                 new Category()
-                        .setType(Category.Type.TRANSFER)
+                        .setSpecialType(Category.Type.TRANSFER)
                         .setName(walletPlus.get().getString(R.string.transfer)));
     }
 

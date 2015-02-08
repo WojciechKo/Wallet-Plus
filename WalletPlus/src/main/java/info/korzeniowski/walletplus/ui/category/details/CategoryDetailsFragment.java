@@ -85,7 +85,7 @@ public class CategoryDetailsFragment extends Fragment {
         ButterKnife.inject(this, view);
 
         List<Category> mainCategories = localCategoryService.getMainCategories();
-        mainCategories.add(0, new Category().setId(null).setName(getString(R.string.categoryNoParentSelected)));
+        mainCategories.add(0, new Category().setId(CategoryService.CATEGORY_NULL_ID).setName(getString(R.string.categoryNoParentSelected)));
         parentCategoryView.setAdapter(new ParentCategoryAdapter(getActivity(), mainCategories));
 
         if (savedInstanceState == null && detailsAction == DetailsAction.EDIT) {
@@ -123,7 +123,7 @@ public class CategoryDetailsFragment extends Fragment {
 
         if (categoryName.getError() == null) {
             Category categoryToSave = new Category();
-            categoryToSave.setParent((Category) parentCategoryView.getSelectedItem());
+            categoryToSave.setParent(getSelectedParentFromView());
             categoryToSave.setName(categoryName.getText().toString());
 
             if (detailsAction == DetailsAction.ADD) {
@@ -142,6 +142,14 @@ public class CategoryDetailsFragment extends Fragment {
                 }
             }
         }
+    }
+
+    private Category getSelectedParentFromView() {
+        Category selectedParent = (Category) parentCategoryView.getSelectedItem();
+        if (CategoryService.CATEGORY_NULL_ID.equals(selectedParent.getId())) {
+            return null;
+        }
+        return selectedParent;
     }
 
     private enum DetailsAction {ADD, EDIT}
