@@ -65,11 +65,12 @@ public class CategoryListActivity extends BaseActivity {
         setupViews();
 
         if (categoryListActivityState.getStartDate() == null) {
-            categoryListActivityState.setStartDate(DateTime
-                    .now()
-                    .withField(DateTimeFieldType.hourOfDay(), 0)
-                    .withField(DateTimeFieldType.minuteOfDay(), 0)
-                    .toDate());
+            categoryListActivityState.setStartDate(
+                    DateTime.now()
+                            .withField(DateTimeFieldType.dayOfWeek(), 1)
+                            .withField(DateTimeFieldType.hourOfDay(), 0)
+                            .withField(DateTimeFieldType.minuteOfDay(), 0)
+                            .toDate());
         }
         if (categoryListActivityState.getPeriod() == null) {
             categoryListActivityState.setPeriod(Period.WEEK);
@@ -216,7 +217,7 @@ public class CategoryListActivity extends BaseActivity {
         }
 
         @Override
-        public void onPageScrolled(int i, float v, int i2) {
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         }
 
         @Override
@@ -227,16 +228,23 @@ public class CategoryListActivity extends BaseActivity {
         @Override
         public void onPageScrollStateChanged(int state) {
             if (state == ViewPager.SCROLL_STATE_IDLE) {
-                handleInfiniteViewPager();
+                handleInfiniteScrolling();
             }
         }
 
-        private void handleInfiniteViewPager() {
-            offsetOfCentralPosition += selectedPage - getCount() / 2;
-            if (selectedPage != getCount() / 2) {
-                pager.setCurrentItem(getCount() / 2, false);
-                notifyDataSetChanged();
+        private void handleInfiniteScrolling() {
+            int margin = 3;
+            if (selectedPage <= margin) {
+                centerToPosition(selectedPage);
+            } else if (selectedPage >= getCount() - margin - 1) {
+                centerToPosition(selectedPage);
             }
+        }
+
+        private void centerToPosition(int position) {
+            offsetOfCentralPosition += (position - getCount() / 2);
+            notifyDataSetChanged();
+            pager.setCurrentItem(getCount() / 2, false);
         }
     }
 }
