@@ -101,22 +101,22 @@ public class DatabaseInitializer {
         /** Init cashflows **/
         Calendar date = Calendar.getInstance();
 
-        localCashFlowService.insert(new CashFlow().setAmount(100.0).setCategory(mainHouse).setFromWallet(personalWallet).setDateTime(date.getTime()).setComment("Food"));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setCategory(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Food"));
 
         date.add(Calendar.DATE, -1);
-        localCashFlowService.insert(new CashFlow().setAmount(150.0).setCategory(mainHouse).setFromWallet(personalWallet).setDateTime(date.getTime()).setComment("Cleaning products"));
+        localCashFlowService.insert(new CashFlow().setAmount(150.0).setCategory(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Cleaning products"));
 
         date.add(Calendar.HOUR_OF_DAY, -1);
-        localCashFlowService.insert(new CashFlow().setAmount(100.0).setFromWallet(sock).setToWallet(personalWallet).setDateTime(date.getTime()).setComment("Transfer to personal wallet"));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setWallet(sock).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Transfer to personal wallet"));
 
         date.add(Calendar.HOUR_OF_DAY, -1);
-        localCashFlowService.insert(new CashFlow().setAmount(75.0).setCategory(energy).setFromWallet(bankAccount).setDateTime(date.getTime()));
-        localCashFlowService.insert(new CashFlow().setAmount(100.0).setCategory(water).setFromWallet(bankAccount).setDateTime(date.getTime()));
-        localCashFlowService.insert(new CashFlow().setAmount(50.0).setCategory(gas).setFromWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(75.0).setCategory(energy).setWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setCategory(water).setWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(50.0).setCategory(gas).setWallet(bankAccount).setDateTime(date.getTime()));
 
         date.add(Calendar.DATE, -1);
-        localCashFlowService.insert(new CashFlow().setAmount(500.0).setFromWallet(bankAccount).setToWallet(personalWallet).setDateTime(date.getTime()));
-        localCashFlowService.insert(new CashFlow().setAmount(1000.0).setFromWallet(bankAccount).setToWallet(wardrobe).setComment("Savings").setDateTime(date.getTime()));
-        localCashFlowService.insert(new CashFlow().setAmount(3000.0).setCategory(null).setToWallet(bankAccount).setComment("Payment").setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(500.0).setWallet(bankAccount).setWallet(personalWallet).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(1000.0).setWallet(bankAccount).setWallet(wardrobe).setComment("Savings").setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(3000.0).setCategory(null).setWallet(bankAccount).setComment("Payment").setDateTime(date.getTime()));
     }
 }

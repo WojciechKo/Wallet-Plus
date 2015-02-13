@@ -27,9 +27,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     private Long id;
     private String amount;
     private String comment;
-    private Wallet myFirstWallet;
-    private Wallet mySecondWallet;
-    private Wallet otherWallet;
+    private Wallet wallet;
     private Category category;
     private CashFlow.Type type;
     private CashFlow.Type previousType;
@@ -50,23 +48,21 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         setDate(cashFlow.getDateTime().getTime());
         setType(cashFlow.getType());
         setCompleted(cashFlow.isCompleted());
+        setWallet(cashFlow.getWallet());
 
         this.previousType = defaultType;
 
         if (getType() == CashFlow.Type.INCOME) {
             setCategory(cashFlow.getCategory());
-            otherWallet = cashFlow.getFromWallet();
-            mySecondWallet = cashFlow.getToWallet();
+            wallet = cashFlow.getWallet();
 
         } else if (getType() == CashFlow.Type.EXPANSE) {
             setCategory(cashFlow.getCategory());
-            myFirstWallet = cashFlow.getFromWallet();
-            otherWallet = cashFlow.getToWallet();
+            wallet = cashFlow.getWallet();
 
         } else if (getType() == CashFlow.Type.TRANSFER) {
             setCategory(null);
-            myFirstWallet = cashFlow.getFromWallet();
-            mySecondWallet = cashFlow.getToWallet();
+            wallet = cashFlow.getWallet();
         }
     }
 
@@ -74,10 +70,10 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         id = (Long) in.readValue(Long.class.getClassLoader());
         amount = in.readString();
         comment = in.readString();
-        otherWallet = in.readParcelable(Wallet.class.getClassLoader());
-        myFirstWallet = in.readParcelable(Wallet.class.getClassLoader());
-        mySecondWallet = in.readParcelable(Wallet.class.getClassLoader());
-        otherWallet = in.readParcelable(Wallet.class.getClassLoader());
+        wallet = in.readParcelable(Wallet.class.getClassLoader());
+        wallet = in.readParcelable(Wallet.class.getClassLoader());
+        wallet = in.readParcelable(Wallet.class.getClassLoader());
+        wallet = in.readParcelable(Wallet.class.getClassLoader());
         category = in.readParcelable(Category.class.getClassLoader());
         Integer typeOrdinal = (Integer) in.readValue(Integer.class.getClassLoader());
         type = typeOrdinal != null ? CashFlow.Type.values()[typeOrdinal] : null;
@@ -97,26 +93,15 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         dest.writeValue(id);
         dest.writeString(amount);
         dest.writeString(comment);
-        dest.writeParcelable(otherWallet, flags);
-        dest.writeParcelable(myFirstWallet, flags);
-        dest.writeParcelable(mySecondWallet, flags);
-        dest.writeParcelable(otherWallet, flags);
+        dest.writeParcelable(wallet, flags);
+        dest.writeParcelable(wallet, flags);
+        dest.writeParcelable(wallet, flags);
+        dest.writeParcelable(wallet, flags);
         dest.writeParcelable(category, flags);
         dest.writeValue(type != null ? type.ordinal() : null);
         dest.writeValue(previousType != null ? previousType.ordinal() : null);
         dest.writeValue(date);
         dest.writeValue(completed);
-    }
-
-    public void swapWallets() {
-        Wallet savedFirst = myFirstWallet;
-        myFirstWallet = mySecondWallet;
-        mySecondWallet = savedFirst;
-        if (getType() == CashFlow.Type.INCOME) {
-            setType(CashFlow.Type.EXPANSE);
-        } else if (getType() == CashFlow.Type.EXPANSE) {
-            setType(CashFlow.Type.INCOME);
-        }
     }
 
     public CashFlow buildCashFlow() {
@@ -126,8 +111,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         cashFlow.setAmount(Double.parseDouble(getAmount()));
         cashFlow.setDateTime(new Date(getDate()));
         cashFlow.setComment(getComment());
-        cashFlow.setFromWallet(getFromWallet());
-        cashFlow.setToWallet(getToWallet());
+        cashFlow.setWallet(getWallet());
         cashFlow.setCategory(getCategory());
         cashFlow.setCompleted(isCompleted());
 
@@ -193,40 +177,6 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         this.date = date;
     }
 
-    public Wallet getToWallet() {
-        if (getType() == CashFlow.Type.EXPANSE) {
-            return otherWallet;
-        } else if (Arrays.asList(CashFlow.Type.INCOME, CashFlow.Type.TRANSFER).contains(getType())) {
-            return mySecondWallet;
-        }
-        return null;
-    }
-
-    public void setToWallet(Wallet toWallet) {
-        if (getType() == CashFlow.Type.EXPANSE) {
-            otherWallet = toWallet;
-        } else if (Arrays.asList(CashFlow.Type.INCOME, CashFlow.Type.TRANSFER).contains(getType())) {
-            mySecondWallet = toWallet;
-        }
-    }
-
-    public Wallet getFromWallet() {
-        if (CashFlow.Type.INCOME.equals(getType())) {
-            return otherWallet;
-        } else if (Arrays.asList(CashFlow.Type.EXPANSE, CashFlow.Type.TRANSFER).contains(getType())) {
-            return myFirstWallet;
-        }
-        return null;
-    }
-
-    public void setFromWallet(Wallet fromWallet) {
-        if (getType() == CashFlow.Type.INCOME) {
-            otherWallet = fromWallet;
-        } else if (Arrays.asList(CashFlow.Type.EXPANSE, CashFlow.Type.TRANSFER).contains(getType())) {
-            myFirstWallet = fromWallet;
-        }
-    }
-
     public Category getCategory() {
         if (Arrays.asList(CashFlow.Type.INCOME, CashFlow.Type.EXPANSE).contains(getType())) {
             return category;
@@ -244,5 +194,13 @@ public class CashFlowDetailsParcelableState implements Parcelable {
 
     public void setCompleted(Boolean completed) {
         this.completed = completed;
+    }
+
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
     }
 }

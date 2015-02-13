@@ -26,27 +26,27 @@ public class CashFlowTypeTest {
     @Test
     public void shouldReturnIncomeType() {
         CashFlow cashFlow = new CashFlow();
-        cashFlow.setFromWallet(contractorWallet).setToWallet(myWallet);
+        cashFlow.setWallet(contractorWallet).setToWallet(myWallet);
         assertThat(cashFlow.getType()).isEqualTo(CashFlow.Type.INCOME);
 
-        cashFlow.setFromWallet(null).setToWallet(myWallet);
+        cashFlow.setWallet(null).setToWallet(myWallet);
         assertThat(cashFlow.getType()).isEqualTo(CashFlow.Type.INCOME);
     }
 
     @Test
     public void shouldReturnExpanseType() {
         CashFlow cashFlow = new CashFlow();
-        cashFlow.setFromWallet(myWallet).setToWallet(contractorWallet);
+        cashFlow.setWallet(myWallet).setToWallet(contractorWallet);
         assertThat(cashFlow.getType()).isEqualTo(CashFlow.Type.EXPANSE);
 
-        cashFlow.setFromWallet(myWallet).setToWallet(null);
+        cashFlow.setWallet(myWallet).setToWallet(null);
         assertThat(cashFlow.getType()).isEqualTo(CashFlow.Type.EXPANSE);
     }
 
     @Test
     public void shouldReturnTransferType() {
         CashFlow cashFlow = new CashFlow();
-        cashFlow.setFromWallet(myWallet).setToWallet(myWallet);
+        cashFlow.setWallet(myWallet).setToWallet(myWallet);
         assertThat(cashFlow.getType()).isEqualTo(CashFlow.Type.TRANSFER);
     }
 
@@ -60,7 +60,7 @@ public class CashFlowTypeTest {
 
     private void testCashFlowTypeExceptionWithGivenFromAndToWallets(Wallet fromWallet, Wallet toWallet) {
         CashFlow cashFlow = new CashFlow();
-        cashFlow.setFromWallet(fromWallet).setToWallet(toWallet);
+        cashFlow.setWallet(fromWallet).setToWallet(toWallet);
         try {
             cashFlow.getType();
         } catch (RuntimeException e) {

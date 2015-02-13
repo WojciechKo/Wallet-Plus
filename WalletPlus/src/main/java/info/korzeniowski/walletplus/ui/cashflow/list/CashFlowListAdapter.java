@@ -36,7 +36,6 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
         CashFlowViewHolder holder = (CashFlowViewHolder) baseHolder;
         holder.category.setText(getCategoryText(item));
         holder.fromWallet.setText(getFromWalletText(item));
-        holder.toWallet.setText(getToWalletText(item));
         holder.amount.setText(NumberFormat.getCurrencyInstance().format(item.getAmount()));
         holder.amount.setTextColor(getAmountColor(item));
         holder.date.setText(getDateText(item));
@@ -60,18 +59,10 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     }
 
     private CharSequence getFromWalletText(CashFlow item) {
-        if (item.getFromWallet() != null) {
-            return getLabeledSpannable(getContext().getString(R.string.cashflowListFromWalletLabel), item.getFromWallet().getName());
+        if (item.getWallet() != null) {
+            return getLabeledSpannable(getContext().getString(R.string.cashflowListFromWalletLabel), item.getWallet().getName());
         } else {
             return getContext().getString(R.string.cashflowListFromWalletLabel);
-        }
-    }
-
-    private CharSequence getToWalletText(CashFlow item) {
-        if (item.getToWallet() != null) {
-            return getLabeledSpannable(getContext().getString(R.string.cashflowListToWalletLabel), item.getToWallet().getName());
-        } else {
-            return getContext().getString(R.string.cashflowListToWalletLabel);
         }
     }
 
@@ -101,11 +92,8 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     }
 
     class CashFlowViewHolder extends MyBaseViewHolder {
-        @InjectView(R.id.fromWallet)
+        @InjectView(R.id.wallet)
         TextView fromWallet;
-
-        @InjectView(R.id.toWallet)
-        TextView toWallet;
 
         @InjectView(R.id.amount)
         TextView amount;

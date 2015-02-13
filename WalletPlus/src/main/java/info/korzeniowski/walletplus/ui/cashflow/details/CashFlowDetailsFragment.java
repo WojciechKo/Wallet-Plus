@@ -57,11 +57,8 @@ public class CashFlowDetailsFragment extends Fragment {
     public static final String TAG = "CashFlowDetailsFragment";
     private static final String ARGUMENT_CASH_FLOW_ID = "CASH_FLOW_ID";
     private static final String CASH_FLOW_DETAILS_STATE = "cashFlowDetailsState";
-    @InjectView(R.id.fromWallet)
-    Spinner fromWallet;
-
-    @InjectView(R.id.toWallet)
-    Spinner toWallet;
+    @InjectView(R.id.wallet)
+    Spinner wallet;
 
     @InjectView(R.id.typeToggle)
     FButton typeToggle;
@@ -172,6 +169,9 @@ public class CashFlowDetailsFragment extends Fragment {
             amount.setText(Strings.nullToEmpty(cashFlowDetailsState.getAmount()));
             comment.setText(cashFlowDetailsState.getComment());
         }
+        wallet.setAdapter(new WalletAdapter(getActivity(), myWallets));
+        wallet.setSelection(myWallets.indexOf(cashFlowDetailsState.getWallet()));
+
         category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
         isCompleted.setChecked(cashFlowDetailsState.isCompleted());
         datePicker.setText(DateFormat.getDateFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
@@ -201,32 +201,22 @@ public class CashFlowDetailsFragment extends Fragment {
     void onTypeToggleClicked() {
         if (cashFlowDetailsState.getType() == CashFlow.Type.TRANSFER) {
             cashFlowDetailsState.setType(cashFlowDetailsState.getPreviousType());
-        } else {
-            cashFlowDetailsState.swapWallets();
         }
         setupTypeDependentViews();
     }
 
     @OnClick(R.id.transferToggle)
     void onTransferToggleClicked() {
-        if (cashFlowDetailsState.getType() == CashFlow.Type.TRANSFER) {
-            cashFlowDetailsState.swapWallets();
-        } else {
+        if (cashFlowDetailsState.getType() != CashFlow.Type.TRANSFER) {
             cashFlowDetailsState.setType(CashFlow.Type.TRANSFER);
         }
         setupTypeDependentViews();
     }
 
-    @OnItemSelected(R.id.fromWallet)
-    void onFromWalletItemSelected(int position) {
-        Wallet selected = (Wallet) fromWallet.getItemAtPosition(position);
-        cashFlowDetailsState.setFromWallet(selected);
-    }
-
-    @OnItemSelected(R.id.toWallet)
-    void onToWalletItemSelected(int position) {
-        Wallet selected = (Wallet) toWallet.getItemAtPosition(position);
-        cashFlowDetailsState.setToWallet(selected);
+    @OnItemSelected(R.id.wallet)
+    void onWalletItemSelected(int position) {
+        Wallet selected = (Wallet) wallet.getItemAtPosition(position);
+        cashFlowDetailsState.setWallet(selected);
     }
 
     @OnTextChanged(value = R.id.amount, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
@@ -303,7 +293,6 @@ public class CashFlowDetailsFragment extends Fragment {
 
     private void setupTypeDependentViews() {
         setupToggles();
-        setupWallets();
         setupCategory();
     }
 
@@ -341,29 +330,6 @@ public class CashFlowDetailsFragment extends Fragment {
             return getString(R.string.expanse);
         }
         return "";
-    }
-
-    private void setupWallets() {
-        if (cashFlowDetailsState.getType() == CashFlow.Type.INCOME) {
-            setupToWallet(myWallets);
-        } else if (cashFlowDetailsState.getType() == CashFlow.Type.EXPANSE) {
-            setupFromWallet(myWallets);
-        } else if (cashFlowDetailsState.getType() == CashFlow.Type.TRANSFER) {
-            setupFromWallet(myWallets);
-            setupToWallet(myWallets);
-        }
-    }
-
-    private void setupFromWallet(List<Wallet> wallets) {
-        fromWallet.setAdapter(new WalletAdapter(getActivity(), wallets));
-        fromWallet.setSelection(wallets.indexOf(cashFlowDetailsState.getFromWallet()));
-        ((WalletAdapter) fromWallet.getAdapter()).notifyDataSetChanged();
-    }
-
-    private void setupToWallet(List<Wallet> wallets) {
-        toWallet.setAdapter(new WalletAdapter(getActivity(), wallets));
-        toWallet.setSelection(wallets.indexOf(cashFlowDetailsState.getToWallet()));
-        ((WalletAdapter) toWallet.getAdapter()).notifyDataSetChanged();
     }
 
     private void setupCategory() {
@@ -433,18 +399,17 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private void onSaveOptionSelected() {
+        boolean isValid = true;
+
         if (Strings.isNullOrEmpty(cashFlowDetailsState.getAmount())) {
             amount.setError("Amount can't be empty.");
+            isValid = false;
         } else if (!cashFlowDetailsState.isAmountValid()) {
             amount.setError("Write amount in this pattern: [+|-] 149.1234");
+            isValid = false;
         }
 
-        boolean isValid = true;
-        if (cashFlowDetailsState.getType() == CashFlow.Type.TRANSFER) {
-            isValid = validateIfFromWalletIsDifferentThanToWallet();
-        }
-
-        if (isValid && amount.getError() == null) {
+        if (isValid) {
             if (DetailsAction.ADD.equals(detailsAction)) {
                 localCashFlowService.insert(cashFlowDetailsState.buildCashFlow());
             } else if (DetailsAction.EDIT.equals(detailsAction)) {
@@ -453,15 +418,6 @@ public class CashFlowDetailsFragment extends Fragment {
             getActivity().setResult(Activity.RESULT_OK);
             getActivity().finish();
         }
-    }
-
-    private boolean validateIfFromWalletIsDifferentThanToWallet() {
-        if (cashFlowDetailsState.getFromWallet() != null
-                && cashFlowDetailsState.getFromWallet().equals(cashFlowDetailsState.getToWallet())) {
-            Toast.makeText(getActivity(), getResources().getString(R.string.cashFlowFromAndToWalletsNeedToBeDifferent), Toast.LENGTH_LONG).show();
-            return false;
-        }
-        return true;
     }
 
     private enum DetailsAction {ADD, EDIT}

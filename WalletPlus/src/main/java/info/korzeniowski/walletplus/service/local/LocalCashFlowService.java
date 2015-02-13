@@ -1,5 +1,6 @@
 package info.korzeniowski.walletplus.service.local;
 
+import com.google.common.base.Preconditions;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
@@ -74,9 +75,7 @@ public class LocalCashFlowService implements CashFlowService {
 
     private void fixCurrentAmountInWalletsAfterUpdate(CashFlow oldCashFlow, CashFlow newCashFlow) throws SQLException {
         fixCurrentAmountInWalletAfterDelete(oldCashFlow);
-        newCashFlow.setToWallet(walletDao.queryForId(newCashFlow.getToWallet().getId()));
-        newCashFlow.setFromWallet(walletDao.queryForId(newCashFlow.getFromWallet().getId()));
-        fixCurrentAmountInWalletsAfterInsert(newCashFlow);
+        fixCurrentAmountInWalletAfterInsert(newCashFlow);
     }
 
     private void validateUpdate(CashFlow old, CashFlow newValue) {
@@ -91,25 +90,25 @@ public class LocalCashFlowService implements CashFlowService {
         try {
             validateInsert(cashFlow);
             cashFlowDao.create(cashFlow);
-            fixCurrentAmountInWalletsAfterInsert(cashFlow);
+            fixCurrentAmountInWalletAfterInsert(cashFlow);
             return cashFlow.getId();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private void fixCurrentAmountInWalletsAfterInsert(CashFlow cashFlow) throws SQLException {
-        Wallet fromWallet = cashFlow.getFromWallet();
-        if (fromWallet != null) {
-            fromWallet.setCurrentAmount(fromWallet.getCurrentAmount() - cashFlow.getAmount());
-            walletDao.update(fromWallet);
-        }
+    private void fixCurrentAmountInWalletAfterInsert(CashFlow cashFlow) throws SQLException {
+        Wallet wallet = cashFlow.getWallet();
 
-        Wallet toWallet = cashFlow.getToWallet();
-        if (toWallet != null) {
-            toWallet.setCurrentAmount(toWallet.getCurrentAmount() + cashFlow.getAmount());
-            walletDao.update(toWallet);
+        Double newCurrentAmount = null;
+        if (CashFlow.Type.INCOME.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() + cashFlow.getAmount();
+        } else if (CashFlow.Type.EXPANSE.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() - cashFlow.getAmount();
         }
+        Preconditions.checkNotNull(newCurrentAmount);
+        wallet.setCurrentAmount(newCurrentAmount);
+        walletDao.update(wallet);
     }
 
     private void validateInsert(CashFlow cashFlow) {
@@ -130,17 +129,17 @@ public class LocalCashFlowService implements CashFlowService {
     }
 
     private void fixCurrentAmountInWalletAfterDelete(CashFlow cashFlow) throws SQLException {
-        Wallet fromWallet = cashFlow.getFromWallet();
-        if (fromWallet != null) {
-            fromWallet.setCurrentAmount(fromWallet.getCurrentAmount() + cashFlow.getAmount());
-            walletDao.update(fromWallet);
-        }
+        Wallet wallet = cashFlow.getWallet();
 
-        Wallet toWallet = cashFlow.getToWallet();
-        if (toWallet != null) {
-            toWallet.setCurrentAmount(toWallet.getCurrentAmount() - cashFlow.getAmount());
-            walletDao.update(toWallet);
+        Double newCurrentAmount = null;
+        if (CashFlow.Type.INCOME.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() - cashFlow.getAmount();
+        } else if (CashFlow.Type.EXPANSE.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() + cashFlow.getAmount();
         }
+        Preconditions.checkNotNull(newCurrentAmount);
+        wallet.setCurrentAmount(newCurrentAmount);
+        walletDao.update(wallet);
     }
 
     @Override

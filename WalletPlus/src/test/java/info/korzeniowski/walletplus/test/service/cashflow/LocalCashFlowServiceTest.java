@@ -60,7 +60,7 @@ public class LocalCashFlowServiceTest {
         CashFlow cashFlow = new CashFlow()
                 .setAmount(amount)
                 .setDateTime(new Date())
-                .setFromWallet(from);
+                .setWallet(from);
         cashFlowService.insert(cashFlow);
 
         assertThat(walletService.findById(from.getId()).getCurrentAmount()).isEqualTo(fromCurrentAmount - amount);
@@ -76,13 +76,13 @@ public class LocalCashFlowServiceTest {
         categoryService.insert(category);
 
         DateTime now = DateTime.now();
-        cashFlowService.insert(new CashFlow().setDateTime(now.minusDays(1).toDate()).setAmount(50.0).setCategory(category).setFromWallet(myWallet));
+        cashFlowService.insert(new CashFlow().setDateTime(now.minusDays(1).toDate()).setAmount(50.0).setCategory(category).setWallet(myWallet));
         cashFlowService.insert(new CashFlow().setDateTime(now.minusDays(1).toDate()).setAmount(10.0).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(15.0).setFromWallet(myWallet));
+        cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(15.0).setWallet(myWallet));
         cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(80.0).setCategory(category).setToWallet(myWallet));
         cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(94.0).setToWallet(myWallet));
         cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(500.0).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(600.0).setCategory(category).setFromWallet(myWallet));
+        cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(600.0).setCategory(category).setWallet(myWallet));
         cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(900.0).setCategory(category).setToWallet(myWallet));
         cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(800.0).setToWallet(myWallet));
 

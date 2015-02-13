@@ -9,29 +9,26 @@ public class CashFlow implements Identifiable {
     @DatabaseField(generatedId = true)
     private Long id;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
-    private Wallet fromWallet;
-
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
-    private Wallet toWallet;
-
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES category(id) ON DELETE SET NULL")
-    private Category category;
+    @DatabaseField
+    private Type type;
 
     @DatabaseField(canBeNull = false)
     private Double amount;
 
-    @DatabaseField(canBeNull = false)
-    private Date dateTime;
+    @DatabaseField(foreign = true, foreignAutoRefresh = true)
+    private Wallet wallet;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES category(id) ON DELETE SET NULL")
+    private Category category;
 
     @DatabaseField
     private String comment;
 
     @DatabaseField(canBeNull = false)
-    private boolean completed;
+    private Date dateTime;
 
-    @DatabaseField
-    private Type type;
+    @DatabaseField(canBeNull = false)
+    private boolean completed;
 
     @Override
     public Long getId() {
@@ -43,21 +40,29 @@ public class CashFlow implements Identifiable {
         return this;
     }
 
-    public Wallet getFromWallet() {
-        return fromWallet;
+    public Type getType() {
+        return type;
     }
 
-    public CashFlow setFromWallet(Wallet fromWallet) {
-        this.fromWallet = fromWallet;
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public CashFlow setAmount(Double amount) {
+        this.amount = amount;
         return this;
     }
 
-    public Wallet getToWallet() {
-        return toWallet;
+    public Wallet getWallet() {
+        return wallet;
     }
 
-    public CashFlow setToWallet(Wallet toWallet) {
-        this.toWallet = toWallet;
+    public CashFlow setWallet(Wallet wallet) {
+        this.wallet = wallet;
         return this;
     }
 
@@ -70,12 +75,12 @@ public class CashFlow implements Identifiable {
         return this;
     }
 
-    public Double getAmount() {
-        return amount;
+    public String getComment() {
+        return comment;
     }
 
-    public CashFlow setAmount(Double amount) {
-        this.amount = amount;
+    public CashFlow setComment(String comment) {
+        this.comment = comment;
         return this;
     }
 
@@ -88,29 +93,12 @@ public class CashFlow implements Identifiable {
         return this;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public CashFlow setComment(String comment) {
-        this.comment = comment;
-        return this;
-    }
-
     public Boolean isCompleted() {
         return completed;
     }
 
     public void setCompleted(Boolean completed) {
         this.completed = completed;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
     }
 
     public enum Type {
