@@ -43,4 +43,11 @@ public class KorzeniowskiUtils {
             list.performItemClick(list.getChildAt(position), position, list.getAdapter().getItemId(position));
         }
     }
+
+    public static class Files {
+        public static String getBaseName(String fileName) {
+            String split = "\\.(?=[^\\.]+$)";
+            return fileName.split(split)[0];
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.ui.profile;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,6 +42,8 @@ import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.google.GoogleDriveReadService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
+import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
+import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -180,7 +183,6 @@ public class ProfileActivity extends BaseActivity {
             }
         }
 
-
         public static class RemoteProfileAdapter extends BaseAdapter {
             private Context context;
             private List<GoogleDriveReadService.DriveFile> profiles;
@@ -252,13 +254,13 @@ public class ProfileActivity extends BaseActivity {
                     try {
                         InputStream inputStream = okHttpClient.newCall(request).execute().body().byteStream();
                         Profile newProfile = new Profile()
-                                .setName(selectedProfile.getTitle())
+                                .setName(KorzeniowskiUtils.Files.getBaseName(selectedProfile.getTitle()))
                                 .setDriveId(selectedProfile.getId())
                                 .setAccount(localProfileService.findById(PrefUtils.getActiveProfileId(getActivity())).getAccount());
 
                         localProfileService.insert(newProfile);
                         ByteStreams.copy(inputStream, new FileOutputStream(newProfile.getDatabaseFilePath()));
-
+                        PrefUtils.setActiveProfileId(getActivity(), newProfile.getId());
                         return true;
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -269,28 +271,13 @@ public class ProfileActivity extends BaseActivity {
                 @Override
                 protected void onPostExecute(Boolean successed) {
                     if (successed) {
-                        Toast.makeText(getActivity(), "Profil lokalny zosatał uaktualniony.", Toast.LENGTH_SHORT).show();
+                        getActivity().setResult(RESULT_OK);
+                        getActivity().finish();
                     } else {
                         Toast.makeText(getActivity(), "Pobranie pliku z Profilem nie powiodło się.", Toast.LENGTH_SHORT).show();
                     }
                 }
             }.execute();
-
-//            Account currentAccount = localProfileService.findById(ProfileUtils.getActiveProfileId(getActivity())).getAccount();
-//            Profile entity = new Profile().setName(item.getTitle()).setAccount(currentAccount).setDriveId(item.getDriveId().encodeToString());
-//            localProfileService.insert(entity);
-//            outputStream = new FileOutputStream(CreateProfileFragment.this.getActivity().getApplicationInfo().dataDir
-//                    + "/databases/"
-//                    + item.getTitle()
-//                    + ".db");
-//
-//            int i;
-//            while ((i = inputStream.read()) != -1) {
-//                outputStream.write(i);
-//            }
-//            outputStream.close();
-//            getActivity().finish();
-
         }
     }
 }

@@ -28,8 +28,8 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Dao<CashFlow, Long> cashFlowDao;
     private WeakReference<WalletPlus> walletPlus;
 
-    public UserDatabaseHelper(Context context, String databaseFileName) {
-        super(context, databaseFileName, null, DATABASE_VERSION);
+    public UserDatabaseHelper(Context context, String profileName) {
+        super(context, profileName + ".db", null, DATABASE_VERSION);
         this.walletPlus = new WeakReference<>((WalletPlus) context);
     }
 

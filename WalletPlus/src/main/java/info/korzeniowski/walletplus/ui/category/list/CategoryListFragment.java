@@ -70,6 +70,25 @@ public class CategoryListFragment extends Fragment {
         return view;
     }
 
+    private void removeListListeners() {
+        list.setOnGroupClickListener(
+                new ExpandableListView.OnGroupClickListener() {
+                    @Override
+                    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                        return true;
+                    }
+                }
+        );
+        list.setOnChildClickListener(
+                new ExpandableListView.OnChildClickListener() {
+                    @Override
+                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                        return true;
+                    }
+                }
+        );
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -116,25 +135,6 @@ public class CategoryListFragment extends Fragment {
         Intent intent = new Intent(getActivity(), CategoryDetailsActivity.class);
         intent.putExtra(CategoryDetailsActivity.EXTRAS_CATEGORY_ID, id);
         startActivity(intent);
-    }
-
-    private void removeListListeners() {
-        list.setOnGroupClickListener(
-                new ExpandableListView.OnGroupClickListener() {
-                    @Override
-                    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                        return true;
-                    }
-                }
-        );
-        list.setOnChildClickListener(
-                new ExpandableListView.OnChildClickListener() {
-                    @Override
-                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                        return true;
-                    }
-                }
-        );
     }
 
     @Override
