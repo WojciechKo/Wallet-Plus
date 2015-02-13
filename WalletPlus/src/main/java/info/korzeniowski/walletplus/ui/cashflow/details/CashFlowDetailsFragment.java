@@ -115,7 +115,6 @@ public class CashFlowDetailsFragment extends Fragment {
     CategoryService localCategoryService;
 
     private List<Wallet> myWallets;
-    private List<Wallet> otherWallets;
     private List<Category> categoryList;
 
     private CashFlowDetailsParcelableState cashFlowDetailsState;
@@ -151,7 +150,6 @@ public class CashFlowDetailsFragment extends Fragment {
 
         categoryList = localCategoryService.getMainCategories();
         myWallets = localWalletService.getMyWallets();
-        otherWallets = localWalletService.getOtherWallets();
     }
 
     private CashFlowDetailsParcelableState initCashFlowDetailsState(Long cashFlowId) {
@@ -347,11 +345,9 @@ public class CashFlowDetailsFragment extends Fragment {
 
     private void setupWallets() {
         if (cashFlowDetailsState.getType() == CashFlow.Type.INCOME) {
-            setupFromWallet(otherWallets);
             setupToWallet(myWallets);
         } else if (cashFlowDetailsState.getType() == CashFlow.Type.EXPANSE) {
             setupFromWallet(myWallets);
-            setupToWallet(otherWallets);
         } else if (cashFlowDetailsState.getType() == CashFlow.Type.TRANSFER) {
             setupFromWallet(myWallets);
             setupToWallet(myWallets);

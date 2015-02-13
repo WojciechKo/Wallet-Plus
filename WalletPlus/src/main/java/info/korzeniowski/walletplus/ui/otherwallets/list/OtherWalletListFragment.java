@@ -57,7 +57,7 @@ public class OtherWalletListFragment extends Fragment {
     }
 
     private void setupList() {
-        List<Wallet> walletList = localWalletService.getOtherWallets();
+        List<Wallet> walletList = localWalletService.getMyWallets();
         list.setAdapter(new OtherWalletListAdapter(getActivity(), walletList));
     }
 

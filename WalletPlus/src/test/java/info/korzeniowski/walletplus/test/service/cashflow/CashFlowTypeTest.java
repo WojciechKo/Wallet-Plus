@@ -20,10 +20,7 @@ public class CashFlowTypeTest {
     @Before
     public void setUp() {
         myWallet = new Wallet();
-        myWallet.setName("My wallet").setType(Wallet.Type.MY_WALLET);
-
-        contractorWallet = new Wallet();
-        contractorWallet.setName("Contractor wallet").setType(Wallet.Type.OTHER);
+        myWallet.setName("My wallet");
     }
 
     @Test

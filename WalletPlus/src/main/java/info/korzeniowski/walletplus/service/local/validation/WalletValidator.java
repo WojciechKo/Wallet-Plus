@@ -19,17 +19,8 @@ public class WalletValidator implements Validator<Wallet>{
     @Override
     public void validateInsert(Wallet wallet) {
         checkNotNull(wallet);
-        validateIfTypeIsNotNull(wallet);
-        if (wallet.getType().equals(Wallet.Type.MY_WALLET)) {
-            validateIfInitialAmountIsNotNull(wallet);
-            wallet.setCurrentAmount(wallet.getInitialAmount());
-        }
-    }
-
-    private void validateIfTypeIsNotNull(Wallet wallet) {
-        if (wallet.getType() == null) {
-            throw new EntityPropertyCannotBeNullOrEmptyException(wallet.getClass().getSimpleName(), "Type");
-        }
+        validateIfInitialAmountIsNotNull(wallet);
+        wallet.setCurrentAmount(wallet.getInitialAmount());
     }
 
     private void validateIfInitialAmountIsNotNull(Wallet wallet) {
@@ -41,13 +32,6 @@ public class WalletValidator implements Validator<Wallet>{
     @Override
     public void validateUpdate(Wallet newWallet) {
         Wallet oldWallet = walletService.findById(newWallet.getId());
-        validateIfWalletTypeNotChanged(newWallet, oldWallet);
-    }
-
-    private void validateIfWalletTypeNotChanged(Wallet newWallet, Wallet oldWallet) {
-        if (!Objects.equal(newWallet.getType(), oldWallet.getType())) {
-            throw new WalletTypeCannotBeChangedException();
-        }
     }
 
     @Override

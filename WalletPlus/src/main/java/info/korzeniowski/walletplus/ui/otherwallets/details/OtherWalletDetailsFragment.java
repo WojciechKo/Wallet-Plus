@@ -114,7 +114,6 @@ public class OtherWalletDetailsFragment extends Fragment {
         if (walletName.getError() == null) {
             Wallet wallet = new Wallet();
             wallet.setName(walletName.getText().toString());
-            wallet.setType(Wallet.Type.OTHER);
 
             if (detailsAction == DetailsAction.ADD) {
                 localWalletService.insert(wallet);

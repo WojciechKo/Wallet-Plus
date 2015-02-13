@@ -53,8 +53,8 @@ public class CategoryStatisticsTest {
     public void shouldReturnProperCategoryStats() {
         Category category = new Category().setName("Test category");
         categoryService.insert(category);
-        walletService.insert(new Wallet().setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0).setName("Wallet 1"));
-        walletService.insert(new Wallet().setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0).setName("Wallet 2"));
+        walletService.insert(new Wallet().setInitialAmount(100.0).setName("Wallet 1"));
+        walletService.insert(new Wallet().setInitialAmount(100.0).setName("Wallet 2"));
 
         Date today = DateTime.now().toDate();
         Date yesterday = new DateTime(today).minusDays(1).toDate();
@@ -117,7 +117,7 @@ public class CategoryStatisticsTest {
         categoryService.insert(mainCategory);
         Category subCategory = new Category().setParent(mainCategory).setName("Sub category");
         categoryService.insert(subCategory);
-        Wallet myWallet = new Wallet().setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0).setName("Wallet");
+        Wallet myWallet = new Wallet().setInitialAmount(100.0).setName("Wallet");
         walletService.insert(myWallet);
 
         Date today = DateTime.now().toDate();

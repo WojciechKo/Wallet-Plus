@@ -107,16 +107,7 @@ public class LocalWalletService implements WalletService {
     @Override
     public List<Wallet> getMyWallets() {
         try {
-            return walletDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().eq("type", Wallet.Type.MY_WALLET).query();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public List<Wallet> getOtherWallets() {
-        try {
-            return walletDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().eq("type", Wallet.Type.OTHER).query();
+            return walletDao.queryBuilder().orderByRaw("name COLLATE NOCASE").query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

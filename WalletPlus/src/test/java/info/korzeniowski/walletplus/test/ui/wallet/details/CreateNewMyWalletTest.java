@@ -128,8 +128,7 @@ public class CreateNewMyWalletTest {
         walletName.setText("textName");
         Wallet toInsert = new Wallet()
                 .setName(walletName.getText().toString())
-                .setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()))
-                .setType(Wallet.Type.MY_WALLET);
+                .setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()));
 
         activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
 

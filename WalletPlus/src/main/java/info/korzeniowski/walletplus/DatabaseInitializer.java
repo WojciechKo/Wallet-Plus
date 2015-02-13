@@ -71,24 +71,14 @@ public class DatabaseInitializer {
 
     private void fillExampleDatabase() {
         /** Init my wallets **/
-        Wallet personalWallet = new Wallet().setType(Wallet.Type.MY_WALLET).setName("Personal wallet").setInitialAmount(100.0).setCurrentAmount(100.0);
+        Wallet personalWallet = new Wallet().setName("Personal wallet").setInitialAmount(100.0).setCurrentAmount(100.0);
         localWalletService.insert(personalWallet);
-        Wallet wardrobe = new Wallet().setType(Wallet.Type.MY_WALLET).setName("Wardrobe").setInitialAmount(1500.0).setCurrentAmount(100.0);
+        Wallet wardrobe = new Wallet().setName("Wardrobe").setInitialAmount(1500.0).setCurrentAmount(100.0);
         localWalletService.insert(wardrobe);
-        Wallet sock = new Wallet().setType(Wallet.Type.MY_WALLET).setName("Sock").setInitialAmount(500.0).setCurrentAmount(100.0);
+        Wallet sock = new Wallet().setName("Sock").setInitialAmount(500.0).setCurrentAmount(100.0);
         localWalletService.insert(sock);
-        Wallet bankAccount = new Wallet().setType(Wallet.Type.MY_WALLET).setName("Bank account").setInitialAmount(2500.0).setCurrentAmount(100.0);
+        Wallet bankAccount = new Wallet().setName("Bank account").setInitialAmount(2500.0).setCurrentAmount(100.0);
         localWalletService.insert(bankAccount);
-
-        /** Init other wallets **/
-        Wallet sevenEleven = new Wallet().setType(Wallet.Type.OTHER).setName("7-Eleven").setInitialAmount(0.0).setCurrentAmount(100.0);
-        localWalletService.insert(sevenEleven);
-        Wallet tesco = new Wallet().setType(Wallet.Type.OTHER).setName("Tesco").setInitialAmount(0.0).setCurrentAmount(100.0);
-        localWalletService.insert(tesco);
-        Wallet walMart = new Wallet().setType(Wallet.Type.OTHER).setName("Wal-Mart").setInitialAmount(0.0).setCurrentAmount(100.0);
-        localWalletService.insert(walMart);
-        Wallet amazon = new Wallet().setType(Wallet.Type.OTHER).setName("Amazon").setInitialAmount(0.0).setCurrentAmount(100.0);
-        localWalletService.insert(amazon);
 
         /** Init categories **/
         Category mainHouse = new Category().setName("House");
@@ -111,10 +101,10 @@ public class DatabaseInitializer {
         /** Init cashflows **/
         Calendar date = Calendar.getInstance();
 
-        localCashFlowService.insert(new CashFlow().setAmount(100.0).setCategory(mainHouse).setFromWallet(personalWallet).setToWallet(walMart).setDateTime(date.getTime()).setComment("Food"));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setCategory(mainHouse).setFromWallet(personalWallet).setDateTime(date.getTime()).setComment("Food"));
 
         date.add(Calendar.DATE, -1);
-        localCashFlowService.insert(new CashFlow().setAmount(150.0).setCategory(mainHouse).setFromWallet(personalWallet).setToWallet(walMart).setDateTime(date.getTime()).setComment("Cleaning products"));
+        localCashFlowService.insert(new CashFlow().setAmount(150.0).setCategory(mainHouse).setFromWallet(personalWallet).setDateTime(date.getTime()).setComment("Cleaning products"));
 
         date.add(Calendar.HOUR_OF_DAY, -1);
         localCashFlowService.insert(new CashFlow().setAmount(100.0).setFromWallet(sock).setToWallet(personalWallet).setDateTime(date.getTime()).setComment("Transfer to personal wallet"));
@@ -127,6 +117,6 @@ public class DatabaseInitializer {
         date.add(Calendar.DATE, -1);
         localCashFlowService.insert(new CashFlow().setAmount(500.0).setFromWallet(bankAccount).setToWallet(personalWallet).setDateTime(date.getTime()));
         localCashFlowService.insert(new CashFlow().setAmount(1000.0).setFromWallet(bankAccount).setToWallet(wardrobe).setComment("Savings").setDateTime(date.getTime()));
-        localCashFlowService.insert(new CashFlow().setAmount(3000.0).setCategory(null).setFromWallet(amazon).setToWallet(bankAccount).setComment("Payment").setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(3000.0).setCategory(null).setToWallet(bankAccount).setComment("Payment").setDateTime(date.getTime()));
     }
 }

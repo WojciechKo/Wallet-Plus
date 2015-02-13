@@ -33,6 +33,9 @@ public class CashFlow implements Identifiable {
     @DatabaseField(canBeNull = false)
     private boolean completed;
 
+    @DatabaseField
+    private Type type;
+
     @Override
     public Long getId() {
         return id;
@@ -115,20 +118,11 @@ public class CashFlow implements Identifiable {
     }
 
     public Type getType() {
-        if (getFromWallet() != null && getFromWallet().getType() == Wallet.Type.MY_WALLET) {
-            if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
-                return Type.TRANSFER;
-            } else if (getToWallet() == null || getToWallet().getType() == Wallet.Type.OTHER) {
-                return Type.EXPANSE;
-            } else {
-                throw new RuntimeException("Unknown type of CashFlow");
-            }
-        } else if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
-            if (getFromWallet() == null || getFromWallet().getType() == Wallet.Type.OTHER) {
-                return Type.INCOME;
-            }
-        }
-        throw new RuntimeException("Unknown type of CashFlow");
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public enum Type {

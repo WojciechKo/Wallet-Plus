@@ -140,7 +140,6 @@ public class MyWalletDetailsFragment extends Fragment {
             Wallet wallet = new Wallet();
             wallet.setName(walletName.getText().toString());
             wallet.setInitialAmount(initialAmount);
-            wallet.setType(Wallet.Type.MY_WALLET);
 
             if (detailsAction == DetailsAction.ADD) {
                 localWalletService.insert(wallet);

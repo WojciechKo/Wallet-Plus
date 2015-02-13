@@ -52,33 +52,26 @@ public class LocalCashFlowServiceTest {
     @Test
     public void shouldFixRelatedWalletsAfterInsertOfCashFlow() {
         Double amount = 53.1;
-        Wallet from = new Wallet().setName("from").setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0);
-        Wallet to = new Wallet().setName("to").setType(Wallet.Type.OTHER).setInitialAmount(0.0);
+        Wallet from = new Wallet().setName("From").setInitialAmount(100.0);
         walletService.insert(from);
-        walletService.insert(to);
         double fromCurrentAmount = walletService.findById(from.getId()).getCurrentAmount();
-        double toCurrentAmount = walletService.findById(to.getId()).getCurrentAmount();
         categoryService.insert(new Category().setName("Other"));
 
         CashFlow cashFlow = new CashFlow()
                 .setAmount(amount)
                 .setDateTime(new Date())
-                .setFromWallet(from)
-                .setToWallet(to);
+                .setFromWallet(from);
         cashFlowService.insert(cashFlow);
 
         assertThat(walletService.findById(from.getId()).getCurrentAmount()).isEqualTo(fromCurrentAmount - amount);
-        assertThat(walletService.findById(to.getId()).getCurrentAmount()).isEqualTo(toCurrentAmount + amount);
     }
 
     @Test
     public void shouldFilterCashFlows() {
-        Wallet myWallet = new Wallet().setName("from").setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0);
-        Wallet to = new Wallet().setName("to").setType(Wallet.Type.OTHER).setInitialAmount(0.0);
+        Wallet myWallet = new Wallet().setName("from").setInitialAmount(100.0);
         Category category = new Category().setName("Category");
 
         walletService.insert(myWallet);
-        walletService.insert(to);
         categoryService.insert(new Category().setName("Other"));
         categoryService.insert(category);
 

@@ -22,9 +22,6 @@ public class Wallet implements Identifiable, Parcelable {
     private String name;
 
     @DatabaseField(canBeNull = false)
-    private Type type;
-
-    @DatabaseField(canBeNull = false)
     private Double initialAmount;
 
     @DatabaseField(canBeNull = false)
@@ -38,7 +35,6 @@ public class Wallet implements Identifiable, Parcelable {
     private Wallet(Parcel parcel) {
         id = parcel.readLong();
         name = parcel.readString();
-        type = Type.values()[parcel.readInt()];
         initialAmount = parcel.readDouble();
         currentAmount = parcel.readDouble();
     }
@@ -52,7 +48,6 @@ public class Wallet implements Identifiable, Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(id);
         dest.writeString(name);
-        dest.writeInt(type.ordinal());
         dest.writeDouble(initialAmount);
         dest.writeDouble(currentAmount);
     }
@@ -73,15 +68,6 @@ public class Wallet implements Identifiable, Parcelable {
 
     public Wallet setName(String name) {
         this.name = name;
-        return this;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public Wallet setType(Type type) {
-        this.type = type;
         return this;
     }
 
@@ -120,7 +106,6 @@ public class Wallet implements Identifiable, Parcelable {
             return false;
         if (name != null ? !name.equals(wallet.name) : wallet.name != null)
             return false;
-        if (type != wallet.type) return false;
 
         return true;
     }
@@ -129,7 +114,6 @@ public class Wallet implements Identifiable, Parcelable {
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (initialAmount != null ? initialAmount.hashCode() : 0);
         result = 31 * result + (currentAmount != null ? currentAmount.hashCode() : 0);
         return result;
@@ -140,14 +124,9 @@ public class Wallet implements Identifiable, Parcelable {
         return "Wallet{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", type=" + type +
                 ", initialAmount=" + initialAmount +
                 ", currentAmount=" + currentAmount +
                 '}';
     }
 
-    public enum Type {
-        MY_WALLET,
-        OTHER
-    }
 }
