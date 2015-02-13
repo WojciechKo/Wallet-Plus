@@ -192,7 +192,7 @@ public class LocalCategoryService implements CategoryService {
         }
 
         DateTime lastDayArg = firstDayArg.plus(period);
-        List<CashFlow> cashFlowList = cashFlowService.findCashFlow(firstDayArg.toDate(), lastDayArg.toDate(), category.getId(), null, null);
+        List<CashFlow> cashFlowList = cashFlowService.findCashFlow(firstDayArg.toDate(), lastDayArg.toDate(), category.getId(), null);
 
         CategoryStats stats = new CategoryStats(category.getId());
         for (CashFlow cashFlow : cashFlowList) {
@@ -272,7 +272,7 @@ public class LocalCategoryService implements CategoryService {
         checkNotNull(iteration);
 
         Interval interval = KorzeniowskiUtils.Times.getInterval(new DateTime(firstDay), period, iteration);
-        return cashFlowService.findCashFlow(interval.getStart().toDate(), interval.getEnd().toDate(), (Long) null, null, null);
+        return cashFlowService.findCashFlow(interval.getStart().toDate(), interval.getEnd().toDate(), null, null);
     }
 
 

@@ -112,7 +112,7 @@ public class LocalCashFlowService implements CashFlowService {
     }
 
     private void validateInsert(CashFlow cashFlow) {
-        if (cashFlow.getType().equals(CashFlow.Type.TRANSFER)) {
+        if (CashFlow.Type.TRANSFER.equals(cashFlow.getType())) {
             cashFlow.setCategory(getTransferCategory());
         }
     }
@@ -173,17 +173,17 @@ public class LocalCashFlowService implements CashFlowService {
     }
 
     @Override
-    public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long fromWalletId, Long toWalletId) {
+    public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long walletId) {
         try {
             QueryBuilder<CashFlow, Long> queryBuilder = cashFlowDao.queryBuilder();
-            queryBuilder.setWhere(getWhereList(from, to, categoryId, fromWalletId, toWalletId, queryBuilder));
+            queryBuilder.setWhere(getWhereList(from, to, categoryId, walletId, queryBuilder));
             return queryBuilder.query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private Where<CashFlow, Long> getWhereList(Date from, Date to, Long categoryId, Long fromWalletId, Long toWalletId, QueryBuilder<CashFlow, Long> queryBuilder) throws SQLException {
+    private Where<CashFlow, Long> getWhereList(Date from, Date to, Long categoryId, Long walletId, QueryBuilder<CashFlow, Long> queryBuilder) throws SQLException {
         Where<CashFlow, Long> where = queryBuilder.where();
         boolean isFirst = true;
 
@@ -209,25 +209,14 @@ public class LocalCashFlowService implements CashFlowService {
             }
             isFirst = false;
         }
-        if (fromWalletId != null) {
+        if (walletId != null) {
             if (!isFirst) {
                 where.and();
             }
-            if (fromWalletId == WalletService.WALLET_NULL_ID) {
-                where.isNull("fromWallet_id");
+            if (walletId == WalletService.WALLET_NULL_ID) {
+                where.isNull("wallet_id");
             } else {
-                where.eq("fromWallet_id", fromWalletId);
-            }
-            isFirst = false;
-        }
-        if (toWalletId != null) {
-            if (!isFirst) {
-                where.and();
-            }
-            if (toWalletId == WalletService.WALLET_NULL_ID) {
-                where.isNull("toWallet_id");
-            } else {
-                where.eq("toWallet_id", toWalletId);
+                where.eq("wallet_id", walletId);
             }
         }
 

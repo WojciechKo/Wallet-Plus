@@ -13,7 +13,7 @@ public interface CashFlowService extends BaseService<CashFlow> {
 
     public Category getTransferCategory();
 
-    public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long fromWalletId, Long toWalletId);
+    public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long walletId);
 
     List<CashFlow> getLastNCashFlows(int n);
 }

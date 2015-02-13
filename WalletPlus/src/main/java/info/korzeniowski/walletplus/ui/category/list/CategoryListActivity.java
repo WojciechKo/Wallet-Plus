@@ -108,7 +108,7 @@ public class CategoryListActivity extends BaseActivity {
     }
 
     private boolean isAnyCashFlowWithoutCategoryExists() {
-        return !localCashFlowService.findCashFlow(null, null, CategoryService.CATEGORY_NULL_ID, null, null).isEmpty();
+        return !localCashFlowService.findCashFlow(null, null, CategoryService.CATEGORY_NULL_ID, null).isEmpty();
     }
 
     @Override
