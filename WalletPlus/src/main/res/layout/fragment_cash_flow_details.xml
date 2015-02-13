@@ -16,10 +16,10 @@
                 android:orientation="vertical"
                 android:padding="@dimen/cardContentPadding">
 
-            <TextView android:id="@+id/fromWalletLabel"
+            <TextView android:id="@+id/walletLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/cashFlowFromWalletLabel"
+                    android:text="@string/cashFlowWalletLabel"
                     android:textSize="@dimen/smallFontSize"/>
 
             <LinearLayout android:layout_width="match_parent"
@@ -40,35 +40,6 @@
                         android:layout_weight="1"
                         android:textAllCaps="true"
                         android:textColor="@color/white"
-                        android:textSize="@dimen/smallFontSize"
-                        fbutton:cornerRadius="2dp"
-                        fbutton:shadowHeight="2dp"/>
-            </LinearLayout>
-
-            <TextView android:id="@+id/toWalletLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/cashFlowToWalletLabel"
-                    android:textSize="@dimen/smallFontSize"/>
-
-            <LinearLayout android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                <Spinner android:id="@+id/toWallet"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:spinnerMode="dropdown"/>
-
-                <info.hoang8f.widget.FButton android:id="@+id/transferToggle"
-                        android:layout_width="0dp"
-                        android:layout_height="36dp"
-                        android:layout_weight="1"
-                        android:text="@string/transfer"
-                        android:textAllCaps="true"
                         android:textSize="@dimen/smallFontSize"
                         fbutton:cornerRadius="2dp"
                         fbutton:shadowHeight="2dp"/>

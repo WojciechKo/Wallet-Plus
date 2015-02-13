@@ -62,8 +62,7 @@
     <string name="cashflowListCommentLabel">Comment:</string>
 
     <!-- Cashflow details fragment -->
-    <string name="cashFlowFromWalletLabel">From:</string>
-    <string name="cashFlowToWalletLabel">To:</string>
+    <string name="cashFlowWalletLabel">Wallet:</string>
     <string name="cashflowAmountLabel">Amount:</string>
     <string name="cashflowAmountHint">amount</string>
     <string name="cashflowCommentLabel">Comment:</string>
@@ -73,7 +72,6 @@
     <string name="cashflowDateLabel">Date:</string>
     <string name="cashflowExtraLabel">Extra:</string>
 
-    <string name="cashFlowFromAndToWalletsNeedToBeDifferent">From and to wallets need to be different.</string>
     <string name="cashFlowDeleteConfirmation">Do you want to delete this cash flow?</string>
     <string name="cashFlowTransferCategoryToast">Transfer has to be assigned to Transfer category</string>
 

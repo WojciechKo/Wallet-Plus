@@ -65,9 +65,6 @@ public class CashFlowDetailsFragment extends Fragment {
     @InjectView(R.id.typeToggle)
     FButton typeToggle;
 
-    @InjectView(R.id.transferToggle)
-    FButton transferToggle;
-
     @InjectView(R.id.amountLabel)
     TextView amountLabel;
 
@@ -209,14 +206,6 @@ public class CashFlowDetailsFragment extends Fragment {
         setupTypeDependentViews();
     }
 
-    @OnClick(R.id.transferToggle)
-    void onTransferToggleClicked() {
-//        if (cashFlowDetailsState.getType() != CashFlow.Type.TRANSFER) {
-//            cashFlowDetailsState.setType(CashFlow.Type.TRANSFER);
-//        }
-//        setupTypeDependentViews();
-    }
-
     @OnItemSelected(R.id.wallet)
     void onWalletItemSelected(int position) {
         Wallet selected = (Wallet) wallet.getItemAtPosition(position);
@@ -306,24 +295,16 @@ public class CashFlowDetailsFragment extends Fragment {
             typeToggle.setTextColor(getResources().getColor(R.color.white));
             typeToggle.setButtonColor(getResources().getColor(R.color.green));
 
-            transferToggle.setTextColor(getResources().getColor(R.color.black));
-            transferToggle.setButtonColor(getResources().getColor(R.color.whiteE5));
-
         } else if (cashFlowDetailsState.getType() == CashFlow.Type.EXPANSE) {
             typeToggle.setText(getString(R.string.expanse));
             typeToggle.setTextColor(getResources().getColor(R.color.white));
             typeToggle.setButtonColor(getResources().getColor(R.color.red));
-
-            transferToggle.setTextColor(getResources().getColor(R.color.black));
-            transferToggle.setButtonColor(getResources().getColor(R.color.whiteE5));
 
         } else if (cashFlowDetailsState.getType() == CashFlow.Type.TRANSFER) {
             typeToggle.setText(getPreviousTypeName());
             typeToggle.setTextColor(getResources().getColor(R.color.black));
             typeToggle.setButtonColor(getResources().getColor(R.color.whiteE5));
 
-            transferToggle.setTextColor(getResources().getColor(R.color.white));
-            transferToggle.setButtonColor(getResources().getColor(R.color.blue));
         }
     }
 
