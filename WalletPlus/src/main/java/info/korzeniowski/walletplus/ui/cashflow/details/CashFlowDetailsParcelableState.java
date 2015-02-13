@@ -11,6 +11,8 @@ import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.model.Wallet;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class CashFlowDetailsParcelableState implements Parcelable {
     public static final Parcelable.Creator<CashFlowDetailsParcelableState> CREATOR = new Parcelable.Creator<CashFlowDetailsParcelableState>() {
         public CashFlowDetailsParcelableState createFromParcel(Parcel in) {
@@ -49,30 +51,13 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         setType(cashFlow.getType());
         setCompleted(cashFlow.isCompleted());
         setWallet(cashFlow.getWallet());
-
-        this.previousType = defaultType;
-
-        if (getType() == CashFlow.Type.INCOME) {
-            setCategory(cashFlow.getCategory());
-            wallet = cashFlow.getWallet();
-
-        } else if (getType() == CashFlow.Type.EXPANSE) {
-            setCategory(cashFlow.getCategory());
-            wallet = cashFlow.getWallet();
-
-        } else if (getType() == CashFlow.Type.TRANSFER) {
-            setCategory(null);
-            wallet = cashFlow.getWallet();
-        }
+        setCategory(cashFlow.getCategory());
     }
 
     private CashFlowDetailsParcelableState(Parcel in) {
         id = (Long) in.readValue(Long.class.getClassLoader());
         amount = in.readString();
         comment = in.readString();
-        wallet = in.readParcelable(Wallet.class.getClassLoader());
-        wallet = in.readParcelable(Wallet.class.getClassLoader());
-        wallet = in.readParcelable(Wallet.class.getClassLoader());
         wallet = in.readParcelable(Wallet.class.getClassLoader());
         category = in.readParcelable(Category.class.getClassLoader());
         Integer typeOrdinal = (Integer) in.readValue(Integer.class.getClassLoader());
@@ -94,9 +79,6 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         dest.writeString(amount);
         dest.writeString(comment);
         dest.writeParcelable(wallet, flags);
-        dest.writeParcelable(wallet, flags);
-        dest.writeParcelable(wallet, flags);
-        dest.writeParcelable(wallet, flags);
         dest.writeParcelable(category, flags);
         dest.writeValue(type != null ? type.ordinal() : null);
         dest.writeValue(previousType != null ? previousType.ordinal() : null);
@@ -108,11 +90,12 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         CashFlow cashFlow = new CashFlow();
 
         cashFlow.setId(getId());
+        cashFlow.setType(getType());
         cashFlow.setAmount(Double.parseDouble(getAmount()));
-        cashFlow.setDateTime(new Date(getDate()));
-        cashFlow.setComment(getComment());
         cashFlow.setWallet(getWallet());
         cashFlow.setCategory(getCategory());
+        cashFlow.setComment(getComment());
+        cashFlow.setDateTime(new Date(getDate()));
         cashFlow.setCompleted(isCompleted());
 
         return cashFlow;
@@ -159,8 +142,13 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     }
 
     public void setType(CashFlow.Type type) {
-        if (getType() != type) {
-            this.previousType = getType();
+        checkNotNull(type);
+
+        if (this.type == null) {
+            this.type = type;
+            this.previousType = type;
+        } else if (!this.type.equals(type)) {
+            this.previousType = this.type;
             this.type = type;
         }
     }

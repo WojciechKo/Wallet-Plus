@@ -57,6 +57,7 @@ public class CashFlowDetailsFragment extends Fragment {
     public static final String TAG = "CashFlowDetailsFragment";
     private static final String ARGUMENT_CASH_FLOW_ID = "CASH_FLOW_ID";
     private static final String CASH_FLOW_DETAILS_STATE = "cashFlowDetailsState";
+
     @InjectView(R.id.wallet)
     Spinner wallet;
 
@@ -111,7 +112,7 @@ public class CashFlowDetailsFragment extends Fragment {
     @Named("local")
     CategoryService localCategoryService;
 
-    private List<Wallet> myWallets;
+    private List<Wallet> wallets;
     private List<Category> categoryList;
 
     private CashFlowDetailsParcelableState cashFlowDetailsState;
@@ -146,7 +147,7 @@ public class CashFlowDetailsFragment extends Fragment {
         cashFlowDetailsState = MoreObjects.firstNonNull(restored, initCashFlowDetailsState(cashFlowId));
 
         categoryList = localCategoryService.getMainCategories();
-        myWallets = localWalletService.getMyWallets();
+        wallets = localWalletService.getMyWallets();
     }
 
     private CashFlowDetailsParcelableState initCashFlowDetailsState(Long cashFlowId) {
@@ -169,8 +170,8 @@ public class CashFlowDetailsFragment extends Fragment {
             amount.setText(Strings.nullToEmpty(cashFlowDetailsState.getAmount()));
             comment.setText(cashFlowDetailsState.getComment());
         }
-        wallet.setAdapter(new WalletAdapter(getActivity(), myWallets));
-        wallet.setSelection(myWallets.indexOf(cashFlowDetailsState.getWallet()));
+        wallet.setAdapter(new WalletAdapter(getActivity(), wallets));
+        wallet.setSelection(wallets.indexOf(cashFlowDetailsState.getWallet()));
 
         category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
         isCompleted.setChecked(cashFlowDetailsState.isCompleted());
@@ -199,18 +200,20 @@ public class CashFlowDetailsFragment extends Fragment {
      */
     @OnClick(R.id.typeToggle)
     void onTypeToggleClicked() {
-        if (cashFlowDetailsState.getType() == CashFlow.Type.TRANSFER) {
-            cashFlowDetailsState.setType(cashFlowDetailsState.getPreviousType());
+        if (CashFlow.Type.INCOME.equals(cashFlowDetailsState.getType())) {
+            cashFlowDetailsState.setType(CashFlow.Type.EXPANSE);
+        } else if (CashFlow.Type.EXPANSE.equals(cashFlowDetailsState.getType())) {
+            cashFlowDetailsState.setType(CashFlow.Type.INCOME);
         }
         setupTypeDependentViews();
     }
 
     @OnClick(R.id.transferToggle)
     void onTransferToggleClicked() {
-        if (cashFlowDetailsState.getType() != CashFlow.Type.TRANSFER) {
-            cashFlowDetailsState.setType(CashFlow.Type.TRANSFER);
-        }
-        setupTypeDependentViews();
+//        if (cashFlowDetailsState.getType() != CashFlow.Type.TRANSFER) {
+//            cashFlowDetailsState.setType(CashFlow.Type.TRANSFER);
+//        }
+//        setupTypeDependentViews();
     }
 
     @OnItemSelected(R.id.wallet)
@@ -292,8 +295,8 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private void setupTypeDependentViews() {
-        setupToggles();
         setupCategory();
+        setupToggles();
     }
 
     private void setupToggles() {

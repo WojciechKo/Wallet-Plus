@@ -15,7 +15,7 @@ public class CashFlow implements Identifiable {
     @DatabaseField(canBeNull = false)
     private Double amount;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES wallet(id) ON DELETE CASCADE")
     private Wallet wallet;
 
     @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES category(id) ON DELETE SET NULL")
@@ -44,8 +44,9 @@ public class CashFlow implements Identifiable {
         return type;
     }
 
-    public void setType(Type type) {
+    public CashFlow setType(Type type) {
         this.type = type;
+        return this;
     }
 
     public Double getAmount() {
