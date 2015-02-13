@@ -1,15 +1,26 @@
 package info.korzeniowski.walletplus.test.java;
 
+import org.apache.tools.ant.types.FileList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
 public class RegexTest {
+
+    @Test
+    public void testFileNameExtractor() {
+        assertThat(KorzeniowskiUtils.Files.getBaseName("TestName.db")).isEqualTo("TestName");
+    }
 
     @Test
     public void testDigitRegex() {
