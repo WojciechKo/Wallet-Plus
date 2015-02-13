@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ExpandableListView;
+import android.widget.ListView;
 
 import org.joda.time.Period;
 
@@ -29,7 +30,7 @@ public class CategoryListFragment extends Fragment {
     public static final String ITERATION = "iteration";
 
     @InjectView(R.id.list)
-    ExpandableListView list;
+    ListView list;
 
     @Inject
     @Named("local")
@@ -64,27 +65,7 @@ public class CategoryListFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_category_list, container, false);
         ButterKnife.inject(this, view);
-        removeListListeners();
         return view;
-    }
-
-    private void removeListListeners() {
-        list.setOnGroupClickListener(
-                new ExpandableListView.OnGroupClickListener() {
-                    @Override
-                    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                        return true;
-                    }
-                }
-        );
-        list.setOnChildClickListener(
-                new ExpandableListView.OnChildClickListener() {
-                    @Override
-                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                        return true;
-                    }
-                }
-        );
     }
 
     @Override
