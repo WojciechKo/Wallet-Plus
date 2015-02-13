@@ -9,37 +9,35 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/cardContentPadding">
 
+        <TextView android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:textSize="@dimen/verySmallFontSize"/>
+
         <TextView android:id="@+id/wallet"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_toLeftOf="@+id/amount"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/date"
+                android:layout_toStartOf="@+id/amount"
                 android:textSize="@dimen/mediumFontSize"
                 android:textStyle="bold"/>
 
         <TextView android:id="@+id/category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_below="@id/wallet"
-                android:layout_toLeftOf="@+id/amount"/>
+                android:layout_toStartOf="@+id/amount"/>
 
         <TextView android:id="@+id/amount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/date"
                 android:textSize="@dimen/xLargeFontSize"/>
 
-        <TextView android:id="@+id/date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"
-                android:layout_below="@id/amount"
-                android:layout_marginTop="4dp"
-                android:gravity="center_horizontal"
-                android:textSize="@dimen/verySmallFontSize"/>
     </RelativeLayout>
 </info.korzeniowski.walletplus.widget.CheckableFrameLayout>

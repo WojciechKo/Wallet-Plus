@@ -7,8 +7,6 @@ import android.text.style.AbsoluteSizeSpan;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.common.base.Strings;
-
 import java.text.NumberFormat;
 import java.util.List;
 
@@ -35,7 +33,7 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     protected void fillViewWithItem(MyBaseViewHolder baseHolder, CashFlow item) {
         CashFlowViewHolder holder = (CashFlowViewHolder) baseHolder;
         holder.category.setText(getCategoryText(item));
-        holder.fromWallet.setText(getFromWalletText(item));
+        holder.wallet.setText(getWalletText(item));
         holder.amount.setText(NumberFormat.getCurrencyInstance().format(item.getAmount()));
         holder.amount.setTextColor(getAmountColor(item));
         holder.date.setText(getDateText(item));
@@ -43,17 +41,13 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
 
     private String getCategoryText(CashFlow cashFlow) {
         if (cashFlow.getCategory() == null) {
-            return getContext().getResources().getString(R.string.categoryNoCategoryName);
+            return "";
         }
         return cashFlow.getCategory().getName();
     }
 
-    private CharSequence getFromWalletText(CashFlow item) {
-        if (item.getWallet() != null) {
-            return getLabeledSpannable(getContext().getString(R.string.cashflowListFromWalletLabel), item.getWallet().getName());
-        } else {
-            return getContext().getString(R.string.cashflowListFromWalletLabel);
-        }
+    private CharSequence getWalletText(CashFlow item) {
+        return item.getWallet().getName();
     }
 
     private int getAmountColor(CashFlow item) {
@@ -72,7 +66,7 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     private String getDateText(CashFlow item) {
         String timeString = DateFormat.getTimeFormat(getContext()).format(item.getDateTime());
         String dateString = DateFormat.getDateFormat(getContext()).format(item.getDateTime());
-        return timeString + "\n" + dateString;
+        return dateString + " " + timeString;
     }
 
     private CharSequence getLabeledSpannable(String label, String text) {
@@ -83,7 +77,7 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
 
     class CashFlowViewHolder extends MyBaseViewHolder {
         @InjectView(R.id.wallet)
-        TextView fromWallet;
+        TextView wallet;
 
         @InjectView(R.id.amount)
         TextView amount;

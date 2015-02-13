@@ -57,8 +57,7 @@
     <string name="walletInitialAmountIsNotADigit">Initial amount is not a digit.</string>
 
     <!-- Cashflow list fragment -->
-    <string name="cashflowListFromWalletLabel">From: </string>
-    <string name="cashflowListToWalletLabel">To: </string>
+    <string name="cashflowListWalletLabel">From: </string>
     <string name="cashflowListCommentLabel">Comment:</string>
 
     <!-- Cashflow details fragment -->
