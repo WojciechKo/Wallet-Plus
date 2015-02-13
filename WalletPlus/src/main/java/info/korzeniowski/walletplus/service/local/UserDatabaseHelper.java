@@ -16,7 +16,6 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.Event;
 import info.korzeniowski.walletplus.model.Wallet;
 
 public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
@@ -57,7 +56,6 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
         try {
-            TableUtils.createTable(connectionSource, Event.class);
             TableUtils.createTable(connectionSource, Wallet.class);
             TableUtils.createTable(connectionSource, Category.class);
             TableUtils.createTable(connectionSource, CashFlow.class);
