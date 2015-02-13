@@ -10,9 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -29,7 +27,6 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CategoryService;
-import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 
 public class CategoryDetailsFragment extends Fragment {
     public static final String TAG = CategoryDetailsActivity.class.getSimpleName();
@@ -41,9 +38,6 @@ public class CategoryDetailsFragment extends Fragment {
 
     @InjectView(R.id.categoryName)
     EditText categoryName;
-
-    @InjectView(R.id.parentCategory)
-    Spinner parentCategoryView;
 
     @Inject
     @Named("local")
@@ -84,16 +78,12 @@ public class CategoryDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_category_details, container, false);
         ButterKnife.inject(this, view);
 
-        List<Category> mainCategories = localCategoryService.getMainCategories();
+        List<Category> mainCategories = localCategoryService.getAll();
         mainCategories.add(0, new Category().setId(CategoryService.CATEGORY_NULL_ID).setName(getString(R.string.categoryNoParentSelected)));
-        parentCategoryView.setAdapter(new ParentCategoryAdapter(getActivity(), mainCategories));
 
         if (savedInstanceState == null && detailsAction == DetailsAction.EDIT) {
             mainCategories.remove(categoryToEdit.get());
             categoryName.setText(categoryToEdit.get().getName());
-            if (categoryToEdit.get().getParent() != null) {
-                parentCategoryView.setSelection(mainCategories.indexOf(categoryToEdit.get().getParent()));
-            }
         }
 
         return view;
@@ -123,7 +113,6 @@ public class CategoryDetailsFragment extends Fragment {
 
         if (categoryName.getError() == null) {
             Category categoryToSave = new Category();
-            categoryToSave.setParent(getSelectedParentFromView());
             categoryToSave.setName(categoryName.getText().toString());
 
             if (detailsAction == DetailsAction.ADD) {
@@ -132,24 +121,12 @@ public class CategoryDetailsFragment extends Fragment {
                 getActivity().finish();
 
             } else if (detailsAction == DetailsAction.EDIT) {
-                try {
-                    categoryToSave.setId(categoryToEdit.get().getId());
-                    localCategoryService.update(categoryToSave);
-                    getActivity().setResult(Activity.RESULT_OK);
-                    getActivity().finish();
-                } catch (CategoryHaveSubsException e) {
-                    Toast.makeText(getActivity(), R.string.categorySubCantHaveSubs, Toast.LENGTH_SHORT).show();
-                }
+                categoryToSave.setId(categoryToEdit.get().getId());
+                localCategoryService.update(categoryToSave);
+                getActivity().setResult(Activity.RESULT_OK);
+                getActivity().finish();
             }
         }
-    }
-
-    private Category getSelectedParentFromView() {
-        Category selectedParent = (Category) parentCategoryView.getSelectedItem();
-        if (CategoryService.CATEGORY_NULL_ID.equals(selectedParent.getId())) {
-            return null;
-        }
-        return selectedParent;
     }
 
     private enum DetailsAction {ADD, EDIT}

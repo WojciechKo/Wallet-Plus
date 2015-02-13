@@ -1,11 +1,9 @@
 package info.korzeniowski.walletplus.service.local;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.DeleteBuilder;
 
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -18,14 +16,13 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
-import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.local.validation.CategoryValidator;
+import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -105,24 +102,6 @@ public class LocalCategoryService implements CategoryService {
         }
     }
 
-    @Override
-    public List<Category> getMainCategories() {
-        try {
-            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().isNull("parent_id").and().isNull("specialType").query();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public List<Category> getSubCategoriesOf(Long id) {
-        try {
-            return categoryDao.queryBuilder().orderByRaw("name COLLATE NOCASE").where().eq("parent_id", id).query();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
     /**
      * ********
      * UPDATE *
@@ -148,24 +127,6 @@ public class LocalCategoryService implements CategoryService {
         try {
             categoryValidator.validateDelete(id);
             categoryDao.deleteById(id);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public void deleteByIdWithSubcategories(Long id) {
-        try {
-            try {
-                categoryValidator.validateDelete(id);
-            } catch (CategoryHaveSubsException e) {
-                // Here we want to delete category with subs
-            }
-            Category main = findById(id);
-            DeleteBuilder builder = categoryDao.deleteBuilder();
-            builder.where().eq("parent_id", main.getId());
-            builder.delete();
-            categoryDao.delete(main);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -204,19 +165,6 @@ public class LocalCategoryService implements CategoryService {
             }
         }
 
-        if (category.getParent() == null) {
-            List<Category> subCategories = getSubCategoriesOf(category.getId());
-            List<CategoryStats> subCategoriesStats = Lists.transform(subCategories, new Function<Category, CategoryStats>() {
-                @Override
-                public CategoryStats apply(Category input) {
-                    return getCategoryStats(input, firstDay, period, iteration);
-                }
-            });
-
-            for (CategoryStats subCategoryStatus : subCategoriesStats) {
-                stats.includeSubCategoryStats(subCategoryStatus);
-            }
-        }
         return stats;
     }
 
@@ -238,14 +186,6 @@ public class LocalCategoryService implements CategoryService {
                 found.incomeAmount(cashFlow.getAmount());
             } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
                 found.expanseAmount(cashFlow.getAmount());
-            }
-            if (cashFlow.getCategory() != null && cashFlow.getCategory().getParent() != null) {
-                CategoryStats foundParent = findCategoryStats(result, cashFlow.getCategory().getParent());
-                if (cashFlow.getType() == CashFlow.Type.INCOME) {
-                    foundParent.incomeAmountFromSub(cashFlow.getAmount());
-                } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
-                    foundParent.expanseAmountFromSub(cashFlow.getAmount());
-                }
             }
         }
         return result;

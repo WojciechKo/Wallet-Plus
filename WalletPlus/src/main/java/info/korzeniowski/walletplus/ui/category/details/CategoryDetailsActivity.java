@@ -7,7 +7,6 @@ import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import java.text.MessageFormat;
 
@@ -16,7 +15,6 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.service.CategoryService;
-import info.korzeniowski.walletplus.service.exception.CategoryHaveSubsException;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 
 public class CategoryDetailsActivity extends BaseActivity {
@@ -93,13 +91,9 @@ public class CategoryDetailsActivity extends BaseActivity {
                 .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            localCategoryService.deleteById(categoryId);
-                            setResult(RESULT_DELETED);
-                            finish();
-                        } catch (CategoryHaveSubsException e) {
-                            Toast.makeText(CategoryDetailsActivity.this, R.string.categoryCantDeleteCategoryWithSubs, Toast.LENGTH_LONG).show();
-                        }
+                        localCategoryService.deleteById(categoryId);
+                        setResult(RESULT_DELETED);
+                        finish();
                     }
                 })
                 .setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {

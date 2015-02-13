@@ -7,8 +7,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
 
 import org.joda.time.Period;
 
@@ -21,11 +21,9 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsActivity;
-import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 public class CategoryListFragment extends Fragment {
     public static final String ITERATION = "iteration";
@@ -92,26 +90,19 @@ public class CategoryListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        list.setAdapter(getCategoryListAdapter());
-    }
-
-    private CategoryStatsExpandableListAdapter getCategoryListAdapter() {
-        return new CategoryStatsExpandableListAdapter(
+        list.setAdapter(new CategoryStatsListAdapter(
                 getActivity(),
                 categoryListActivityState.getCategoryList(),
-                getCategoryStatsList(),
-                new OnContentClickListener<Category>() {
-                    @Override
-                    public void onContentClick(Category category) {
-                        if (CategoryService.CATEGORY_NULL_ID.equals(category.getId())) {
-                            Toast.makeText(getActivity(), getResources().getString(R.string.categoryNoCategoryClicked), Toast.LENGTH_SHORT).show();
-                        } else {
-                            startCategoryDetailsActivity(category.getId());
-                        }
-                    }
-                },
-                null);
+                getCategoryStatsList()));
+
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startCategoryDetailsActivity(id);
+            }
+        });
     }
+
 
     private List<CategoryService.CategoryStats> getCategoryStatsList() {
         return localCategoryService.getCategoryStatsList(categoryListActivityState.getStartDate(), getPeriod(categoryListActivityState.getPeriod()), iteration);

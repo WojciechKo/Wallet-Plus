@@ -14,7 +14,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class Category implements Comparable<Category>, Identifiable, Childable<Category>, Parcelable {
+public class Category implements Comparable<Category>, Identifiable, Parcelable {
     public static final Parcelable.Creator<Category> CREATOR = new Parcelable.Creator<Category>() {
         public Category createFromParcel(Parcel in) {
             return new Category(in);
@@ -28,17 +28,8 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
     @DatabaseField(generatedId = true)
     private Long id;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
-    private Category parent;
-
-    @DatabaseField
+    @DatabaseField(uniqueIndex = true)
     private String name;
-
-    @DatabaseField
-    private Type specialType;
-
-    @ForeignCollectionField(orderColumnName = "name")
-    private ForeignCollection<Category> children;
 
     public Category() {
 
@@ -47,16 +38,12 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
     public Category(Category category) {
         checkNotNull(category);
         setId(category.getId());
-        setParent(category.getParent() == null ? null : new Category(category.getParent()));
         setName(category.getName());
-        setSpecialType(category.getSpecialType());
     }
 
     private Category(Parcel in) {
         id = in.readLong();
-        parent = in.readParcelable(Category.class.getClassLoader());
         name = in.readString();
-        specialType = (Type) in.readValue(Type.class.getClassLoader());
     }
 
     @Override
@@ -67,9 +54,7 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(id);
-        dest.writeParcelable(parent, flags);
         dest.writeString(name);
-        dest.writeValue(specialType);
     }
 
     public Long getId() {
@@ -81,30 +66,12 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
         return this;
     }
 
-    public Category getParent() {
-        return parent;
-    }
-
-    public Category setParent(Category parent) {
-        this.parent = parent;
-        return this;
-    }
-
     public String getName() {
         return name;
     }
 
     public Category setName(String name) {
         this.name = name;
-        return this;
-    }
-
-    public Type getSpecialType() {
-        return specialType;
-    }
-
-    public Category setSpecialType(Type specialType) {
-        this.specialType = specialType;
         return this;
     }
 
@@ -121,10 +88,6 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
             return false;
         if (name != null ? !name.equals(category.name) : category.name != null)
             return false;
-        if (parent != null ? !parent.equals(category.parent) : category.parent != null)
-            return false;
-        if (specialType != category.specialType)
-            return false;
 
         return true;
     }
@@ -132,9 +95,7 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (parent != null ? parent.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (specialType != null ? specialType.hashCode() : 0);
         return result;
     }
 
@@ -142,18 +103,8 @@ public class Category implements Comparable<Category>, Identifiable, Childable<C
     public final String toString() {
         return "Category{" +
                 "id=" + id +
-                ", parent=" + parent +
                 ", name='" + name + '\'' +
-                ", specialType=" + specialType +
                 '}';
-    }
-
-    @Override
-    public List<Category> getChildren() {
-        if (children == null) {
-            return Lists.newArrayList();
-        }
-        return Lists.newArrayList(children);
     }
 
     @Override

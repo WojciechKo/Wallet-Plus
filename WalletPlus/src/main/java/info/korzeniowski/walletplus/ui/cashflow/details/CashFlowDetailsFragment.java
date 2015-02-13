@@ -14,13 +14,14 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -146,7 +147,7 @@ public class CashFlowDetailsFragment extends Fragment {
         }
         cashFlowDetailsState = MoreObjects.firstNonNull(restored, initCashFlowDetailsState(cashFlowId));
 
-        categoryList = localCategoryService.getMainCategories();
+        categoryList = localCategoryService.getAll();
         wallets = localWalletService.getMyWallets();
     }
 
@@ -354,21 +355,23 @@ public class CashFlowDetailsFragment extends Fragment {
             category.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ExpandableListView expandableListView = (ExpandableListView) View.inflate(getActivity(), R.layout.fragment_category_list, null);
+                    ListView listView = (ListView) View.inflate(getActivity(), R.layout.fragment_category_list, null);
 
                     final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                             .setTitle(getString(R.string.cashflowCategoryChooseAlertTitle))
-                            .setView(expandableListView)
+                            .setView(listView)
                             .create();
 
-                    expandableListView.setAdapter(new CategoryExpandableListAdapter(getActivity(), categoryList, new OnContentClickListener<Category>() {
+                    listView.setAdapter(new CategoryListAdapter(getActivity(), categoryList));
+                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
-                        public void onContentClick(Category content) {
-                            cashFlowDetailsState.setCategory(content);
-                            category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Category category = ((CategoryListAdapter) parent.getAdapter()).getItem(position);
+                            cashFlowDetailsState.setCategory(category);
+                            CashFlowDetailsFragment.this.category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
                             alertDialog.dismiss();
                         }
-                    }));
+                    });
 
                     alertDialog.show();
                 }
@@ -386,10 +389,8 @@ public class CashFlowDetailsFragment extends Fragment {
     private String getCategoryText(Category category) {
         if (category == null) {
             return getString(R.string.categoryNoCategoryName);
-        } else if (category.getParent() == null) {
-            return category.getName();
         }
-        return category.getName() + " (" + category.getParent().getName() + ")";
+        return category.getName();
     }
 
     @Override

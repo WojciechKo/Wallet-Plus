@@ -96,7 +96,7 @@ public class CategoryListActivity extends BaseActivity {
     }
 
     private List<Category> getMainCategories() {
-        List<Category> mainCategories = localCategoryService.getMainCategories();
+        List<Category> mainCategories = localCategoryService.getAll();
 
         if (isAnyCashFlowWithoutCategoryExists()) {
             mainCategories.add(new Category()

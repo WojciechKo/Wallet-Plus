@@ -1,15 +1,12 @@
 package info.korzeniowski.walletplus.service.local.validation;
 
-import com.google.common.base.Objects;
-
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
-import info.korzeniowski.walletplus.service.exception.WalletTypeCannotBeChangedException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class WalletValidator implements Validator<Wallet>{
+public class WalletValidator implements Validator<Wallet> {
     private final WalletService walletService;
 
     public WalletValidator(WalletService walletService) {

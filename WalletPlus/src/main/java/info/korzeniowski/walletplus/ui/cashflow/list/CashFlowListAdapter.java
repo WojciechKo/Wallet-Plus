@@ -52,10 +52,7 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
         if (cashFlow.getCategory() == null) {
             return getContext().getResources().getString(R.string.categoryNoCategoryName);
         }
-        if (cashFlow.getCategory().getParent() == null) {
-            return cashFlow.getCategory().getName();
-        }
-        return cashFlow.getCategory().getName() + " (" + cashFlow.getCategory().getParent().getName() + ")";
+        return cashFlow.getCategory().getName();
     }
 
     private CharSequence getFromWalletText(CashFlow item) {

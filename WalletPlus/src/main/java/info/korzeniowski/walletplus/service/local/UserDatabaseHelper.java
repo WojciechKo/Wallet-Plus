@@ -59,18 +59,10 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, Wallet.class);
             TableUtils.createTable(connectionSource, Category.class);
             TableUtils.createTable(connectionSource, CashFlow.class);
-            insertTransferCategory();
         } catch (SQLException e) {
             Log.e(UserDatabaseHelper.class.getName(), "Can't create database", e);
             throw new RuntimeException(e);
         }
-    }
-
-    private void insertTransferCategory() throws SQLException {
-        getCategoryDao().create(
-                new Category()
-                        .setSpecialType(Category.Type.TRANSFER)
-                        .setName(walletPlus.get().getString(R.string.transfer)));
     }
 
     @Override

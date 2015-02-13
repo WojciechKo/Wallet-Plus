@@ -83,17 +83,17 @@ public class DatabaseInitializer {
         /** Init categories **/
         Category mainHouse = new Category().setName("House");
         localCategoryService.insert(mainHouse);
-        Category energy = new Category().setName("Energy").setParent(mainHouse);
+        Category energy = new Category().setName("Energy");
         localCategoryService.insert(energy);
-        Category water = new Category().setName("Water").setParent(mainHouse);
+        Category water = new Category().setName("Water");
         localCategoryService.insert(water);
-        Category gas = new Category().setName("Gas").setParent(mainHouse);
+        Category gas = new Category().setName("Gas");
         localCategoryService.insert(gas);
 
         Category mainInternet = new Category().setName("Internet");
         localCategoryService.insert(mainInternet);
-        localCategoryService.insert(new Category().setParent(mainInternet).setName("Music forum"));
-        localCategoryService.insert(new Category().setParent(mainInternet).setName("News Service"));
+        localCategoryService.insert(new Category().setName("Music forum"));
+        localCategoryService.insert(new Category().setName("News Service"));
 
         Category mainPartner = new Category().setName("Partner");
         localCategoryService.insert(mainPartner);
