@@ -39,13 +39,6 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
         holder.amount.setText(NumberFormat.getCurrencyInstance().format(item.getAmount()));
         holder.amount.setTextColor(getAmountColor(item));
         holder.date.setText(getDateText(item));
-
-        if (Strings.isNullOrEmpty(item.getComment())) {
-            holder.comment.setVisibility(View.GONE);
-        } else {
-            holder.comment.setVisibility(View.VISIBLE);
-            holder.comment.setText(getLabeledSpannable(getContext().getString(R.string.cashflowListCommentLabel), item.getComment()));
-        }
     }
 
     private String getCategoryText(CashFlow cashFlow) {
@@ -97,9 +90,6 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
 
         @InjectView(R.id.category)
         TextView category;
-
-        @InjectView(R.id.comment)
-        TextView comment;
 
         @InjectView(R.id.date)
         TextView date;

@@ -71,12 +71,6 @@ public class CashFlowDetailsFragment extends Fragment {
     @InjectView(R.id.amount)
     EditText amount;
 
-    @InjectView(R.id.commentLabel)
-    TextView commentLabel;
-
-    @InjectView(R.id.comment)
-    EditText comment;
-
     @InjectView(R.id.category)
     Button category;
 
@@ -166,7 +160,6 @@ public class CashFlowDetailsFragment extends Fragment {
         setupTypeDependentViews();
         if (detailsAction == DetailsAction.EDIT) {
             amount.setText(Strings.nullToEmpty(cashFlowDetailsState.getAmount()));
-            comment.setText(cashFlowDetailsState.getComment());
         }
         wallet.setAdapter(new WalletAdapter(getActivity(), wallets));
         wallet.setSelection(wallets.indexOf(cashFlowDetailsState.getWallet()));
@@ -225,13 +218,6 @@ public class CashFlowDetailsFragment extends Fragment {
         }
 
         amountLabel.setVisibility(View.VISIBLE);
-    }
-
-    @OnTextChanged(value = R.id.comment, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void onCommentChanged(Editable s) {
-        cashFlowDetailsState.setComment(s.toString());
-
-        commentLabel.setVisibility(View.VISIBLE);
     }
 
     @OnClick(R.id.datePicker)

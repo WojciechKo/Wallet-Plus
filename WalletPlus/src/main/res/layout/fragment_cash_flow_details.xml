@@ -89,21 +89,6 @@
                     android:inputType="numberDecimal|numberSigned"
                     android:textSize="@dimen/mediumFontSize"/>
 
-            <TextView android:id="@+id/commentLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/cashflowCommentLabel"
-                    android:textSize="@dimen/smallFontSize"
-                    android:visibility="invisible"/>
-
-            <EditText android:id="@+id/comment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:hint="@string/cashflowCommentHint"
-                    android:inputType="textAutoCorrect"
-                    android:textSize="@dimen/mediumFontSize"/>
-
             <TextView android:id="@+id/extraLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
