@@ -16,10 +16,10 @@
                 android:orientation="vertical"
                 android:padding="@dimen/cardContentPadding">
 
-            <TextView android:id="@+id/fromWalletLabel"
+            <TextView android:id="@+id/walletLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/cashFlowFromWalletLabel"
+                    android:text="@string/cashFlowWalletLabel"
                     android:textSize="@dimen/smallFontSize"/>
 
             <LinearLayout android:layout_width="match_parent"
@@ -28,7 +28,7 @@
                     android:gravity="center"
                     android:orientation="horizontal">
 
-                <Spinner android:id="@+id/fromWallet"
+                <Spinner android:id="@+id/wallet"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="2"
@@ -45,63 +45,15 @@
                         fbutton:shadowHeight="2dp"/>
             </LinearLayout>
 
-            <TextView android:id="@+id/toWalletLabel"
+            <TextView android:id="@+id/tagLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/cashFlowToWalletLabel"
+                    android:text="@string/cashflowTagLabel"
                     android:textSize="@dimen/smallFontSize"/>
 
-            <LinearLayout android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                <Spinner android:id="@+id/toWallet"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:spinnerMode="dropdown"/>
-
-                <info.hoang8f.widget.FButton android:id="@+id/transferToggle"
-                        android:layout_width="0dp"
-                        android:layout_height="36dp"
-                        android:layout_weight="1"
-                        android:text="@string/transfer"
-                        android:textAllCaps="true"
-                        android:textSize="@dimen/smallFontSize"
-                        fbutton:cornerRadius="2dp"
-                        fbutton:shadowHeight="2dp"/>
-            </LinearLayout>
-
-            <TextView android:id="@+id/categoryLabel"
+            <MultiAutoCompleteTextView android:id="@+id/tag"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/cashflowCategoryLabel"
-                    android:textSize="@dimen/smallFontSize"/>
-
-            <LinearLayout android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                <info.hoang8f.widget.FButton android:id="@+id/category"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:layout_weight="1"
-                        fbutton:buttonColor="@color/background"
-                        fbutton:cornerRadius="2dp"
-                        fbutton:shadowHeight="2dp"/>
-
-                <ImageButton android:id="@+id/removeCategory"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:contentDescription="@string/removeCategory"
-                        android:src="@drawable/ic_remove"/>
-            </LinearLayout>
+                    android:layout_height="wrap_content"/>
 
             <TextView android:id="@+id/amountLabel"
                     android:layout_width="match_parent"
@@ -116,21 +68,6 @@
                     android:layout_marginBottom="12dp"
                     android:hint="@string/cashflowAmountHint"
                     android:inputType="numberDecimal|numberSigned"
-                    android:textSize="@dimen/mediumFontSize"/>
-
-            <TextView android:id="@+id/commentLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/cashflowCommentLabel"
-                    android:textSize="@dimen/smallFontSize"
-                    android:visibility="invisible"/>
-
-            <EditText android:id="@+id/comment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:hint="@string/cashflowCommentHint"
-                    android:inputType="textAutoCorrect"
                     android:textSize="@dimen/mediumFontSize"/>
 
             <TextView android:id="@+id/extraLabel"

@@ -26,7 +26,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
 import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
-import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsActivity;
+import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -66,13 +66,13 @@ public class EditMyWalletTest {
         ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
         ((TestWalletPlus) Robolectric.application).inject(this);
 
-        wallet = new Wallet().setType(Wallet.Type.MY_WALLET).setId(47L).setName("Test wallet").setInitialAmount(100.0).setCurrentAmount(200.0);
+        wallet = new Wallet().setId(47L).setName("Test wallet").setInitialAmount(100.0).setCurrentAmount(200.0);
         Mockito.when(walletService.findById(wallet.getId())).thenReturn(wallet);
 
         Intent intent = new Intent();
-        intent.putExtra(MyWalletDetailsActivity.EXTRAS_WALLET_ID, wallet.getId());
+        intent.putExtra(WalletDetailsActivity.EXTRAS_WALLET_ID, wallet.getId());
 
-        activity = Robolectric.buildActivity(MyWalletDetailsActivity.class).withIntent(intent).create().start().restart().get();
+        activity = Robolectric.buildActivity(WalletDetailsActivity.class).withIntent(intent).create().start().restart().get();
         ButterKnife.inject(this, activity);
     }
 
@@ -153,7 +153,6 @@ public class EditMyWalletTest {
                 .setId(wallet.getId())
                 .setName(walletName.getText().toString())
                 .setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()))
-                .setType(Wallet.Type.MY_WALLET)
                 .setCurrentAmount(wallet.getCurrentAmount());
 
         activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));

@@ -12,6 +12,8 @@
     <dimen name="cardMargin">8dp</dimen>
     <dimen name="edgePadding">12dp</dimen>
 
+    <dimen name="tagCrossPadding">8dp</dimen>
+
     <!-- font size -->
     <dimen name="verySmallFontSize">9sp</dimen>
     <dimen name="smallFontSize">12sp</dimen>

@@ -12,8 +12,8 @@ import info.korzeniowski.walletplus.service.local.LocalAccountService;
 import info.korzeniowski.walletplus.service.local.LocalProfileService;
 import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
 import info.korzeniowski.walletplus.test.service.cashflow.LocalCashFlowServiceTest;
-import info.korzeniowski.walletplus.test.service.category.CategoryStatisticsTest;
-import info.korzeniowski.walletplus.test.service.category.LocalCategoryServiceTest;
+import info.korzeniowski.walletplus.test.service.category.TagStatisticsTest;
+import info.korzeniowski.walletplus.test.service.category.LocalTagServiceTest;
 import info.korzeniowski.walletplus.test.service.wallet.LocalWalletServiceTest;
 import info.korzeniowski.walletplus.test.service.wallet.WalletValidatorTest;
 import info.korzeniowski.walletplus.util.PrefUtils;
@@ -22,8 +22,8 @@ import info.korzeniowski.walletplus.util.PrefUtils;
         includes = DatabaseModule.class,
         injects = {
                 LocalCashFlowServiceTest.class,
-                CategoryStatisticsTest.class,
-                LocalCategoryServiceTest.class,
+                TagStatisticsTest.class,
+                LocalTagServiceTest.class,
                 LocalWalletServiceTest.class,
                 WalletValidatorTest.class
         },

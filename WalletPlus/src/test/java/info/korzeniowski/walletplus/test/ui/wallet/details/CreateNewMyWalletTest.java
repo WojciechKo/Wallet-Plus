@@ -25,7 +25,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
 import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
-import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsActivity;
+import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 
@@ -64,7 +64,7 @@ public class CreateNewMyWalletTest {
         ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
         ((TestWalletPlus) Robolectric.application).inject(this);
 
-        activity = Robolectric.buildActivity(MyWalletDetailsActivity.class).create().start().restart().get();
+        activity = Robolectric.buildActivity(WalletDetailsActivity.class).create().start().restart().get();
         ButterKnife.inject(this, activity);
     }
 
@@ -128,8 +128,7 @@ public class CreateNewMyWalletTest {
         walletName.setText("textName");
         Wallet toInsert = new Wallet()
                 .setName(walletName.getText().toString())
-                .setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()))
-                .setType(Wallet.Type.MY_WALLET);
+                .setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()));
 
         activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
 

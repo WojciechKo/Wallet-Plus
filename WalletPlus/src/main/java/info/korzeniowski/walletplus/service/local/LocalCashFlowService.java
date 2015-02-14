@@ -1,7 +1,11 @@
 package info.korzeniowski.walletplus.service.local;
 
+import com.google.common.base.Preconditions;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
@@ -11,26 +15,33 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Tag;
+import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 
 public class LocalCashFlowService implements CashFlowService {
     private final Dao<CashFlow, Long> cashFlowDao;
-    //TODO: zamienić na Service
     private final Dao<Wallet, Long> walletDao;
-    //TODO: zamienić na Service
-    private final Dao<Category, Long> categoryDao;
-    private Category transfer;
+    private final Dao<Tag, Long> tagDao;
+    private final Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao;
+    private final LocalTagService localTagService;
+
+    private PreparedQuery<Tag> categoriesForCashFlowQuery;
 
     @Inject
-    public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao, Dao<Wallet, Long> walletDao, Dao<Category, Long> categoryDao) {
+    public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao,
+                                Dao<Wallet, Long> walletDao,
+                                Dao<Tag, Long> tagDao,
+                                Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao,
+                                LocalTagService localTagService) {
         this.cashFlowDao = cashFlowDao;
         this.walletDao = walletDao;
-        this.categoryDao = categoryDao;
+        this.tagDao = tagDao;
+        this.tagAndCashFlowBindsDao = tagAndCashFlowBindsDao;
+        this.localTagService = localTagService;
     }
 
     @Override
@@ -45,7 +56,9 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public CashFlow findById(final Long id) {
         try {
-            return cashFlowDao.queryForId(id);
+            CashFlow cashFlow = cashFlowDao.queryForId(id);
+            cashFlow.addTag(getCategoriesForCashFlow(cashFlow.getId()));
+            return cashFlow;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -54,10 +67,34 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public List<CashFlow> getAll() {
         try {
-            return cashFlowDao.queryBuilder().orderBy("dateTime", false).query();
+            List<CashFlow> cashFlows = cashFlowDao.queryBuilder().orderBy("dateTime", false).query();
+            for (CashFlow cashFlow : cashFlows) {
+                cashFlow.addTag(getCategoriesForCashFlow(cashFlow.getId()));
+            }
+
+            return cashFlows;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    private List<Tag> getCategoriesForCashFlow(Long cashFlowId) throws SQLException {
+        if (categoriesForCashFlowQuery == null) {
+            categoriesForCashFlowQuery = getCategoriesForCashFlowQuery();
+        }
+        categoriesForCashFlowQuery.setArgumentHolderValue(0, cashFlowId);
+        return tagDao.query(categoriesForCashFlowQuery);
+    }
+
+    private PreparedQuery<Tag> getCategoriesForCashFlowQuery() throws SQLException {
+        QueryBuilder<TagAndCashFlowBind, Long> tagCashFlowQb = tagAndCashFlowBindsDao.queryBuilder();
+        tagCashFlowQb.selectColumns(TagAndCashFlowBind.TAG_ID_FIELD_NAME);
+        SelectArg cashFlowIdArg = new SelectArg();
+        tagCashFlowQb.where().eq(TagAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME, cashFlowIdArg);
+
+        QueryBuilder<Tag, Long> tagQb = tagDao.queryBuilder();
+        tagQb.where().in(Tag.ID_FIELD_NAME, tagCashFlowQb);
+        return tagQb.prepare();
     }
 
     @Override
@@ -66,56 +103,58 @@ public class LocalCashFlowService implements CashFlowService {
             CashFlow toUpdate = findById(cashFlow.getId());
             validateUpdate(toUpdate, cashFlow);
             cashFlowDao.update(cashFlow);
-            fixCurrentAmountInWalletsAfterUpdate(toUpdate, cashFlow);
+            unbindWithCategories(toUpdate);
+            bindWithCategories(cashFlow);
+            fixCurrentAmountInWalletAfterDelete(toUpdate);
+            fixCurrentAmountInWalletAfterInsert(cashFlow);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private void fixCurrentAmountInWalletsAfterUpdate(CashFlow oldCashFlow, CashFlow newCashFlow) throws SQLException {
-        fixCurrentAmountInWalletAfterDelete(oldCashFlow);
-        newCashFlow.setToWallet(walletDao.queryForId(newCashFlow.getToWallet().getId()));
-        newCashFlow.setFromWallet(walletDao.queryForId(newCashFlow.getFromWallet().getId()));
-        fixCurrentAmountInWalletsAfterInsert(newCashFlow);
-    }
-
     private void validateUpdate(CashFlow old, CashFlow newValue) {
-        //TODO: if exists
-        if (newValue.getType().equals(CashFlow.Type.TRANSFER)) {
-            newValue.setCategory(getTransferCategory());
-        }
+
     }
 
     @Override
     public Long insert(CashFlow cashFlow) {
         try {
-            validateInsert(cashFlow);
             cashFlowDao.create(cashFlow);
-            fixCurrentAmountInWalletsAfterInsert(cashFlow);
+            bindWithCategories(cashFlow);
+            fixCurrentAmountInWalletAfterInsert(cashFlow);
             return cashFlow.getId();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private void fixCurrentAmountInWalletsAfterInsert(CashFlow cashFlow) throws SQLException {
-        Wallet fromWallet = cashFlow.getFromWallet();
-        if (fromWallet != null) {
-            fromWallet.setCurrentAmount(fromWallet.getCurrentAmount() - cashFlow.getAmount());
-            walletDao.update(fromWallet);
-        }
+    private void bindWithCategories(CashFlow cashFlow) throws SQLException {
+        for (Tag tag : cashFlow.getTags()) {
+            Tag foundTag = localTagService.findByName(tag.getName());
 
-        Wallet toWallet = cashFlow.getToWallet();
-        if (toWallet != null) {
-            toWallet.setCurrentAmount(toWallet.getCurrentAmount() + cashFlow.getAmount());
-            walletDao.update(toWallet);
+            if (foundTag == null) {
+                foundTag = tag;
+                localTagService.insert(foundTag);
+            } else {
+                tag.setId(foundTag.getId());
+            }
+
+            tagAndCashFlowBindsDao.create(new TagAndCashFlowBind(foundTag, cashFlow));
         }
     }
 
-    private void validateInsert(CashFlow cashFlow) {
-        if (cashFlow.getType().equals(CashFlow.Type.TRANSFER)) {
-            cashFlow.setCategory(getTransferCategory());
+    private void fixCurrentAmountInWalletAfterInsert(CashFlow cashFlow) throws SQLException {
+        Wallet wallet = cashFlow.getWallet();
+
+        Double newCurrentAmount = null;
+        if (CashFlow.Type.INCOME.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() + cashFlow.getAmount();
+        } else if (CashFlow.Type.EXPANSE.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() - cashFlow.getAmount();
         }
+        Preconditions.checkNotNull(newCurrentAmount);
+        wallet.setCurrentAmount(newCurrentAmount);
+        walletDao.update(wallet);
     }
 
     @Override
@@ -123,68 +162,69 @@ public class LocalCashFlowService implements CashFlowService {
         try {
             CashFlow cashFlow = cashFlowDao.queryForId(id);
             cashFlowDao.deleteById(id);
+            unbindWithCategories(cashFlow);
             fixCurrentAmountInWalletAfterDelete(cashFlow);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private void fixCurrentAmountInWalletAfterDelete(CashFlow cashFlow) throws SQLException {
-        Wallet fromWallet = cashFlow.getFromWallet();
-        if (fromWallet != null) {
-            fromWallet.setCurrentAmount(fromWallet.getCurrentAmount() + cashFlow.getAmount());
-            walletDao.update(fromWallet);
-        }
+    private void unbindWithCategories(CashFlow cashFlow) throws SQLException {
+        DeleteBuilder<TagAndCashFlowBind, Long> deleteBuilder = tagAndCashFlowBindsDao.deleteBuilder();
 
-        Wallet toWallet = cashFlow.getToWallet();
-        if (toWallet != null) {
-            toWallet.setCurrentAmount(toWallet.getCurrentAmount() - cashFlow.getAmount());
-            walletDao.update(toWallet);
+        deleteBuilder.where()
+                .eq(TagAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME, cashFlow)
+                .and()
+                .in(TagAndCashFlowBind.TAG_ID_FIELD_NAME, cashFlow.getTags());
+
+        deleteBuilder.delete();
+    }
+
+    private void fixCurrentAmountInWalletAfterDelete(CashFlow cashFlow) throws SQLException {
+        Wallet wallet = cashFlow.getWallet();
+
+        Double newCurrentAmount = null;
+        if (CashFlow.Type.INCOME.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() - cashFlow.getAmount();
+        } else if (CashFlow.Type.EXPANSE.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() + cashFlow.getAmount();
         }
+        Preconditions.checkNotNull(newCurrentAmount);
+        wallet.setCurrentAmount(newCurrentAmount);
+        walletDao.update(wallet);
     }
 
     @Override
     public long countAssignedWithWallet(Long walletId) {
         try {
-            return cashFlowDao.queryBuilder().where().eq("fromWallet_id", walletId).or().eq("toWallet_id", walletId).countOf();
+            return cashFlowDao.queryBuilder().where().eq("wallet_id", walletId).countOf();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
     @Override
-    public long countAssignedWithCategory(Long categoryId) {
-        try {
-            return cashFlowDao.queryBuilder().where().eq("category_id", categoryId).countOf();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
+    public long countAssignedWithTag(Long tagId) {
+//        try {
+            throw new RuntimeException("Not implemented");
+//            return cashFlowDao.queryBuilder().where().eq("tag_id", tagId).countOf();
+//        } catch (SQLException e) {
+//            throw new DatabaseException(e);
+//        }
     }
 
     @Override
-    public Category getTransferCategory() {
-        try {
-            if (transfer == null) {
-                transfer = categoryDao.queryBuilder().where().eq("specialType", Category.Type.TRANSFER).queryForFirst();
-            }
-            return transfer;
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long fromWalletId, Long toWalletId) {
+    public List<CashFlow> findCashFlow(Date from, Date to, Long tagId, Long walletId) {
         try {
             QueryBuilder<CashFlow, Long> queryBuilder = cashFlowDao.queryBuilder();
-            queryBuilder.setWhere(getWhereList(from, to, categoryId, fromWalletId, toWalletId, queryBuilder));
+            queryBuilder.setWhere(getWhereList(from, to, tagId, walletId, queryBuilder));
             return queryBuilder.query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private Where<CashFlow, Long> getWhereList(Date from, Date to, Long categoryId, Long fromWalletId, Long toWalletId, QueryBuilder<CashFlow, Long> queryBuilder) throws SQLException {
+    private Where<CashFlow, Long> getWhereList(Date from, Date to, Long tagId, Long walletId, QueryBuilder<CashFlow, Long> queryBuilder) throws SQLException {
         Where<CashFlow, Long> where = queryBuilder.where();
         boolean isFirst = true;
 
@@ -199,36 +239,14 @@ public class LocalCashFlowService implements CashFlowService {
             where.lt("dateTime", to);
             isFirst = false;
         }
-        if (categoryId != null) {
+        if (walletId != null) {
             if (!isFirst) {
                 where.and();
             }
-            if (categoryId == CategoryService.CATEGORY_NULL_ID) {
-                where.isNull("category_id");
+            if (walletId == WalletService.WALLET_NULL_ID) {
+                where.isNull("wallet_id");
             } else {
-                where.eq("category_id", categoryId);
-            }
-            isFirst = false;
-        }
-        if (fromWalletId != null) {
-            if (!isFirst) {
-                where.and();
-            }
-            if (fromWalletId == WalletService.WALLET_NULL_ID) {
-                where.isNull("fromWallet_id");
-            } else {
-                where.eq("fromWallet_id", fromWalletId);
-            }
-            isFirst = false;
-        }
-        if (toWalletId != null) {
-            if (!isFirst) {
-                where.and();
-            }
-            if (toWalletId == WalletService.WALLET_NULL_ID) {
-                where.isNull("toWallet_id");
-            } else {
-                where.eq("toWallet_id", toWalletId);
+                where.eq("wallet_id", walletId);
             }
         }
 

@@ -2,36 +2,47 @@ package info.korzeniowski.walletplus.model;
 
 import com.j256.ormlite.field.DatabaseField;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class CashFlow implements Identifiable {
 
     @DatabaseField(generatedId = true)
     private Long id;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
-    private Wallet fromWallet;
-
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
-    private Wallet toWallet;
-
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES category(id) ON DELETE SET NULL")
-    private Category category;
-
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES event(id) ON DELETE SET NULL")
-    private Event event;
+    @DatabaseField
+    private Type type;
 
     @DatabaseField(canBeNull = false)
     private Double amount;
 
-    @DatabaseField(canBeNull = false)
-    private Date dateTime;
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES wallet(id) ON DELETE CASCADE")
+    private Wallet wallet;
 
     @DatabaseField
     private String comment;
 
     @DatabaseField(canBeNull = false)
+    private Date dateTime;
+
+    @DatabaseField(canBeNull = false)
     private boolean completed;
+
+    private Set<Tag> tags;
+
+    public CashFlow() {
+        tags = new TreeSet<>(new Comparator<Tag>() {
+            @Override
+            public int compare(Tag lhs, Tag rhs) {
+                return lhs.getName().compareTo(rhs.getName());
+            }
+        });
+    }
 
     @Override
     public Long getId() {
@@ -43,39 +54,12 @@ public class CashFlow implements Identifiable {
         return this;
     }
 
-    public Wallet getFromWallet() {
-        return fromWallet;
+    public Type getType() {
+        return type;
     }
 
-    public CashFlow setFromWallet(Wallet fromWallet) {
-        this.fromWallet = fromWallet;
-        return this;
-    }
-
-    public Wallet getToWallet() {
-        return toWallet;
-    }
-
-    public CashFlow setToWallet(Wallet toWallet) {
-        this.toWallet = toWallet;
-        return this;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public CashFlow setCategory(Category category) {
-        this.category = category;
-        return this;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public CashFlow setEvent(Event event) {
-        this.event = event;
+    public CashFlow setType(Type type) {
+        this.type = type;
         return this;
     }
 
@@ -88,12 +72,12 @@ public class CashFlow implements Identifiable {
         return this;
     }
 
-    public Date getDateTime() {
-        return dateTime;
+    public Wallet getWallet() {
+        return wallet;
     }
 
-    public CashFlow setDateTime(Date dateTime) {
-        this.dateTime = dateTime;
+    public CashFlow setWallet(Wallet wallet) {
+        this.wallet = wallet;
         return this;
     }
 
@@ -106,6 +90,15 @@ public class CashFlow implements Identifiable {
         return this;
     }
 
+    public Date getDateTime() {
+        return dateTime;
+    }
+
+    public CashFlow setDateTime(Date dateTime) {
+        this.dateTime = dateTime;
+        return this;
+    }
+
     public Boolean isCompleted() {
         return completed;
     }
@@ -114,21 +107,28 @@ public class CashFlow implements Identifiable {
         this.completed = completed;
     }
 
-    public Type getType() {
-        if (getFromWallet() != null && getFromWallet().getType() == Wallet.Type.MY_WALLET) {
-            if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
-                return Type.TRANSFER;
-            } else if (getToWallet() == null || getToWallet().getType() == Wallet.Type.OTHER) {
-                return Type.EXPANSE;
-            } else {
-                throw new RuntimeException("Unknown type of CashFlow");
-            }
-        } else if (getToWallet() != null && getToWallet().getType() == Wallet.Type.MY_WALLET) {
-            if (getFromWallet() == null || getFromWallet().getType() == Wallet.Type.OTHER) {
-                return Type.INCOME;
-            }
-        }
-        throw new RuntimeException("Unknown type of CashFlow");
+    public CashFlow addTag(Collection<? extends Tag> categories) {
+        this.tags.addAll(categories);
+        return this;
+    }
+
+    public CashFlow addTag(Tag tag) {
+        tags.add(tag);
+        return this;
+    }
+
+    public CashFlow removeTag(Tag tag) {
+        tags.remove(tag);
+        return this;
+    }
+
+    public CashFlow clearTags() {
+        tags.clear();
+        return this;
+    }
+
+    public List<Tag> getTags() {
+        return new ArrayList<Tag>(tags);
     }
 
     public enum Type {

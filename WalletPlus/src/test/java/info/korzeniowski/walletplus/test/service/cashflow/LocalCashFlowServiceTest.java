@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.test.service.cashflow;
 
-import org.joda.time.DateTime;
+import com.google.common.collect.Lists;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,10 +18,10 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.WalletService;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -39,7 +40,7 @@ public class LocalCashFlowServiceTest {
 
     @Inject
     @Named("local")
-    CategoryService categoryService;
+    TagService tagService;
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -50,63 +51,110 @@ public class LocalCashFlowServiceTest {
     }
 
     @Test
-    public void shouldFixRelatedWalletsAfterInsertOfCashFlow() {
-        Double amount = 53.1;
-        Wallet from = new Wallet().setName("from").setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0);
-        Wallet to = new Wallet().setName("to").setType(Wallet.Type.OTHER).setInitialAmount(0.0);
-        walletService.insert(from);
-        walletService.insert(to);
-        double fromCurrentAmount = walletService.findById(from.getId()).getCurrentAmount();
-        double toCurrentAmount = walletService.findById(to.getId()).getCurrentAmount();
-        categoryService.insert(new Category().setName("Other"));
+    public void shouldChangeWalletAmountAfterInsert() {
+        Wallet myWallet = new Wallet().setName("My wallet").setInitialAmount(100.0);
+        walletService.insert(myWallet);
 
+        Double currentAmount = myWallet.getCurrentAmount();
+        Double amount = 152.3;
         CashFlow cashFlow = new CashFlow()
                 .setAmount(amount)
-                .setDateTime(new Date())
-                .setFromWallet(from)
-                .setToWallet(to);
+                .setWallet(myWallet)
+                .setType(CashFlow.Type.INCOME)
+                .setDateTime(new Date());
+
         cashFlowService.insert(cashFlow);
 
-        assertThat(walletService.findById(from.getId()).getCurrentAmount()).isEqualTo(fromCurrentAmount - amount);
-        assertThat(walletService.findById(to.getId()).getCurrentAmount()).isEqualTo(toCurrentAmount + amount);
+        assertThat(walletService.findById(myWallet.getId()).getCurrentAmount()).isEqualTo(currentAmount + amount);
+
+        cashFlowService.insert(cashFlow.setId(null).setType(CashFlow.Type.EXPANSE));
+
+        assertThat(walletService.findById(myWallet.getId()).getCurrentAmount()).isEqualTo(currentAmount);
     }
 
     @Test
-    public void shouldFilterCashFlows() {
-        Wallet myWallet = new Wallet().setName("from").setType(Wallet.Type.MY_WALLET).setInitialAmount(100.0);
-        Wallet to = new Wallet().setName("to").setType(Wallet.Type.OTHER).setInitialAmount(0.0);
-        Category category = new Category().setName("Category");
+    public void shouldInsertMissingCategories() {
+        Wallet myWallet = new Wallet().setName("My wallet").setInitialAmount(100.0);
+        String tag1 = "Tag 1";
+
+        String tag2 = "Tag 2";
+        Tag category2 = new Tag(tag2);
+
+        String tag3 = "Tag 3";
 
         walletService.insert(myWallet);
-        walletService.insert(to);
-        categoryService.insert(new Category().setName("Other"));
-        categoryService.insert(category);
+        tagService.insert(new Tag(tag1));
+        tagService.insert(category2);
+        assertThat(tagService.count()).isEqualTo(2);
 
-        DateTime now = DateTime.now();
-        cashFlowService.insert(new CashFlow().setDateTime(now.minusDays(1).toDate()).setAmount(50.0).setCategory(category).setFromWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.minusDays(1).toDate()).setAmount(10.0).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(15.0).setFromWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(80.0).setCategory(category).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.toDate()).setAmount(94.0).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(500.0).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(600.0).setCategory(category).setFromWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(900.0).setCategory(category).setToWallet(myWallet));
-        cashFlowService.insert(new CashFlow().setDateTime(now.plusDays(1).toDate()).setAmount(800.0).setToWallet(myWallet));
+        CashFlow firstCashFlow = new CashFlow()
+                .setAmount(200.0)
+                .setWallet(myWallet)
+                .setType(CashFlow.Type.INCOME)
+                .addTag(Lists.newArrayList(new Tag(tag1), category2))
+                .setDateTime(new Date());
 
+        cashFlowService.insert(firstCashFlow);
 
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), category.getId(), null, null)).hasSize(4);
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), (Long) null, myWallet.getId(), null)).hasSize(3);
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), (Long) null, null, myWallet.getId())).hasSize(6);
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(2).toDate(), category.getId(), null, myWallet.getId())).hasSize(2);
+        assertThat(tagService.count()).isEqualTo(2);
+        assertThat(cashFlowService.findById(firstCashFlow.getId()).getTags()).hasSize(2);
 
-        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), category.getId(),null, null)).hasSize(3);
-        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), (Long) null, myWallet.getId(), null)).hasSize(2);
-        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), (Long) null, null, myWallet.getId())).hasSize(5);
-        assertThat(cashFlowService.findCashFlow(now.toDate(), now.plusDays(2).toDate(), category.getId(), null, myWallet.getId())).hasSize(2);
+        CashFlow secondCashFlow = new CashFlow()
+                .setAmount(300.0)
+                .setWallet(myWallet)
+                .setType(CashFlow.Type.EXPANSE)
+                .addTag(Lists.newArrayList(new Tag(tag1), category2, new Tag(tag3)))
+                .setDateTime(new Date());
 
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(1).toDate(), category.getId(), null, null)).hasSize(2);
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(1).toDate(), (Long) null, myWallet.getId(), null)).hasSize(2);
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(1).toDate(), (Long) null, null, myWallet.getId())).hasSize(3);
-        assertThat(cashFlowService.findCashFlow(now.minusDays(1).toDate(), now.plusDays(1).toDate(), category.getId(), null, myWallet.getId())).hasSize(1);
+        cashFlowService.insert(secondCashFlow);
+
+        assertThat(tagService.count()).isEqualTo(3);
+        assertThat(cashFlowService.findById(firstCashFlow.getId()).getTags()).hasSize(2);
+        assertThat(cashFlowService.findById(secondCashFlow.getId()).getTags()).hasSize(3);
+    }
+
+    @Test
+    public void shouldUpdateCashFlowTags() {
+        Wallet myWallet = new Wallet().setName("My wallet").setInitialAmount(100.0);
+        String tag1 = "Tag 1";
+
+        String tag2 = "Tag 2";
+        Tag category2 = new Tag(tag2);
+
+        String tag3 = "Tag 3";
+
+        walletService.insert(myWallet);
+        tagService.insert(new Tag(tag1));
+        tagService.insert(category2);
+
+        CashFlow cashFlow = new CashFlow()
+                .setAmount(200.0)
+                .setWallet(myWallet)
+                .setType(CashFlow.Type.INCOME)
+                .addTag(Lists.newArrayList(new Tag(tag1), category2))
+                .setDateTime(new Date());
+
+        CashFlow found;
+        cashFlowService.insert(cashFlow);
+        found = cashFlowService.findById(cashFlow.getId());
+
+        // After insert
+        assertThat(tagService.count()).isEqualTo(2);
+        assertThat(found.getTags()).hasSize(2);
+
+        found.removeTag(new Tag(tag1));
+        cashFlowService.update(found);
+        found = cashFlowService.findById(cashFlow.getId());
+
+        // After first update
+        assertThat(tagService.count()).isEqualTo(2);
+        assertThat(found.getTags()).hasSize(1);
+
+        found.clearTags().addTag(Lists.newArrayList(new Tag(tag2), new Tag(tag3)));
+        cashFlowService.update(found);
+
+        // After second update
+        assertThat(tagService.count()).isEqualTo(3);
+        assertThat(found.getTags()).hasSize(2);
     }
 }

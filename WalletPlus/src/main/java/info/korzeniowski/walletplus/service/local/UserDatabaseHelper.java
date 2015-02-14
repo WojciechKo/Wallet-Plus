@@ -12,11 +12,10 @@ import com.j256.ormlite.table.TableUtils;
 import java.lang.ref.WeakReference;
 import java.sql.SQLException;
 
-import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.Event;
+import info.korzeniowski.walletplus.model.Tag;
+import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Wallet;
 
 public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
@@ -24,8 +23,10 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     private Dao<Wallet, Long> walletDao;
-    private Dao<Category, Long> categoryDao;
+    private Dao<Tag, Long> tagDao;
     private Dao<CashFlow, Long> cashFlowDao;
+    private Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao;
+
     private WeakReference<WalletPlus> walletPlus;
 
     public UserDatabaseHelper(Context context, String profileName) {
@@ -40,11 +41,11 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
         return walletDao;
     }
 
-    public Dao<Category, Long> getCategoryDao() throws SQLException {
-        if (categoryDao == null) {
-            categoryDao = getDao(Category.class);
+    public Dao<Tag, Long> getTagDao() throws SQLException {
+        if (tagDao == null) {
+            tagDao = getDao(Tag.class);
         }
-        return categoryDao;
+        return tagDao;
     }
 
     public Dao<CashFlow, Long> getCashFlowDao() throws SQLException {
@@ -54,25 +55,24 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
         return cashFlowDao;
     }
 
+    public Dao<TagAndCashFlowBind, Long> getTagAndCashFlowBindsDao() throws SQLException {
+        if (tagAndCashFlowBindsDao == null) {
+            tagAndCashFlowBindsDao = getDao(TagAndCashFlowBind.class);
+        }
+        return tagAndCashFlowBindsDao;
+    }
+
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
         try {
-            TableUtils.createTable(connectionSource, Event.class);
             TableUtils.createTable(connectionSource, Wallet.class);
-            TableUtils.createTable(connectionSource, Category.class);
+            TableUtils.createTable(connectionSource, Tag.class);
             TableUtils.createTable(connectionSource, CashFlow.class);
-            insertTransferCategory();
+            TableUtils.createTable(connectionSource, TagAndCashFlowBind.class);
         } catch (SQLException e) {
             Log.e(UserDatabaseHelper.class.getName(), "Can't create database", e);
             throw new RuntimeException(e);
         }
-    }
-
-    private void insertTransferCategory() throws SQLException {
-        getCategoryDao().create(
-                new Category()
-                        .setSpecialType(Category.Type.TRANSFER)
-                        .setName(walletPlus.get().getString(R.string.transfer)));
     }
 
     @Override
@@ -82,7 +82,7 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void close() {
         walletDao = null;
-        categoryDao = null;
+        tagDao = null;
         cashFlowDao = null;
         walletPlus = null;
     }

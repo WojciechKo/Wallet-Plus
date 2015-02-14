@@ -7,15 +7,15 @@ import android.text.style.AbsoluteSizeSpan;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.common.base.Strings;
-
 import java.text.NumberFormat;
+import java.util.Iterator;
 import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.CashFlow;
+import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 
 public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
@@ -34,45 +34,27 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     @Override
     protected void fillViewWithItem(MyBaseViewHolder baseHolder, CashFlow item) {
         CashFlowViewHolder holder = (CashFlowViewHolder) baseHolder;
-        holder.category.setText(getCategoryText(item));
-        holder.fromWallet.setText(getFromWalletText(item));
-        holder.toWallet.setText(getToWalletText(item));
+        holder.tag.setText(getTagText(item));
+        holder.wallet.setText(getWalletText(item));
         holder.amount.setText(NumberFormat.getCurrencyInstance().format(item.getAmount()));
         holder.amount.setTextColor(getAmountColor(item));
         holder.date.setText(getDateText(item));
-
-        if (Strings.isNullOrEmpty(item.getComment())) {
-            holder.comment.setVisibility(View.GONE);
-        } else {
-            holder.comment.setVisibility(View.VISIBLE);
-            holder.comment.setText(getLabeledSpannable(getContext().getString(R.string.cashflowListCommentLabel), item.getComment()));
-        }
     }
 
-    private String getCategoryText(CashFlow cashFlow) {
-        if (cashFlow.getCategory() == null) {
-            return getContext().getResources().getString(R.string.categoryNoCategoryName);
+    private String getTagText(CashFlow cashFlow) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<Tag> iterator = cashFlow.getTags().iterator();
+        if (iterator.hasNext()) {
+            sb.append(iterator.next().getName());
         }
-        if (cashFlow.getCategory().getParent() == null) {
-            return cashFlow.getCategory().getName();
+        while (iterator.hasNext()) {
+            sb.append(" ").append(iterator.next().getName());
         }
-        return cashFlow.getCategory().getName() + " (" + cashFlow.getCategory().getParent().getName() + ")";
+        return sb.toString();
     }
 
-    private CharSequence getFromWalletText(CashFlow item) {
-        if (item.getFromWallet() != null) {
-            return getLabeledSpannable(getContext().getString(R.string.cashflowListFromWalletLabel), item.getFromWallet().getName());
-        } else {
-            return getContext().getString(R.string.cashflowListFromWalletLabel);
-        }
-    }
-
-    private CharSequence getToWalletText(CashFlow item) {
-        if (item.getToWallet() != null) {
-            return getLabeledSpannable(getContext().getString(R.string.cashflowListToWalletLabel), item.getToWallet().getName());
-        } else {
-            return getContext().getString(R.string.cashflowListToWalletLabel);
-        }
+    private CharSequence getWalletText(CashFlow item) {
+        return item.getWallet().getName();
     }
 
     private int getAmountColor(CashFlow item) {
@@ -91,7 +73,7 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     private String getDateText(CashFlow item) {
         String timeString = DateFormat.getTimeFormat(getContext()).format(item.getDateTime());
         String dateString = DateFormat.getDateFormat(getContext()).format(item.getDateTime());
-        return timeString + "\n" + dateString;
+        return dateString + " " + timeString;
     }
 
     private CharSequence getLabeledSpannable(String label, String text) {
@@ -101,20 +83,14 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     }
 
     class CashFlowViewHolder extends MyBaseViewHolder {
-        @InjectView(R.id.fromWallet)
-        TextView fromWallet;
-
-        @InjectView(R.id.toWallet)
-        TextView toWallet;
+        @InjectView(R.id.wallet)
+        TextView wallet;
 
         @InjectView(R.id.amount)
         TextView amount;
 
-        @InjectView(R.id.category)
-        TextView category;
-
-        @InjectView(R.id.comment)
-        TextView comment;
+        @InjectView(R.id.tag)
+        TextView tag;
 
         @InjectView(R.id.date)
         TextView date;

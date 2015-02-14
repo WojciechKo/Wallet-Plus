@@ -30,7 +30,7 @@
         </activity>
 
         <activity
-                android:name=".ui.mywallets.list.MyWalletListActivity"
+                android:name=".ui.wallets.list.WalletListActivity"
                 android:label="@string/walletListLabel"
                 android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
@@ -39,17 +39,17 @@
         </activity>
 
         <activity
-                android:name=".ui.mywallets.details.MyWalletDetailsActivity"
-                android:label="@string/title_activity_wallet_details"
-                android:parentActivityName=".ui.mywallets.list.MyWalletListActivity">
+                android:name=".ui.wallets.details.WalletDetailsActivity"
+                android:label="@string/walletDetailsLabel"
+                android:parentActivityName=".ui.wallets.list.WalletListActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.mywallets.list.MyWalletListActivity"/>
+                    android:value=".ui.wallets.list.WalletListActivity"/>
         </activity>
 
         <activity
-                android:name=".ui.otherwallets.list.OtherWalletListActivity"
-                android:label="@string/walletListLabel"
+                android:name=".ui.tag.list.TagListActivity"
+                android:label="@string/tagListLabel"
                 android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
@@ -57,17 +57,17 @@
         </activity>
 
         <activity
-                android:name=".ui.otherwallets.details.OtherWalletDetailsActivity"
-                android:label="@string/title_activity_wallet_details"
-                android:parentActivityName=".ui.otherwallets.list.OtherWalletListActivity">
+                android:name=".ui.tag.details.TagDetailsActivity"
+                android:label="@string/tagDetailsLabel"
+                android:parentActivityName=".ui.tag.list.TagListActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.otherwallets.list.OtherWalletListActivity"/>
+                    android:value=".ui.tag.list.TagListActivity"/>
         </activity>
 
         <activity
                 android:name=".ui.cashflow.list.CashFlowListActivity"
-                android:label="@string/walletListLabel"
+                android:label="@string/cashFlowListLabel"
                 android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
@@ -76,7 +76,7 @@
 
         <activity
                 android:name=".ui.cashflow.details.CashFlowDetailsActivity"
-                android:label="@string/title_activity_wallet_details"
+                android:label="@string/cashFlowDetailsLabel"
                 android:parentActivityName=".ui.cashflow.list.CashFlowListActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
@@ -84,8 +84,8 @@
         </activity>
 
         <activity
-                android:name=".ui.category.list.CategoryListActivity"
-                android:label="@string/categoryListLabel"
+                android:name=".ui.statistics.list.StatisticListActivity"
+                android:label="@string/statisticListLabel"
                 android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
@@ -93,12 +93,12 @@
         </activity>
 
         <activity
-                android:name=".ui.category.details.CategoryDetailsActivity"
-                android:label="@string/categoryDetailsLabel"
-                android:parentActivityName=".ui.category.list.CategoryListActivity">
+                android:name=".ui.statistics.details.StaticticDetailsActivity"
+                android:label="@string/statisticDetailsLabel"
+                android:parentActivityName=".ui.statistics.list.StatisticListActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.category.list.CategoryListActivity"/>
+                    android:value=".ui.statistics.list.StatisticListActivity"/>
         </activity>
 
         <activity
