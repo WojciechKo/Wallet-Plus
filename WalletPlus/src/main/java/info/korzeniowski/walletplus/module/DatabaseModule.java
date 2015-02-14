@@ -16,6 +16,7 @@ import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.CategoryAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.AccountService;
@@ -210,6 +211,21 @@ public class DatabaseModule {
     @Singleton
     public CashFlowService provideCashFlowService(LocalCashFlowService localCashFlowService) {
         return localCashFlowService;
+    }
+
+    /**
+     * *************
+     * CATEGORY AND CASH_FLOW BIND
+     * *************
+     */
+    @Provides
+    public Dao<CategoryAndCashFlowBind, Long> provideCategoryAndCashFlowDao(UserDatabaseHelper userDatabaseHelper) {
+        try {
+            return userDatabaseHelper.getCategoryAndCashFlowBindsDao();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**

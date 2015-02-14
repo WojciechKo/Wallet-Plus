@@ -51,28 +51,11 @@
                     android:text="@string/cashflowCategoryLabel"
                     android:textSize="@dimen/smallFontSize"/>
 
-            <LinearLayout android:layout_width="match_parent"
+            <MultiAutoCompleteTextView android:id="@+id/category"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center"
-                    android:orientation="horizontal">
-
-                <info.hoang8f.widget.FButton android:id="@+id/category"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="5dp"
-                        android:layout_weight="1"
-                        fbutton:buttonColor="@color/background"
-                        fbutton:cornerRadius="2dp"
-                        fbutton:shadowHeight="2dp"/>
-
-                <ImageButton android:id="@+id/removeCategory"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:contentDescription="@string/removeCategory"
-                        android:src="@drawable/ic_remove"/>
-            </LinearLayout>
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"/>
 
             <TextView android:id="@+id/amountLabel"
                     android:layout_width="match_parent"

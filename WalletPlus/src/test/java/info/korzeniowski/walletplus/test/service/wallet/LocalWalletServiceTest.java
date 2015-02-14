@@ -86,7 +86,7 @@ public class LocalWalletServiceTest {
     }
 
     private CashFlow getCashFlow(Wallet from) {
-        return new CashFlow().setDateTime(new Date()).setAmount(50.00).setCategory(null).setWallet(from);
+        return new CashFlow().setDateTime(new Date()).setAmount(50.00).setWallet(from);
     }
 
     private Wallet getSimpleWallet() {

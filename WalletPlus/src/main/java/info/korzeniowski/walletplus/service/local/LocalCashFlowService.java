@@ -2,7 +2,10 @@ package info.korzeniowski.walletplus.service.local;
 
 import com.google.common.base.Preconditions;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
+import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
@@ -13,6 +16,7 @@ import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.CategoryAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
@@ -21,17 +25,20 @@ import info.korzeniowski.walletplus.service.exception.DatabaseException;
 
 public class LocalCashFlowService implements CashFlowService {
     private final Dao<CashFlow, Long> cashFlowDao;
-    //TODO: zamienić na Service
     private final Dao<Wallet, Long> walletDao;
-    //TODO: zamienić na Service
     private final Dao<Category, Long> categoryDao;
-    private Category transfer;
+    private final Dao<CategoryAndCashFlowBind, Long> categoryAndCashFlowBindsDao;
+    private PreparedQuery<Category> categoriesForCashFlowQuery;
 
     @Inject
-    public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao, Dao<Wallet, Long> walletDao, Dao<Category, Long> categoryDao) {
+    public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao,
+                                Dao<Wallet, Long> walletDao,
+                                Dao<Category, Long> categoryDao,
+                                Dao<CategoryAndCashFlowBind, Long> categoryAndCashFlowBindsDao) {
         this.cashFlowDao = cashFlowDao;
         this.walletDao = walletDao;
         this.categoryDao = categoryDao;
+        this.categoryAndCashFlowBindsDao = categoryAndCashFlowBindsDao;
     }
 
     @Override
@@ -46,7 +53,9 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public CashFlow findById(final Long id) {
         try {
-            return cashFlowDao.queryForId(id);
+            CashFlow cashFlow = cashFlowDao.queryForId(id);
+            cashFlow.addCategory(getCategoriesForCashFlow(cashFlow.getId()));
+            return cashFlow;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -55,10 +64,34 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public List<CashFlow> getAll() {
         try {
-            return cashFlowDao.queryBuilder().orderBy("dateTime", false).query();
+            List<CashFlow> cashFlows = cashFlowDao.queryBuilder().orderBy("dateTime", false).query();
+            for (CashFlow cashFlow : cashFlows) {
+                cashFlow.addCategory(getCategoriesForCashFlow(cashFlow.getId()));
+            }
+
+            return cashFlows;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    private List<Category> getCategoriesForCashFlow(Long cashFlowId) throws SQLException {
+        if (categoriesForCashFlowQuery == null) {
+            categoriesForCashFlowQuery = getCategoriesForCashFlowQuery();
+        }
+        categoriesForCashFlowQuery.setArgumentHolderValue(0, cashFlowId);
+        return categoryDao.query(categoriesForCashFlowQuery);
+    }
+
+    private PreparedQuery<Category> getCategoriesForCashFlowQuery() throws SQLException {
+        QueryBuilder<CategoryAndCashFlowBind, Long> categoryCashFlowQb = categoryAndCashFlowBindsDao.queryBuilder();
+        categoryCashFlowQb.selectColumns(CategoryAndCashFlowBind.CATEGORY_ID_FIELD_NAME);
+        SelectArg cashFlowIdArg = new SelectArg();
+        categoryCashFlowQb.where().eq(CategoryAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME, cashFlowIdArg);
+
+        QueryBuilder<Category, Long> categoryQb = categoryDao.queryBuilder();
+        categoryQb.where().in(Category.ID_FIELD_NAME, categoryCashFlowQb);
+        return categoryQb.prepare();
     }
 
     @Override
@@ -67,33 +100,43 @@ public class LocalCashFlowService implements CashFlowService {
             CashFlow toUpdate = findById(cashFlow.getId());
             validateUpdate(toUpdate, cashFlow);
             cashFlowDao.update(cashFlow);
-            fixCurrentAmountInWalletsAfterUpdate(toUpdate, cashFlow);
+            unbindWithCategories(toUpdate);
+            bindWithCategories(cashFlow);
+            fixCurrentAmountInWalletAfterDelete(toUpdate);
+            fixCurrentAmountInWalletAfterInsert(cashFlow);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private void fixCurrentAmountInWalletsAfterUpdate(CashFlow oldCashFlow, CashFlow newCashFlow) throws SQLException {
-        fixCurrentAmountInWalletAfterDelete(oldCashFlow);
-        fixCurrentAmountInWalletAfterInsert(newCashFlow);
-    }
-
     private void validateUpdate(CashFlow old, CashFlow newValue) {
-        //TODO: if exists
-        if (newValue.getType().equals(CashFlow.Type.TRANSFER)) {
-            newValue.setCategory(getTransferCategory());
-        }
+
     }
 
     @Override
     public Long insert(CashFlow cashFlow) {
         try {
-            validateInsert(cashFlow);
             cashFlowDao.create(cashFlow);
+            bindWithCategories(cashFlow);
             fixCurrentAmountInWalletAfterInsert(cashFlow);
             return cashFlow.getId();
         } catch (SQLException e) {
             throw new DatabaseException(e);
+        }
+    }
+
+    private void bindWithCategories(CashFlow cashFlow) throws SQLException {
+        for (Category category : cashFlow.getCategories()) {
+            Category foundCategory = categoryDao.queryBuilder().where().eq("name", category.getName()).queryForFirst();
+
+            if (foundCategory == null) {
+                foundCategory = category;
+                categoryDao.create(foundCategory);
+            } else {
+                category.setId(foundCategory.getId());
+            }
+
+            categoryAndCashFlowBindsDao.create(new CategoryAndCashFlowBind(foundCategory, cashFlow));
         }
     }
 
@@ -111,21 +154,27 @@ public class LocalCashFlowService implements CashFlowService {
         walletDao.update(wallet);
     }
 
-    private void validateInsert(CashFlow cashFlow) {
-        if (CashFlow.Type.TRANSFER.equals(cashFlow.getType())) {
-            cashFlow.setCategory(getTransferCategory());
-        }
-    }
-
     @Override
     public void deleteById(Long id) {
         try {
             CashFlow cashFlow = cashFlowDao.queryForId(id);
             cashFlowDao.deleteById(id);
+            unbindWithCategories(cashFlow);
             fixCurrentAmountInWalletAfterDelete(cashFlow);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    private void unbindWithCategories(CashFlow cashFlow) throws SQLException {
+        DeleteBuilder<CategoryAndCashFlowBind, Long> deleteBuilder = categoryAndCashFlowBindsDao.deleteBuilder();
+
+        deleteBuilder.where()
+                .eq(CategoryAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME, cashFlow)
+                .and()
+                .in(CategoryAndCashFlowBind.CATEGORY_ID_FIELD_NAME, cashFlow.getCategories());
+
+        deleteBuilder.delete();
     }
 
     private void fixCurrentAmountInWalletAfterDelete(CashFlow cashFlow) throws SQLException {
@@ -145,7 +194,7 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public long countAssignedWithWallet(Long walletId) {
         try {
-            return cashFlowDao.queryBuilder().where().eq("fromWallet_id", walletId).or().eq("toWallet_id", walletId).countOf();
+            return cashFlowDao.queryBuilder().where().eq("wallet_id", walletId).countOf();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -153,23 +202,12 @@ public class LocalCashFlowService implements CashFlowService {
 
     @Override
     public long countAssignedWithCategory(Long categoryId) {
-        try {
-            return cashFlowDao.queryBuilder().where().eq("category_id", categoryId).countOf();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public Category getTransferCategory() {
-        try {
-            if (transfer == null) {
-                transfer = categoryDao.queryBuilder().where().eq("specialType", Category.Type.TRANSFER).queryForFirst();
-            }
-            return transfer;
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
+//        try {
+            throw new RuntimeException("Not implemented");
+//            return cashFlowDao.queryBuilder().where().eq("category_id", categoryId).countOf();
+//        } catch (SQLException e) {
+//            throw new DatabaseException(e);
+//        }
     }
 
     @Override
@@ -196,17 +234,6 @@ public class LocalCashFlowService implements CashFlowService {
                 where.and();
             }
             where.lt("dateTime", to);
-            isFirst = false;
-        }
-        if (categoryId != null) {
-            if (!isFirst) {
-                where.and();
-            }
-            if (categoryId == CategoryService.CATEGORY_NULL_ID) {
-                where.isNull("category_id");
-            } else {
-                where.eq("category_id", categoryId);
-            }
             isFirst = false;
         }
         if (walletId != null) {

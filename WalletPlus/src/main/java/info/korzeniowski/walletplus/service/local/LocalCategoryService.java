@@ -168,27 +168,30 @@ public class LocalCategoryService implements CategoryService {
         return stats;
     }
 
-
     @Override
     public List<CategoryStats> getCategoryStatsList(Date firstDay, Period period, Integer iteration) {
-        List<Category> categories;
         try {
-            categories = categoryDao.queryForAll();
+            List<CategoryStats> result = createCategoryStatsResults(categoryDao.queryForAll());
+            List<CashFlow> cashFlowList = getCashFlowList(firstDay, period, iteration);
+
+            for (final CashFlow cashFlow : cashFlowList) {
+                List<Category> categories = cashFlow.getCategories();
+                for (Category category : categories) {
+                    CategoryStats categoryStats = findCategoryStats(result, category);
+
+                    if (cashFlow.getType() == CashFlow.Type.INCOME) {
+                        categoryStats.incomeAmount(cashFlow.getAmount());
+                    } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
+                        categoryStats.expanseAmount(cashFlow.getAmount());
+                    }
+                }
+            }
+
+            return result;
+
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
-        List<CategoryStats> result = createCategoryStatsResults(categories);
-
-        List<CashFlow> cashFlowList = getCashFlowList(firstDay, period, iteration);
-        for (final CashFlow cashFlow : cashFlowList) {
-            CategoryStats found = findCategoryStats(result, cashFlow.getCategory());
-            if (cashFlow.getType() == CashFlow.Type.INCOME) {
-                found.incomeAmount(cashFlow.getAmount());
-            } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
-                found.expanseAmount(cashFlow.getAmount());
-            }
-        }
-        return result;
     }
 
     private List<CategoryStats> createCategoryStatsResults(List<Category> categories) {

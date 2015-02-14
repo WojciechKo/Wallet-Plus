@@ -2,7 +2,13 @@ package info.korzeniowski.walletplus.model;
 
 import com.j256.ormlite.field.DatabaseField;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class CashFlow implements Identifiable {
 
@@ -18,9 +24,6 @@ public class CashFlow implements Identifiable {
     @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES wallet(id) ON DELETE CASCADE")
     private Wallet wallet;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES category(id) ON DELETE SET NULL")
-    private Category category;
-
     @DatabaseField
     private String comment;
 
@@ -29,6 +32,17 @@ public class CashFlow implements Identifiable {
 
     @DatabaseField(canBeNull = false)
     private boolean completed;
+
+    private Set<Category> categories;
+
+    public CashFlow() {
+        categories = new TreeSet<>(new Comparator<Category>() {
+            @Override
+            public int compare(Category lhs, Category rhs) {
+                return lhs.getName().compareTo(rhs.getName());
+            }
+        });
+    }
 
     @Override
     public Long getId() {
@@ -67,15 +81,6 @@ public class CashFlow implements Identifiable {
         return this;
     }
 
-    public Category getCategory() {
-        return category;
-    }
-
-    public CashFlow setCategory(Category category) {
-        this.category = category;
-        return this;
-    }
-
     public String getComment() {
         return comment;
     }
@@ -100,6 +105,30 @@ public class CashFlow implements Identifiable {
 
     public void setCompleted(Boolean completed) {
         this.completed = completed;
+    }
+
+    public CashFlow addCategory(Collection<? extends Category> categories) {
+        this.categories.addAll(categories);
+        return this;
+    }
+
+    public CashFlow addCategory(Category category) {
+        categories.add(category);
+        return this;
+    }
+
+    public CashFlow removeCategory(Category category) {
+        categories.remove(category);
+        return this;
+    }
+
+    public CashFlow clearCategories() {
+        categories.clear();
+        return this;
+    }
+
+    public List<Category> getCategories() {
+        return new ArrayList<Category>(categories);
     }
 
     public enum Type {

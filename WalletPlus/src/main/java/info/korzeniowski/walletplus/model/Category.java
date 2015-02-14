@@ -25,20 +25,21 @@ public class Category implements Comparable<Category>, Identifiable, Parcelable 
         }
     };
 
+    public final static String ID_FIELD_NAME = "id";
+    public final static String NAME_FIELD_NAME = "name";
+
     @DatabaseField(generatedId = true)
     private Long id;
 
-    @DatabaseField(uniqueIndex = true)
+    @DatabaseField(uniqueIndex = true, canBeNull = false)
     private String name;
 
     public Category() {
 
     }
 
-    public Category(Category category) {
-        checkNotNull(category);
-        setId(category.getId());
-        setName(category.getName());
+    public Category(String name) {
+        this.name = name;
     }
 
     private Category(Parcel in) {
@@ -110,10 +111,6 @@ public class Category implements Comparable<Category>, Identifiable, Parcelable 
     @Override
     public final int compareTo(@NonNull Category other) {
         return Comparators.NAME.compare(this, other);
-    }
-
-    public enum Type {
-        TRANSFER
     }
 
     public static class Comparators {

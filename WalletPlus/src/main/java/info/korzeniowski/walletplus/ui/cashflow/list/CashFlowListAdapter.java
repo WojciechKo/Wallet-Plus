@@ -8,12 +8,14 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.text.NumberFormat;
+import java.util.Iterator;
 import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.CashFlow;
+import info.korzeniowski.walletplus.model.Category;
 import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 
 public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
@@ -40,10 +42,15 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     }
 
     private String getCategoryText(CashFlow cashFlow) {
-        if (cashFlow.getCategory() == null) {
-            return "";
+        StringBuilder sb = new StringBuilder();
+        Iterator<Category> iterator = cashFlow.getCategories().iterator();
+        if (iterator.hasNext()) {
+            sb.append(iterator.next().getName());
         }
-        return cashFlow.getCategory().getName();
+        while (iterator.hasNext()) {
+            sb.append(" ").append(iterator.next().getName());
+        }
+        return sb.toString();
     }
 
     private CharSequence getWalletText(CashFlow item) {

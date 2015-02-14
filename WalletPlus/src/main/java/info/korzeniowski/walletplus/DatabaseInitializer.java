@@ -92,8 +92,8 @@ public class DatabaseInitializer {
 
         Category mainInternet = new Category().setName("Internet");
         localCategoryService.insert(mainInternet);
-        localCategoryService.insert(new Category().setName("Music forum"));
-        localCategoryService.insert(new Category().setName("News Service"));
+        localCategoryService.insert(new Category().setName("Music-forum"));
+        localCategoryService.insert(new Category().setName("News-service"));
 
         Category mainPartner = new Category().setName("Partner");
         localCategoryService.insert(mainPartner);
@@ -101,21 +101,21 @@ public class DatabaseInitializer {
         /** Init cashflows **/
         Calendar date = Calendar.getInstance();
 
-        localCashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPANSE).setCategory(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Food"));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPANSE).addCategory(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Food"));
 
         date.add(Calendar.DATE, -1);
-        localCashFlowService.insert(new CashFlow().setAmount(150.0).setType(CashFlow.Type.EXPANSE).setCategory(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Cleaning products"));
+        localCashFlowService.insert(new CashFlow().setAmount(150.0).setType(CashFlow.Type.EXPANSE).addCategory(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Cleaning products"));
 
         date.add(Calendar.HOUR_OF_DAY, -1);
 
         date.add(Calendar.HOUR_OF_DAY, -1);
-        localCashFlowService.insert(new CashFlow().setAmount(75.0).setType(CashFlow.Type.EXPANSE).setCategory(energy).setWallet(bankAccount).setDateTime(date.getTime()));
-        localCashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPANSE).setCategory(water).setWallet(bankAccount).setDateTime(date.getTime()));
-        localCashFlowService.insert(new CashFlow().setAmount(50.0).setType(CashFlow.Type.EXPANSE).setCategory(gas).setWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(75.0).setType(CashFlow.Type.EXPANSE).addCategory(energy).setWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPANSE).addCategory(water).setWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(50.0).setType(CashFlow.Type.EXPANSE).addCategory(gas).setWallet(bankAccount).setDateTime(date.getTime()));
 
         date.add(Calendar.DATE, -1);
         localCashFlowService.insert(new CashFlow().setAmount(500.0).setType(CashFlow.Type.INCOME).setWallet(bankAccount).setWallet(personalWallet).setDateTime(date.getTime()));
         localCashFlowService.insert(new CashFlow().setAmount(1000.0).setType(CashFlow.Type.INCOME).setWallet(bankAccount).setWallet(wardrobe).setComment("Investition").setDateTime(date.getTime()));
-        localCashFlowService.insert(new CashFlow().setAmount(3000.0).setType(CashFlow.Type.INCOME).setCategory(null).setWallet(bankAccount).setComment("Payment").setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(3000.0).setType(CashFlow.Type.INCOME).setWallet(bankAccount).setComment("Payment").setDateTime(date.getTime()));
     }
 }

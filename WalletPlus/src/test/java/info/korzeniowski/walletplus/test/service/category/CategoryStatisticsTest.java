@@ -62,21 +62,21 @@ public class CategoryStatisticsTest {
 
         // yesterday
         // -5 +7 -1
-        cashFlowService.insert(new CashFlow().setCategory(category).setWallet(walletService.getMyWallets().get(0)).setAmount(5.0).setDateTime(yesterday));
-        cashFlowService.insert(new CashFlow().setCategory(category).setAmount(7.0).setDateTime(yesterday));
-        cashFlowService.insert(new CashFlow().setCategory(category).setWallet(walletService.getMyWallets().get(0)).setAmount(1.0).setDateTime(yesterday));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(0)).setAmount(5.0).setDateTime(yesterday));
+        cashFlowService.insert(new CashFlow().setAmount(7.0).setDateTime(yesterday));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(0)).setAmount(1.0).setDateTime(yesterday));
 
         // today
         // +50 +70 -90
-        cashFlowService.insert(new CashFlow().setCategory(category).setAmount(50.0).setDateTime(today));
-        cashFlowService.insert(new CashFlow().setCategory(category).setAmount(70.0).setDateTime(today));
-        cashFlowService.insert(new CashFlow().setCategory(category).setWallet(walletService.getMyWallets().get(1)).setAmount(90.0).setDateTime(today));
+        cashFlowService.insert(new CashFlow().setAmount(50.0).setDateTime(today));
+        cashFlowService.insert(new CashFlow().setAmount(70.0).setDateTime(today));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(1)).setAmount(90.0).setDateTime(today));
 
         // tomorrow
         // +100 -300 +700
-        cashFlowService.insert(new CashFlow().setCategory(category).setAmount(100.0).setDateTime(tomorrow));
-        cashFlowService.insert(new CashFlow().setCategory(category).setWallet(walletService.getMyWallets().get(1)).setAmount(300.0).setDateTime(tomorrow));
-        cashFlowService.insert(new CashFlow().setCategory(category).setAmount(700.0).setDateTime(tomorrow));
+        cashFlowService.insert(new CashFlow().setAmount(100.0).setDateTime(tomorrow));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(1)).setAmount(300.0).setDateTime(tomorrow));
+        cashFlowService.insert(new CashFlow().setAmount(700.0).setDateTime(tomorrow));
 
         CategoryService.CategoryStats stats;
 
@@ -122,10 +122,10 @@ public class CategoryStatisticsTest {
 
         Date today = DateTime.now().toDate();
 
-        cashFlowService.insert(new CashFlow().setCategory(mainCategory).setWallet(walletService.getMyWallets().get(0)).setAmount(3.0).setDateTime(today));
-        cashFlowService.insert(new CashFlow().setCategory(subCategory).setAmount(5.0).setDateTime(today));
-        cashFlowService.insert(new CashFlow().setCategory(subCategory).setWallet(walletService.getMyWallets().get(0)).setAmount(7.0).setDateTime(today));
-        cashFlowService.insert(new CashFlow().setCategory(mainCategory).setAmount(11.0).setDateTime(today));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(0)).setAmount(3.0).setDateTime(today));
+        cashFlowService.insert(new CashFlow().setAmount(5.0).setDateTime(today));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(0)).setAmount(7.0).setDateTime(today));
+        cashFlowService.insert(new CashFlow().setAmount(11.0).setDateTime(today));
 
         CategoryService.CategoryStats mainCategoryStats = categoryService.getCategoryStats(mainCategory, today, Period.days(1), 0);
         assertThat(mainCategoryStats.getIncome()).isEqualTo(11.0);

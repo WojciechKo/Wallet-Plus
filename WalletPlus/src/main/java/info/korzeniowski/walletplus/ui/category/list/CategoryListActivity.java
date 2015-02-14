@@ -96,19 +96,7 @@ public class CategoryListActivity extends BaseActivity {
     }
 
     private List<Category> getMainCategories() {
-        List<Category> mainCategories = localCategoryService.getAll();
-
-        if (isAnyCashFlowWithoutCategoryExists()) {
-            mainCategories.add(new Category()
-                    .setId(CategoryService.CATEGORY_NULL_ID)
-                    .setName(getString(R.string.categoryNoCategoryName)));
-        }
-
-        return mainCategories;
-    }
-
-    private boolean isAnyCashFlowWithoutCategoryExists() {
-        return !localCashFlowService.findCashFlow(null, null, CategoryService.CATEGORY_NULL_ID, null).isEmpty();
+        return localCategoryService.getAll();
     }
 
     @Override

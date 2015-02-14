@@ -1,7 +1,6 @@
 package info.korzeniowski.walletplus.ui.cashflow.details;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -9,30 +8,35 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
+import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -52,7 +56,6 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.widget.OnContentClickListener;
 
 public class CashFlowDetailsFragment extends Fragment {
     public static final String TAG = "CashFlowDetailsFragment";
@@ -72,13 +75,10 @@ public class CashFlowDetailsFragment extends Fragment {
     EditText amount;
 
     @InjectView(R.id.category)
-    Button category;
+    MultiAutoCompleteTextView category;
 
     @InjectView(R.id.categoryLabel)
     TextView categoryLabel;
-
-    @InjectView(R.id.removeCategory)
-    ImageButton removeCategory;
 
     @InjectView(R.id.datePicker)
     Button datePicker;
@@ -164,7 +164,7 @@ public class CashFlowDetailsFragment extends Fragment {
         wallet.setAdapter(new WalletAdapter(getActivity(), wallets));
         wallet.setSelection(wallets.indexOf(cashFlowDetailsState.getWallet()));
 
-        category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
+        category.setText(getCategoryText(cashFlowDetailsState.getCategories()));
         isCompleted.setChecked(cashFlowDetailsState.isCompleted());
         datePicker.setText(DateFormat.getDateFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
         timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
@@ -304,60 +304,27 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private void setupCategory() {
-        if (cashFlowDetailsState.getType() == CashFlow.Type.TRANSFER) {
-            category.setText(getCategoryText(localCashFlowService.getTransferCategory()));
-
-            category.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(getActivity(), getActivity().getString(R.string.cashFlowTransferCategoryToast), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            removeCategory.setOnClickListener(null);
-
-        } else {
-            category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
-
-            category.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ListView listView = (ListView) View.inflate(getActivity(), R.layout.fragment_category_list, null);
-
-                    final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                            .setTitle(getString(R.string.cashflowCategoryChooseAlertTitle))
-                            .setView(listView)
-                            .create();
-
-                    listView.setAdapter(new CategoryListAdapter(getActivity(), categoryList));
-                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Category category = ((CategoryListAdapter) parent.getAdapter()).getItem(position);
-                            cashFlowDetailsState.setCategory(category);
-                            CashFlowDetailsFragment.this.category.setText(getCategoryText(cashFlowDetailsState.getCategory()));
-                            alertDialog.dismiss();
-                        }
-                    });
-
-                    alertDialog.show();
-                }
-            });
-
-            removeCategory.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    cashFlowDetailsState.setCategory(null);
-                    category.setText(getCategoryText(cashFlowDetailsState.getCategory()));                }
-            });
-        }
+        category.setText(getCategoryText(cashFlowDetailsState.getCategories()));
+        List<String> categoryNameList = Lists.transform(categoryList, new Function<Category, String>() {
+            @Override
+            public String apply(Category input) {
+                return input.getName();
+            }
+        });
+        category.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_dropdown_item_1line, categoryNameList));
+        category.setTokenizer(new SpaceTokenizer());
     }
 
-    private String getCategoryText(Category category) {
-        if (category == null) {
-            return getString(R.string.categoryNoCategoryName);
+    private String getCategoryText(List<Category> categories) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<Category> iterator = categories.iterator();
+        if (iterator.hasNext()) {
+            sb.append(iterator.next().getName());
         }
-        return category.getName();
+        while (iterator.hasNext()) {
+            sb.append(" ").append(iterator.next().getName());
+        }
+        return sb.toString();
     }
 
     @Override
@@ -380,6 +347,12 @@ public class CashFlowDetailsFragment extends Fragment {
             isValid = false;
         }
 
+        List<Category> categories = Lists.newArrayList();
+        for (String categoryName: this.category.getText().toString().split(" ")) {
+            categories.add(new Category(categoryName));
+        }
+        cashFlowDetailsState.setCategories(categories);
+
         if (isValid) {
             if (DetailsAction.ADD.equals(detailsAction)) {
                 localCashFlowService.insert(cashFlowDetailsState.buildCashFlow());
@@ -392,6 +365,59 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private enum DetailsAction {ADD, EDIT}
+
+    public class SpaceTokenizer implements MultiAutoCompleteTextView.Tokenizer {
+
+        public int findTokenStart(CharSequence text, int cursor) {
+            int i = cursor;
+
+            while (i > 0 && text.charAt(i - 1) != ' ') {
+                i--;
+            }
+            while (i < cursor && text.charAt(i) == ' ') {
+                i++;
+            }
+
+            return i;
+        }
+
+        public int findTokenEnd(CharSequence text, int cursor) {
+            int i = cursor;
+            int len = text.length();
+
+            while (i < len) {
+                if (text.charAt(i) == ' ') {
+                    return i;
+                } else {
+                    i++;
+                }
+            }
+
+            return len;
+        }
+
+        public CharSequence terminateToken(CharSequence text) {
+            int i = text.length();
+
+            while (i > 0 && text.charAt(i - 1) == ' ') {
+                i--;
+            }
+
+            if (i > 0 && text.charAt(i - 1) == ' ') {
+                return text;
+            } else {
+                if (text instanceof Spanned) {
+                    SpannableString sp = new SpannableString(text + " ");
+                    TextUtils.copySpansFrom((Spanned) text, 0, text.length(),
+                            Object.class, sp, 0);
+                    return sp;
+                } else {
+                    return text + " ";
+                }
+            }
+        }
+    }
+
 
     class WalletAdapter extends BaseAdapter {
         final List<Wallet> wallets;

@@ -16,6 +16,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.CategoryAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Wallet;
 
 public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
@@ -25,6 +26,8 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Dao<Wallet, Long> walletDao;
     private Dao<Category, Long> categoryDao;
     private Dao<CashFlow, Long> cashFlowDao;
+    private Dao<CategoryAndCashFlowBind, Long> categoryAndCashFlowBindsDao;
+
     private WeakReference<WalletPlus> walletPlus;
 
     public UserDatabaseHelper(Context context, String profileName) {
@@ -53,12 +56,20 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
         return cashFlowDao;
     }
 
+    public Dao<CategoryAndCashFlowBind, Long> getCategoryAndCashFlowBindsDao() throws SQLException {
+        if (categoryAndCashFlowBindsDao == null) {
+            categoryAndCashFlowBindsDao = getDao(CategoryAndCashFlowBind.class);
+        }
+        return categoryAndCashFlowBindsDao;
+    }
+
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
         try {
             TableUtils.createTable(connectionSource, Wallet.class);
             TableUtils.createTable(connectionSource, Category.class);
             TableUtils.createTable(connectionSource, CashFlow.class);
+            TableUtils.createTable(connectionSource, CategoryAndCashFlowBind.class);
         } catch (SQLException e) {
             Log.e(UserDatabaseHelper.class.getName(), "Can't create database", e);
             throw new RuntimeException(e);
