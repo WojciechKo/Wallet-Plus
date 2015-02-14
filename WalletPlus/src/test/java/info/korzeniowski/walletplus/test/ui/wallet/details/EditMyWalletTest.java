@@ -26,7 +26,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
 import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
-import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsActivity;
+import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -70,9 +70,9 @@ public class EditMyWalletTest {
         Mockito.when(walletService.findById(wallet.getId())).thenReturn(wallet);
 
         Intent intent = new Intent();
-        intent.putExtra(MyWalletDetailsActivity.EXTRAS_WALLET_ID, wallet.getId());
+        intent.putExtra(WalletDetailsActivity.EXTRAS_WALLET_ID, wallet.getId());
 
-        activity = Robolectric.buildActivity(MyWalletDetailsActivity.class).withIntent(intent).create().start().restart().get();
+        activity = Robolectric.buildActivity(WalletDetailsActivity.class).withIntent(intent).create().start().restart().get();
         ButterKnife.inject(this, activity);
     }
 

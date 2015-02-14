@@ -26,8 +26,8 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
 import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
-import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsActivity;
-import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListActivity;
+import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
+import info.korzeniowski.walletplus.ui.wallets.list.WalletListActivity;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -52,7 +52,7 @@ public class MyWalletListTest {
 
         Mockito.when(mockWalletService.getMyWallets()).thenReturn(Lists.newArrayList(new Wallet().setId(1L).setName("Wallet 1"), new Wallet().setId(2L).setName("Wallet 2")));
 
-        activity = Robolectric.buildActivity(MyWalletListActivity.class).create().start().resume().get();
+        activity = Robolectric.buildActivity(WalletListActivity.class).create().start().resume().get();
         ButterKnife.inject(this, activity);
     }
 
@@ -60,7 +60,7 @@ public class MyWalletListTest {
     public void shouldOpenFragmentToCreateNewWallet() {
         activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_new));
 
-        Intent expectedIntent = new Intent(activity, MyWalletDetailsActivity.class);
+        Intent expectedIntent = new Intent(activity, WalletDetailsActivity.class);
         assertThat(Robolectric.shadowOf(activity).getNextStartedActivity()).isEqualTo(expectedIntent);
     }
 

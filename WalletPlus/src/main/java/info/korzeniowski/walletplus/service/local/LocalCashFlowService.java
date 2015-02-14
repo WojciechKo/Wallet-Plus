@@ -15,34 +15,33 @@ import java.util.List;
 import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.CategoryAndCashFlowBind;
+import info.korzeniowski.walletplus.model.Tag;
+import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.service.CategoryService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 
 public class LocalCashFlowService implements CashFlowService {
     private final Dao<CashFlow, Long> cashFlowDao;
     private final Dao<Wallet, Long> walletDao;
-    private final Dao<Category, Long> categoryDao;
-    private final Dao<CategoryAndCashFlowBind, Long> categoryAndCashFlowBindsDao;
-    private final LocalCategoryService localCategoryService;
+    private final Dao<Tag, Long> tagDao;
+    private final Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao;
+    private final LocalTagService localTagService;
 
-    private PreparedQuery<Category> categoriesForCashFlowQuery;
+    private PreparedQuery<Tag> categoriesForCashFlowQuery;
 
     @Inject
     public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao,
                                 Dao<Wallet, Long> walletDao,
-                                Dao<Category, Long> categoryDao,
-                                Dao<CategoryAndCashFlowBind, Long> categoryAndCashFlowBindsDao,
-                                LocalCategoryService localCategoryService) {
+                                Dao<Tag, Long> tagDao,
+                                Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao,
+                                LocalTagService localTagService) {
         this.cashFlowDao = cashFlowDao;
         this.walletDao = walletDao;
-        this.categoryDao = categoryDao;
-        this.categoryAndCashFlowBindsDao = categoryAndCashFlowBindsDao;
-        this.localCategoryService = localCategoryService;
+        this.tagDao = tagDao;
+        this.tagAndCashFlowBindsDao = tagAndCashFlowBindsDao;
+        this.localTagService = localTagService;
     }
 
     @Override
@@ -58,7 +57,7 @@ public class LocalCashFlowService implements CashFlowService {
     public CashFlow findById(final Long id) {
         try {
             CashFlow cashFlow = cashFlowDao.queryForId(id);
-            cashFlow.addCategory(getCategoriesForCashFlow(cashFlow.getId()));
+            cashFlow.addTag(getCategoriesForCashFlow(cashFlow.getId()));
             return cashFlow;
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -70,7 +69,7 @@ public class LocalCashFlowService implements CashFlowService {
         try {
             List<CashFlow> cashFlows = cashFlowDao.queryBuilder().orderBy("dateTime", false).query();
             for (CashFlow cashFlow : cashFlows) {
-                cashFlow.addCategory(getCategoriesForCashFlow(cashFlow.getId()));
+                cashFlow.addTag(getCategoriesForCashFlow(cashFlow.getId()));
             }
 
             return cashFlows;
@@ -79,23 +78,23 @@ public class LocalCashFlowService implements CashFlowService {
         }
     }
 
-    private List<Category> getCategoriesForCashFlow(Long cashFlowId) throws SQLException {
+    private List<Tag> getCategoriesForCashFlow(Long cashFlowId) throws SQLException {
         if (categoriesForCashFlowQuery == null) {
             categoriesForCashFlowQuery = getCategoriesForCashFlowQuery();
         }
         categoriesForCashFlowQuery.setArgumentHolderValue(0, cashFlowId);
-        return categoryDao.query(categoriesForCashFlowQuery);
+        return tagDao.query(categoriesForCashFlowQuery);
     }
 
-    private PreparedQuery<Category> getCategoriesForCashFlowQuery() throws SQLException {
-        QueryBuilder<CategoryAndCashFlowBind, Long> categoryCashFlowQb = categoryAndCashFlowBindsDao.queryBuilder();
-        categoryCashFlowQb.selectColumns(CategoryAndCashFlowBind.CATEGORY_ID_FIELD_NAME);
+    private PreparedQuery<Tag> getCategoriesForCashFlowQuery() throws SQLException {
+        QueryBuilder<TagAndCashFlowBind, Long> tagCashFlowQb = tagAndCashFlowBindsDao.queryBuilder();
+        tagCashFlowQb.selectColumns(TagAndCashFlowBind.TAG_ID_FIELD_NAME);
         SelectArg cashFlowIdArg = new SelectArg();
-        categoryCashFlowQb.where().eq(CategoryAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME, cashFlowIdArg);
+        tagCashFlowQb.where().eq(TagAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME, cashFlowIdArg);
 
-        QueryBuilder<Category, Long> categoryQb = categoryDao.queryBuilder();
-        categoryQb.where().in(Category.ID_FIELD_NAME, categoryCashFlowQb);
-        return categoryQb.prepare();
+        QueryBuilder<Tag, Long> tagQb = tagDao.queryBuilder();
+        tagQb.where().in(Tag.ID_FIELD_NAME, tagCashFlowQb);
+        return tagQb.prepare();
     }
 
     @Override
@@ -130,17 +129,17 @@ public class LocalCashFlowService implements CashFlowService {
     }
 
     private void bindWithCategories(CashFlow cashFlow) throws SQLException {
-        for (Category category : cashFlow.getCategories()) {
-            Category foundCategory = localCategoryService.findByName(category.getName());
+        for (Tag tag : cashFlow.getTags()) {
+            Tag foundTag = localTagService.findByName(tag.getName());
 
-            if (foundCategory == null) {
-                foundCategory = category;
-                localCategoryService.insert(foundCategory);
+            if (foundTag == null) {
+                foundTag = tag;
+                localTagService.insert(foundTag);
             } else {
-                category.setId(foundCategory.getId());
+                tag.setId(foundTag.getId());
             }
 
-            categoryAndCashFlowBindsDao.create(new CategoryAndCashFlowBind(foundCategory, cashFlow));
+            tagAndCashFlowBindsDao.create(new TagAndCashFlowBind(foundTag, cashFlow));
         }
     }
 
@@ -171,12 +170,12 @@ public class LocalCashFlowService implements CashFlowService {
     }
 
     private void unbindWithCategories(CashFlow cashFlow) throws SQLException {
-        DeleteBuilder<CategoryAndCashFlowBind, Long> deleteBuilder = categoryAndCashFlowBindsDao.deleteBuilder();
+        DeleteBuilder<TagAndCashFlowBind, Long> deleteBuilder = tagAndCashFlowBindsDao.deleteBuilder();
 
         deleteBuilder.where()
-                .eq(CategoryAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME, cashFlow)
+                .eq(TagAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME, cashFlow)
                 .and()
-                .in(CategoryAndCashFlowBind.CATEGORY_ID_FIELD_NAME, cashFlow.getCategories());
+                .in(TagAndCashFlowBind.TAG_ID_FIELD_NAME, cashFlow.getTags());
 
         deleteBuilder.delete();
     }
@@ -205,27 +204,27 @@ public class LocalCashFlowService implements CashFlowService {
     }
 
     @Override
-    public long countAssignedWithCategory(Long categoryId) {
+    public long countAssignedWithTag(Long tagId) {
 //        try {
             throw new RuntimeException("Not implemented");
-//            return cashFlowDao.queryBuilder().where().eq("category_id", categoryId).countOf();
+//            return cashFlowDao.queryBuilder().where().eq("tag_id", tagId).countOf();
 //        } catch (SQLException e) {
 //            throw new DatabaseException(e);
 //        }
     }
 
     @Override
-    public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long walletId) {
+    public List<CashFlow> findCashFlow(Date from, Date to, Long tagId, Long walletId) {
         try {
             QueryBuilder<CashFlow, Long> queryBuilder = cashFlowDao.queryBuilder();
-            queryBuilder.setWhere(getWhereList(from, to, categoryId, walletId, queryBuilder));
+            queryBuilder.setWhere(getWhereList(from, to, tagId, walletId, queryBuilder));
             return queryBuilder.query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private Where<CashFlow, Long> getWhereList(Date from, Date to, Long categoryId, Long walletId, QueryBuilder<CashFlow, Long> queryBuilder) throws SQLException {
+    private Where<CashFlow, Long> getWhereList(Date from, Date to, Long tagId, Long walletId, QueryBuilder<CashFlow, Long> queryBuilder) throws SQLException {
         Where<CashFlow, Long> where = queryBuilder.where();
         boolean isFirst = true;
 

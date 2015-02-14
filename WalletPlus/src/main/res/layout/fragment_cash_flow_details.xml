@@ -45,13 +45,13 @@
                         fbutton:shadowHeight="2dp"/>
             </LinearLayout>
 
-            <TextView android:id="@+id/categoryLabel"
+            <TextView android:id="@+id/tagLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/cashflowCategoryLabel"
+                    android:text="@string/cashflowTagLabel"
                     android:textSize="@dimen/smallFontSize"/>
 
-            <MultiAutoCompleteTextView android:id="@+id/category"
+            <MultiAutoCompleteTextView android:id="@+id/tag"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 

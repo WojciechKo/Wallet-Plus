@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Wallet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -46,8 +46,8 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     public CashFlowDetailsParcelableState(CashFlow cashFlow) {
         setId(cashFlow.getId());
         StringBuilder sb = new StringBuilder();
-        for (Category category : cashFlow.getCategories()) {
-            sb.append(category.getName()).append(" ");
+        for (Tag tag : cashFlow.getTags()) {
+            sb.append(tag.getName()).append(" ");
         }
         setCategories(sb.toString());
         setAmount(cashFlow.getAmount().toString());
@@ -97,8 +97,8 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         cashFlow.setType(getType());
         cashFlow.setAmount(Double.parseDouble(getAmount()));
         cashFlow.setWallet(getWallet());
-        for (String categoryName : getCategories().replaceAll("\\s+", " ").split(" ")) {
-            cashFlow.addCategory(new Category(categoryName));
+        for (String tagName : getTags().replaceAll("\\s+", " ").split(" ")) {
+            cashFlow.addTag(new Tag(tagName));
         }
         cashFlow.setComment(getComment());
         cashFlow.setDateTime(new Date(getDate()));
@@ -171,7 +171,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         this.date = date;
     }
 
-    public String getCategories() {
+    public String getTags() {
         return categories;
     }
 

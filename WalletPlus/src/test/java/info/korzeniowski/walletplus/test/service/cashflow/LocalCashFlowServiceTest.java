@@ -2,9 +2,7 @@ package info.korzeniowski.walletplus.test.service.cashflow;
 
 import com.google.common.collect.Lists;
 
-import org.joda.time.DateTime;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -20,10 +18,10 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.WalletService;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -42,7 +40,7 @@ public class LocalCashFlowServiceTest {
 
     @Inject
     @Named("local")
-    CategoryService categoryService;
+    TagService tagService;
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -80,39 +78,39 @@ public class LocalCashFlowServiceTest {
         String tag1 = "Tag 1";
 
         String tag2 = "Tag 2";
-        Category category2 = new Category(tag2);
+        Tag category2 = new Tag(tag2);
 
         String tag3 = "Tag 3";
 
         walletService.insert(myWallet);
-        categoryService.insert(new Category(tag1));
-        categoryService.insert(category2);
-        assertThat(categoryService.count()).isEqualTo(2);
+        tagService.insert(new Tag(tag1));
+        tagService.insert(category2);
+        assertThat(tagService.count()).isEqualTo(2);
 
         CashFlow firstCashFlow = new CashFlow()
                 .setAmount(200.0)
                 .setWallet(myWallet)
                 .setType(CashFlow.Type.INCOME)
-                .addCategory(Lists.newArrayList(new Category(tag1), category2))
+                .addTag(Lists.newArrayList(new Tag(tag1), category2))
                 .setDateTime(new Date());
 
         cashFlowService.insert(firstCashFlow);
 
-        assertThat(categoryService.count()).isEqualTo(2);
-        assertThat(cashFlowService.findById(firstCashFlow.getId()).getCategories()).hasSize(2);
+        assertThat(tagService.count()).isEqualTo(2);
+        assertThat(cashFlowService.findById(firstCashFlow.getId()).getTags()).hasSize(2);
 
         CashFlow secondCashFlow = new CashFlow()
                 .setAmount(300.0)
                 .setWallet(myWallet)
                 .setType(CashFlow.Type.EXPANSE)
-                .addCategory(Lists.newArrayList(new Category(tag1), category2, new Category(tag3)))
+                .addTag(Lists.newArrayList(new Tag(tag1), category2, new Tag(tag3)))
                 .setDateTime(new Date());
 
         cashFlowService.insert(secondCashFlow);
 
-        assertThat(categoryService.count()).isEqualTo(3);
-        assertThat(cashFlowService.findById(firstCashFlow.getId()).getCategories()).hasSize(2);
-        assertThat(cashFlowService.findById(secondCashFlow.getId()).getCategories()).hasSize(3);
+        assertThat(tagService.count()).isEqualTo(3);
+        assertThat(cashFlowService.findById(firstCashFlow.getId()).getTags()).hasSize(2);
+        assertThat(cashFlowService.findById(secondCashFlow.getId()).getTags()).hasSize(3);
     }
 
     @Test
@@ -121,19 +119,19 @@ public class LocalCashFlowServiceTest {
         String tag1 = "Tag 1";
 
         String tag2 = "Tag 2";
-        Category category2 = new Category(tag2);
+        Tag category2 = new Tag(tag2);
 
         String tag3 = "Tag 3";
 
         walletService.insert(myWallet);
-        categoryService.insert(new Category(tag1));
-        categoryService.insert(category2);
+        tagService.insert(new Tag(tag1));
+        tagService.insert(category2);
 
         CashFlow cashFlow = new CashFlow()
                 .setAmount(200.0)
                 .setWallet(myWallet)
                 .setType(CashFlow.Type.INCOME)
-                .addCategory(Lists.newArrayList(new Category(tag1), category2))
+                .addTag(Lists.newArrayList(new Tag(tag1), category2))
                 .setDateTime(new Date());
 
         CashFlow found;
@@ -141,22 +139,22 @@ public class LocalCashFlowServiceTest {
         found = cashFlowService.findById(cashFlow.getId());
 
         // After insert
-        assertThat(categoryService.count()).isEqualTo(2);
-        assertThat(found.getCategories()).hasSize(2);
+        assertThat(tagService.count()).isEqualTo(2);
+        assertThat(found.getTags()).hasSize(2);
 
-        found.removeCategory(new Category(tag1));
+        found.removeTag(new Tag(tag1));
         cashFlowService.update(found);
         found = cashFlowService.findById(cashFlow.getId());
 
         // After first update
-        assertThat(categoryService.count()).isEqualTo(2);
-        assertThat(found.getCategories()).hasSize(1);
+        assertThat(tagService.count()).isEqualTo(2);
+        assertThat(found.getTags()).hasSize(1);
 
-        found.clearCategories().addCategory(Lists.newArrayList(new Category(tag2), new Category(tag3)));
+        found.clearTags().addTag(Lists.newArrayList(new Tag(tag2), new Tag(tag3)));
         cashFlowService.update(found);
 
         // After second update
-        assertThat(categoryService.count()).isEqualTo(3);
-        assertThat(found.getCategories()).hasSize(2);
+        assertThat(tagService.count()).isEqualTo(3);
+        assertThat(found.getTags()).hasSize(2);
     }
 }

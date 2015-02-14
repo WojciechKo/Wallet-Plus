@@ -33,12 +33,12 @@ public class CashFlow implements Identifiable {
     @DatabaseField(canBeNull = false)
     private boolean completed;
 
-    private Set<Category> categories;
+    private Set<Tag> tags;
 
     public CashFlow() {
-        categories = new TreeSet<>(new Comparator<Category>() {
+        tags = new TreeSet<>(new Comparator<Tag>() {
             @Override
-            public int compare(Category lhs, Category rhs) {
+            public int compare(Tag lhs, Tag rhs) {
                 return lhs.getName().compareTo(rhs.getName());
             }
         });
@@ -107,28 +107,28 @@ public class CashFlow implements Identifiable {
         this.completed = completed;
     }
 
-    public CashFlow addCategory(Collection<? extends Category> categories) {
-        this.categories.addAll(categories);
+    public CashFlow addTag(Collection<? extends Tag> categories) {
+        this.tags.addAll(categories);
         return this;
     }
 
-    public CashFlow addCategory(Category category) {
-        categories.add(category);
+    public CashFlow addTag(Tag tag) {
+        tags.add(tag);
         return this;
     }
 
-    public CashFlow removeCategory(Category category) {
-        categories.remove(category);
+    public CashFlow removeTag(Tag tag) {
+        tags.remove(tag);
         return this;
     }
 
-    public CashFlow clearCategories() {
-        categories.clear();
+    public CashFlow clearTags() {
+        tags.clear();
         return this;
     }
 
-    public List<Category> getCategories() {
-        return new ArrayList<Category>(categories);
+    public List<Tag> getTags() {
+        return new ArrayList<Tag>(tags);
     }
 
     public enum Type {

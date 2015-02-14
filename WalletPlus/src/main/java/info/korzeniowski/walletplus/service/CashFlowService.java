@@ -4,14 +4,13 @@ import java.util.Date;
 import java.util.List;
 
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
 
 public interface CashFlowService extends BaseService<CashFlow> {
     public long countAssignedWithWallet(Long walletId);
 
-    public long countAssignedWithCategory(Long categoryId);
+    public long countAssignedWithTag(Long tagId);
 
-    public List<CashFlow> findCashFlow(Date from, Date to, Long categoryId, Long walletId);
+    public List<CashFlow> findCashFlow(Date from, Date to, Long tagId, Long walletId);
 
     List<CashFlow> getLastNCashFlows(int n);
 }

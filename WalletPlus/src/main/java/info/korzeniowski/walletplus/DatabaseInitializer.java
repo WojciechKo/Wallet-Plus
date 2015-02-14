@@ -8,11 +8,11 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.local.LocalAccountService;
@@ -31,7 +31,7 @@ public class DatabaseInitializer {
 
     @Inject
     @Named("local")
-    CategoryService localCategoryService;
+    TagService localTagService;
 
     private final WeakReference<WalletPlus> walletPlus;
 
@@ -81,37 +81,37 @@ public class DatabaseInitializer {
         localWalletService.insert(bankAccount);
 
         /** Init categories **/
-        Category mainHouse = new Category().setName("House");
-        localCategoryService.insert(mainHouse);
-        Category energy = new Category().setName("Energy");
-        localCategoryService.insert(energy);
-        Category water = new Category().setName("Water");
-        localCategoryService.insert(water);
-        Category gas = new Category().setName("Gas");
-        localCategoryService.insert(gas);
+        Tag mainHouse = new Tag().setName("House");
+        localTagService.insert(mainHouse);
+        Tag energy = new Tag().setName("Energy");
+        localTagService.insert(energy);
+        Tag water = new Tag().setName("Water");
+        localTagService.insert(water);
+        Tag gas = new Tag().setName("Gas");
+        localTagService.insert(gas);
 
-        Category mainInternet = new Category().setName("Internet");
-        localCategoryService.insert(mainInternet);
-        localCategoryService.insert(new Category().setName("Music-forum"));
-        localCategoryService.insert(new Category().setName("News-service"));
+        Tag mainInternet = new Tag().setName("Internet");
+        localTagService.insert(mainInternet);
+        localTagService.insert(new Tag().setName("Music-forum"));
+        localTagService.insert(new Tag().setName("News-service"));
 
-        Category mainPartner = new Category().setName("Partner");
-        localCategoryService.insert(mainPartner);
+        Tag mainPartner = new Tag().setName("Partner");
+        localTagService.insert(mainPartner);
 
         /** Init cashflows **/
         Calendar date = Calendar.getInstance();
 
-        localCashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPANSE).addCategory(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Food"));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPANSE).addTag(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Food"));
 
         date.add(Calendar.DATE, -1);
-        localCashFlowService.insert(new CashFlow().setAmount(150.0).setType(CashFlow.Type.EXPANSE).addCategory(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Cleaning products"));
+        localCashFlowService.insert(new CashFlow().setAmount(150.0).setType(CashFlow.Type.EXPANSE).addTag(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Cleaning products"));
 
         date.add(Calendar.HOUR_OF_DAY, -1);
 
         date.add(Calendar.HOUR_OF_DAY, -1);
-        localCashFlowService.insert(new CashFlow().setAmount(75.0).setType(CashFlow.Type.EXPANSE).addCategory(energy).setWallet(bankAccount).setDateTime(date.getTime()));
-        localCashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPANSE).addCategory(water).setWallet(bankAccount).setDateTime(date.getTime()));
-        localCashFlowService.insert(new CashFlow().setAmount(50.0).setType(CashFlow.Type.EXPANSE).addCategory(gas).setWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(75.0).setType(CashFlow.Type.EXPANSE).addTag(energy).setWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPANSE).addTag(water).setWallet(bankAccount).setDateTime(date.getTime()));
+        localCashFlowService.insert(new CashFlow().setAmount(50.0).setType(CashFlow.Type.EXPANSE).addTag(gas).setWallet(bankAccount).setDateTime(date.getTime()));
 
         date.add(Calendar.DATE, -1);
         localCashFlowService.insert(new CashFlow().setAmount(500.0).setType(CashFlow.Type.INCOME).setWallet(bankAccount).setWallet(personalWallet).setDateTime(date.getTime()));

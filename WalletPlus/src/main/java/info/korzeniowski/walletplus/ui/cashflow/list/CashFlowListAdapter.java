@@ -15,7 +15,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 
 public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
@@ -34,16 +34,16 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     @Override
     protected void fillViewWithItem(MyBaseViewHolder baseHolder, CashFlow item) {
         CashFlowViewHolder holder = (CashFlowViewHolder) baseHolder;
-        holder.category.setText(getCategoryText(item));
+        holder.tag.setText(getTagText(item));
         holder.wallet.setText(getWalletText(item));
         holder.amount.setText(NumberFormat.getCurrencyInstance().format(item.getAmount()));
         holder.amount.setTextColor(getAmountColor(item));
         holder.date.setText(getDateText(item));
     }
 
-    private String getCategoryText(CashFlow cashFlow) {
+    private String getTagText(CashFlow cashFlow) {
         StringBuilder sb = new StringBuilder();
-        Iterator<Category> iterator = cashFlow.getCategories().iterator();
+        Iterator<Tag> iterator = cashFlow.getTags().iterator();
         if (iterator.hasNext()) {
             sb.append(iterator.next().getName());
         }
@@ -89,8 +89,8 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
         @InjectView(R.id.amount)
         TextView amount;
 
-        @InjectView(R.id.category)
-        TextView category;
+        @InjectView(R.id.tag)
+        TextView tag;
 
         @InjectView(R.id.date)
         TextView date;

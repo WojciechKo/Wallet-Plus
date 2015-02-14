@@ -14,9 +14,9 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
-import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
-import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.statistics.list.StatisticListActivity;
+import info.korzeniowski.walletplus.ui.statistics.list.StatisticListActivityState;
+import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsFragment;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -28,9 +28,9 @@ import retrofit.converter.GsonConverter;
 @Module(
         includes = DatabaseModule.class,
         injects = {
-                CategoryListActivity.class,
+                StatisticListActivity.class,
 
-                MyWalletDetailsFragment.class
+                WalletDetailsFragment.class
         }
 )
 public class MainModule {
@@ -57,8 +57,8 @@ public class MainModule {
 
     @Provides
     @Singleton
-    CategoryListActivityState provideCategoryListActivityState() {
-        return new CategoryListActivityState();
+    StatisticListActivityState provideTagListActivityState() {
+        return new StatisticListActivityState();
     }
 
     @Provides

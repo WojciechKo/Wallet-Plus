@@ -57,10 +57,10 @@ import info.hoang8f.widget.FButton;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
+import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.WalletService;
 
 public class CashFlowDetailsFragment extends Fragment {
@@ -80,11 +80,11 @@ public class CashFlowDetailsFragment extends Fragment {
     @InjectView(R.id.amount)
     EditText amount;
 
-    @InjectView(R.id.category)
-    MultiAutoCompleteTextView category;
+    @InjectView(R.id.tag)
+    MultiAutoCompleteTextView tag;
 
-    @InjectView(R.id.categoryLabel)
-    TextView categoryLabel;
+    @InjectView(R.id.tagLabel)
+    TextView tagLabel;
 
     @InjectView(R.id.datePicker)
     Button datePicker;
@@ -108,10 +108,10 @@ public class CashFlowDetailsFragment extends Fragment {
 
     @Inject
     @Named("local")
-    CategoryService localCategoryService;
+    TagService localTagService;
 
     private List<Wallet> wallets;
-    private List<Category> categoryList;
+    private List<Tag> tagList;
 
     private CashFlowDetailsParcelableState cashFlowDetailsState;
     private DetailsAction detailsAction;
@@ -144,7 +144,7 @@ public class CashFlowDetailsFragment extends Fragment {
         }
         cashFlowDetailsState = MoreObjects.firstNonNull(restored, initCashFlowDetailsState(cashFlowId));
 
-        categoryList = localCategoryService.getAll();
+        tagList = localTagService.getAll();
         wallets = localWalletService.getMyWallets();
     }
 
@@ -166,8 +166,8 @@ public class CashFlowDetailsFragment extends Fragment {
         setupTypeDependentViews();
         if (detailsAction == DetailsAction.EDIT) {
             amount.setText(Strings.nullToEmpty(cashFlowDetailsState.getAmount()));
-            category.setText(cashFlowDetailsState.getCategories());
-            resetTagSpans(category.getEditableText());
+            tag.setText(cashFlowDetailsState.getTags());
+            resetTagSpans(tag.getEditableText());
         }
         wallet.setAdapter(new WalletAdapter(getActivity(), wallets));
         wallet.setSelection(wallets.indexOf(cashFlowDetailsState.getWallet()));
@@ -176,14 +176,14 @@ public class CashFlowDetailsFragment extends Fragment {
         datePicker.setText(DateFormat.getDateFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
         timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
 
-        List<String> categoryNameList = Lists.transform(categoryList, new Function<Category, String>() {
+        List<String> tagNameList = Lists.transform(tagList, new Function<Tag, String>() {
             @Override
-            public String apply(Category input) {
+            public String apply(Tag input) {
                 return input.getName();
             }
         });
-        category.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, categoryNameList));
-        category.setTokenizer(new SpaceTokenizer());
+        tag.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, tagNameList));
+        tag.setTokenizer(new SpaceTokenizer());
 
         getActivity().findViewById(R.id.focusable).requestFocus();
         return view;
@@ -222,9 +222,9 @@ public class CashFlowDetailsFragment extends Fragment {
         cashFlowDetailsState.setWallet(selected);
     }
 
-    @OnTextChanged(value = R.id.category, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void onAfterCategoryChanged(Editable s) {
-        if (!cashFlowDetailsState.getCategories().equals(category.getText().toString())) {
+    @OnTextChanged(value = R.id.tag, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    public void onAfterTagChanged(Editable s) {
+        if (!cashFlowDetailsState.getTags().equals(tag.getText().toString())) {
             resetTagSpans(s);
             cashFlowDetailsState.setCategories(s.toString());
         }
@@ -248,10 +248,10 @@ public class CashFlowDetailsFragment extends Fragment {
         }
     }
 
-    private TextView createTagTextView(final String categoryName) {
+    private TextView createTagTextView(final String tagName) {
         //creating textview dynamically
         final TextView tv = new TextView(getActivity());
-        tv.setText(categoryName);
+        tv.setText(tagName);
         tv.setTextSize(getResources().getDimension(R.dimen.mediumFontSize));
         Drawable drawable = getResources().getDrawable(R.drawable.oval);
         drawable.setColorFilter(Color.MAGENTA, PorterDuff.Mode.SRC);

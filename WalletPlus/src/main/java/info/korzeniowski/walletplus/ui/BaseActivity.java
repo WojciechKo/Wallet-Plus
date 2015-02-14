@@ -44,11 +44,11 @@ import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListActivity;
-import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
-import info.korzeniowski.walletplus.ui.category.list.CategoryListActivityState;
+import info.korzeniowski.walletplus.ui.statistics.list.StatisticListActivity;
+import info.korzeniowski.walletplus.ui.statistics.list.StatisticListActivityState;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
-import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListActivity;
-import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
+import info.korzeniowski.walletplus.ui.wallets.list.WalletListActivity;
+import info.korzeniowski.walletplus.ui.tag.list.TagListActivity;
 import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
 import info.korzeniowski.walletplus.ui.synchronize.SynchronizeActivity;
 import info.korzeniowski.walletplus.util.PrefUtils;
@@ -72,7 +72,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     private static final int RC_NEW_PROFILE = 150;
 
     @Inject
-    protected CategoryListActivityState categoryListActivityState;
+    protected StatisticListActivityState statisticListActivityState;
 
     @Inject
     @Named("local")
@@ -384,21 +384,22 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
                     new DrawerItemContent(android.R.drawable.ic_media_pause, "Dashboard", DashboardActivity.class));
             navigationDrawerMap.put(DrawerItemType.CASH_FLOW,
                     new DrawerItemContent(android.R.drawable.ic_lock_silent_mode, "Cash flows", CashFlowListActivity.class));
-            navigationDrawerMap.put(DrawerItemType.CATEGORY,
-                    new DrawerItemContent(android.R.drawable.ic_menu_camera, "Categories", CategoryListActivity.class));
-            navigationDrawerMap.put(DrawerItemType.MY_WALLETS,
-                    new DrawerItemContent(android.R.drawable.ic_menu_week, "My Wallets", MyWalletListActivity.class));
-            navigationDrawerMap.put(DrawerItemType.OTHER_WALLETS,
-                    new DrawerItemContent(android.R.drawable.ic_menu_agenda, "Other Wallets", OtherWalletListActivity.class));
+            navigationDrawerMap.put(DrawerItemType.STATISTIC,
+                    new DrawerItemContent(android.R.drawable.ic_menu_camera, "Statistics", StatisticListActivity.class));
+            navigationDrawerMap.put(DrawerItemType.WALLET,
+                    new DrawerItemContent(android.R.drawable.ic_menu_week, "Wallets", WalletListActivity.class));
+            navigationDrawerMap.put(DrawerItemType.TAG,
+                    new DrawerItemContent(android.R.drawable.ic_menu_agenda, "Tags", TagListActivity.class));
             navigationDrawerMap.put(DrawerItemType.SYNCHRONIZE,
-                    new DrawerItemContent(android.R.drawable.stat_notify_sync_noanim, "Synchronization", SynchronizeActivity.class));        }
+                    new DrawerItemContent(android.R.drawable.stat_notify_sync_noanim, "Synchronization", SynchronizeActivity.class));
+        }
         if (navigationDrawerItemList.isEmpty()) {
             navigationDrawerItemList.add(DrawerItemType.DASHBOARD);
             navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
             navigationDrawerItemList.add(DrawerItemType.CASH_FLOW);
-            navigationDrawerItemList.add(DrawerItemType.CATEGORY);
-            navigationDrawerItemList.add(DrawerItemType.MY_WALLETS);
-            navigationDrawerItemList.add(DrawerItemType.OTHER_WALLETS);
+            navigationDrawerItemList.add(DrawerItemType.TAG);
+            navigationDrawerItemList.add(DrawerItemType.STATISTIC);
+            navigationDrawerItemList.add(DrawerItemType.WALLET);
             navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
             navigationDrawerItemList.add(DrawerItemType.SYNCHRONIZE);
         }
@@ -439,8 +440,8 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             return;
         }
 
-        if (getSelfNavDrawerItem() == DrawerItemType.CATEGORY) {
-            categoryListActivityState.clear();
+        if (getSelfNavDrawerItem() == DrawerItemType.STATISTIC) {
+            statisticListActivityState.clear();
         }
 
         if (isSpecialItem(type)) {
@@ -761,9 +762,9 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     public enum DrawerItemType {
         DASHBOARD,
         CASH_FLOW,
-        CATEGORY,
-        MY_WALLETS,
-        OTHER_WALLETS,
+        STATISTIC,
+        WALLET,
+        TAG,
         INVALID,
         SETTINGS,
         SEPARATOR,

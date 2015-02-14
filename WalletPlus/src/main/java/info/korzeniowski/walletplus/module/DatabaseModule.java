@@ -15,18 +15,18 @@ import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Category;
-import info.korzeniowski.walletplus.model.CategoryAndCashFlowBind;
+import info.korzeniowski.walletplus.model.Tag;
+import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.service.CategoryService;
+import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.local.LocalAccountService;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
-import info.korzeniowski.walletplus.service.local.LocalCategoryService;
+import info.korzeniowski.walletplus.service.local.LocalTagService;
 import info.korzeniowski.walletplus.service.local.LocalProfileService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
 import info.korzeniowski.walletplus.service.local.MainDatabaseHelper;
@@ -36,20 +36,20 @@ import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsActivity;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsFragment;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListActivity;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
-import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsActivity;
-import info.korzeniowski.walletplus.ui.category.details.CategoryDetailsFragment;
-import info.korzeniowski.walletplus.ui.category.list.CategoryListActivity;
-import info.korzeniowski.walletplus.ui.category.list.CategoryListFragment;
+import info.korzeniowski.walletplus.ui.statistics.details.StaticticDetailsActivity;
+import info.korzeniowski.walletplus.ui.statistics.details.StatisticDetailsFragment;
+import info.korzeniowski.walletplus.ui.statistics.list.StatisticListActivity;
+import info.korzeniowski.walletplus.ui.statistics.list.StatisticListFragment;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
-import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsActivity;
-import info.korzeniowski.walletplus.ui.mywallets.details.MyWalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListActivity;
-import info.korzeniowski.walletplus.ui.mywallets.list.MyWalletListFragment;
-import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsActivity;
-import info.korzeniowski.walletplus.ui.otherwallets.details.OtherWalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListActivity;
-import info.korzeniowski.walletplus.ui.otherwallets.list.OtherWalletListFragment;
+import info.korzeniowski.walletplus.ui.tag.details.TagDetailsActivity;
+import info.korzeniowski.walletplus.ui.tag.details.TagDetailsFragment;
+import info.korzeniowski.walletplus.ui.tag.list.TagListFragment;
+import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
+import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsFragment;
+import info.korzeniowski.walletplus.ui.wallets.list.WalletListActivity;
+import info.korzeniowski.walletplus.ui.wallets.list.WalletListFragment;
+import info.korzeniowski.walletplus.ui.tag.list.TagListActivity;
 import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
 import info.korzeniowski.walletplus.ui.synchronize.SynchronizeActivity;
 import info.korzeniowski.walletplus.util.PrefUtils;
@@ -66,11 +66,11 @@ import info.korzeniowski.walletplus.util.PrefUtils;
                 DashboardActivity.class,
                 DashboardFragment.class,
 
-                CategoryListActivity.class,
-                CategoryListFragment.class,
+                StatisticListActivity.class,
+                StatisticListFragment.class,
 
-                CategoryDetailsActivity.class,
-                CategoryDetailsFragment.class,
+                StaticticDetailsActivity.class,
+                StatisticDetailsFragment.class,
 
                 CashFlowListActivity.class,
                 CashFlowListFragment.class,
@@ -78,17 +78,17 @@ import info.korzeniowski.walletplus.util.PrefUtils;
                 CashFlowDetailsActivity.class,
                 CashFlowDetailsFragment.class,
 
-                MyWalletListActivity.class,
-                MyWalletListFragment.class,
+                WalletListActivity.class,
+                WalletListFragment.class,
 
-                MyWalletDetailsActivity.class,
-                MyWalletDetailsFragment.class,
+                WalletDetailsActivity.class,
+                WalletDetailsFragment.class,
 
-                OtherWalletListActivity.class,
-                OtherWalletListFragment.class,
+                TagListActivity.class,
+                TagListFragment.class,
 
-                OtherWalletDetailsActivity.class,
-                OtherWalletDetailsFragment.class,
+                TagDetailsActivity.class,
+                TagDetailsFragment.class,
 
                 SynchronizeActivity.class,
                 SynchronizeActivity.SynchronizeFragment.class,
@@ -171,13 +171,13 @@ public class DatabaseModule {
 
     /**
      * *************
-     * CATEGORY
+     * TAG
      * *************
      */
     @Provides
-    public Dao<Category, Long> provideCategoryDao(UserDatabaseHelper userDatabaseHelper) {
+    public Dao<Tag, Long> provideTagDao(UserDatabaseHelper userDatabaseHelper) {
         try {
-            return userDatabaseHelper.getCategoryDao();
+            return userDatabaseHelper.getTagDao();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -187,8 +187,8 @@ public class DatabaseModule {
     @Provides
     @Named("local")
     @Singleton
-    public CategoryService provideCategoryService(LocalCategoryService localCategoryService) {
-        return localCategoryService;
+    public TagService provideTagService(LocalTagService localTagService) {
+        return localTagService;
     }
 
     /**
@@ -215,13 +215,13 @@ public class DatabaseModule {
 
     /**
      * *************
-     * CATEGORY AND CASH_FLOW BIND
+     * TAG AND CASH_FLOW BIND
      * *************
      */
     @Provides
-    public Dao<CategoryAndCashFlowBind, Long> provideCategoryAndCashFlowDao(UserDatabaseHelper userDatabaseHelper) {
+    public Dao<TagAndCashFlowBind, Long> provideTagAndCashFlowDao(UserDatabaseHelper userDatabaseHelper) {
         try {
-            return userDatabaseHelper.getCategoryAndCashFlowBindsDao();
+            return userDatabaseHelper.getTagAndCashFlowBindsDao();
         } catch (SQLException e) {
             e.printStackTrace();
         }
