@@ -30,8 +30,6 @@ public class LocalCategoryService implements CategoryService {
     private final CategoryValidator categoryValidator;
     private final Dao<Category, Long> categoryDao;
 
-    @Inject
-    @Named("local")
     CashFlowService cashFlowService;
 
     @Inject

@@ -3,11 +3,8 @@ package info.korzeniowski.walletplus.ui.cashflow.details;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.common.collect.Lists;
-
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Category;
@@ -32,14 +29,14 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     private String amount;
     private String comment;
     private Wallet wallet;
-    private List<Category> categories;
+    private String categories;
     private CashFlow.Type type;
     private CashFlow.Type previousType;
     private Long date;
     private Boolean completed;
 
     public CashFlowDetailsParcelableState() {
-        setCategories(Lists.<Category>newArrayList());
+        setCategories("");
         setDate(Calendar.getInstance().getTimeInMillis());
         setType(defaultType);
         this.previousType = defaultType;
@@ -48,7 +45,11 @@ public class CashFlowDetailsParcelableState implements Parcelable {
 
     public CashFlowDetailsParcelableState(CashFlow cashFlow) {
         setId(cashFlow.getId());
-        setCategories(cashFlow.getCategories());
+        StringBuilder sb = new StringBuilder();
+        for (Category category : cashFlow.getCategories()) {
+            sb.append(category.getName()).append(" ");
+        }
+        setCategories(sb.toString());
         setAmount(cashFlow.getAmount().toString());
         setComment(cashFlow.getComment());
         setDate(cashFlow.getDateTime().getTime());
@@ -62,7 +63,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         amount = in.readString();
         comment = in.readString();
         wallet = in.readParcelable(Wallet.class.getClassLoader());
-        in.readList(categories, Category.class.getClassLoader());
+        categories = in.readString();
         Integer typeOrdinal = (Integer) in.readValue(Integer.class.getClassLoader());
         type = typeOrdinal != null ? CashFlow.Type.values()[typeOrdinal] : null;
         Integer previousTypeOrdinal = (Integer) in.readValue(Integer.class.getClassLoader());
@@ -82,7 +83,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         dest.writeString(amount);
         dest.writeString(comment);
         dest.writeParcelable(wallet, flags);
-        dest.writeList(categories);
+        dest.writeString(categories);
         dest.writeValue(type != null ? type.ordinal() : null);
         dest.writeValue(previousType != null ? previousType.ordinal() : null);
         dest.writeValue(date);
@@ -96,7 +97,9 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         cashFlow.setType(getType());
         cashFlow.setAmount(Double.parseDouble(getAmount()));
         cashFlow.setWallet(getWallet());
-        cashFlow.addCategory(getCategories());
+        for (String categoryName : getCategories().replaceAll("\\s+", " ").split(" ")) {
+            cashFlow.addCategory(new Category(categoryName));
+        }
         cashFlow.setComment(getComment());
         cashFlow.setDateTime(new Date(getDate()));
         cashFlow.setCompleted(isCompleted());
@@ -168,11 +171,11 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         this.date = date;
     }
 
-    public List<Category> getCategories() {
+    public String getCategories() {
         return categories;
     }
 
-    public void setCategories(List<Category> categories) {
+    public void setCategories(String categories) {
         this.categories = categories;
     }
 

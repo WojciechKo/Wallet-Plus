@@ -28,17 +28,21 @@ public class LocalCashFlowService implements CashFlowService {
     private final Dao<Wallet, Long> walletDao;
     private final Dao<Category, Long> categoryDao;
     private final Dao<CategoryAndCashFlowBind, Long> categoryAndCashFlowBindsDao;
+    private final LocalCategoryService localCategoryService;
+
     private PreparedQuery<Category> categoriesForCashFlowQuery;
 
     @Inject
     public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao,
                                 Dao<Wallet, Long> walletDao,
                                 Dao<Category, Long> categoryDao,
-                                Dao<CategoryAndCashFlowBind, Long> categoryAndCashFlowBindsDao) {
+                                Dao<CategoryAndCashFlowBind, Long> categoryAndCashFlowBindsDao,
+                                LocalCategoryService localCategoryService) {
         this.cashFlowDao = cashFlowDao;
         this.walletDao = walletDao;
         this.categoryDao = categoryDao;
         this.categoryAndCashFlowBindsDao = categoryAndCashFlowBindsDao;
+        this.localCategoryService = localCategoryService;
     }
 
     @Override
@@ -127,11 +131,11 @@ public class LocalCashFlowService implements CashFlowService {
 
     private void bindWithCategories(CashFlow cashFlow) throws SQLException {
         for (Category category : cashFlow.getCategories()) {
-            Category foundCategory = categoryDao.queryBuilder().where().eq("name", category.getName()).queryForFirst();
+            Category foundCategory = localCategoryService.findByName(category.getName());
 
             if (foundCategory == null) {
                 foundCategory = category;
-                categoryDao.create(foundCategory);
+                localCategoryService.insert(foundCategory);
             } else {
                 category.setId(foundCategory.getId());
             }

@@ -4,14 +4,22 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,10 +41,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -160,15 +166,26 @@ public class CashFlowDetailsFragment extends Fragment {
         setupTypeDependentViews();
         if (detailsAction == DetailsAction.EDIT) {
             amount.setText(Strings.nullToEmpty(cashFlowDetailsState.getAmount()));
+            category.setText(cashFlowDetailsState.getCategories());
+            resetTagSpans(category.getEditableText());
         }
         wallet.setAdapter(new WalletAdapter(getActivity(), wallets));
         wallet.setSelection(wallets.indexOf(cashFlowDetailsState.getWallet()));
 
-        category.setText(getCategoryText(cashFlowDetailsState.getCategories()));
         isCompleted.setChecked(cashFlowDetailsState.isCompleted());
         datePicker.setText(DateFormat.getDateFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
         timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
 
+        List<String> categoryNameList = Lists.transform(categoryList, new Function<Category, String>() {
+            @Override
+            public String apply(Category input) {
+                return input.getName();
+            }
+        });
+        category.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, categoryNameList));
+        category.setTokenizer(new SpaceTokenizer());
+
+        getActivity().findViewById(R.id.focusable).requestFocus();
         return view;
     }
 
@@ -203,6 +220,65 @@ public class CashFlowDetailsFragment extends Fragment {
     void onWalletItemSelected(int position) {
         Wallet selected = (Wallet) wallet.getItemAtPosition(position);
         cashFlowDetailsState.setWallet(selected);
+    }
+
+    @OnTextChanged(value = R.id.category, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    public void onAfterCategoryChanged(Editable s) {
+        if (!cashFlowDetailsState.getCategories().equals(category.getText().toString())) {
+            resetTagSpans(s);
+            cashFlowDetailsState.setCategories(s.toString());
+        }
+    }
+
+    private void resetTagSpans(Editable s) {
+        ImageSpan[] spans = s.getSpans(0, s.length(), ImageSpan.class);
+        for (int i = 0 ; i < spans.length ; i++) {
+            s.removeSpan(spans[i]);
+        }
+
+        int start = 0;
+        for (int i = 0 ; i < s.length() ; i++) {
+            if (s.charAt(i) == ' ') {
+                if (i - 1 >= start) {
+                    ImageSpan imageSpan = new ImageSpan(convertViewToDrawable(createTagTextView(s.subSequence(start, i).toString())));
+                    s.setSpan(imageSpan, start, i, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+                start = i + 1;
+            }
+        }
+    }
+
+    private TextView createTagTextView(final String categoryName) {
+        //creating textview dynamically
+        final TextView tv = new TextView(getActivity());
+        tv.setText(categoryName);
+        tv.setTextSize(getResources().getDimension(R.dimen.mediumFontSize));
+        Drawable drawable = getResources().getDrawable(R.drawable.oval);
+        drawable.setColorFilter(Color.MAGENTA, PorterDuff.Mode.SRC);
+        tv.setBackground(drawable);
+        tv.setTextColor(Color.WHITE);
+        tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_close, 0);
+        tv.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.tagCrossPadding));
+        return tv;
+    }
+
+    private static BitmapDrawable convertViewToDrawable(View view) {
+        int spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        view.measure(spec, spec);
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+        Bitmap b = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        c.translate(-view.getScrollX(), -view.getScrollY());
+        view.draw(c);
+        view.setDrawingCacheEnabled(true);
+        Bitmap cacheBmp = view.getDrawingCache();
+        Bitmap viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
+        view.destroyDrawingCache();
+
+        BitmapDrawable bitmapDrawable = new BitmapDrawable(viewBmp);
+        bitmapDrawable.setBounds(0, 0, bitmapDrawable.getIntrinsicWidth(), bitmapDrawable.getIntrinsicHeight());
+
+        return bitmapDrawable;
     }
 
     @OnTextChanged(value = R.id.amount, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
@@ -271,7 +347,6 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private void setupTypeDependentViews() {
-        setupCategory();
         setupToggles();
     }
 
@@ -303,30 +378,6 @@ public class CashFlowDetailsFragment extends Fragment {
         return "";
     }
 
-    private void setupCategory() {
-        category.setText(getCategoryText(cashFlowDetailsState.getCategories()));
-        List<String> categoryNameList = Lists.transform(categoryList, new Function<Category, String>() {
-            @Override
-            public String apply(Category input) {
-                return input.getName();
-            }
-        });
-        category.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_dropdown_item_1line, categoryNameList));
-        category.setTokenizer(new SpaceTokenizer());
-    }
-
-    private String getCategoryText(List<Category> categories) {
-        StringBuilder sb = new StringBuilder();
-        Iterator<Category> iterator = categories.iterator();
-        if (iterator.hasNext()) {
-            sb.append(iterator.next().getName());
-        }
-        while (iterator.hasNext()) {
-            sb.append(" ").append(iterator.next().getName());
-        }
-        return sb.toString();
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_save) {
@@ -346,12 +397,6 @@ public class CashFlowDetailsFragment extends Fragment {
             amount.setError("Write amount in this pattern: [+|-] 149.1234");
             isValid = false;
         }
-
-        List<Category> categories = Lists.newArrayList();
-        for (String categoryName: this.category.getText().toString().split(" ")) {
-            categories.add(new Category(categoryName));
-        }
-        cashFlowDetailsState.setCategories(categories);
 
         if (isValid) {
             if (DetailsAction.ADD.equals(detailsAction)) {
