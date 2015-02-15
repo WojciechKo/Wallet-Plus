@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.ui.tag.details;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -19,14 +21,16 @@ import java.text.NumberFormat;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import afzkl.development.colorpickerview.dialog.ColorPickerDialog;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Tag;
-import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.TagService;
+import info.korzeniowski.walletplus.util.PrefUtils;
 
 public class TagDetailsFragment extends Fragment {
     public static final String TAG = TagDetailsFragment.class.getSimpleName();
@@ -38,6 +42,9 @@ public class TagDetailsFragment extends Fragment {
     @InjectView(R.id.tagName)
     EditText tagName;
 
+    @InjectView(R.id.colorPicker)
+    Button colorPicker;
+
     @Inject
     @Named("local")
     TagService localTagService;
@@ -46,7 +53,6 @@ public class TagDetailsFragment extends Fragment {
     @Named("amount")
     NumberFormat amountFormat;
 
-    private Long tagId;
     private DetailsAction detailsAction;
     private Optional<Tag> tagToEdit;
 
@@ -65,7 +71,7 @@ public class TagDetailsFragment extends Fragment {
 
         ((WalletPlus) getActivity().getApplication()).inject(this);
 
-        tagId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_TAG_ID);
+        Long tagId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_TAG_ID);
 
         if (tagId == -1) {
             detailsAction = DetailsAction.ADD;
@@ -82,9 +88,15 @@ public class TagDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_tag_details, container, false);
         ButterKnife.inject(this, view);
 
+        int tagColor;
         if (detailsAction == DetailsAction.EDIT) {
             tagName.setText(tagToEdit.get().getName());
+            tagColor = tagToEdit.get().getColor();
+        } else {
+            tagColor = PrefUtils.getNextTagColor(getActivity());
         }
+        colorPicker.setBackgroundColor(tagColor);
+        colorPicker.setTag(tagColor);
         return view;
     }
 
@@ -114,12 +126,12 @@ public class TagDetailsFragment extends Fragment {
         if (tagName.getError() == null) {
             Tag tag = new Tag();
             tag.setName(tagName.getText().toString());
-
+            tag.setColor((int) colorPicker.getTag());
             if (detailsAction == DetailsAction.ADD) {
                 localTagService.insert(tag);
                 getActivity().setResult(Activity.RESULT_OK);
             } else if (detailsAction == DetailsAction.EDIT) {
-                tag.setId(tagId);
+                tag.setId(tagToEdit.get().getId());
                 localTagService.update(tag);
                 getActivity().setResult(Activity.RESULT_OK);
             }
@@ -138,6 +150,26 @@ public class TagDetailsFragment extends Fragment {
         }
 
         tagNameLabel.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.colorPicker)
+    public void onColorPickerClicked() {
+        final ColorPickerDialog colorPickerDialog = new ColorPickerDialog(getActivity(), (int) colorPicker.getTag());
+        colorPickerDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                int selectedColor = colorPickerDialog.getColor();
+                colorPicker.setTag(selectedColor);
+                colorPicker.setBackgroundColor(selectedColor);
+            }
+        });
+        colorPickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        colorPickerDialog.show();
     }
 
     private enum DetailsAction {ADD, EDIT}

@@ -150,6 +150,9 @@ dependencies {
     // HelloCharts
     compile project(':hellocharts-library')
 
+    // ColorPickerView
+    compile project(':colorPickerView-library')
+
     // JUnit
     testCompile 'junit:junit:4.11'
 
