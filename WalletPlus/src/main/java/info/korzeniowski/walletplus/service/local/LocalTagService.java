@@ -1,6 +1,9 @@
 package info.korzeniowski.walletplus.service.local;
 
+import android.graphics.Color;
+
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.Dao;
@@ -12,6 +15,7 @@ import org.joda.time.Period;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import javax.inject.Inject;
 
@@ -50,11 +54,22 @@ public class LocalTagService implements TagService {
     @Override
     public Long insert(Tag tag) {
         try {
+            generateColorIfNull(tag);
             tagValidator.validateInsert(tag);
             tagDao.create(tag);
             return tag.getId();
         } catch (SQLException e) {
             throw new DatabaseException(e);
+        }
+    }
+
+    private void generateColorIfNull(Tag tag) {
+        if (tag.getColor() == null) {
+            float[] hsv = new float[3];
+            hsv[0] = new Random().nextFloat() * 360; // Hue (0 .. 360)
+            hsv[1] = (float) 0.5; // Saturation (0 .. 1)
+            hsv[2] = (float) 0.95; // Value (0 .. 1)
+            tag.setColor(Color.HSVToColor(hsv));
         }
     }
 
@@ -107,6 +122,7 @@ public class LocalTagService implements TagService {
     @Override
     public void update(final Tag newValue) {
         try {
+            generateColorIfNull(newValue);
             tagValidator.validateUpdate(newValue);
             tagDao.update(newValue);
         } catch (SQLException e) {

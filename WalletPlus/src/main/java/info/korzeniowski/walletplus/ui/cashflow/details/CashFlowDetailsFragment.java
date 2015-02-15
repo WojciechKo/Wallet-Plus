@@ -39,11 +39,15 @@ import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -62,6 +66,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.util.PrefUtils;
 
 public class CashFlowDetailsFragment extends Fragment {
     public static final String TAG = "CashFlowDetailsFragment";
@@ -232,15 +237,25 @@ public class CashFlowDetailsFragment extends Fragment {
 
     private void resetTagSpans(Editable s) {
         ImageSpan[] spans = s.getSpans(0, s.length(), ImageSpan.class);
-        for (int i = 0 ; i < spans.length ; i++) {
+        for (int i = 0; i < spans.length; i++) {
             s.removeSpan(spans[i]);
         }
 
         int start = 0;
-        for (int i = 0 ; i < s.length() ; i++) {
+        for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == ' ') {
                 if (i - 1 >= start) {
-                    ImageSpan imageSpan = new ImageSpan(convertViewToDrawable(createTagTextView(s.subSequence(start, i).toString())));
+                    String tagName = s.subSequence(start, i).toString();
+                    Integer color = cashFlowDetailsState.getTagToColorMap().get(tagName);
+                    if (color == null) {
+                        Tag tag = localTagService.findByName(tagName);
+                        color = tag != null
+                                ? tag.getColor()
+                                : PrefUtils.getNextTagColor(getActivity());
+                        cashFlowDetailsState.getTagToColorMap().put(tagName, color);
+                    }
+
+                    ImageSpan imageSpan = new ImageSpan(createTagDrawable(tagName, color));
                     s.setSpan(imageSpan, start, i, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
                 start = i + 1;
@@ -248,32 +263,30 @@ public class CashFlowDetailsFragment extends Fragment {
         }
     }
 
-    private TextView createTagTextView(final String tagName) {
+    private BitmapDrawable createTagDrawable(String tagName, Integer color) {
         //creating textview dynamically
         final TextView tv = new TextView(getActivity());
         tv.setText(tagName);
         tv.setTextSize(getResources().getDimension(R.dimen.mediumFontSize));
         Drawable drawable = getResources().getDrawable(R.drawable.oval);
-        drawable.setColorFilter(Color.MAGENTA, PorterDuff.Mode.SRC);
+        drawable.setColorFilter(color, PorterDuff.Mode.SRC);
         tv.setBackground(drawable);
         tv.setTextColor(Color.WHITE);
         tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_close, 0);
         tv.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.tagCrossPadding));
-        return tv;
-    }
 
-    private static BitmapDrawable convertViewToDrawable(View view) {
+        // Convert View to Drawable
         int spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        view.measure(spec, spec);
-        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
-        Bitmap b = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        tv.measure(spec, spec);
+        tv.layout(0, 0, tv.getMeasuredWidth(), tv.getMeasuredHeight());
+        Bitmap b = Bitmap.createBitmap(tv.getMeasuredWidth(), tv.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
-        c.translate(-view.getScrollX(), -view.getScrollY());
-        view.draw(c);
-        view.setDrawingCacheEnabled(true);
-        Bitmap cacheBmp = view.getDrawingCache();
+        c.translate(-tv.getScrollX(), -tv.getScrollY());
+        tv.draw(c);
+        tv.setDrawingCacheEnabled(true);
+        Bitmap cacheBmp = tv.getDrawingCache();
         Bitmap viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
-        view.destroyDrawingCache();
+        tv.destroyDrawingCache();
 
         BitmapDrawable bitmapDrawable = new BitmapDrawable(viewBmp);
         bitmapDrawable.setBounds(0, 0, bitmapDrawable.getIntrinsicWidth(), bitmapDrawable.getIntrinsicHeight());
@@ -462,7 +475,6 @@ public class CashFlowDetailsFragment extends Fragment {
             }
         }
     }
-
 
     class WalletAdapter extends BaseAdapter {
         final List<Wallet> wallets;

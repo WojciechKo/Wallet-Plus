@@ -3,8 +3,11 @@ package info.korzeniowski.walletplus.ui.cashflow.details;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.common.collect.Maps;
+
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
@@ -34,6 +37,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     private CashFlow.Type previousType;
     private Long date;
     private Boolean completed;
+    private Map<String, Integer> tagToColorMap = Maps.newHashMap();
 
     public CashFlowDetailsParcelableState() {
         setCategories("");
@@ -70,6 +74,13 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         previousType = previousTypeOrdinal != null ? CashFlow.Type.values()[previousTypeOrdinal] : null;
         date = (Long) in.readValue(Long.class.getClassLoader());
         completed = (Boolean) in.readValue(Boolean.class.getClassLoader());
+
+        int size = in.readInt();
+        for (int i = 0; i < size; i++) {
+            String key = in.readString();
+            Integer value = in.readInt();
+            tagToColorMap.put(key, value);
+        }
     }
 
     @Override
@@ -88,6 +99,12 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         dest.writeValue(previousType != null ? previousType.ordinal() : null);
         dest.writeValue(date);
         dest.writeValue(completed);
+
+        dest.writeInt(tagToColorMap.size());
+        for (Map.Entry<String, Integer> entry : tagToColorMap.entrySet()) {
+            dest.writeString(entry.getKey());
+            dest.writeInt(entry.getValue());
+        }
     }
 
     public CashFlow buildCashFlow() {
@@ -98,7 +115,9 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         cashFlow.setAmount(Double.parseDouble(getAmount()));
         cashFlow.setWallet(getWallet());
         for (String tagName : getTags().replaceAll("\\s+", " ").split(" ")) {
-            cashFlow.addTag(new Tag(tagName));
+            Tag tag = new Tag(tagName);
+            tag.setColor(tagToColorMap.get(tagName));
+            cashFlow.addTag(tag);
         }
         cashFlow.setComment(getComment());
         cashFlow.setDateTime(new Date(getDate()));
@@ -193,5 +212,9 @@ public class CashFlowDetailsParcelableState implements Parcelable {
 
     public void setWallet(Wallet wallet) {
         this.wallet = wallet;
+    }
+
+    public Map<String, Integer> getTagToColorMap() {
+        return tagToColorMap;
     }
 }
