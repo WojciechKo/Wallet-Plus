@@ -56,7 +56,7 @@ public class StatisticListActivity extends BaseActivity {
         if (isFinishing()) {
             return;
         }
-        setContentView(R.layout.activity_category_list);
+        setContentView(R.layout.activity_drawer);
         ButterKnife.inject(this);
         setupViews();
 

@@ -46,7 +46,7 @@ public class WalletListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_my_wallet_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_wallet_list, container, false);
         ButterKnife.inject(this, view);
         setupList();
         return view;
