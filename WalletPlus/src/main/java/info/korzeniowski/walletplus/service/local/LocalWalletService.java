@@ -105,15 +105,6 @@ public class LocalWalletService implements WalletService {
     }
 
     @Override
-    public List<Wallet> getMyWallets() {
-        try {
-            return walletDao.queryBuilder().orderByRaw("name COLLATE NOCASE").query();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
     public long countDependentCashFlows(Long walletId) {
         return cashFlowService.countAssignedWithWallet(walletId);
     }

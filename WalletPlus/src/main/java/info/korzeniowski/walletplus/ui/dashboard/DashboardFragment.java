@@ -56,7 +56,7 @@ public class DashboardFragment extends Fragment {
     @Named("local")
     CashFlowService localCashFlowService;
 
-    private Double currentAmountSumFromMyWallets;
+    private Double sumOfCurrentAmountOfWallets;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,7 +93,7 @@ public class DashboardFragment extends Fragment {
         List<AxisValue> dateAxisValues = Lists.newArrayList();
         ListIterator<CashFlow> cashFlowListIterator = localCashFlowService.getLastNCashFlows(MAX_NUMBER_OF_POINTS_IN_CHART).listIterator();
 
-        float tempWalletValue = currentAmountSumFromMyWallets.floatValue();
+        float tempWalletValue = sumOfCurrentAmountOfWallets.floatValue();
         float minWalletValue = tempWalletValue;
         float maxWalletValue = tempWalletValue;
         for (int i = MAX_NUMBER_OF_POINTS_IN_CHART; i > 0; i--) {
@@ -147,13 +147,13 @@ public class DashboardFragment extends Fragment {
     }
 
     private CharSequence getTotalAmountText() {
-        currentAmountSumFromMyWallets = getCurrentAmountSumFromMyWallets();
-        String totalAmountString = NumberFormat.getCurrencyInstance().format(currentAmountSumFromMyWallets);
+        sumOfCurrentAmountOfWallets = getSumOfCurrentAmountOfWallets();
+        String totalAmountString = NumberFormat.getCurrencyInstance().format(sumOfCurrentAmountOfWallets);
 
         SpannableStringBuilder spanTxt = new SpannableStringBuilder(getString(R.string.totalAmountLabel) + "\n");
         spanTxt.append(totalAmountString);
         spanTxt.setSpan(new RelativeSizeSpan(2f), spanTxt.length() - totalAmountString.length(), spanTxt.length(), 0);
-        if (currentAmountSumFromMyWallets < 0) {
+        if (sumOfCurrentAmountOfWallets < 0) {
             spanTxt.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.red)), spanTxt.length() - totalAmountString.length(), spanTxt.length(), 0);
         } else {
             spanTxt.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.green)), spanTxt.length() - totalAmountString.length(), spanTxt.length(), 0);
@@ -161,10 +161,10 @@ public class DashboardFragment extends Fragment {
         return spanTxt;
     }
 
-    private Double getCurrentAmountSumFromMyWallets() {
-        List<Wallet> myWallets = localWalletService.getMyWallets();
+    private Double getSumOfCurrentAmountOfWallets() {
+        List<Wallet> wallets = localWalletService.getAll();
         Double sum = (double) 0;
-        for (Wallet wallet : myWallets) {
+        for (Wallet wallet : wallets) {
             sum += wallet.getCurrentAmount();
         }
         return sum;

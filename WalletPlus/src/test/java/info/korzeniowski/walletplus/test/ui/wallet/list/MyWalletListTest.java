@@ -50,7 +50,7 @@ public class MyWalletListTest {
         ((TestWalletPlus) Robolectric.application.getApplicationContext()).addModules(new MockDatabaseModule());
         ((TestWalletPlus) Robolectric.application.getApplicationContext()).inject(this);
 
-        Mockito.when(mockWalletService.getMyWallets()).thenReturn(Lists.newArrayList(new Wallet().setId(1L).setName("Wallet 1"), new Wallet().setId(2L).setName("Wallet 2")));
+        Mockito.when(mockWalletService.getAll()).thenReturn(Lists.newArrayList(new Wallet().setId(1L).setName("Wallet 1"), new Wallet().setId(2L).setName("Wallet 2")));
 
         activity = Robolectric.buildActivity(WalletListActivity.class).create().start().resume().get();
         ButterKnife.inject(this, activity);
@@ -68,6 +68,6 @@ public class MyWalletListTest {
     public void shouldItemPositionMatch() {
         int testItemPosition = 1;
         assertThat(((Wallet) list.getAdapter().getItem(testItemPosition)).getName())
-                .isEqualTo(mockWalletService.getMyWallets().get(testItemPosition).getName());
+                .isEqualTo(mockWalletService.getAll().get(testItemPosition).getName());
     }
 }

@@ -114,7 +114,7 @@ public class CashFlowDetailsFragment extends Fragment {
     TagService localTagService;
 
     private List<Wallet> wallets;
-    private List<Tag> tagList;
+    private List<Tag> tags;
 
     private CashFlowDetailsParcelableState cashFlowDetailsState;
     private DetailsAction detailsAction;
@@ -147,8 +147,8 @@ public class CashFlowDetailsFragment extends Fragment {
         }
         cashFlowDetailsState = MoreObjects.firstNonNull(restored, initCashFlowDetailsState(cashFlowId));
 
-        tagList = localTagService.getAll();
-        wallets = localWalletService.getMyWallets();
+        tags = localTagService.getAll();
+        wallets = localWalletService.getAll();
     }
 
     private CashFlowDetailsParcelableState initCashFlowDetailsState(Long cashFlowId) {
@@ -179,7 +179,7 @@ public class CashFlowDetailsFragment extends Fragment {
         datePicker.setText(DateFormat.getDateFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
         timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
 
-        List<String> tagNameList = Lists.transform(tagList, new Function<Tag, String>() {
+        List<String> tagNameList = Lists.transform(tags, new Function<Tag, String>() {
             @Override
             public String apply(Tag input) {
                 return input.getName();

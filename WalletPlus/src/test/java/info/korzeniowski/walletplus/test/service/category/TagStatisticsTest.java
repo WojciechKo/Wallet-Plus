@@ -62,20 +62,20 @@ public class TagStatisticsTest {
 
         // yesterday
         // -5 +7 -1
-        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(0)).setAmount(5.0).setDateTime(yesterday));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getAll().get(0)).setAmount(5.0).setDateTime(yesterday));
         cashFlowService.insert(new CashFlow().setAmount(7.0).setDateTime(yesterday));
-        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(0)).setAmount(1.0).setDateTime(yesterday));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getAll().get(0)).setAmount(1.0).setDateTime(yesterday));
 
         // today
         // +50 +70 -90
         cashFlowService.insert(new CashFlow().setAmount(50.0).setDateTime(today));
         cashFlowService.insert(new CashFlow().setAmount(70.0).setDateTime(today));
-        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(1)).setAmount(90.0).setDateTime(today));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getAll().get(1)).setAmount(90.0).setDateTime(today));
 
         // tomorrow
         // +100 -300 +700
         cashFlowService.insert(new CashFlow().setAmount(100.0).setDateTime(tomorrow));
-        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(1)).setAmount(300.0).setDateTime(tomorrow));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getAll().get(1)).setAmount(300.0).setDateTime(tomorrow));
         cashFlowService.insert(new CashFlow().setAmount(700.0).setDateTime(tomorrow));
 
         TagService.TagStats stats;
@@ -122,9 +122,9 @@ public class TagStatisticsTest {
 
         Date today = DateTime.now().toDate();
 
-        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(0)).setAmount(3.0).setDateTime(today));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getAll().get(0)).setAmount(3.0).setDateTime(today));
         cashFlowService.insert(new CashFlow().setAmount(5.0).setDateTime(today));
-        cashFlowService.insert(new CashFlow().setWallet(walletService.getMyWallets().get(0)).setAmount(7.0).setDateTime(today));
+        cashFlowService.insert(new CashFlow().setWallet(walletService.getAll().get(0)).setAmount(7.0).setDateTime(today));
         cashFlowService.insert(new CashFlow().setAmount(11.0).setDateTime(today));
 
         TagService.TagStats mainTagStats = tagService.getTagStats(mainTag, today, Period.days(1), 0);

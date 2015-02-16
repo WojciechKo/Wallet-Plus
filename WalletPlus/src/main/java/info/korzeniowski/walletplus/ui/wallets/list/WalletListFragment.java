@@ -53,7 +53,7 @@ public class WalletListFragment extends Fragment {
     }
 
     private void setupList() {
-        walletList = localWalletService.getMyWallets();
+        walletList = localWalletService.getAll();
         list.setSwipeListViewListener(new BaseSwipeListViewListener() {
             @Override
             public void onClickFrontView(int position) {

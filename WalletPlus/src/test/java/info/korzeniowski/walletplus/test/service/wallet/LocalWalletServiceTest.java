@@ -55,13 +55,13 @@ public class LocalWalletServiceTest {
         Long myWalletId1 = walletService.insert(getSimpleWallet());
         Long myWalletId2 = walletService.insert(getSimpleWallet());
 
-        assertThat(walletService.getMyWallets()).hasSize(2);
+        assertThat(walletService.getAll()).hasSize(2);
 
         walletService.deleteById(myWalletId1);
-        assertThat(walletService.getMyWallets()).hasSize(1);
+        assertThat(walletService.getAll()).hasSize(1);
 
         walletService.deleteById(myWalletId2);
-        assertThat(walletService.getMyWallets()).hasSize(0);
+        assertThat(walletService.getAll()).hasSize(0);
     }
 
     @Test
@@ -71,14 +71,14 @@ public class LocalWalletServiceTest {
         walletService.insert(getSimpleWallet());
         walletService.insert(getSimpleWallet());
 
-        cashFlowService.insert(getCashFlow(walletService.getMyWallets().get(0)));
-        cashFlowService.insert(getCashFlow(walletService.getMyWallets().get(0)));
-        cashFlowService.insert(getCashFlow(walletService.getMyWallets().get(0)));
-        cashFlowService.insert(getCashFlow(walletService.getMyWallets().get(1)));
+        cashFlowService.insert(getCashFlow(walletService.getAll().get(0)));
+        cashFlowService.insert(getCashFlow(walletService.getAll().get(0)));
+        cashFlowService.insert(getCashFlow(walletService.getAll().get(0)));
+        cashFlowService.insert(getCashFlow(walletService.getAll().get(1)));
 
         long cashFlowCount = cashFlowService.count();
 
-        walletService.deleteById(walletService.getMyWallets().get(0).getId());
+        walletService.deleteById(walletService.getAll().get(0).getId());
 
         assertThat(cashFlowService.count()).isEqualTo(cashFlowCount - 3);
 
