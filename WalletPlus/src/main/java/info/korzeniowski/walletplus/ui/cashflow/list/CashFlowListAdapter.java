@@ -28,6 +28,8 @@ import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 
+import static info.korzeniowski.walletplus.util.KorzeniowskiUtils.Views.dipToPixels;
+
 public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
 
     public CashFlowListAdapter(Context context, List<CashFlow> casFlows) {
@@ -68,6 +70,7 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
         drawable.setColorFilter(tag.getColor(), PorterDuff.Mode.SRC);
         tv.setBackground(drawable);
         tv.setTextColor(Color.WHITE);
+        tv.setPadding(dipToPixels(getContext(), 15), 0, dipToPixels(getContext(), 15), dipToPixels(getContext(), 1));
 
         // convert View to Drawable
         int spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);

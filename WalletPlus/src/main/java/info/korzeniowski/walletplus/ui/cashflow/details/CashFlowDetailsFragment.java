@@ -39,15 +39,11 @@ import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -67,6 +63,8 @@ import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.util.PrefUtils;
+
+import static info.korzeniowski.walletplus.util.KorzeniowskiUtils.Views.dipToPixels;
 
 public class CashFlowDetailsFragment extends Fragment {
     public static final String TAG = "CashFlowDetailsFragment";
@@ -272,8 +270,7 @@ public class CashFlowDetailsFragment extends Fragment {
         drawable.setColorFilter(color, PorterDuff.Mode.SRC);
         tv.setBackground(drawable);
         tv.setTextColor(Color.WHITE);
-        tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_close, 0);
-        tv.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.tagCrossPadding));
+        tv.setPadding(dipToPixels(getActivity(), 15), 0, dipToPixels(getActivity(), 15), dipToPixels(getActivity(), 1));
 
         // Convert View to Drawable
         int spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);

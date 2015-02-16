@@ -80,8 +80,8 @@ public class PrefUtils {
 
         float[] hsv = new float[3];
         hsv[0] = nextHue * 360; // Hue (0 .. 360)
-        hsv[1] = (float) 0.5; // Saturation (0 .. 1)
-        hsv[2] = (float) 0.95; // Value (0 .. 1)
+        hsv[1] = (float) 0.55; // Saturation (0 .. 1)
+        hsv[2] = (float) 0.90; // Value (0 .. 1)
         return Color.HSVToColor(hsv);
     }
 
