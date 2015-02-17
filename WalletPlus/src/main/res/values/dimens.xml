@@ -15,7 +15,8 @@
     <dimen name="tagCrossPadding">8dp</dimen>
 
     <!-- font size -->
-    <dimen name="verySmallFontSize">9sp</dimen>
+    <dimen name="xxSmallFontSize">4sp</dimen>
+    <dimen name="xSmallFontSize">9sp</dimen>
     <dimen name="smallFontSize">12sp</dimen>
     <dimen name="mediumFontSize">16sp</dimen>
     <dimen name="largeFontSize">20sp</dimen>
