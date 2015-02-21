@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.test.service.category;
+package info.korzeniowski.walletplus.test.service.tag;
 
 import org.junit.Before;
 import org.junit.Test;

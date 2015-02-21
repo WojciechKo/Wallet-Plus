@@ -29,7 +29,7 @@ public class LocalCashFlowService implements CashFlowService {
     private final Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao;
     private final LocalTagService localTagService;
 
-    private PreparedQuery<Tag> categoriesForCashFlowQuery;
+    private PreparedQuery<Tag> tagsOfCashFlowQuery;
 
     @Inject
     public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao,
@@ -57,7 +57,7 @@ public class LocalCashFlowService implements CashFlowService {
     public CashFlow findById(final Long id) {
         try {
             CashFlow cashFlow = cashFlowDao.queryForId(id);
-            cashFlow.addTag(getCategoriesForCashFlow(cashFlow.getId()));
+            cashFlow.addTag(getTagsOfCashFlow(cashFlow.getId()));
             return cashFlow;
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -69,7 +69,7 @@ public class LocalCashFlowService implements CashFlowService {
         try {
             List<CashFlow> cashFlows = cashFlowDao.queryBuilder().orderBy("dateTime", false).query();
             for (CashFlow cashFlow : cashFlows) {
-                cashFlow.addTag(getCategoriesForCashFlow(cashFlow.getId()));
+                cashFlow.addTag(getTagsOfCashFlow(cashFlow.getId()));
             }
 
             return cashFlows;
@@ -78,15 +78,15 @@ public class LocalCashFlowService implements CashFlowService {
         }
     }
 
-    private List<Tag> getCategoriesForCashFlow(Long cashFlowId) throws SQLException {
-        if (categoriesForCashFlowQuery == null) {
-            categoriesForCashFlowQuery = getCategoriesForCashFlowQuery();
+    private List<Tag> getTagsOfCashFlow(Long cashFlowId) throws SQLException {
+        if (tagsOfCashFlowQuery == null) {
+            tagsOfCashFlowQuery = getTagsOfCashFlowQuery();
         }
-        categoriesForCashFlowQuery.setArgumentHolderValue(0, cashFlowId);
-        return tagDao.query(categoriesForCashFlowQuery);
+        tagsOfCashFlowQuery.setArgumentHolderValue(0, cashFlowId);
+        return tagDao.query(tagsOfCashFlowQuery);
     }
 
-    private PreparedQuery<Tag> getCategoriesForCashFlowQuery() throws SQLException {
+    private PreparedQuery<Tag> getTagsOfCashFlowQuery() throws SQLException {
         QueryBuilder<TagAndCashFlowBind, Long> tagCashFlowQb = tagAndCashFlowBindsDao.queryBuilder();
         tagCashFlowQb.selectColumns(TagAndCashFlowBind.TAG_ID_FIELD_NAME);
         SelectArg cashFlowIdArg = new SelectArg();
@@ -103,8 +103,8 @@ public class LocalCashFlowService implements CashFlowService {
             CashFlow toUpdate = findById(cashFlow.getId());
             validateUpdate(toUpdate, cashFlow);
             cashFlowDao.update(cashFlow);
-            unbindWithCategories(toUpdate);
-            bindWithCategories(cashFlow);
+            unbindFromTags(toUpdate);
+            bindWithTags(cashFlow);
             fixCurrentAmountInWalletAfterDelete(toUpdate);
             fixCurrentAmountInWalletAfterInsert(cashFlow);
         } catch (SQLException e) {
@@ -120,7 +120,7 @@ public class LocalCashFlowService implements CashFlowService {
     public Long insert(CashFlow cashFlow) {
         try {
             cashFlowDao.create(cashFlow);
-            bindWithCategories(cashFlow);
+            bindWithTags(cashFlow);
             fixCurrentAmountInWalletAfterInsert(cashFlow);
             return cashFlow.getId();
         } catch (SQLException e) {
@@ -128,7 +128,7 @@ public class LocalCashFlowService implements CashFlowService {
         }
     }
 
-    private void bindWithCategories(CashFlow cashFlow) throws SQLException {
+    private void bindWithTags(CashFlow cashFlow) throws SQLException {
         for (Tag tag : cashFlow.getTags()) {
             Tag foundTag = localTagService.findByName(tag.getName());
 
@@ -162,14 +162,14 @@ public class LocalCashFlowService implements CashFlowService {
         try {
             CashFlow cashFlow = cashFlowDao.queryForId(id);
             cashFlowDao.deleteById(id);
-            unbindWithCategories(cashFlow);
+            unbindFromTags(cashFlow);
             fixCurrentAmountInWalletAfterDelete(cashFlow);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private void unbindWithCategories(CashFlow cashFlow) throws SQLException {
+    private void unbindFromTags(CashFlow cashFlow) throws SQLException {
         DeleteBuilder<TagAndCashFlowBind, Long> deleteBuilder = tagAndCashFlowBindsDao.deleteBuilder();
 
         deleteBuilder.where()

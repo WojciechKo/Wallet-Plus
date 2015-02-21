@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.test.service.category;
+package info.korzeniowski.walletplus.test.service.tag;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;

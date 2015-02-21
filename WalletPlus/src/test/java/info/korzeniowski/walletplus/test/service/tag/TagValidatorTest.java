@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.test.service.category;
+package info.korzeniowski.walletplus.test.service.tag;
 
 import com.j256.ormlite.dao.Dao;
 
