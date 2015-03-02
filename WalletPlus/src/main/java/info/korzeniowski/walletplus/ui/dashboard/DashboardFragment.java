@@ -91,12 +91,13 @@ public class DashboardFragment extends Fragment {
     private LineChartData getMainLineChartData() {
         List<PointValue> values = Lists.newArrayList();
         List<AxisValue> dateAxisValues = Lists.newArrayList();
-        ListIterator<CashFlow> cashFlowListIterator = localCashFlowService.getLastNCashFlows(MAX_NUMBER_OF_POINTS_IN_CHART).listIterator();
+        List<CashFlow> cashFlowList = localCashFlowService.getLastNCashFlows(MAX_NUMBER_OF_POINTS_IN_CHART);
+        ListIterator<CashFlow> cashFlowListIterator = cashFlowList.listIterator();
 
         float tempWalletValue = sumOfCurrentAmountOfWallets.floatValue();
         float minWalletValue = tempWalletValue;
         float maxWalletValue = tempWalletValue;
-        for (int i = MAX_NUMBER_OF_POINTS_IN_CHART; i > 0; i--) {
+        for (int i = cashFlowList.size(); i > 0; i--) {
             if (!cashFlowListIterator.hasNext()) {
                 break;
             }
