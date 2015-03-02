@@ -12,7 +12,9 @@ import org.robolectric.annotation.Config;
 
 import java.util.UUID;
 
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
+import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.exception.EntityAlreadyExistsException;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
@@ -36,9 +38,12 @@ public class TagValidatorTest {
     @Before
     public void setUp() {
         @SuppressWarnings("unchecked")
-        Dao<Tag, Long> categoryDao = mock(Dao.class);
+        Dao<Tag, Long> tagDao = mock(Dao.class);
+        Dao<CashFlow, Long> cashFlowDao = mock(Dao.class);
+        Dao<TagAndCashFlowBind, Long> tagAndCashFlowBinds = mock(Dao.class);
         validatorService = mock(TagService.class);
-        tagService = new LocalTagService(categoryDao, new TagValidator(validatorService));
+        //TODO: Czy Dagger może się tym zająć?
+        tagService = new LocalTagService(tagDao, cashFlowDao, tagAndCashFlowBinds, new TagValidator(validatorService));
     }
 
     /**

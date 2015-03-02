@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.module.DatabaseModule;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
 import info.korzeniowski.walletplus.test.ui.wallet.details.CreateNewMyWalletTest;
@@ -41,4 +42,12 @@ public class MockDatabaseModule {
     public WalletService provideMockWalletService() {
         return Mockito.mock(WalletService.class);
     }
+
+    @Provides
+    @Named("local")
+    @Singleton
+    public CashFlowService provideMockCashFlowService() {
+        return Mockito.mock(CashFlowService.class);
+    }
+
 }

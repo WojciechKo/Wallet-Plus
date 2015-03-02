@@ -71,25 +71,23 @@ public class LocalWalletServiceTest {
         walletService.insert(getSimpleWallet());
         walletService.insert(getSimpleWallet());
 
-        cashFlowService.insert(getCashFlow(walletService.getAll().get(0)));
-        cashFlowService.insert(getCashFlow(walletService.getAll().get(0)));
-        cashFlowService.insert(getCashFlow(walletService.getAll().get(0)));
-        cashFlowService.insert(getCashFlow(walletService.getAll().get(1)));
+        cashFlowService.insert(getCashFlow(walletService.getAll().get(0), CashFlow.Type.INCOME));
+        cashFlowService.insert(getCashFlow(walletService.getAll().get(0), CashFlow.Type.INCOME));
+        cashFlowService.insert(getCashFlow(walletService.getAll().get(0), CashFlow.Type.EXPANSE));
+        cashFlowService.insert(getCashFlow(walletService.getAll().get(1), CashFlow.Type.INCOME));
 
         long cashFlowCount = cashFlowService.count();
 
         walletService.deleteById(walletService.getAll().get(0).getId());
 
         assertThat(cashFlowService.count()).isEqualTo(cashFlowCount - 3);
-
-        assertThat(cashFlowService.count()).isEqualTo(cashFlowCount - 3 - 1);
     }
 
-    private CashFlow getCashFlow(Wallet from) {
-        return new CashFlow().setDateTime(new Date()).setAmount(50.00).setWallet(from);
+    private CashFlow getCashFlow(Wallet wallet, CashFlow.Type type) {
+        return new CashFlow().setType(type).setAmount(50.00).setWallet(wallet).setDateTime(new Date());
     }
 
     private Wallet getSimpleWallet() {
-        return new Wallet().setName("Simple wallet-" + UUID.randomUUID()).setInitialAmount(11.1).setCurrentAmount(11.1);
+        return new Wallet().setName("Simple wallet-" + UUID.randomUUID()).setInitialAmount(1000.0);
     }
 }
