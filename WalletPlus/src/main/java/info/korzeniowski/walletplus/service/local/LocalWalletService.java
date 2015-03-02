@@ -66,7 +66,7 @@ public class LocalWalletService implements WalletService {
     @Override
     public List<Wallet> getAll() {
         try {
-            return walletDao.queryBuilder().orderByRaw("name COLLATE NOCASE").query();
+            return walletDao.queryBuilder().orderByRaw(Wallet.NAME_COLUMN_NAME + " COLLATE NOCASE").query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -93,7 +93,7 @@ public class LocalWalletService implements WalletService {
         try {
             walletValidator.validateDelete(id);
             DeleteBuilder<CashFlow, Long> db = cashFlowDao.deleteBuilder();
-            db.where().eq("wallet_id", id);
+            db.where().eq(CashFlow.WALLET_ID_COLUMN_NAME, id);
             cashFlowDao.delete(db.prepare());
             walletDao.deleteById(id);
         } catch (SQLException e) {

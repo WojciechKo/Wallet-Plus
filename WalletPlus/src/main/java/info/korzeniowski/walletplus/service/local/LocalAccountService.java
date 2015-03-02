@@ -52,7 +52,7 @@ public class LocalAccountService implements AccountService {
     @Override
     public List<Account> getAll() {
         try {
-            return accountDao.queryBuilder().orderByRaw("name COLLATE NOCASE").query();
+            return accountDao.queryBuilder().orderByRaw(Account.NAME_COLUMN_NAME + " COLLATE NOCASE").query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -65,10 +65,6 @@ public class LocalAccountService implements AccountService {
 
     @Override
     public void deleteById(Long id) {
-        throw new RuntimeException("Not implemented!");
-    }
-
-    private void deleteDatabaseFile(String databaseFileName) {
         throw new RuntimeException("Not implemented!");
     }
 }

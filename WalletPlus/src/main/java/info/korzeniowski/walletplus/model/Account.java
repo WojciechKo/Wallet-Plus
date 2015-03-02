@@ -4,21 +4,29 @@ import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.List;
 
+@DatabaseTable(tableName = Account.TABLE_NAME)
 public class Account implements Identifiable {
 
-    @DatabaseField(generatedId = true)
+    public static final String TABLE_NAME = "account";
+
+    public static final String ID_COLUMN_NAME = "id";
+    public static final String NAME_COLUMN_NAME = "name";
+    public static final String GMAIL_ACCOUNT_COLUMN_NAME = "gmailAccount";
+
+    @DatabaseField(columnName = ID_COLUMN_NAME, generatedId = true)
     private Long id;
 
-    @DatabaseField(canBeNull = false, uniqueIndex = true)
+    @DatabaseField(columnName = NAME_COLUMN_NAME, canBeNull = false, uniqueIndex = true)
     private String name;
 
-    @DatabaseField
+    @DatabaseField(columnName = GMAIL_ACCOUNT_COLUMN_NAME)
     private String gmailAccount;
 
-    @ForeignCollectionField(orderColumnName = "name")
+    @ForeignCollectionField(orderColumnName = NAME_COLUMN_NAME)
     private ForeignCollection<Profile> profiles;
 
     public Account() {

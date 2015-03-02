@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.model;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,29 +11,40 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+@DatabaseTable(tableName = CashFlow.TABLE_NAME)
 public class CashFlow implements Identifiable {
-    public final static String ID_FIELD_NAME = "id";
-    public final static String DATETIME_FIELD_NAME = "dateTime";
-    
-    @DatabaseField(generatedId = true)
+
+    public static final String TABLE_NAME = "cashFlow";
+
+    public static final String ID_COLUMN_NAME = "id";
+    public static final String TYPE_COLUMN_NAME = "type";
+    public static final String AMOUNT_COLUMN_NAME = "amount";
+    public static final String WALLET_ID_COLUMN_NAME = "wallet_id";
+    public static final String COMMENT_COLUMN_NAME = "comment";
+    public static final String DATETIME_COLUMN_NAME = "dateTime";
+    public static final String COMPLETED_COLUMN_NAME = "completed";
+
+    @DatabaseField(columnName = ID_COLUMN_NAME, generatedId = true)
     private Long id;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = TYPE_COLUMN_NAME, canBeNull = false)
     private Type type;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = AMOUNT_COLUMN_NAME, canBeNull = false)
     private Double amount;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnDefinition = "integer REFERENCES wallet(id) ON DELETE CASCADE")
+    @DatabaseField(columnName = WALLET_ID_COLUMN_NAME, foreign = true, foreignAutoRefresh = true,
+            columnDefinition = "integer REFERENCES " + Wallet.TABLE_NAME +
+                    "(" + Wallet.ID_COLUMN_NAME + ") ON DELETE CASCADE")
     private Wallet wallet;
 
-    @DatabaseField
+    @DatabaseField(columnName = COMMENT_COLUMN_NAME)
     private String comment;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = DATETIME_COLUMN_NAME, canBeNull = false)
     private Date dateTime;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = COMPLETED_COLUMN_NAME, canBeNull = false)
     private boolean completed;
 
     private Set<Tag> tags;

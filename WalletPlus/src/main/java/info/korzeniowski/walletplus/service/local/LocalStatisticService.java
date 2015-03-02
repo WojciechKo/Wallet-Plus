@@ -18,6 +18,7 @@ import info.korzeniowski.walletplus.service.TagService;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class LocalStatisticService implements StatisticService {
+
     @Inject
     @Named("local")
     CashFlowService cashFlowService;
@@ -25,10 +26,6 @@ public class LocalStatisticService implements StatisticService {
     @Inject
     @Named("local")
     TagService tagService;
-
-    public LocalStatisticService() {
-
-    }
 
     @Override
     public TagStats getTagStats(Tag tag, final Date firstDay, final Period period, final Integer iteration) {

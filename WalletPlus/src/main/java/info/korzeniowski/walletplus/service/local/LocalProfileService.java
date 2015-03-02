@@ -64,7 +64,7 @@ public class LocalProfileService implements ProfileService {
     @Override
     public Profile findByName(String name) {
         try {
-            return profileDao.queryBuilder().where().eq("name", name).queryForFirst();
+            return profileDao.queryBuilder().where().eq(Profile.NAME_COLUMN_NAME, name).queryForFirst();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -73,7 +73,7 @@ public class LocalProfileService implements ProfileService {
     @Override
     public List<Profile> getAll() {
         try {
-            return profileDao.queryBuilder().orderByRaw("name COLLATE NOCASE").query();
+            return profileDao.queryBuilder().orderByRaw(Profile.NAME_COLUMN_NAME + " COLLATE NOCASE").query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

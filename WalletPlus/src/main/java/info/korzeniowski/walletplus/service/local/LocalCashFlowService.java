@@ -89,12 +89,12 @@ public class LocalCashFlowService implements CashFlowService {
 
     private PreparedQuery<Tag> getTagsOfCashFlowQuery() throws SQLException {
         QueryBuilder<TagAndCashFlowBind, Long> tagCashFlowQb = tagAndCashFlowBindsDao.queryBuilder();
-        tagCashFlowQb.selectColumns(TagAndCashFlowBind.TAG_ID_FIELD_NAME);
+        tagCashFlowQb.selectColumns(TagAndCashFlowBind.TAG_ID_COLUMN_NAME);
         SelectArg cashFlowIdArg = new SelectArg();
-        tagCashFlowQb.where().eq(TagAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME, cashFlowIdArg);
+        tagCashFlowQb.where().eq(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME, cashFlowIdArg);
 
         QueryBuilder<Tag, Long> tagQb = tagDao.queryBuilder();
-        tagQb.where().in(Tag.ID_FIELD_NAME, tagCashFlowQb);
+        tagQb.where().in(Tag.ID_COLUMN_NAME, tagCashFlowQb);
         return tagQb.prepare();
     }
 
@@ -132,11 +132,11 @@ public class LocalCashFlowService implements CashFlowService {
 
     private void validateInsert(CashFlow cashFlow) {
         if (cashFlow.getType() == null) {
-            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), "Type");
+            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), CashFlow.TYPE_COLUMN_NAME);
         }
 
         if (cashFlow.getWallet() == null) {
-            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), "Wallet");
+            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), CashFlow.WALLET_ID_COLUMN_NAME);
         }
     }
 
@@ -185,9 +185,9 @@ public class LocalCashFlowService implements CashFlowService {
         DeleteBuilder<TagAndCashFlowBind, Long> deleteBuilder = tagAndCashFlowBindsDao.deleteBuilder();
 
         deleteBuilder.where()
-                .eq(TagAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME, cashFlow)
+                .eq(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME, cashFlow)
                 .and()
-                .in(TagAndCashFlowBind.TAG_ID_FIELD_NAME, cashFlow.getTags());
+                .in(TagAndCashFlowBind.TAG_ID_COLUMN_NAME, cashFlow.getTags());
 
         deleteBuilder.delete();
     }
@@ -209,7 +209,7 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public long countAssignedWithWallet(Long walletId) {
         try {
-            return cashFlowDao.queryBuilder().where().eq("wallet_id", walletId).countOf();
+            return cashFlowDao.queryBuilder().where().eq(CashFlow.WALLET_ID_COLUMN_NAME, walletId).countOf();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -241,14 +241,14 @@ public class LocalCashFlowService implements CashFlowService {
         boolean isFirst = true;
 
         if (from != null) {
-            where.ge("dateTime", from);
+            where.ge(CashFlow.DATETIME_COLUMN_NAME, from);
             isFirst = false;
         }
         if (to != null) {
             if (!isFirst) {
                 where.and();
             }
-            where.lt("dateTime", to);
+            where.lt(CashFlow.DATETIME_COLUMN_NAME, to);
             isFirst = false;
         }
         if (walletId != null) {
@@ -256,9 +256,9 @@ public class LocalCashFlowService implements CashFlowService {
                 where.and();
             }
             if (walletId == WalletService.WALLET_NULL_ID) {
-                where.isNull("wallet_id");
+                where.isNull(CashFlow.WALLET_ID_COLUMN_NAME);
             } else {
-                where.eq("wallet_id", walletId);
+                where.eq(CashFlow.WALLET_ID_COLUMN_NAME, walletId);
             }
         }
 
@@ -268,7 +268,7 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public List<CashFlow> getLastNCashFlows(int n) {
         try {
-            return cashFlowDao.queryBuilder().orderBy("dateTime", false).limit((long) n).query();
+            return cashFlowDao.queryBuilder().orderBy(CashFlow.DATETIME_COLUMN_NAME, false).limit((long) n).query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

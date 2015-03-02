@@ -90,7 +90,7 @@ public class LocalTagService implements TagService {
     @Override
     public Tag findByName(final String name) {
         try {
-            return tagDao.queryBuilder().where().eq("name", name).queryForFirst();
+            return tagDao.queryBuilder().where().eq(Tag.NAME_COLUMN_NAME, name).queryForFirst();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -99,7 +99,7 @@ public class LocalTagService implements TagService {
     @Override
     public List<Tag> getAll() {
         try {
-            return tagDao.queryBuilder().orderByRaw("name COLLATE NOCASE").query();
+            return tagDao.queryBuilder().orderByRaw(Tag.NAME_COLUMN_NAME + " COLLATE NOCASE").query();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -154,13 +154,13 @@ public class LocalTagService implements TagService {
     public List<CashFlow> getAssociatedCashFlows(Long tagId, Long n) {
         try {
             QueryBuilder<TagAndCashFlowBind, Long> tagCashFlowQb = tagAndCashFlowBindsDao.queryBuilder();
-            tagCashFlowQb.selectColumns(TagAndCashFlowBind.CASH_FLOW_ID_FIELD_NAME);
-            tagCashFlowQb.where().eq(TagAndCashFlowBind.TAG_ID_FIELD_NAME, tagId);
+            tagCashFlowQb.selectColumns(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME);
+            tagCashFlowQb.where().eq(TagAndCashFlowBind.TAG_ID_COLUMN_NAME, tagId);
             tagCashFlowQb.setCountOf(true);
 
             QueryBuilder<CashFlow, Long> cashFlowQb = cashFlowDao.queryBuilder();
             cashFlowQb.join(tagCashFlowQb);
-            cashFlowQb.orderBy(CashFlow.DATETIME_FIELD_NAME, true);
+            cashFlowQb.orderBy(CashFlow.DATETIME_COLUMN_NAME, true);
             cashFlowQb.limit(n);
             Long offset = tagCashFlowQb.countOf() - n;
             cashFlowQb.offset(offset);

@@ -4,8 +4,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
+@DatabaseTable(tableName = Wallet.TABLE_NAME)
 public class Wallet implements Identifiable, Parcelable {
+
+    public static final String TABLE_NAME = "wallet";
+
+    public static final String ID_COLUMN_NAME = "id";
+    public static final String NAME_COLUMN_NAME = "name";
+    public static final String INITIAL_AMOUNT_COLUMN_NAME = "initialAmount";
+    public static final String CURRENT_AMOUNT_COLUMN_NAME = "currentAmount";
+
     public static final Parcelable.Creator<Wallet> CREATOR = new Parcelable.Creator<Wallet>() {
         public Wallet createFromParcel(Parcel in) {
             return new Wallet(in);
@@ -15,16 +25,17 @@ public class Wallet implements Identifiable, Parcelable {
             return new Wallet[size];
         }
     };
-    @DatabaseField(generatedId = true)
+
+    @DatabaseField(columnName = ID_COLUMN_NAME, generatedId = true)
     private Long id;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = NAME_COLUMN_NAME, canBeNull = false)
     private String name;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = INITIAL_AMOUNT_COLUMN_NAME, canBeNull = false)
     private Double initialAmount;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = CURRENT_AMOUNT_COLUMN_NAME, canBeNull = false)
     private Double currentAmount;
 
     public Wallet() {

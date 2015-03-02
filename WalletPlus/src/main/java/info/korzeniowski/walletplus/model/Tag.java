@@ -5,10 +5,19 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.Comparator;
 
+@DatabaseTable(tableName = Tag.TABLE_NAME)
 public class Tag implements Comparable<Tag>, Identifiable, Parcelable {
+
+    public static final String TABLE_NAME = "tag";
+
+    public static final String ID_COLUMN_NAME = "id";
+    public static final String NAME_COLUMN_NAME = "name";
+    public static final String COLOR_COLUMN_NAME = "color";
+
     public static final Parcelable.Creator<Tag> CREATOR = new Parcelable.Creator<Tag>() {
         public Tag createFromParcel(Parcel in) {
             return new Tag(in);
@@ -19,16 +28,13 @@ public class Tag implements Comparable<Tag>, Identifiable, Parcelable {
         }
     };
 
-    public final static String ID_FIELD_NAME = "id";
-    public final static String NAME_FIELD_NAME = "name";
-
-    @DatabaseField(generatedId = true)
+    @DatabaseField(columnName = ID_COLUMN_NAME, generatedId = true)
     private Long id;
 
-    @DatabaseField(uniqueIndex = true, canBeNull = false)
+    @DatabaseField(columnName = NAME_COLUMN_NAME, uniqueIndex = true, canBeNull = false)
     private String name;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = COLOR_COLUMN_NAME, canBeNull = false)
     private Integer color;
 
     public Tag() {
