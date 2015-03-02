@@ -93,10 +93,7 @@ public class LocalWalletService implements WalletService {
         try {
             walletValidator.validateDelete(id);
             DeleteBuilder<CashFlow, Long> db = cashFlowDao.deleteBuilder();
-            db.where()
-                    .eq("fromWallet_id", id)
-                .or()
-                    .eq("toWallet_id", id);
+            db.where().eq("wallet_id", id);
             cashFlowDao.delete(db.prepare());
             walletDao.deleteById(id);
         } catch (SQLException e) {

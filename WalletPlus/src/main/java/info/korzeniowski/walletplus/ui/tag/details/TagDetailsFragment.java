@@ -15,8 +15,11 @@ import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import java.text.NumberFormat;
+import java.util.List;
+import java.util.ListIterator;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -28,9 +31,19 @@ import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.util.PrefUtils;
+import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.AxisValue;
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.Viewport;
+import lecho.lib.hellocharts.view.LineChartView;
+
+import static info.korzeniowski.walletplus.util.KorzeniowskiUtils.Dates;
 
 public class TagDetailsFragment extends Fragment {
     public static final String TAG = TagDetailsFragment.class.getSimpleName();
@@ -44,6 +57,9 @@ public class TagDetailsFragment extends Fragment {
 
     @InjectView(R.id.colorPicker)
     Button colorPicker;
+
+    @InjectView(R.id.chart)
+    LineChartView chart;
 
     @Inject
     @Named("local")
@@ -87,17 +103,75 @@ public class TagDetailsFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_tag_details, container, false);
         ButterKnife.inject(this, view);
+        setupViews();
+        return view;
+    }
 
+    private void setupViews() {
         int tagColor;
         if (detailsAction == DetailsAction.EDIT) {
             tagName.setText(tagToEdit.get().getName());
             tagColor = tagToEdit.get().getColor();
+
+            chart.setLineChartData(getMainLineChartData());
+            chart.setValueSelectionEnabled(true);
+            chart.setViewportCalculationEnabled(false);
+            final Viewport v = new Viewport(chart.getMaximumViewport());
+            float diff = v.top - v.bottom;
+            v.bottom -= 0.2 * diff;
+            v.top += 0.2 * diff;
+            chart.setMaximumViewport(v);
+            chart.setCurrentViewportWithAnimation(v);
+
         } else {
             tagColor = PrefUtils.getNextTagColor(getActivity());
         }
         colorPicker.setBackgroundColor(tagColor);
         colorPicker.setTag(tagColor);
-        return view;
+    }
+
+    private LineChartData getMainLineChartData() {
+        List<PointValue> values = Lists.newArrayList();
+        List<AxisValue> dateAxisValues = Lists.newArrayList();
+        long numberOfPoints = 5L;
+        List<CashFlow> cashFlowList = localTagService.getAssociatedCashFlows(tagToEdit.get().getId(), numberOfPoints);
+
+        ListIterator<CashFlow> cashFlowIterator = cashFlowList.listIterator();
+        for (int i = 0; i < cashFlowList.size(); i++) {
+            if (!cashFlowIterator.hasNext()) {
+                break;
+            }
+            CashFlow cashFlow = cashFlowIterator.next();
+
+            dateAxisValues.add(
+                    new AxisValue(
+                            i,
+                            Dates.getShortDateLabel(getActivity(), cashFlow.getDateTime()).toCharArray()));
+
+            if (cashFlow.getType() == CashFlow.Type.INCOME) {
+                values.add(new PointValue(i, cashFlow.getAmount().floatValue()));
+            } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
+                values.add(new PointValue(i, cashFlow.getAmount().floatValue() * -1));
+            }
+        }
+        if (values.size() > 1) {
+            Line mainLine = new Line(values);
+            mainLine.setColor(getResources().getColor(R.color.green));
+            mainLine.setFilled(true);
+            mainLine.setHasLabelsOnlyForSelected(true);
+
+            LineChartData lineChartData = new LineChartData(Lists.newArrayList(mainLine));
+
+            // setup axis with dates.
+            lineChartData.setAxisXBottom(new Axis(dateAxisValues));
+
+            // setup axis with values.
+            lineChartData.setAxisYLeft(new Axis().setHasLines(true));
+
+            return lineChartData;
+        } else {
+            return new LineChartData(Lists.<Line>newArrayList());
+        }
     }
 
     @Override

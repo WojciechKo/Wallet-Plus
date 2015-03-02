@@ -16,13 +16,13 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.Tag;
-import info.korzeniowski.walletplus.service.TagService;
+import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.widget.IdentifiableListAdapter;
 
 public class StatisticListAdapter extends IdentifiableListAdapter<Tag> {
-    private final List<TagService.TagStats> stats;
+    private final List<StatisticService.TagStats> stats;
 
-    public StatisticListAdapter(Context context, List<Tag> items, List<TagService.TagStats> stats) {
+    public StatisticListAdapter(Context context, List<Tag> items, List<StatisticService.TagStats> stats) {
         super(context, items, R.layout.item_tag_stats_list);
         this.stats = stats;
     }
@@ -42,15 +42,15 @@ public class StatisticListAdapter extends IdentifiableListAdapter<Tag> {
         holder.categoryName.setTextColor(getContext().getResources().getColor(R.color.black87A));
         holder.categoryName.setText(item.getName());
         holder.categoryName.setTypeface(holder.categoryName.getTypeface(), Typeface.BOLD);
-        TagService.TagStats stats = getStats(item);
+        StatisticService.TagStats stats = getStats(item);
         holder.income.setText(NumberFormat.getCurrencyInstance().format(stats.getIncome()));
         holder.expense.setText(NumberFormat.getCurrencyInstance().format(stats.getExpense()));
     }
 
-    private TagService.TagStats getStats(final Tag tag) {
-        return Iterables.find(stats, new Predicate<TagService.TagStats>() {
+    private StatisticService.TagStats getStats(final Tag tag) {
+        return Iterables.find(stats, new Predicate<StatisticService.TagStats>() {
             @Override
-            public boolean apply(TagService.TagStats input) {
+            public boolean apply(StatisticService.TagStats input) {
                 return tag.getId().equals(input.getTagId());
             }
         });

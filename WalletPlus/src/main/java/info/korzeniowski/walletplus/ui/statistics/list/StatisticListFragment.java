@@ -22,6 +22,7 @@ import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.ui.statistics.details.StaticticDetailsActivity;
 
@@ -84,8 +85,9 @@ public class StatisticListFragment extends Fragment {
     }
 
 
-    private List<TagService.TagStats> getCategoryStatsList() {
-        return localTagService.getTagStatsList(statisticListActivityState.getStartDate(), getPeriod(statisticListActivityState.getPeriod()), iteration);
+    private List<StatisticService.TagStats> getCategoryStatsList() {
+        return null;
+//        return localTagService.getTagStatsList(statisticListActivityState.getStartDate(), getPeriod(statisticListActivityState.getPeriod()), iteration);
     }
 
     private Period getPeriod(StatisticListActivity.Period period) {

@@ -11,11 +11,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class CashFlow implements Identifiable {
-
+    public final static String ID_FIELD_NAME = "id";
+    public final static String DATETIME_FIELD_NAME = "dateTime";
+    
     @DatabaseField(generatedId = true)
     private Long id;
 
-    @DatabaseField
+    @DatabaseField(canBeNull = false)
     private Type type;
 
     @DatabaseField(canBeNull = false)

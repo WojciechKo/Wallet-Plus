@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.util;
 
 import android.content.Context;
+import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -11,7 +12,17 @@ import org.joda.time.Days;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
+import java.util.Date;
+
 public class KorzeniowskiUtils {
+    public static class Dates {
+        public static String getShortDateLabel(Context context, Date date) {
+            return DateUtils.formatDateTime(
+                    context,
+                    date.getTime(),
+                    DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NO_YEAR | DateUtils.FORMAT_ABBREV_MONTH);
+        }
+    }
     public static class Times {
         public static Interval getInterval(DateTime firstDay, Period period, Integer iteration) {
             DateTime firstDayArg;

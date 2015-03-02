@@ -21,11 +21,13 @@ import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.local.LocalAccountService;
 import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
+import info.korzeniowski.walletplus.service.local.LocalStatisticService;
 import info.korzeniowski.walletplus.service.local.LocalTagService;
 import info.korzeniowski.walletplus.service.local.LocalProfileService;
 import info.korzeniowski.walletplus.service.local.LocalWalletService;
@@ -248,5 +250,18 @@ public class DatabaseModule {
     @Singleton
     public WalletService provideWalletService(LocalWalletService localWalletService) {
         return localWalletService;
+    }
+
+    /**
+     * *************
+     * STATISTIC
+     * *************
+     */
+
+    @Provides
+    @Named("local")
+    @Singleton
+    public StatisticService provideStatisticService(LocalStatisticService localStatisticService) {
+        return localStatisticService;
     }
 }

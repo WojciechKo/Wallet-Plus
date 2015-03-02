@@ -21,6 +21,7 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
+import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 
 public class LocalCashFlowService implements CashFlowService {
     private final Dao<CashFlow, Long> cashFlowDao;
@@ -119,12 +120,23 @@ public class LocalCashFlowService implements CashFlowService {
     @Override
     public Long insert(CashFlow cashFlow) {
         try {
+            validateInsert(cashFlow);
             cashFlowDao.create(cashFlow);
             bindWithTags(cashFlow);
             fixCurrentAmountInWalletAfterInsert(cashFlow);
             return cashFlow.getId();
         } catch (SQLException e) {
             throw new DatabaseException(e);
+        }
+    }
+
+    private void validateInsert(CashFlow cashFlow) {
+        if (cashFlow.getType() == null) {
+            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), "Type");
+        }
+
+        if (cashFlow.getWallet() == null) {
+            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), "Wallet");
         }
     }
 
