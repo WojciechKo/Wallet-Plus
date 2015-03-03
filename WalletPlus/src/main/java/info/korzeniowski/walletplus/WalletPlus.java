@@ -18,19 +18,7 @@ import info.korzeniowski.walletplus.util.PrefUtils;
  * Main Application class.
  */
 public class WalletPlus extends Application {
-    public static final String LOG_TAG = "WalletPlus";
-    private static final String FIRST_RUN = "FIRST_RUN";
-    private static final String LAST_LOGGED_PROFILE_ID = "LAST_LOGGED_PROFILE_ID";
-
     ObjectGraph graph;
-
-    /**
-     * Just for Dagger DI.
-     */
-    @Inject
-    public WalletPlus() {
-        super();
-    }
 
     @Override
     public void onCreate() {
