@@ -33,11 +33,9 @@ public class StatisticListFragment extends Fragment {
     ListView list;
 
     @Inject
-    @Named(TagService.ORMLITE_IMPL)
     TagService tagService;
 
     @Inject
-    @Named(CashFlowService.ORMLITE_IMPL)
     CashFlowService cashFlowService;
 
     @Inject

@@ -77,7 +77,6 @@ public class ProfileActivity extends BaseActivity {
         ListView remoteProfiles;
 
         @Inject
-        @Named(ProfileService.ORMLITE_IMPL)
         ProfileService profileService;
 
         @Inject

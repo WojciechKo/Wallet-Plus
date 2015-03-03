@@ -142,7 +142,6 @@ public class DatabaseModule {
     }
 
     @Provides
-    @Named(AccountService.ORMLITE_IMPL)
     @Singleton
     public AccountService provideAccountService(AccountServiceOrmLite accountServiceOrmLite) {
         return accountServiceOrmLite;
@@ -164,7 +163,6 @@ public class DatabaseModule {
     }
 
     @Provides
-    @Named(ProfileService.ORMLITE_IMPL)
     @Singleton
     public ProfileService provideProfileService(ProfileServiceOrmLite profileServiceOrmLite) {
         return profileServiceOrmLite;
@@ -187,7 +185,6 @@ public class DatabaseModule {
     }
 
     @Provides
-    @Named(TagService.ORMLITE_IMPL)
     @Singleton
     public TagService provideTagService(TagServiceOrmLite tagServiceOrmLite) {
         return tagServiceOrmLite;
@@ -209,7 +206,6 @@ public class DatabaseModule {
     }
 
     @Provides
-    @Named(CashFlowService.ORMLITE_IMPL)
     @Singleton
     public CashFlowService provideCashFlowService(CashFlowServiceOrmLite cashFlowServiceOrmLite) {
         return cashFlowServiceOrmLite;
@@ -246,7 +242,6 @@ public class DatabaseModule {
     }
 
     @Provides
-    @Named(WalletService.ORMLITE_IMPL)
     @Singleton
     public WalletService provideWalletService(WalletServiceOrmLite localWalletService) {
         return localWalletService;
@@ -259,7 +254,6 @@ public class DatabaseModule {
      */
 
     @Provides
-    @Named(StatisticService.ORMLITE_IMPL)
     @Singleton
     public StatisticService provideStatisticService(StatisticServiceOrmLite statisticServiceOrmLite) {
         return statisticServiceOrmLite;

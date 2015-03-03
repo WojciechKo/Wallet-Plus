@@ -62,7 +62,6 @@ public class TagDetailsFragment extends Fragment {
     LineChartView chart;
 
     @Inject
-    @Named(TagService.ORMLITE_IMPL)
     TagService tagService;
 
     @Inject

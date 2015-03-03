@@ -51,11 +51,9 @@ public class WalletDetailsFragment extends Fragment {
     TextView walletCurrentAmount;
 
     @Inject
-    @Named(WalletService.ORMLITE_IMPL)
     WalletService walletService;
 
     @Inject
-    @Named(WalletService.ORMLITE_IMPL)
     CashFlowService cashFlowService;
 
     @Inject

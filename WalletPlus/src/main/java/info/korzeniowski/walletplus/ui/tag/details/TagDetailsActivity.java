@@ -26,7 +26,6 @@ public class TagDetailsActivity extends BaseActivity {
     public static final int RESULT_DELETED = 102;
 
     @Inject
-    @Named(TagService.ORMLITE_IMPL)
     TagService tagService;
 
     private Long tagId;

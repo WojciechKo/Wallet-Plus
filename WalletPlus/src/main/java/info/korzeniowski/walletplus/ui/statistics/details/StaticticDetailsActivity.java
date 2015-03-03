@@ -27,7 +27,6 @@ public class StaticticDetailsActivity extends BaseActivity {
     public static final String RESULT_DATA_DELETED_TAG_ID = "DELETED_TAG_ID";
 
     @Inject
-    @Named(TagService.ORMLITE_IMPL)
     TagService tagService;
 
     private Long tagId;

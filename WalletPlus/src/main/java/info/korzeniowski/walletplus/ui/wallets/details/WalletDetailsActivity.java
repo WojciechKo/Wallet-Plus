@@ -26,7 +26,6 @@ public class WalletDetailsActivity extends BaseActivity {
     public static final int RESULT_DELETED = 102;
 
     @Inject
-    @Named(WalletService.ORMLITE_IMPL)
     WalletService walletService;
 
     private Long walletId;

@@ -21,7 +21,6 @@ public class WalletServiceOrmLite implements WalletService {
     private final Dao<CashFlow, Long> cashFlowDao;
 
     @Inject
-    @Named(CashFlowService.ORMLITE_IMPL)
     CashFlowService cashFlowService;
 
     private WalletValidator walletValidator;

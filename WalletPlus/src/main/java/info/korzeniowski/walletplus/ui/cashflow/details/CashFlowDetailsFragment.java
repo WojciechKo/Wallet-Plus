@@ -110,15 +110,12 @@ public class CashFlowDetailsFragment extends Fragment {
     CheckedTextView isCompleted;
 
     @Inject
-    @Named(CashFlowService.ORMLITE_IMPL)
     CashFlowService cashFlowService;
 
     @Inject
-    @Named(WalletService.ORMLITE_IMPL)
     WalletService walletService;
 
     @Inject
-    @Named(TagService.ORMLITE_IMPL)
     TagService tagService;
 
     private List<Wallet> wallets;

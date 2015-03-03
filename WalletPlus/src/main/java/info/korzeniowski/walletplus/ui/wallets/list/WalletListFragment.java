@@ -32,7 +32,6 @@ public class WalletListFragment extends Fragment {
     SwipeListView list;
 
     @Inject
-    @Named(WalletService.ORMLITE_IMPL)
     WalletService walletService;
 
     private List<Wallet> walletList;

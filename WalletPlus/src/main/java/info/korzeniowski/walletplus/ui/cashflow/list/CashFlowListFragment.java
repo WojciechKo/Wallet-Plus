@@ -38,7 +38,6 @@ public class CashFlowListFragment extends Fragment {
     ListView list;
 
     @Inject
-    @Named(CashFlowService.ORMLITE_IMPL)
     CashFlowService cashFlowService;
 
     private List<CashFlow> cashFlows;

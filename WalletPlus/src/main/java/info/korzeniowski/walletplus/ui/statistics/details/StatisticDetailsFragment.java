@@ -40,7 +40,6 @@ public class StatisticDetailsFragment extends Fragment {
     EditText categoryName;
 
     @Inject
-    @Named(TagService.ORMLITE_IMPL)
     TagService tagService;
 
     private DetailsAction detailsAction;

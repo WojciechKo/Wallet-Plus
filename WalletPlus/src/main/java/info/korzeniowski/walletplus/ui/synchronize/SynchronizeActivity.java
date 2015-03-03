@@ -94,7 +94,6 @@ public class SynchronizeActivity extends BaseActivity {
         Button downloadUpdate;
 
         @Inject
-        @Named(ProfileService.ORMLITE_IMPL)
         ProfileService profileService;
 
         @Inject

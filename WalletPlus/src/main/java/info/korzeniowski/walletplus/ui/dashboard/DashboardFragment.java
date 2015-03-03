@@ -49,11 +49,9 @@ public class DashboardFragment extends Fragment {
     LineChartView chart;
 
     @Inject
-    @Named(WalletService.ORMLITE_IMPL)
     WalletService walletService;
 
     @Inject
-    @Named(WalletService.ORMLITE_IMPL)
     CashFlowService cashFlowService;
 
     private Double sumOfCurrentAmountOfWallets;

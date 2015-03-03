@@ -20,11 +20,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class StatisticServiceOrmLite implements StatisticService {
 
     @Inject
-    @Named(CashFlowService.ORMLITE_IMPL)
     CashFlowService cashFlowService;
 
     @Inject
-    @Named(TagService.ORMLITE_IMPL)
     TagService tagService;
 
     @Override

@@ -44,7 +44,6 @@ public class TagListFragment extends Fragment {
     TextView list;
 
     @Inject
-    @Named(TagService.ORMLITE_IMPL)
     TagService tagService;
 
     @Override

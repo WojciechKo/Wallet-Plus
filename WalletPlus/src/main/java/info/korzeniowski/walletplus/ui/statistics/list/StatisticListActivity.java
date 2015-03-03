@@ -45,7 +45,6 @@ public class StatisticListActivity extends BaseActivity {
     ViewPager pager;
 
     @Inject
-    @Named(TagService.ORMLITE_IMPL)
     TagService tagService;
 
     @Override

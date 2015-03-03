@@ -23,7 +23,6 @@ public class CashFlowDetailsActivity extends BaseActivity {
     public static final int RESULT_DELETED = 103;
 
     @Inject
-    @Named(CashFlowService.ORMLITE_IMPL)
     CashFlowService cashFlowService;
 
     private Long cashFlowId;
