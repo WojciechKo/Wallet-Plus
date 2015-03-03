@@ -24,8 +24,8 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
+import info.korzeniowski.walletplus.module.MockDatabaseModule;
+import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
 import info.korzeniowski.walletplus.ui.wallets.list.WalletListActivity;
 
@@ -39,18 +39,16 @@ public class MyWalletListTest {
     SwipeListView list;
 
     @Inject
-    @Named("local")
-    WalletService mockWalletService;
+    WalletService walletServiceMock;
 
     private Activity activity;
 
     @Before
     public void setUp() {
-        ((TestWalletPlus) Robolectric.application.getApplicationContext()).removeModule(TestDatabaseModule.class);
-        ((TestWalletPlus) Robolectric.application.getApplicationContext()).addModules(new MockDatabaseModule());
+        ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
         ((TestWalletPlus) Robolectric.application.getApplicationContext()).inject(this);
 
-        Mockito.when(mockWalletService.getAll()).thenReturn(Lists.newArrayList(new Wallet().setId(1L).setName("Wallet 1"), new Wallet().setId(2L).setName("Wallet 2")));
+        Mockito.when(walletServiceMock.getAll()).thenReturn(Lists.newArrayList(new Wallet().setId(1L).setName("Wallet 1"), new Wallet().setId(2L).setName("Wallet 2")));
 
         activity = Robolectric.buildActivity(WalletListActivity.class).create().start().resume().get();
         ButterKnife.inject(this, activity);
@@ -68,6 +66,6 @@ public class MyWalletListTest {
     public void shouldItemPositionMatch() {
         int testItemPosition = 1;
         assertThat(((Wallet) list.getAdapter().getItem(testItemPosition)).getName())
-                .isEqualTo(mockWalletService.getAll().get(testItemPosition).getName());
+                .isEqualTo(walletServiceMock.getAll().get(testItemPosition).getName());
     }
 }

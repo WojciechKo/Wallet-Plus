@@ -24,8 +24,8 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
+import info.korzeniowski.walletplus.module.MockDatabaseModule;
+import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
@@ -54,20 +54,18 @@ public class EditMyWalletTest {
     TextView walletCurrentAmount;
 
     @Inject
-    @Named("local")
-    WalletService walletService;
+    WalletService walletServiceMock;
 
     private Activity activity;
     private Wallet wallet;
 
     @Before
     public void setUp() {
-        ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
         ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
         ((TestWalletPlus) Robolectric.application).inject(this);
 
         wallet = new Wallet().setId(47L).setName("Test wallet").setInitialAmount(100.0).setCurrentAmount(200.0);
-        Mockito.when(walletService.findById(wallet.getId())).thenReturn(wallet);
+        Mockito.when(walletServiceMock.findById(wallet.getId())).thenReturn(wallet);
 
         Intent intent = new Intent();
         intent.putExtra(WalletDetailsActivity.EXTRAS_WALLET_ID, wallet.getId());
@@ -157,18 +155,18 @@ public class EditMyWalletTest {
 
         activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
 
-        Mockito.verify(walletService, Mockito.times(1)).update(toUpdate);
+        Mockito.verify(walletServiceMock, Mockito.times(1)).update(toUpdate);
     }
 
     @Test @Ignore
     public void shouldNotCallUpdateWhenErrors() {
         walletName.setError("simple error");
         activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
-        Mockito.verify(walletService, Mockito.never()).update(Mockito.any(Wallet.class));
+        Mockito.verify(walletServiceMock, Mockito.never()).update(Mockito.any(Wallet.class));
 
         walletName.setError(null);
         walletInitialAmount.setError("other error");
         activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
-        Mockito.verify(walletService, Mockito.never()).update(Mockito.any(Wallet.class));
+        Mockito.verify(walletServiceMock, Mockito.never()).update(Mockito.any(Wallet.class));
     }
 }

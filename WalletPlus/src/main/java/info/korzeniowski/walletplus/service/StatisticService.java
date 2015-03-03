@@ -7,6 +7,8 @@ import java.util.Date;
 import info.korzeniowski.walletplus.model.Tag;
 
 public interface StatisticService {
+    Long countCashFlowsAssignedToWallet(Long walletId);
+
     TagStats getTagStats(Tag tag, Date firstDay, Period period, Integer iteration);
 
     class TagStats {

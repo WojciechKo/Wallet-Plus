@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Wallet;
@@ -19,9 +18,6 @@ import info.korzeniowski.walletplus.service.ormlite.validation.WalletValidator;
 public class WalletServiceOrmLite implements WalletService {
     private final Dao<Wallet, Long> walletDao;
     private final Dao<CashFlow, Long> cashFlowDao;
-
-    @Inject
-    CashFlowService cashFlowService;
 
     private WalletValidator walletValidator;
 
@@ -97,11 +93,6 @@ public class WalletServiceOrmLite implements WalletService {
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
-    }
-
-    @Override
-    public long countDependentCashFlows(Long walletId) {
-        return cashFlowService.countAssignedWithWallet(walletId);
     }
 
     public WalletValidator getWalletValidator() {

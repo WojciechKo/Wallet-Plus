@@ -6,7 +6,8 @@ import com.google.common.collect.Iterables;
 import java.util.List;
 
 import dagger.ObjectGraph;
-import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
+import info.korzeniowski.walletplus.module.MockDatabaseModule;
+import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.util.PrefUtils;
 
 public class TestWalletPlus extends WalletPlus {
@@ -18,7 +19,6 @@ public class TestWalletPlus extends WalletPlus {
     List<Object> getModules() {
         if (modules == null) {
             modules = super.getModules();
-            modules.add(new TestDatabaseModule(this));
         }
         return modules;
     }
@@ -30,16 +30,6 @@ public class TestWalletPlus extends WalletPlus {
 
     public void addModules(Object module) {
         getModules().add(module);
-        graph = ObjectGraph.create(getModules().toArray());
-    }
-
-    public void removeModule(final Class<?> moduleClass) {
-        Iterables.removeIf(modules, new Predicate<Object>() {
-            @Override
-            public boolean apply(Object input) {
-                return input.getClass().equals(moduleClass);
-            }
-        });
         graph = ObjectGraph.create(getModules().toArray());
     }
 }

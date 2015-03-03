@@ -23,8 +23,8 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
+import info.korzeniowski.walletplus.module.MockDatabaseModule;
+import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
@@ -53,14 +53,12 @@ public class CreateNewMyWalletTest {
     TextView walletCurrentAmount;
 
     @Inject
-    @Named("local")
-    WalletService walletService;
+    WalletService walletServiceMock;
 
     private Activity activity;
 
     @Before
     public void setUp() {
-        ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
         ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
         ((TestWalletPlus) Robolectric.application).inject(this);
 
@@ -132,18 +130,18 @@ public class CreateNewMyWalletTest {
 
         activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
 
-        Mockito.verify(walletService, Mockito.times(1)).insert(toInsert);
+        Mockito.verify(walletServiceMock, Mockito.times(1)).insert(toInsert);
     }
 
     @Test @Ignore
     public void shouldNotCallUpdateWhenErrors() {
         walletName.setError("simple error");
         activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
-        Mockito.verify(walletService, Mockito.never()).insert(Mockito.any(Wallet.class));
+        Mockito.verify(walletServiceMock, Mockito.never()).insert(Mockito.any(Wallet.class));
 
         walletName.setError(null);
         walletInitialAmount.setError("other error");
         activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
-        Mockito.verify(walletService, Mockito.never()).insert(Mockito.any(Wallet.class));
+        Mockito.verify(walletServiceMock, Mockito.never()).insert(Mockito.any(Wallet.class));
     }
 }

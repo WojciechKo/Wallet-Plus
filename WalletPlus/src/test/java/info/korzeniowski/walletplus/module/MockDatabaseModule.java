@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.test.module;
+package info.korzeniowski.walletplus.module;
 
 import org.mockito.Mockito;
 
@@ -7,8 +7,8 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import info.korzeniowski.walletplus.module.DatabaseModule;
 import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.ormlite.UserDatabaseHelper;
 import info.korzeniowski.walletplus.test.ui.wallet.details.CreateNewMyWalletTest;
@@ -23,31 +23,26 @@ import info.korzeniowski.walletplus.test.ui.wallet.list.MyWalletListTest;
                 MyWalletListTest.class
         },
         overrides = true,
-        complete = false
+        complete = false,
+        library = true
 )
 public class MockDatabaseModule {
 
-    public MockDatabaseModule() {
-    }
-
     @Provides
-    @Singleton
-    public UserDatabaseHelper provideUserDatabaseHelper() {
-        return Mockito.mock(UserDatabaseHelper.class);
-    }
-
-    @Provides
-    @Named("local")
     @Singleton
     public WalletService provideMockWalletService() {
         return Mockito.mock(WalletService.class);
     }
 
     @Provides
-    @Named("local")
     @Singleton
     public CashFlowService provideMockCashFlowService() {
         return Mockito.mock(CashFlowService.class);
     }
 
+    @Provides
+    @Singleton
+    public StatisticService provideMockStatisticService() {
+        return Mockito.mock(StatisticService.class);
+    }
 }

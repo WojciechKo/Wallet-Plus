@@ -7,23 +7,25 @@ import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
-import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.StatisticService;
-import info.korzeniowski.walletplus.service.TagService;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StatisticServiceOrmLite implements StatisticService {
 
     @Inject
-    CashFlowService cashFlowService;
+    CashFlowServiceOrmLite cashFlowService;
 
     @Inject
-    TagService tagService;
+    TagServiceOrmLite tagService;
+
+    @Override
+    public Long countCashFlowsAssignedToWallet(Long walletId) {
+        return cashFlowService.countAssignedToWallet(walletId);
+    }
 
     @Override
     public TagStats getTagStats(Tag tag, final Date firstDay, final Period period, final Integer iteration) {

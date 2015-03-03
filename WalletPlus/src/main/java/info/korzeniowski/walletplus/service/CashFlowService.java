@@ -6,8 +6,6 @@ import java.util.List;
 import info.korzeniowski.walletplus.model.CashFlow;
 
 public interface CashFlowService extends BaseService<CashFlow> {
-    public long countAssignedWithWallet(Long walletId);
-
     public long countAssignedWithTag(Long tagId);
 
     public List<CashFlow> findCashFlow(Date from, Date to, Long tagId, Long walletId);

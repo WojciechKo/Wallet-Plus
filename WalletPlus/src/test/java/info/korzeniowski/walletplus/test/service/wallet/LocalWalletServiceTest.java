@@ -16,6 +16,7 @@ import javax.inject.Named;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 
@@ -26,15 +27,14 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class LocalWalletServiceTest {
 
     @Inject
-    @Named("local")
     WalletService walletService;
 
     @Inject
-    @Named("local")
     CashFlowService cashFlowService;
 
     @Before
     public void setUp() {
+        ((TestWalletPlus) Robolectric.application).addModules(new TestDatabaseModule(Robolectric.application));
         ((TestWalletPlus) Robolectric.application).inject(this);
     }
 

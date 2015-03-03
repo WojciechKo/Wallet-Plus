@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import info.korzeniowski.walletplus.TestWalletPlus;
+import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.ormlite.WalletServiceOrmLite;
 import info.korzeniowski.walletplus.service.ormlite.validation.WalletValidator;
@@ -25,7 +26,6 @@ import static org.mockito.Mockito.mock;
 public class WalletValidatorTest {
 
     @Inject
-    @Named("local")
     WalletService walletService;
 
     @Rule
@@ -33,6 +33,7 @@ public class WalletValidatorTest {
 
     @Before
     public void setUp() {
+        ((TestWalletPlus) Robolectric.application).addModules(new TestDatabaseModule(Robolectric.application));
         ((TestWalletPlus) Robolectric.application).inject(this);
         ((WalletServiceOrmLite) walletService).setWalletValidator(new WalletValidator(mock(WalletService.class)));
     }

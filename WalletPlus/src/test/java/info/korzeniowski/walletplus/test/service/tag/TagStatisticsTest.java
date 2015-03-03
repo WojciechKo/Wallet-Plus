@@ -17,6 +17,7 @@ import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.TagService;
@@ -29,23 +30,20 @@ import static org.fest.assertions.api.Assertions.assertThat;
 public class TagStatisticsTest {
 
     @Inject
-    @Named("local")
     TagService tagService;
 
     @Inject
-    @Named("local")
     CashFlowService cashFlowService;
 
     @Inject
-    @Named("local")
     WalletService walletService;
 
     @Inject
-    @Named("local")
     StatisticService statisticService;
 
     @Before
     public void setUp() {
+        ((TestWalletPlus) Robolectric.application).addModules(new TestDatabaseModule(Robolectric.application));
         ((TestWalletPlus) Robolectric.application).inject(this);
     }
 

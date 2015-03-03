@@ -12,20 +12,21 @@ import javax.inject.Named;
 
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Tag;
+import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.service.TagService;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @Config(emulateSdk = 18)
 @RunWith(RobolectricTestRunner.class)
-public class LocalTagServiceTest {
+public class TagServiceOrmLiteTest {
 
     @Inject
-    @Named("local")
     TagService tagService;
 
     @Before
     public void setUp() {
+        ((TestWalletPlus) Robolectric.application).addModules(new TestDatabaseModule(Robolectric.application));
         ((TestWalletPlus) Robolectric.application).inject(this);
     }
 

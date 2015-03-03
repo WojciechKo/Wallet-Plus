@@ -1,5 +1,7 @@
 package info.korzeniowski.walletplus.model;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -121,6 +123,11 @@ public class CashFlow implements Identifiable {
         this.completed = completed;
     }
 
+    public CashFlow addTag(Tag... tags) {
+        this.tags.addAll(Lists.newArrayList(tags));
+        return this;
+    }
+
     public CashFlow addTag(Collection<? extends Tag> categories) {
         this.tags.addAll(categories);
         return this;
@@ -147,6 +154,7 @@ public class CashFlow implements Identifiable {
 
     public enum Type {
         INCOME,
+        //TODO: rename to EXPENSE
         EXPANSE,
         TRANSFER
     }

@@ -68,7 +68,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
     @Override
     public List<CashFlow> getAll() {
         try {
-            List<CashFlow> cashFlows = cashFlowDao.queryBuilder().orderBy("dateTime", false).query();
+            List<CashFlow> cashFlows = cashFlowDao.queryBuilder().orderBy(CashFlow.DATETIME_COLUMN_NAME, false).query();
             for (CashFlow cashFlow : cashFlows) {
                 cashFlow.addTag(getTagsOfCashFlow(cashFlow.getId()));
             }
@@ -206,8 +206,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
         walletDao.update(wallet);
     }
 
-    @Override
-    public long countAssignedWithWallet(Long walletId) {
+    Long countAssignedToWallet(Long walletId) {
         try {
             return cashFlowDao.queryBuilder().where().eq(CashFlow.WALLET_ID_COLUMN_NAME, walletId).countOf();
         } catch (SQLException e) {
