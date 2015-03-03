@@ -18,7 +18,6 @@ import info.korzeniowski.walletplus.service.local.validation.WalletValidator;
 
 public class LocalWalletService implements WalletService {
     private final Dao<Wallet, Long> walletDao;
-    //TODO: usunąć
     private final Dao<CashFlow, Long> cashFlowDao;
 
     @Inject
