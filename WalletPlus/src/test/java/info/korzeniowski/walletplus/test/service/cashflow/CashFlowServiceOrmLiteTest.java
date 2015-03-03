@@ -2,6 +2,8 @@ package info.korzeniowski.walletplus.test.service.cashflow;
 
 import com.google.common.collect.Lists;
 
+import org.joda.time.DateTime;
+import org.joda.time.DurationFieldType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -152,5 +154,49 @@ public class CashFlowServiceOrmLiteTest {
         found = cashFlowService.findById(cashFlow.getId());
         assertThat(found.getTags()).containsOnly(tag3, tag2);
         assertThat(tagService.getAll()).containsOnly(tag1, tag2, tag3);
+    }
+
+    @Test
+    public void shouldReturnOrderedLastNCashFlows() {
+        // given
+        Wallet wallet = new Wallet().setName("wallet").setInitialAmount(100.0);
+        walletService.insert(wallet);
+
+        DateTime now = DateTime.now();
+
+
+        CashFlow cashFlow1 = new CashFlow()
+                .setAmount(10.0)
+                .setDateTime(now.withFieldAdded(DurationFieldType.minutes(), -10).toDate())
+                .setType(CashFlow.Type.INCOME)
+                .setWallet(wallet);
+        cashFlowService.insert(cashFlow1);
+
+        CashFlow cashFlow2 = new CashFlow()
+                .setAmount(20.0)
+                .setDateTime(now.withFieldAdded(DurationFieldType.minutes(), -8).toDate())
+                .setType(CashFlow.Type.EXPANSE)
+                .setWallet(wallet);
+        cashFlowService.insert(cashFlow2);
+
+        CashFlow cashFlow3 = new CashFlow()
+                .setAmount(30.0)
+                .setDateTime(now.withFieldAdded(DurationFieldType.minutes(), -6).toDate())
+                .setType(CashFlow.Type.INCOME)
+                .setWallet(wallet);
+        cashFlowService.insert(cashFlow3);
+
+        CashFlow cashFlow4 = new CashFlow()
+                .setAmount(40.0)
+                .setDateTime(now.withFieldAdded(DurationFieldType.minutes(), -4).toDate())
+                .setType(CashFlow.Type.INCOME)
+                .setWallet(wallet);
+        cashFlowService.insert(cashFlow4);
+
+        // then
+        assertThat(cashFlowService.getLastNCashFlows(1)).containsExactly(cashFlow4);
+        assertThat(cashFlowService.getLastNCashFlows(2)).containsExactly(cashFlow3, cashFlow4);
+        assertThat(cashFlowService.getLastNCashFlows(3)).containsExactly(cashFlow2, cashFlow3, cashFlow4);
+        assertThat(cashFlowService.getLastNCashFlows(4)).containsExactly(cashFlow1, cashFlow2, cashFlow3, cashFlow4);
     }
 }

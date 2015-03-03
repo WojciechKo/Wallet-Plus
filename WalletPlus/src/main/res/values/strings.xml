@@ -27,6 +27,7 @@
 
     <!-- Dashboard fragment -->
     <string name="totalAmountLabel">Total:</string>
+    <string name="lastCashFlowsChartLabel">Last cash flows:</string>
 
     <!-- Tag list fragment -->
     <string name="tagListLabel">Tags</string>

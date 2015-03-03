@@ -1,8 +1,11 @@
 package info.korzeniowski.walletplus.service.ormlite;
 
+import com.j256.ormlite.dao.Dao;
+
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -10,21 +13,46 @@ import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
+import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.StatisticService;
+import info.korzeniowski.walletplus.service.exception.DatabaseException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StatisticServiceOrmLite implements StatisticService {
 
-    @Inject
-    CashFlowServiceOrmLite cashFlowService;
+    private Dao<CashFlow, Long> cashFlowDao;
+    private Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindDao;
+    private CashFlowService cashFlowService;
 
     @Inject
-    TagServiceOrmLite tagService;
+    public StatisticServiceOrmLite(
+            Dao<CashFlow, Long> cashFlowDao,
+            Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindDao,
+            CashFlowService cashFlowService) {
+
+        this.cashFlowDao = cashFlowDao;
+        this.tagAndCashFlowBindDao = tagAndCashFlowBindDao;
+        this.cashFlowService = cashFlowService;
+    }
 
     @Override
     public Long countCashFlowsAssignedToWallet(Long walletId) {
-        return cashFlowService.countAssignedToWallet(walletId);
+        try {
+            return cashFlowDao.queryBuilder().where().eq(CashFlow.WALLET_ID_COLUMN_NAME, walletId).countOf();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    @Override
+    public Long countCashFlowsAssignedToTag(Long tagId) {
+        try {
+            return tagAndCashFlowBindDao.queryBuilder().where().eq(TagAndCashFlowBind.TAG_ID_COLUMN_NAME, tagId).countOf();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override

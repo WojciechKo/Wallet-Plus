@@ -30,6 +30,7 @@ import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
@@ -92,41 +93,32 @@ public class DashboardFragment extends Fragment {
         List<CashFlow> cashFlowList = cashFlowService.getLastNCashFlows(MAX_NUMBER_OF_POINTS_IN_CHART);
         ListIterator<CashFlow> cashFlowListIterator = cashFlowList.listIterator();
 
-        float tempWalletValue = sumOfCurrentAmountOfWallets.floatValue();
-        float minWalletValue = tempWalletValue;
-        float maxWalletValue = tempWalletValue;
-        for (int i = cashFlowList.size(); i > 0; i--) {
+        for (int i = 0 ; i < cashFlowList.size(); i++) {
             if (!cashFlowListIterator.hasNext()) {
                 break;
             }
             CashFlow cashFlow = cashFlowListIterator.next();
 
-            if (tempWalletValue > maxWalletValue) {
-                maxWalletValue = tempWalletValue;
-            }
-            if (tempWalletValue < minWalletValue) {
-                minWalletValue = tempWalletValue;
+            if (cashFlow.getType() == CashFlow.Type.INCOME) {
+                values.add(new PointValue(i, cashFlow.getAmount().floatValue()));
+            } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
+                values.add(new PointValue(i, cashFlow.getAmount().floatValue() * -1));
             }
 
-            values.add(new PointValue(i, tempWalletValue));
-            dateAxisValues.add(new AxisValue(i, getAxisLabel(cashFlow.getDateTime())));
-            if (cashFlow.getType() == CashFlow.Type.INCOME) {
-                tempWalletValue -= cashFlow.getAmount().floatValue();
-            } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
-                tempWalletValue += cashFlow.getAmount().floatValue();
-            }
+            dateAxisValues.add(new AxisValue(
+                    i,
+                    KorzeniowskiUtils.Dates.getShortDateLabel(getActivity(), cashFlow.getDateTime()).toCharArray()));
 
         }
         if (values.size() > 1) {
             Line mainLine = new Line(values);
-            mainLine.setColor(getResources().getColor(R.color.green));
-            mainLine.setFilled(true);
+            mainLine.setColor(getResources().getColor(R.color.blue));
             mainLine.setHasLabelsOnlyForSelected(true);
 
             LineChartData lineChartData = new LineChartData(Lists.newArrayList(mainLine));
 
             // setup axis with dates.
-            lineChartData.setAxisXBottom(new Axis(dateAxisValues).setHasTiltedLabels(true));
+            lineChartData.setAxisXBottom(new Axis(dateAxisValues));
 
             // setup axis with values.
             lineChartData.setAxisYLeft(new Axis().setHasLines(true));

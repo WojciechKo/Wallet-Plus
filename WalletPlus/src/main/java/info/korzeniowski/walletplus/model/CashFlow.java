@@ -61,6 +61,56 @@ public class CashFlow implements Identifiable {
     }
 
     @Override
+    public String toString() {
+        return "CashFlow{" +
+                "id=" + id +
+                ", type=" + type +
+                ", amount=" + amount +
+                ", wallet=" + wallet +
+                ", comment='" + comment + '\'' +
+                ", dateTime=" + dateTime +
+                ", completed=" + completed +
+                ", tags=" + tags +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CashFlow cashFlow = (CashFlow) o;
+
+        if (completed != cashFlow.completed) return false;
+        if (amount != null ? !amount.equals(cashFlow.amount) : cashFlow.amount != null)
+            return false;
+        if (comment != null ? !comment.equals(cashFlow.comment) : cashFlow.comment != null)
+            return false;
+        if (dateTime != null ? !dateTime.equals(cashFlow.dateTime) : cashFlow.dateTime != null)
+            return false;
+        if (id != null ? !id.equals(cashFlow.id) : cashFlow.id != null) return false;
+        if (tags != null ? !tags.equals(cashFlow.tags) : cashFlow.tags != null) return false;
+        if (type != cashFlow.type) return false;
+        if (wallet != null ? !wallet.equals(cashFlow.wallet) : cashFlow.wallet != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (amount != null ? amount.hashCode() : 0);
+        result = 31 * result + (wallet != null ? wallet.hashCode() : 0);
+        result = 31 * result + (comment != null ? comment.hashCode() : 0);
+        result = 31 * result + (dateTime != null ? dateTime.hashCode() : 0);
+        result = 31 * result + (completed ? 1 : 0);
+        result = 31 * result + (tags != null ? tags.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public Long getId() {
         return id;
     }

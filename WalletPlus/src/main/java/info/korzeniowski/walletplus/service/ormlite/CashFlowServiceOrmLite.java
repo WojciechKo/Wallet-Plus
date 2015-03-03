@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.service.ormlite;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedQuery;
@@ -206,24 +207,6 @@ public class CashFlowServiceOrmLite implements CashFlowService {
         walletDao.update(wallet);
     }
 
-    Long countAssignedToWallet(Long walletId) {
-        try {
-            return cashFlowDao.queryBuilder().where().eq(CashFlow.WALLET_ID_COLUMN_NAME, walletId).countOf();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public long countAssignedWithTag(Long tagId) {
-//        try {
-            throw new RuntimeException("Not implemented");
-//            return cashFlowDao.queryBuilder().where().eq("tag_id", tagId).countOf();
-//        } catch (SQLException e) {
-//            throw new DatabaseException(e);
-//        }
-    }
-
     @Override
     public List<CashFlow> findCashFlow(Date from, Date to, Long tagId, Long walletId) {
         try {
@@ -267,7 +250,8 @@ public class CashFlowServiceOrmLite implements CashFlowService {
     @Override
     public List<CashFlow> getLastNCashFlows(int n) {
         try {
-            return cashFlowDao.queryBuilder().orderBy(CashFlow.DATETIME_COLUMN_NAME, false).limit((long) n).query();
+            List<CashFlow> result = cashFlowDao.queryBuilder().orderBy(CashFlow.DATETIME_COLUMN_NAME, false).limit((long) n).query();
+            return Lists.reverse(result);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
