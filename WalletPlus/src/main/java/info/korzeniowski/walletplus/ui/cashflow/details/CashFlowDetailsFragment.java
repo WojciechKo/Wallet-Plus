@@ -110,16 +110,16 @@ public class CashFlowDetailsFragment extends Fragment {
     CheckedTextView isCompleted;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    @Named(CashFlowService.ORMLITE_IMPL)
+    CashFlowService cashFlowService;
 
     @Inject
-    @Named("local")
-    WalletService localWalletService;
+    @Named(WalletService.ORMLITE_IMPL)
+    WalletService walletService;
 
     @Inject
-    @Named("local")
-    TagService localTagService;
+    @Named(TagService.ORMLITE_IMPL)
+    TagService tagService;
 
     private List<Wallet> wallets;
     private List<Tag> tags;
@@ -155,15 +155,15 @@ public class CashFlowDetailsFragment extends Fragment {
         }
         cashFlowDetailsState = MoreObjects.firstNonNull(restored, initCashFlowDetailsState(cashFlowId));
 
-        tags = localTagService.getAll();
-        wallets = localWalletService.getAll();
+        tags = tagService.getAll();
+        wallets = walletService.getAll();
     }
 
     private CashFlowDetailsParcelableState initCashFlowDetailsState(Long cashFlowId) {
         if (detailsAction == DetailsAction.ADD) {
             return new CashFlowDetailsParcelableState();
         } else if (detailsAction == DetailsAction.EDIT) {
-            return new CashFlowDetailsParcelableState(localCashFlowService.findById(cashFlowId));
+            return new CashFlowDetailsParcelableState(cashFlowService.findById(cashFlowId));
         }
         return null;
     }
@@ -271,7 +271,7 @@ public class CashFlowDetailsFragment extends Fragment {
                     String tagName = s.subSequence(start, i).toString();
                     Integer color = cashFlowDetailsState.getTagToColorMap().get(tagName);
                     if (color == null) {
-                        Tag tag = localTagService.findByName(tagName);
+                        Tag tag = tagService.findByName(tagName);
                         color = tag != null
                                 ? tag.getColor()
                                 : PrefUtils.getNextTagColor(getActivity());
@@ -435,9 +435,9 @@ public class CashFlowDetailsFragment extends Fragment {
 
         if (isValid) {
             if (DetailsAction.ADD.equals(detailsAction)) {
-                localCashFlowService.insert(cashFlowDetailsState.buildCashFlow());
+                cashFlowService.insert(cashFlowDetailsState.buildCashFlow());
             } else if (DetailsAction.EDIT.equals(detailsAction)) {
-                localCashFlowService.update(cashFlowDetailsState.buildCashFlow());
+                cashFlowService.update(cashFlowDetailsState.buildCashFlow());
             }
             getActivity().setResult(Activity.RESULT_OK);
             getActivity().finish();

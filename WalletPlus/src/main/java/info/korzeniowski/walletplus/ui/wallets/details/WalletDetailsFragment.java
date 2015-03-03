@@ -51,12 +51,12 @@ public class WalletDetailsFragment extends Fragment {
     TextView walletCurrentAmount;
 
     @Inject
-    @Named("local")
-    WalletService localWalletService;
+    @Named(WalletService.ORMLITE_IMPL)
+    WalletService walletService;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    @Named(WalletService.ORMLITE_IMPL)
+    CashFlowService cashFlowService;
 
     @Inject
     @Named("amount")
@@ -88,7 +88,7 @@ public class WalletDetailsFragment extends Fragment {
             walletToEdit = Optional.absent();
         } else {
             detailsAction = DetailsAction.EDIT;
-            walletToEdit = Optional.of(localWalletService.findById(walletId));
+            walletToEdit = Optional.of(walletService.findById(walletId));
         }
     }
 
@@ -142,11 +142,11 @@ public class WalletDetailsFragment extends Fragment {
             wallet.setInitialAmount(initialAmount);
 
             if (detailsAction == DetailsAction.ADD) {
-                localWalletService.insert(wallet);
+                walletService.insert(wallet);
                 getActivity().setResult(Activity.RESULT_OK);
             } else if (detailsAction == DetailsAction.EDIT) {
                 wallet.setId(walletId);
-                localWalletService.update(wallet);
+                walletService.update(wallet);
                 getActivity().setResult(Activity.RESULT_OK);
             }
             getActivity().finish();

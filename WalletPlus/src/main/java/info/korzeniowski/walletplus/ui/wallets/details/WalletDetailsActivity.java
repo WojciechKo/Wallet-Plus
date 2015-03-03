@@ -26,8 +26,8 @@ public class WalletDetailsActivity extends BaseActivity {
     public static final int RESULT_DELETED = 102;
 
     @Inject
-    @Named("local")
-    WalletService localWalletService;
+    @Named(WalletService.ORMLITE_IMPL)
+    WalletService walletService;
 
     private Long walletId;
     private DetailsAction detailsAction;
@@ -90,7 +90,7 @@ public class WalletDetailsActivity extends BaseActivity {
                 .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        localWalletService.deleteById(walletId);
+                        walletService.deleteById(walletId);
                         setResult(RESULT_DELETED);
                         finish();
                     }
@@ -106,7 +106,7 @@ public class WalletDetailsActivity extends BaseActivity {
     }
 
     private String getConfirmationMessage() {
-        int count = (int) localWalletService.countDependentCashFlows(walletId);
+        int count = (int) walletService.countDependentCashFlows(walletId);
         String msg = getString(R.string.walletDeleteConfirmation);
         return MessageFormat.format(msg, count);
     }

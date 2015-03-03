@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.service.local;
+package info.korzeniowski.walletplus.service.ormlite;
 
 import com.google.common.base.Preconditions;
 import com.j256.ormlite.dao.Dao;
@@ -23,26 +23,26 @@ import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 
-public class LocalCashFlowService implements CashFlowService {
+public class CashFlowServiceOrmLite implements CashFlowService {
     private final Dao<CashFlow, Long> cashFlowDao;
     private final Dao<Wallet, Long> walletDao;
     private final Dao<Tag, Long> tagDao;
     private final Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao;
-    private final LocalTagService localTagService;
+    private final TagServiceOrmLite tagServiceOrmLite;
 
     private PreparedQuery<Tag> tagsOfCashFlowQuery;
 
     @Inject
-    public LocalCashFlowService(Dao<CashFlow, Long> cashFlowDao,
-                                Dao<Wallet, Long> walletDao,
-                                Dao<Tag, Long> tagDao,
-                                Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao,
-                                LocalTagService localTagService) {
+    public CashFlowServiceOrmLite(Dao<CashFlow, Long> cashFlowDao,
+                                  Dao<Wallet, Long> walletDao,
+                                  Dao<Tag, Long> tagDao,
+                                  Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao,
+                                  TagServiceOrmLite tagServiceOrmLite) {
         this.cashFlowDao = cashFlowDao;
         this.walletDao = walletDao;
         this.tagDao = tagDao;
         this.tagAndCashFlowBindsDao = tagAndCashFlowBindsDao;
-        this.localTagService = localTagService;
+        this.tagServiceOrmLite = tagServiceOrmLite;
     }
 
     @Override
@@ -142,11 +142,11 @@ public class LocalCashFlowService implements CashFlowService {
 
     private void bindWithTags(CashFlow cashFlow) throws SQLException {
         for (Tag tag : cashFlow.getTags()) {
-            Tag foundTag = localTagService.findByName(tag.getName());
+            Tag foundTag = tagServiceOrmLite.findByName(tag.getName());
 
             if (foundTag == null) {
                 foundTag = tag;
-                localTagService.insert(foundTag);
+                tagServiceOrmLite.insert(foundTag);
             } else {
                 tag.setId(foundTag.getId());
             }

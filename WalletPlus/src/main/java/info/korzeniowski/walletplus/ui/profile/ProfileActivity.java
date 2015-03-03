@@ -1,7 +1,6 @@
 package info.korzeniowski.walletplus.ui.profile;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,7 +41,6 @@ import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.google.GoogleDriveReadService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
-import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import retrofit.Callback;
@@ -79,8 +77,8 @@ public class ProfileActivity extends BaseActivity {
         ListView remoteProfiles;
 
         @Inject
-        @Named("local")
-        ProfileService localProfileService;
+        @Named(ProfileService.ORMLITE_IMPL)
+        ProfileService profileService;
 
         @Inject
         @Named("read")
@@ -168,13 +166,13 @@ public class ProfileActivity extends BaseActivity {
         @OnClick(R.id.create_local_profile)
         void onCreateLocalProfileClicked() {
             String name = profileName.getText().toString();
-            Profile found = localProfileService.findByName(name);
+            Profile found = profileService.findByName(name);
             if (found == null) {
-                Profile actualProfile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+                Profile actualProfile = profileService.findById(PrefUtils.getActiveProfileId(getActivity()));
                 Profile profile = new Profile();
                 profile.setName(name);
                 profile.setAccount(actualProfile.getAccount());
-                localProfileService.insert(profile);
+                profileService.insert(profile);
                 PrefUtils.setActiveProfileId(getActivity(), profile.getId());
                 getActivity().setResult(RESULT_OK);
                 getActivity().finish();
@@ -256,9 +254,9 @@ public class ProfileActivity extends BaseActivity {
                         Profile newProfile = new Profile()
                                 .setName(KorzeniowskiUtils.Files.getBaseName(selectedProfile.getTitle()))
                                 .setDriveId(selectedProfile.getId())
-                                .setAccount(localProfileService.findById(PrefUtils.getActiveProfileId(getActivity())).getAccount());
+                                .setAccount(profileService.findById(PrefUtils.getActiveProfileId(getActivity())).getAccount());
 
-                        localProfileService.insert(newProfile);
+                        profileService.insert(newProfile);
                         ByteStreams.copy(inputStream, new FileOutputStream(newProfile.getDatabaseFilePath()));
                         PrefUtils.setActiveProfileId(getActivity(), newProfile.getId());
                         return true;

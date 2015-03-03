@@ -10,7 +10,7 @@ import dagger.Provides;
 import info.korzeniowski.walletplus.module.DatabaseModule;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
+import info.korzeniowski.walletplus.service.ormlite.UserDatabaseHelper;
 import info.korzeniowski.walletplus.test.ui.wallet.details.CreateNewMyWalletTest;
 import info.korzeniowski.walletplus.test.ui.wallet.details.EditMyWalletTest;
 import info.korzeniowski.walletplus.test.ui.wallet.list.MyWalletListTest;

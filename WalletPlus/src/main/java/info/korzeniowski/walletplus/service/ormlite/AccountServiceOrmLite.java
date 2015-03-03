@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.service.local;
+package info.korzeniowski.walletplus.service.ormlite;
 
 import com.j256.ormlite.dao.Dao;
 
@@ -13,11 +13,11 @@ import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 
 @Singleton
-public class LocalAccountService implements AccountService {
+public class AccountServiceOrmLite implements AccountService {
     private final Dao<Account, Long> accountDao;
 
     @Inject
-    public LocalAccountService(Dao<Account, Long> accountDao) {
+    public AccountServiceOrmLite(Dao<Account, Long> accountDao) {
         this.accountDao = accountDao;
     }
 

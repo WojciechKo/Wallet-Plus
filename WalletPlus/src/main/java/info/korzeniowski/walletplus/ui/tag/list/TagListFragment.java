@@ -44,8 +44,8 @@ public class TagListFragment extends Fragment {
     TextView list;
 
     @Inject
-    @Named("local")
-    TagService localTagService;
+    @Named(TagService.ORMLITE_IMPL)
+    TagService tagService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,7 +64,7 @@ public class TagListFragment extends Fragment {
     }
 
     private void setupList() {
-        List<Tag> tagList = localTagService.getAll();
+        List<Tag> tagList = tagService.getAll();
         SpannableStringBuilder builder = new SpannableStringBuilder();
 
         for (final Tag tag : tagList) {

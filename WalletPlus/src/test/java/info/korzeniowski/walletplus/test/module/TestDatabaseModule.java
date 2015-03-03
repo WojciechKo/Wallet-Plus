@@ -8,10 +8,10 @@ import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.module.DatabaseModule;
-import info.korzeniowski.walletplus.service.local.LocalAccountService;
-import info.korzeniowski.walletplus.service.local.LocalProfileService;
-import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
-import info.korzeniowski.walletplus.test.service.cashflow.LocalCashFlowServiceTest;
+import info.korzeniowski.walletplus.service.ormlite.AccountServiceOrmLite;
+import info.korzeniowski.walletplus.service.ormlite.ProfileServiceOrmLite;
+import info.korzeniowski.walletplus.service.ormlite.UserDatabaseHelper;
+import info.korzeniowski.walletplus.test.service.cashflow.CashFlowServiceOrmLiteTest;
 import info.korzeniowski.walletplus.test.service.tag.TagStatisticsTest;
 import info.korzeniowski.walletplus.test.service.tag.LocalTagServiceTest;
 import info.korzeniowski.walletplus.test.service.wallet.LocalWalletServiceTest;
@@ -21,7 +21,7 @@ import info.korzeniowski.walletplus.util.PrefUtils;
 @Module(
         includes = DatabaseModule.class,
         injects = {
-                LocalCashFlowServiceTest.class,
+                CashFlowServiceOrmLiteTest.class,
                 TagStatisticsTest.class,
                 LocalTagServiceTest.class,
                 LocalWalletServiceTest.class,
@@ -39,7 +39,7 @@ public class TestDatabaseModule {
 
     @Provides
     @Singleton
-    public UserDatabaseHelper provideUserDatabaseHelper(LocalProfileService profileService, LocalAccountService accountService) {
+    public UserDatabaseHelper provideUserDatabaseHelper(ProfileServiceOrmLite profileService, AccountServiceOrmLite accountService) {
         Profile profile = new Profile().setName("Test profile");
         profileService.insert(profile);
         PrefUtils.setActiveProfileId(context, profile.getId());

@@ -30,7 +30,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.model.Tag;
-import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 import info.korzeniowski.walletplus.ui.statistics.details.StaticticDetailsActivity;
@@ -46,8 +45,8 @@ public class StatisticListActivity extends BaseActivity {
     ViewPager pager;
 
     @Inject
-    @Named("local")
-    TagService localTagService;
+    @Named(TagService.ORMLITE_IMPL)
+    TagService tagService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +91,7 @@ public class StatisticListActivity extends BaseActivity {
     }
 
     private List<Tag> getMainCategories() {
-        return localTagService.getAll();
+        return tagService.getAll();
     }
 
     @Override

@@ -49,12 +49,12 @@ public class DashboardFragment extends Fragment {
     LineChartView chart;
 
     @Inject
-    @Named("local")
-    WalletService localWalletService;
+    @Named(WalletService.ORMLITE_IMPL)
+    WalletService walletService;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    @Named(WalletService.ORMLITE_IMPL)
+    CashFlowService cashFlowService;
 
     private Double sumOfCurrentAmountOfWallets;
 
@@ -91,7 +91,7 @@ public class DashboardFragment extends Fragment {
     private LineChartData getMainLineChartData() {
         List<PointValue> values = Lists.newArrayList();
         List<AxisValue> dateAxisValues = Lists.newArrayList();
-        List<CashFlow> cashFlowList = localCashFlowService.getLastNCashFlows(MAX_NUMBER_OF_POINTS_IN_CHART);
+        List<CashFlow> cashFlowList = cashFlowService.getLastNCashFlows(MAX_NUMBER_OF_POINTS_IN_CHART);
         ListIterator<CashFlow> cashFlowListIterator = cashFlowList.listIterator();
 
         float tempWalletValue = sumOfCurrentAmountOfWallets.floatValue();
@@ -163,7 +163,7 @@ public class DashboardFragment extends Fragment {
     }
 
     private Double getSumOfCurrentAmountOfWallets() {
-        List<Wallet> wallets = localWalletService.getAll();
+        List<Wallet> wallets = walletService.getAll();
         Double sum = (double) 0;
         for (Wallet wallet : wallets) {
             sum += wallet.getCurrentAmount();

@@ -28,7 +28,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.model.Account;
-import info.korzeniowski.walletplus.service.local.LocalAccountService;
+import info.korzeniowski.walletplus.service.ormlite.AccountServiceOrmLite;
 import info.korzeniowski.walletplus.ui.drawer.DrawerAccountAdapter;
 import info.korzeniowski.walletplus.widget.SquareImageButton;
 
@@ -53,7 +53,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     ListView drawerList;
 
     @Inject
-    LocalAccountService localAccountService;
+    AccountServiceOrmLite accountServiceOrmLite;
 
     private DrawerAccountAdapter drawerAccountAdapter;
     private View accountListFooter;
@@ -97,7 +97,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     private DrawerAccountAdapter getDrawerAccountAdapter() {
-        return new DrawerAccountAdapter(this, localAccountService.getAll());
+        return new DrawerAccountAdapter(this, accountServiceOrmLite.getAll());
     }
 
     private View getNewAccountFooter() {
@@ -116,7 +116,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
                         .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                localAccountService.insert(new Account().setName(input.getText().toString()));
+                                accountServiceOrmLite.insert(new Account().setName(input.getText().toString()));
                                 drawerAccountAdapter = getDrawerAccountAdapter();
                                 drawerList.setAdapter(drawerAccountAdapter);
                             }

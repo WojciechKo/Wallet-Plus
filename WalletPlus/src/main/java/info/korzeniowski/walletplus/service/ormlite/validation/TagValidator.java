@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.service.local.validation;
+package info.korzeniowski.walletplus.service.ormlite.validation;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;

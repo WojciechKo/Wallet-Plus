@@ -23,8 +23,8 @@ public class CashFlowDetailsActivity extends BaseActivity {
     public static final int RESULT_DELETED = 103;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    @Named(CashFlowService.ORMLITE_IMPL)
+    CashFlowService cashFlowService;
 
     private Long cashFlowId;
     private DetailsAction detailsAction;
@@ -87,7 +87,7 @@ public class CashFlowDetailsActivity extends BaseActivity {
                 .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        localCashFlowService.deleteById(cashFlowId);
+                        cashFlowService.deleteById(cashFlowId);
                         setResult(RESULT_DELETED);
                         finish();
                     }

@@ -7,6 +7,7 @@ import java.util.Date;
 import info.korzeniowski.walletplus.model.Tag;
 
 public interface StatisticService {
+    public static final String ORMLITE_IMPL = BaseService.ORMLITE_IMPL;
 
     TagStats getTagStats(Tag tag, Date firstDay, Period period, Integer iteration);
 

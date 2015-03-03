@@ -18,8 +18,8 @@ import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.exception.EntityAlreadyExistsException;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
-import info.korzeniowski.walletplus.service.local.LocalTagService;
-import info.korzeniowski.walletplus.service.local.validation.TagValidator;
+import info.korzeniowski.walletplus.service.ormlite.TagServiceOrmLite;
+import info.korzeniowski.walletplus.service.ormlite.validation.TagValidator;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,7 +43,7 @@ public class TagValidatorTest {
         Dao<TagAndCashFlowBind, Long> tagAndCashFlowBinds = mock(Dao.class);
         validatorService = mock(TagService.class);
         //TODO: Czy Dagger może się tym zająć?
-        tagService = new LocalTagService(tagDao, cashFlowDao, tagAndCashFlowBinds, new TagValidator(validatorService));
+        tagService = new TagServiceOrmLite(tagDao, cashFlowDao, tagAndCashFlowBinds, new TagValidator(validatorService));
     }
 
     /**

@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.service.local;
+package info.korzeniowski.walletplus.service.ormlite;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.DeleteBuilder;
@@ -14,20 +14,20 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
-import info.korzeniowski.walletplus.service.local.validation.WalletValidator;
+import info.korzeniowski.walletplus.service.ormlite.validation.WalletValidator;
 
-public class LocalWalletService implements WalletService {
+public class WalletServiceOrmLite implements WalletService {
     private final Dao<Wallet, Long> walletDao;
     private final Dao<CashFlow, Long> cashFlowDao;
 
     @Inject
-    @Named("local")
+    @Named(CashFlowService.ORMLITE_IMPL)
     CashFlowService cashFlowService;
 
     private WalletValidator walletValidator;
 
     @Inject
-    public LocalWalletService(Dao<Wallet, Long> walletDao, Dao<CashFlow, Long> cashFlowDao) {
+    public WalletServiceOrmLite(Dao<Wallet, Long> walletDao, Dao<CashFlow, Long> cashFlowDao) {
         this.walletDao = walletDao;
         this.cashFlowDao = cashFlowDao;
         this.walletValidator = new WalletValidator(this);

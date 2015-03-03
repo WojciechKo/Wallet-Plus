@@ -33,12 +33,12 @@ public class StatisticListFragment extends Fragment {
     ListView list;
 
     @Inject
-    @Named("local")
-    TagService localTagService;
+    @Named(TagService.ORMLITE_IMPL)
+    TagService tagService;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    @Named(CashFlowService.ORMLITE_IMPL)
+    CashFlowService cashFlowService;
 
     @Inject
     StatisticListActivityState statisticListActivityState;
@@ -87,7 +87,7 @@ public class StatisticListFragment extends Fragment {
 
     private List<StatisticService.TagStats> getCategoryStatsList() {
         return null;
-//        return localTagService.getTagStatsList(statisticListActivityState.getStartDate(), getPeriod(statisticListActivityState.getPeriod()), iteration);
+//        return tagService.getTagStatsList(statisticListActivityState.getStartDate(), getPeriod(statisticListActivityState.getPeriod()), iteration);
     }
 
     private Period getPeriod(StatisticListActivity.Period period) {

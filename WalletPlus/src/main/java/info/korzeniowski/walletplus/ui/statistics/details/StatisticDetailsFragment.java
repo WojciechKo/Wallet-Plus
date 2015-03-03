@@ -40,8 +40,8 @@ public class StatisticDetailsFragment extends Fragment {
     EditText categoryName;
 
     @Inject
-    @Named("local")
-    TagService localTagService;
+    @Named(TagService.ORMLITE_IMPL)
+    TagService tagService;
 
     private DetailsAction detailsAction;
     private Optional<Tag> categoryToEdit;
@@ -68,7 +68,7 @@ public class StatisticDetailsFragment extends Fragment {
             categoryToEdit = Optional.absent();
         } else {
             detailsAction = DetailsAction.EDIT;
-            categoryToEdit = Optional.of(localTagService.findById(categoryId));
+            categoryToEdit = Optional.of(tagService.findById(categoryId));
         }
     }
 
@@ -78,7 +78,7 @@ public class StatisticDetailsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_tag_details, container, false);
         ButterKnife.inject(this, view);
 
-        List<Tag> mainCategories = localTagService.getAll();
+        List<Tag> mainCategories = tagService.getAll();
 
         if (savedInstanceState == null && detailsAction == DetailsAction.EDIT) {
             mainCategories.remove(categoryToEdit.get());
@@ -115,13 +115,13 @@ public class StatisticDetailsFragment extends Fragment {
             tagToSave.setName(categoryName.getText().toString());
 
             if (detailsAction == DetailsAction.ADD) {
-                localTagService.insert(tagToSave);
+                tagService.insert(tagToSave);
                 getActivity().setResult(Activity.RESULT_OK);
                 getActivity().finish();
 
             } else if (detailsAction == DetailsAction.EDIT) {
                 tagToSave.setId(categoryToEdit.get().getId());
-                localTagService.update(tagToSave);
+                tagService.update(tagToSave);
                 getActivity().setResult(Activity.RESULT_OK);
                 getActivity().finish();
             }

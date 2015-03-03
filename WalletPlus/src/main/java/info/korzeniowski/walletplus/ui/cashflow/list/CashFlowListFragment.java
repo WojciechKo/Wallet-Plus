@@ -38,8 +38,8 @@ public class CashFlowListFragment extends Fragment {
     ListView list;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    @Named(CashFlowService.ORMLITE_IMPL)
+    CashFlowService cashFlowService;
 
     private List<CashFlow> cashFlows;
 
@@ -64,7 +64,7 @@ public class CashFlowListFragment extends Fragment {
     }
 
     void setupList() {
-        cashFlows = localCashFlowService.getAll();
+        cashFlows = cashFlowService.getAll();
         selected = Lists.newArrayList();
         list.setAdapter(new CashFlowListAdapter(getActivity(), cashFlows));
     }
@@ -157,7 +157,7 @@ public class CashFlowListFragment extends Fragment {
 
     private void deleteSelectedCashFlows() {
         for (CashFlow cashFlow : selected) {
-            localCashFlowService.deleteById(cashFlow.getId());
+            cashFlowService.deleteById(cashFlow.getId());
         }
         cashFlows.removeAll(selected);
         selected.clear();

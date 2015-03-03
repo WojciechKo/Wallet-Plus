@@ -62,8 +62,8 @@ public class TagDetailsFragment extends Fragment {
     LineChartView chart;
 
     @Inject
-    @Named("local")
-    TagService localTagService;
+    @Named(TagService.ORMLITE_IMPL)
+    TagService tagService;
 
     @Inject
     @Named("amount")
@@ -94,7 +94,7 @@ public class TagDetailsFragment extends Fragment {
             tagToEdit = Optional.absent();
         } else {
             detailsAction = DetailsAction.EDIT;
-            tagToEdit = Optional.of(localTagService.findById(tagId));
+            tagToEdit = Optional.of(tagService.findById(tagId));
         }
     }
 
@@ -134,7 +134,7 @@ public class TagDetailsFragment extends Fragment {
         List<PointValue> values = Lists.newArrayList();
         List<AxisValue> dateAxisValues = Lists.newArrayList();
         long numberOfPoints = 5L;
-        List<CashFlow> cashFlowList = localTagService.getAssociatedCashFlows(tagToEdit.get().getId(), numberOfPoints);
+        List<CashFlow> cashFlowList = tagService.getAssociatedCashFlows(tagToEdit.get().getId(), numberOfPoints);
 
         ListIterator<CashFlow> cashFlowIterator = cashFlowList.listIterator();
         for (int i = 0; i < cashFlowList.size(); i++) {
@@ -202,11 +202,11 @@ public class TagDetailsFragment extends Fragment {
             tag.setName(tagName.getText().toString());
             tag.setColor((int) colorPicker.getTag());
             if (detailsAction == DetailsAction.ADD) {
-                localTagService.insert(tag);
+                tagService.insert(tag);
                 getActivity().setResult(Activity.RESULT_OK);
             } else if (detailsAction == DetailsAction.EDIT) {
                 tag.setId(tagToEdit.get().getId());
-                localTagService.update(tag);
+                tagService.update(tag);
                 getActivity().setResult(Activity.RESULT_OK);
             }
             getActivity().finish();

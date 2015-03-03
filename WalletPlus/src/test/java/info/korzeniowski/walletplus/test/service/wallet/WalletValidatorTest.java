@@ -13,11 +13,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import info.korzeniowski.walletplus.TestWalletPlus;
-import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
-import info.korzeniowski.walletplus.service.local.LocalWalletService;
-import info.korzeniowski.walletplus.service.local.validation.WalletValidator;
+import info.korzeniowski.walletplus.service.ormlite.WalletServiceOrmLite;
+import info.korzeniowski.walletplus.service.ormlite.validation.WalletValidator;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,7 +34,7 @@ public class WalletValidatorTest {
     @Before
     public void setUp() {
         ((TestWalletPlus) Robolectric.application).inject(this);
-        ((LocalWalletService) walletService).setWalletValidator(new WalletValidator(mock(WalletService.class)));
+        ((WalletServiceOrmLite) walletService).setWalletValidator(new WalletValidator(mock(WalletService.class)));
     }
 
     @Test

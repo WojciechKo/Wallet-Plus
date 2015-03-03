@@ -27,8 +27,8 @@ public class StaticticDetailsActivity extends BaseActivity {
     public static final String RESULT_DATA_DELETED_TAG_ID = "DELETED_TAG_ID";
 
     @Inject
-    @Named("local")
-    TagService localTagService;
+    @Named(TagService.ORMLITE_IMPL)
+    TagService tagService;
 
     private Long tagId;
     private DetailsAction detailsAction;
@@ -91,7 +91,7 @@ public class StaticticDetailsActivity extends BaseActivity {
                 .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        localTagService.deleteById(tagId);
+                        tagService.deleteById(tagId);
                         setResult(RESULT_DELETED);
                         finish();
                     }
@@ -107,7 +107,7 @@ public class StaticticDetailsActivity extends BaseActivity {
     }
 
     private String getConfirmationMessage() {
-        long count = localTagService.countDependentCashFlows(tagId);
+        long count = tagService.countDependentCashFlows(tagId);
         String msg = getString(R.string.tagDeleteConfirmation);
         return MessageFormat.format(msg, count);
     }

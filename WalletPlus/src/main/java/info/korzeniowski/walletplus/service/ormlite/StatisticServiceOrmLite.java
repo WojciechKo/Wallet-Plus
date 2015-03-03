@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.service.local;
+package info.korzeniowski.walletplus.service.ormlite;
 
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -17,14 +17,14 @@ import info.korzeniowski.walletplus.service.TagService;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class LocalStatisticService implements StatisticService {
+public class StatisticServiceOrmLite implements StatisticService {
 
     @Inject
-    @Named("local")
+    @Named(CashFlowService.ORMLITE_IMPL)
     CashFlowService cashFlowService;
 
     @Inject
-    @Named("local")
+    @Named(TagService.ORMLITE_IMPL)
     TagService tagService;
 
     @Override

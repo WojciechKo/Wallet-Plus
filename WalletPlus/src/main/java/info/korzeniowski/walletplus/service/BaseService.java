@@ -3,6 +3,7 @@ package info.korzeniowski.walletplus.service;
 import java.util.List;
 
 public interface BaseService<E> {
+    public static final String ORMLITE_IMPL = "ormlite";
 
     Long insert(E entity);
 

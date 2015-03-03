@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.service.local.validation;
+package info.korzeniowski.walletplus.service.ormlite.validation;
 
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;

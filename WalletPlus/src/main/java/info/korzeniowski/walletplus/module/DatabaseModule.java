@@ -25,14 +25,14 @@ import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.service.local.LocalAccountService;
-import info.korzeniowski.walletplus.service.local.LocalCashFlowService;
-import info.korzeniowski.walletplus.service.local.LocalStatisticService;
-import info.korzeniowski.walletplus.service.local.LocalTagService;
-import info.korzeniowski.walletplus.service.local.LocalProfileService;
-import info.korzeniowski.walletplus.service.local.LocalWalletService;
-import info.korzeniowski.walletplus.service.local.MainDatabaseHelper;
-import info.korzeniowski.walletplus.service.local.UserDatabaseHelper;
+import info.korzeniowski.walletplus.service.ormlite.AccountServiceOrmLite;
+import info.korzeniowski.walletplus.service.ormlite.CashFlowServiceOrmLite;
+import info.korzeniowski.walletplus.service.ormlite.StatisticServiceOrmLite;
+import info.korzeniowski.walletplus.service.ormlite.ProfileServiceOrmLite;
+import info.korzeniowski.walletplus.service.ormlite.TagServiceOrmLite;
+import info.korzeniowski.walletplus.service.ormlite.WalletServiceOrmLite;
+import info.korzeniowski.walletplus.service.ormlite.MainDatabaseHelper;
+import info.korzeniowski.walletplus.service.ormlite.UserDatabaseHelper;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsActivity;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsFragment;
@@ -99,8 +99,8 @@ import info.korzeniowski.walletplus.util.PrefUtils;
                 ProfileActivity.CreateProfileFragment.class,
 
                 DatabaseInitializer.class,
-                LocalAccountService.class,
-                LocalProfileService.class
+                AccountServiceOrmLite.class,
+                ProfileServiceOrmLite.class
         },
         complete = false,
         library = true
@@ -121,7 +121,7 @@ public class DatabaseModule {
 
     @Provides
     @Singleton
-    public UserDatabaseHelper provideUserDatabaseHelper(LocalProfileService profileService) {
+    public UserDatabaseHelper provideUserDatabaseHelper(ProfileServiceOrmLite profileService) {
         Profile profile = profileService.findById(PrefUtils.getActiveProfileId(application.get()));
         return new UserDatabaseHelper(application.get(), profile.getName());
     }
@@ -142,10 +142,10 @@ public class DatabaseModule {
     }
 
     @Provides
-    @Named("local")
+    @Named(AccountService.ORMLITE_IMPL)
     @Singleton
-    public AccountService provideAccountService(LocalAccountService localAccountService) {
-        return localAccountService;
+    public AccountService provideAccountService(AccountServiceOrmLite accountServiceOrmLite) {
+        return accountServiceOrmLite;
     }
 
     /**
@@ -164,10 +164,10 @@ public class DatabaseModule {
     }
 
     @Provides
-    @Named("local")
+    @Named(ProfileService.ORMLITE_IMPL)
     @Singleton
-    public ProfileService provideProfileService(LocalProfileService localProfileService) {
-        return localProfileService;
+    public ProfileService provideProfileService(ProfileServiceOrmLite profileServiceOrmLite) {
+        return profileServiceOrmLite;
     }
 
 
@@ -187,10 +187,10 @@ public class DatabaseModule {
     }
 
     @Provides
-    @Named("local")
+    @Named(TagService.ORMLITE_IMPL)
     @Singleton
-    public TagService provideTagService(LocalTagService localTagService) {
-        return localTagService;
+    public TagService provideTagService(TagServiceOrmLite tagServiceOrmLite) {
+        return tagServiceOrmLite;
     }
 
     /**
@@ -209,10 +209,10 @@ public class DatabaseModule {
     }
 
     @Provides
-    @Named("local")
+    @Named(CashFlowService.ORMLITE_IMPL)
     @Singleton
-    public CashFlowService provideCashFlowService(LocalCashFlowService localCashFlowService) {
-        return localCashFlowService;
+    public CashFlowService provideCashFlowService(CashFlowServiceOrmLite cashFlowServiceOrmLite) {
+        return cashFlowServiceOrmLite;
     }
 
     /**
@@ -246,9 +246,9 @@ public class DatabaseModule {
     }
 
     @Provides
-    @Named("local")
+    @Named(WalletService.ORMLITE_IMPL)
     @Singleton
-    public WalletService provideWalletService(LocalWalletService localWalletService) {
+    public WalletService provideWalletService(WalletServiceOrmLite localWalletService) {
         return localWalletService;
     }
 
@@ -259,9 +259,9 @@ public class DatabaseModule {
      */
 
     @Provides
-    @Named("local")
+    @Named(StatisticService.ORMLITE_IMPL)
     @Singleton
-    public StatisticService provideStatisticService(LocalStatisticService localStatisticService) {
-        return localStatisticService;
+    public StatisticService provideStatisticService(StatisticServiceOrmLite statisticServiceOrmLite) {
+        return statisticServiceOrmLite;
     }
 }

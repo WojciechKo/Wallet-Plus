@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.service.local.validation;
+package info.korzeniowski.walletplus.service.ormlite.validation;
 
 interface Validator<E> {
     public void validateInsert(E entity);

@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.service.local;
+package info.korzeniowski.walletplus.service.ormlite;
 
 import android.graphics.Color;
 
@@ -16,18 +16,18 @@ import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
-import info.korzeniowski.walletplus.service.local.validation.TagValidator;
+import info.korzeniowski.walletplus.service.ormlite.validation.TagValidator;
 
-public class LocalTagService implements TagService {
+public class TagServiceOrmLite implements TagService {
     private final TagValidator tagValidator;
     private final Dao<Tag, Long> tagDao;
     private final Dao<CashFlow, Long> cashFlowDao;
     private final Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao;
 
     @Inject
-    public LocalTagService(Dao<Tag, Long> tagDao,
-                           Dao<CashFlow, Long> cashFlowDao,
-                           Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao) {
+    public TagServiceOrmLite(Dao<Tag, Long> tagDao,
+                             Dao<CashFlow, Long> cashFlowDao,
+                             Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao) {
 
         this.tagDao = tagDao;
         this.cashFlowDao = cashFlowDao;
@@ -35,10 +35,10 @@ public class LocalTagService implements TagService {
         this.tagValidator = new TagValidator(this);
     }
 
-    public LocalTagService(Dao<Tag, Long> tagDao,
-                           Dao<CashFlow, Long> cashFlowDao,
-                           Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao,
-                           TagValidator tagValidator) {
+    public TagServiceOrmLite(Dao<Tag, Long> tagDao,
+                             Dao<CashFlow, Long> cashFlowDao,
+                             Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao,
+                             TagValidator tagValidator) {
 
         this.tagDao = tagDao;
         this.cashFlowDao = cashFlowDao;

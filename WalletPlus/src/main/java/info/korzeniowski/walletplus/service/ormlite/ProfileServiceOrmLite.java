@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.service.local;
+package info.korzeniowski.walletplus.service.ormlite;
 
 import android.content.Context;
 
@@ -15,12 +15,12 @@ import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 
-public class LocalProfileService implements ProfileService {
+public class ProfileServiceOrmLite implements ProfileService {
     private final Dao<Profile, Long> profileDao;
     private final WeakReference<Context> context;
 
     @Inject
-    public LocalProfileService(Context context, Dao<Profile, Long> profileDao) {
+    public ProfileServiceOrmLite(Context context, Dao<Profile, Long> profileDao) {
         this.context = new WeakReference(context);
         this.profileDao = profileDao;
     }

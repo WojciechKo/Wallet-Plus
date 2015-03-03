@@ -32,8 +32,8 @@ public class WalletListFragment extends Fragment {
     SwipeListView list;
 
     @Inject
-    @Named("local")
-    WalletService localWalletService;
+    @Named(WalletService.ORMLITE_IMPL)
+    WalletService walletService;
 
     private List<Wallet> walletList;
 
@@ -53,7 +53,7 @@ public class WalletListFragment extends Fragment {
     }
 
     private void setupList() {
-        walletList = localWalletService.getAll();
+        walletList = walletService.getAll();
         list.setSwipeListViewListener(new BaseSwipeListViewListener() {
             @Override
             public void onClickFrontView(int position) {

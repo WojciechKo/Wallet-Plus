@@ -75,11 +75,11 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     protected StatisticListActivityState statisticListActivityState;
 
     @Inject
-    @Named("local")
+    @Named(AccountService.ORMLITE_IMPL)
     AccountService accountService;
 
     @Inject
-    @Named("local")
+    @Named(ProfileService.ORMLITE_IMPL)
     ProfileService profileService;
 
     private Toolbar mActionBarToolbar;

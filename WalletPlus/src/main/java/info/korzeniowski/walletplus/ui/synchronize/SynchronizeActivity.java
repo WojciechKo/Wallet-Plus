@@ -94,8 +94,8 @@ public class SynchronizeActivity extends BaseActivity {
         Button downloadUpdate;
 
         @Inject
-        @Named("local")
-        ProfileService localProfileService;
+        @Named(ProfileService.ORMLITE_IMPL)
+        ProfileService profileService;
 
         @Inject
         @Named("read")
@@ -116,7 +116,7 @@ public class SynchronizeActivity extends BaseActivity {
             View view = inflater.inflate(R.layout.fragment_synchronize, container, false);
             ButterKnife.inject(this, view);
 
-            Profile profile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+            Profile profile = profileService.findById(PrefUtils.getActiveProfileId(getActivity()));
             setupVisibility(!Strings.isNullOrEmpty(profile.getDriveId()));
 
             return view;
@@ -150,7 +150,7 @@ public class SynchronizeActivity extends BaseActivity {
         void onCreateBackupClicked() {
             final GoogleDriveUploadService googleDriveUploadService = googleDriveUploadAdapter.create(GoogleDriveUploadService.class);
 
-            final Profile activeProfile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+            final Profile activeProfile = profileService.findById(PrefUtils.getActiveProfileId(getActivity()));
             GoogleDriveUploadService.FileMetadata metadata = new GoogleDriveUploadService.FileMetadata();
             metadata.setTitle(activeProfile.getName() + ".db");
             metadata.setParentId("appfolder");
@@ -159,7 +159,7 @@ public class SynchronizeActivity extends BaseActivity {
                 @Override
                 public void success(GoogleDriveUploadService.FileMetadata metadata, Response response) {
                     activeProfile.setDriveId(metadata.getId());
-                    localProfileService.update(activeProfile);
+                    profileService.update(activeProfile);
                     Toast.makeText(getActivity(), "Plik z bazą danych został utworzony na serwerze.", Toast.LENGTH_SHORT).show();
                     setupVisibility(true);
                 }
@@ -176,7 +176,7 @@ public class SynchronizeActivity extends BaseActivity {
         void onUploadUpdateClicked() {
             final GoogleDriveUploadService googleDriveUploadService = googleDriveUploadAdapter.create(GoogleDriveUploadService.class);
 
-            final Profile activeProfile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+            final Profile activeProfile = profileService.findById(PrefUtils.getActiveProfileId(getActivity()));
 
             TypedFile typedFile = new TypedFile("application/x-sqlite3", new File(activeProfile.getDatabaseFilePath()));
             googleDriveUploadService.update(activeProfile.getDriveId(), typedFile, "Bearer " + PrefUtils.getGoogleToken(getActivity()), new Callback<GoogleDriveUploadService.FileMetadata>() {
@@ -197,7 +197,7 @@ public class SynchronizeActivity extends BaseActivity {
         @OnClick(R.id.downloadUpdate)
         void onDownloadUpdateClicked() {
             GoogleDriveReadService googleDriveReadService = googleDriveReadAdapter.create(GoogleDriveReadService.class);
-            final Profile activeProfile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+            final Profile activeProfile = profileService.findById(PrefUtils.getActiveProfileId(getActivity()));
 
             googleDriveReadService.getFile(activeProfile.getDriveId(), new Callback<GoogleDriveReadService.DriveFile>() {
                 @Override
