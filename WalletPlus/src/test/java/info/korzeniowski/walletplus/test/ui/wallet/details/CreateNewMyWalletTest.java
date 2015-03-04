@@ -15,20 +15,17 @@ import org.robolectric.annotation.Config;
 import org.robolectric.tester.android.view.TestMenuItem;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
-import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.module.TestDatabaseModule;
+import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
-
 
 @Config(emulateSdk = 18, reportSdk = 18)
 @RunWith(RobolectricTestRunner.class)

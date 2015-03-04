@@ -11,7 +11,6 @@ import org.robolectric.annotation.Config;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;

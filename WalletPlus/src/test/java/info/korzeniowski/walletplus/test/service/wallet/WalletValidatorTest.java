@@ -10,7 +10,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.module.TestDatabaseModule;
