@@ -10,7 +10,6 @@ import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -20,7 +19,6 @@ import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
-import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 
@@ -208,49 +206,74 @@ public class CashFlowServiceOrmLite implements CashFlowService {
     }
 
     @Override
-    public List<CashFlow> findCashFlow(Date from, Date to, Long tagId, Long walletId) {
+    public List<CashFlow> findCashFlows(CashFlowQuery query) {
         try {
             QueryBuilder<CashFlow, Long> queryBuilder = cashFlowDao.queryBuilder();
-            queryBuilder.setWhere(getWhereList(from, to, tagId, walletId, queryBuilder));
-            return queryBuilder.query();
+            queryBuilder.setWhere(getWhere(query, queryBuilder));
+            List<CashFlow> result = queryBuilder.orderBy(CashFlow.DATETIME_COLUMN_NAME, false).query();
+            for (CashFlow cashFlow : result) {
+                cashFlow.addTag(getTagsOfCashFlow(cashFlow.getId()));
+            }
+            return result;
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
 
-    private Where<CashFlow, Long> getWhereList(Date from, Date to, Long tagId, Long walletId, QueryBuilder<CashFlow, Long> queryBuilder) throws SQLException {
+    private Where<CashFlow, Long> getWhere(CashFlowQuery query, QueryBuilder<CashFlow, Long> queryBuilder) throws SQLException {
         Where<CashFlow, Long> where = queryBuilder.where();
-        boolean isFirst = true;
+        int numClauses = 0;
 
-        if (from != null) {
-            where.ge(CashFlow.DATETIME_COLUMN_NAME, from);
-            isFirst = false;
+        if (query.getWalletId() != null) {
+            where.eq(CashFlow.WALLET_ID_COLUMN_NAME, query.getWalletId());
+            numClauses++;
         }
-        if (to != null) {
-            if (!isFirst) {
-                where.and();
-            }
-            where.lt(CashFlow.DATETIME_COLUMN_NAME, to);
-            isFirst = false;
+        if (query.getFromDate() != null) {
+            where.ge(CashFlow.DATETIME_COLUMN_NAME, query.getFromDate());
+            numClauses++;
         }
-        if (walletId != null) {
-            if (!isFirst) {
-                where.and();
-            }
-            if (walletId == WalletService.WALLET_NULL_ID) {
-                where.isNull(CashFlow.WALLET_ID_COLUMN_NAME);
-            } else {
-                where.eq(CashFlow.WALLET_ID_COLUMN_NAME, walletId);
-            }
+        if (query.getToDate() != null) {
+            where.le(CashFlow.DATETIME_COLUMN_NAME, query.getToDate());
+            numClauses++;
+        }
+        if (query.getMinAmount() != null) {
+            where.ge(CashFlow.AMOUNT_COLUMN_NAME, query.getMinAmount());
+            numClauses++;
+        }
+        if (query.getMaxAmount() != null) {
+            where.le(CashFlow.AMOUNT_COLUMN_NAME, query.getMaxAmount());
+            numClauses++;
+        }
+        if (!query.getWithTagSet().isEmpty()) {
+            QueryBuilder<TagAndCashFlowBind, Long> tagCashFlowQb = tagAndCashFlowBindsDao.queryBuilder();
+            tagCashFlowQb.selectColumns(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME);
+            tagCashFlowQb.where().in(TagAndCashFlowBind.TAG_ID_COLUMN_NAME, query.getWithTagSet());
+            tagCashFlowQb
+                    .groupBy(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME)
+                    .having("COUNT(" + TagAndCashFlowBind.TAG_ID_COLUMN_NAME + ") = " + query.getWithTagSet().size());
+
+            where.in(CashFlow.ID_COLUMN_NAME, tagCashFlowQb);
+            numClauses++;
+        }
+        if (!query.getWithoutTagSet().isEmpty()) {
+            QueryBuilder<TagAndCashFlowBind, Long> tagCashFlowQb = tagAndCashFlowBindsDao.queryBuilder();
+            tagCashFlowQb.selectColumns(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME);
+            tagCashFlowQb.where().in(TagAndCashFlowBind.TAG_ID_COLUMN_NAME, query.getWithoutTagSet());
+
+            where.notIn(CashFlow.ID_COLUMN_NAME, tagCashFlowQb);
+            numClauses++;
         }
 
-        return where;
+        return where.and(numClauses);
     }
 
     @Override
     public List<CashFlow> getLastNCashFlows(int n) {
         try {
             List<CashFlow> result = cashFlowDao.queryBuilder().orderBy(CashFlow.DATETIME_COLUMN_NAME, false).limit((long) n).query();
+            for (CashFlow cashFlow : result) {
+                cashFlow.addTag(getTagsOfCashFlow(cashFlow.getId()));
+            }
             return Lists.reverse(result);
         } catch (SQLException e) {
             throw new DatabaseException(e);
