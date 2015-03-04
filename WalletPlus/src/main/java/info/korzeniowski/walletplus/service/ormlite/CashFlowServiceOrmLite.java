@@ -45,6 +45,25 @@ public class CashFlowServiceOrmLite implements CashFlowService {
         this.tagServiceOrmLite = tagServiceOrmLite;
     }
 
+    /**
+     * CREATE
+     */
+    @Override
+    public Long insert(CashFlow cashFlow) {
+        try {
+            validateInsert(cashFlow);
+            cashFlowDao.create(cashFlow);
+            bindWithTags(cashFlow);
+            fixCurrentAmountInWalletAfterInsert(cashFlow);
+            return cashFlow.getId();
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    /**
+     * READ
+     */
     @Override
     public Long count() {
         try {
@@ -58,7 +77,9 @@ public class CashFlowServiceOrmLite implements CashFlowService {
     public CashFlow findById(final Long id) {
         try {
             CashFlow cashFlow = cashFlowDao.queryForId(id);
-            cashFlow.addTag(getTagsOfCashFlow(cashFlow.getId()));
+            if (cashFlow != null) {
+                cashFlow.addTag(getTagsOfCashFlow(cashFlow.getId()));
+            }
             return cashFlow;
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -77,141 +98,6 @@ public class CashFlowServiceOrmLite implements CashFlowService {
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
-    }
-
-    private List<Tag> getTagsOfCashFlow(Long cashFlowId) throws SQLException {
-        if (tagsOfCashFlowQuery == null) {
-            tagsOfCashFlowQuery = getTagsOfCashFlowQuery();
-        }
-        tagsOfCashFlowQuery.setArgumentHolderValue(0, cashFlowId);
-        return tagDao.query(tagsOfCashFlowQuery);
-    }
-
-    private PreparedQuery<Tag> getTagsOfCashFlowQuery() throws SQLException {
-        QueryBuilder<TagAndCashFlowBind, Long> tagCashFlowQb = tagAndCashFlowBindsDao.queryBuilder();
-        tagCashFlowQb.selectColumns(TagAndCashFlowBind.TAG_ID_COLUMN_NAME);
-        SelectArg cashFlowIdArg = new SelectArg();
-        tagCashFlowQb.where().eq(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME, cashFlowIdArg);
-
-        QueryBuilder<Tag, Long> tagQb = tagDao.queryBuilder();
-        tagQb.where().in(Tag.ID_COLUMN_NAME, tagCashFlowQb);
-        return tagQb.prepare();
-    }
-
-    @Override
-    public void update(CashFlow cashFlow) {
-        try {
-            CashFlow toUpdate = findById(cashFlow.getId());
-            validateUpdate(toUpdate, cashFlow);
-            cashFlowDao.update(cashFlow);
-            unbindFromTags(toUpdate);
-            bindWithTags(cashFlow);
-            fixCurrentAmountInWalletAfterDelete(toUpdate);
-            fixCurrentAmountInWalletAfterInsert(cashFlow);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    private void validateUpdate(CashFlow old, CashFlow newValue) {
-
-    }
-
-    @Override
-    public Long insert(CashFlow cashFlow) {
-        try {
-            validateInsert(cashFlow);
-            cashFlowDao.create(cashFlow);
-            bindWithTags(cashFlow);
-            fixCurrentAmountInWalletAfterInsert(cashFlow);
-            return cashFlow.getId();
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    private void validateInsert(CashFlow cashFlow) {
-        if (cashFlow.getType() == null) {
-            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), CashFlow.TYPE_COLUMN_NAME);
-        }
-
-        if (cashFlow.getWallet() == null) {
-            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), CashFlow.WALLET_ID_COLUMN_NAME);
-        }
-
-        if (cashFlow.getAmount() == null) {
-            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), CashFlow.AMOUNT_COLUMN_NAME);
-        }
-
-        if (cashFlow.getDateTime() == null) {
-            cashFlow.setDateTime(new Date());
-        }
-    }
-
-    private void bindWithTags(CashFlow cashFlow) throws SQLException {
-        for (Tag tag : cashFlow.getTags()) {
-            Tag foundTag = tagServiceOrmLite.findByName(tag.getName());
-
-            if (foundTag == null) {
-                foundTag = tag;
-                tagServiceOrmLite.insert(foundTag);
-            } else {
-                tag.setId(foundTag.getId());
-            }
-
-            tagAndCashFlowBindsDao.create(new TagAndCashFlowBind(foundTag, cashFlow));
-        }
-    }
-
-    private void fixCurrentAmountInWalletAfterInsert(CashFlow cashFlow) throws SQLException {
-        Wallet wallet = cashFlow.getWallet();
-
-        Double newCurrentAmount = null;
-        if (CashFlow.Type.INCOME.equals(cashFlow.getType())) {
-            newCurrentAmount = wallet.getCurrentAmount() + cashFlow.getAmount();
-        } else if (CashFlow.Type.EXPANSE.equals(cashFlow.getType())) {
-            newCurrentAmount = wallet.getCurrentAmount() - cashFlow.getAmount();
-        }
-        Preconditions.checkNotNull(newCurrentAmount);
-        wallet.setCurrentAmount(newCurrentAmount);
-        walletDao.update(wallet);
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        try {
-            CashFlow cashFlow = cashFlowDao.queryForId(id);
-            cashFlowDao.deleteById(id);
-            unbindFromTags(cashFlow);
-            fixCurrentAmountInWalletAfterDelete(cashFlow);
-        } catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    private void unbindFromTags(CashFlow cashFlow) throws SQLException {
-        DeleteBuilder<TagAndCashFlowBind, Long> deleteBuilder = tagAndCashFlowBindsDao.deleteBuilder();
-
-        deleteBuilder.where()
-                .eq(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME, cashFlow)
-                .and()
-                .in(TagAndCashFlowBind.TAG_ID_COLUMN_NAME, cashFlow.getTags());
-
-        deleteBuilder.delete();
-    }
-
-    private void fixCurrentAmountInWalletAfterDelete(CashFlow cashFlow) throws SQLException {
-        Wallet wallet = cashFlow.getWallet();
-
-        Double newCurrentAmount = null;
-        if (CashFlow.Type.INCOME.equals(cashFlow.getType())) {
-            newCurrentAmount = wallet.getCurrentAmount() - cashFlow.getAmount();
-        } else if (CashFlow.Type.EXPANSE.equals(cashFlow.getType())) {
-            newCurrentAmount = wallet.getCurrentAmount() + cashFlow.getAmount();
-        }
-        Preconditions.checkNotNull(newCurrentAmount);
-        wallet.setCurrentAmount(newCurrentAmount);
-        walletDao.update(wallet);
     }
 
     @Override
@@ -287,5 +173,133 @@ public class CashFlowServiceOrmLite implements CashFlowService {
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    private List<Tag> getTagsOfCashFlow(Long cashFlowId) throws SQLException {
+        if (tagsOfCashFlowQuery == null) {
+            tagsOfCashFlowQuery = getTagsOfCashFlowQuery();
+        }
+        tagsOfCashFlowQuery.setArgumentHolderValue(0, cashFlowId);
+        return tagDao.query(tagsOfCashFlowQuery);
+    }
+
+    private PreparedQuery<Tag> getTagsOfCashFlowQuery() throws SQLException {
+        QueryBuilder<TagAndCashFlowBind, Long> tagCashFlowQb = tagAndCashFlowBindsDao.queryBuilder();
+        tagCashFlowQb.selectColumns(TagAndCashFlowBind.TAG_ID_COLUMN_NAME);
+        SelectArg cashFlowIdArg = new SelectArg();
+        tagCashFlowQb.where().eq(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME, cashFlowIdArg);
+
+        QueryBuilder<Tag, Long> tagQb = tagDao.queryBuilder();
+        tagQb.where().in(Tag.ID_COLUMN_NAME, tagCashFlowQb);
+        return tagQb.prepare();
+    }
+
+    /**
+     * UPDATE
+     */
+    @Override
+    public void update(CashFlow cashFlow) {
+        try {
+            CashFlow toUpdate = findById(cashFlow.getId());
+            validateUpdate(toUpdate, cashFlow);
+            cashFlowDao.update(cashFlow);
+            unbindFromTags(toUpdate);
+            bindWithTags(cashFlow);
+            fixCurrentAmountInWalletAfterDelete(toUpdate);
+            fixCurrentAmountInWalletAfterInsert(cashFlow);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    private void validateUpdate(CashFlow old, CashFlow newValue) {
+        validateInsert(newValue);
+    }
+
+    private void validateInsert(CashFlow cashFlow) {
+        if (cashFlow.getType() == null) {
+            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), CashFlow.TYPE_COLUMN_NAME);
+        }
+
+        if (cashFlow.getWallet() == null) {
+            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), CashFlow.WALLET_ID_COLUMN_NAME);
+        }
+
+        if (cashFlow.getAmount() == null) {
+            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), CashFlow.AMOUNT_COLUMN_NAME);
+        }
+
+        if (cashFlow.getDateTime() == null) {
+            cashFlow.setDateTime(new Date());
+        }
+    }
+
+    private void bindWithTags(CashFlow cashFlow) throws SQLException {
+        for (Tag tag : cashFlow.getTags()) {
+            Tag foundTag = tagServiceOrmLite.findByName(tag.getName());
+
+            if (foundTag == null) {
+                foundTag = tag;
+                tagServiceOrmLite.insert(foundTag);
+            } else {
+                tag.setId(foundTag.getId());
+            }
+
+            tagAndCashFlowBindsDao.create(new TagAndCashFlowBind(foundTag, cashFlow));
+        }
+    }
+
+    private void fixCurrentAmountInWalletAfterInsert(CashFlow cashFlow) throws SQLException {
+        Wallet wallet = walletDao.queryForId(cashFlow.getWallet().getId());
+
+        Double newCurrentAmount = null;
+        if (CashFlow.Type.INCOME.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() + cashFlow.getAmount();
+        } else if (CashFlow.Type.EXPANSE.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() - cashFlow.getAmount();
+        }
+        Preconditions.checkNotNull(newCurrentAmount);
+        wallet.setCurrentAmount(newCurrentAmount);
+        walletDao.update(wallet);
+    }
+
+    /**
+     * DELETE
+     */
+    @Override
+    public void deleteById(Long id) {
+        try {
+            CashFlow cashFlow = cashFlowDao.queryForId(id);
+            cashFlowDao.deleteById(id);
+            unbindFromTags(cashFlow);
+            fixCurrentAmountInWalletAfterDelete(cashFlow);
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    private void unbindFromTags(CashFlow cashFlow) throws SQLException {
+        DeleteBuilder<TagAndCashFlowBind, Long> deleteBuilder = tagAndCashFlowBindsDao.deleteBuilder();
+
+        deleteBuilder.where()
+                .eq(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME, cashFlow)
+                .and()
+                .in(TagAndCashFlowBind.TAG_ID_COLUMN_NAME, cashFlow.getTags());
+
+        deleteBuilder.delete();
+    }
+
+    private void fixCurrentAmountInWalletAfterDelete(CashFlow cashFlow) throws SQLException {
+        Wallet wallet = walletDao.queryForId(cashFlow.getWallet().getId());
+
+        Double newCurrentAmount = null;
+        if (CashFlow.Type.INCOME.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() - cashFlow.getAmount();
+        } else if (CashFlow.Type.EXPANSE.equals(cashFlow.getType())) {
+            newCurrentAmount = wallet.getCurrentAmount() + cashFlow.getAmount();
+        }
+        Preconditions.checkNotNull(newCurrentAmount);
+        wallet.setCurrentAmount(newCurrentAmount);
+        walletDao.update(wallet);
     }
 }

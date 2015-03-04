@@ -91,7 +91,7 @@ public class CashFlow implements Identifiable {
         if (id != null ? !id.equals(cashFlow.id) : cashFlow.id != null) return false;
         if (tags != null ? !tags.equals(cashFlow.tags) : cashFlow.tags != null) return false;
         if (type != cashFlow.type) return false;
-        if (wallet != null ? !wallet.equals(cashFlow.wallet) : cashFlow.wallet != null)
+        if ((wallet != null && wallet.getId() != null)? !wallet.getId().equals(cashFlow.wallet.getId()) : cashFlow.wallet != null)
             return false;
 
         return true;
