@@ -2,7 +2,6 @@ package info.korzeniowski.walletplus.module;
 
 import org.mockito.Mockito;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -10,7 +9,6 @@ import dagger.Provides;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.service.ormlite.UserDatabaseHelper;
 import info.korzeniowski.walletplus.test.ui.wallet.details.CreateNewMyWalletTest;
 import info.korzeniowski.walletplus.test.ui.wallet.details.EditMyWalletTest;
 import info.korzeniowski.walletplus.test.ui.wallet.list.MyWalletListTest;

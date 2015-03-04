@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
+import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 
@@ -28,6 +29,9 @@ public class StaticticDetailsActivity extends BaseActivity {
 
     @Inject
     TagService tagService;
+
+    @Inject
+    StatisticService statisticService;
 
     private Long tagId;
     private DetailsAction detailsAction;
@@ -106,7 +110,7 @@ public class StaticticDetailsActivity extends BaseActivity {
     }
 
     private String getConfirmationMessage() {
-        long count = tagService.countDependentCashFlows(tagId);
+        long count = statisticService.countCashFlowsAssignedToTag(tagId);
         String msg = getString(R.string.tagDeleteConfirmation);
         return MessageFormat.format(msg, count);
     }

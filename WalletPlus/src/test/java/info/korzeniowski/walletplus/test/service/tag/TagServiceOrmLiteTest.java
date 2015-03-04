@@ -1,5 +1,7 @@
 package info.korzeniowski.walletplus.test.service.tag;
 
+import android.graphics.Color;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,8 +48,32 @@ public class TagServiceOrmLiteTest {
         ((TestWalletPlus) Robolectric.application).inject(this);
     }
 
+    /**
+     * CREATE
+     */
     @Test
-    public void shouldGenerateColorForTagAfterInsert() {
+    public void shouldThrowExceptionWhenCreateTagWithoutName() {
+        // then
+        exception.expect(EntityPropertyCannotBeNullOrEmptyException.class)
+                .hasMessageContaining(Tag.NAME_COLUMN_NAME);
+
+        tagService.insert(new Tag());
+    }
+
+    @Test
+    public void shouldCreateTag() {
+        // given
+        Tag tag = new Tag().setName("tag-1").setColor(Color.BLUE);
+
+        // when
+        tagService.insert(tag);
+
+        // then
+        assertThat(tagService.findById(tag.getId())).isEqualTo(tag);
+    }
+
+    @Test
+    public void shouldGenerateColorForTagIfNotSpecifiedAfterInsert() {
         // given
         Tag tag = new Tag().setName("tag-1");
 
@@ -60,25 +86,20 @@ public class TagServiceOrmLiteTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenCreateTagWithoutName() {
-        // then
-        exception.expect(EntityPropertyCannotBeNullOrEmptyException.class)
-                .hasMessageContaining(Tag.NAME_COLUMN_NAME);
-
-        tagService.insert(new Tag());
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenCreateTagWithDuplicatedId() {
+    public void shouldThrowExceptionWhenCreateTagWithDuplicatedName() {
         // given
-        Tag tag = new Tag().setName("tag-1");
+        String tagName = "tag-1";
+        Tag tag = new Tag().setName(tagName);
         tagService.insert(tag);
 
         // then
         exception.expect(EntityAlreadyExistsException.class);
-        tagService.insert(new Tag().setName("tag-2").setId(tag.getId()));
+        tagService.insert(new Tag().setName(tagName).setId(tag.getId()));
     }
 
+    /**
+     * READ
+     */
     @Test
     public void shouldReturnNullWhenTryingToFindNonExistingTagById() {
         // given
@@ -88,6 +109,23 @@ public class TagServiceOrmLiteTest {
         assertThat(tagService.findById(categoryId)).isNull();
     }
 
+    @Test
+    public void shouldTagsBeOrderedByName() {
+        // given
+        Tag tagAla = new Tag("Ala");
+        tagService.insert(tagAla);
+        Tag tagBartek = new Tag("Bartek");
+        tagService.insert(tagBartek);
+        Tag tagCelina = new Tag("Celina");
+        tagService.insert(tagCelina);
+
+        // then
+        assertThat(tagService.getAll()).containsExactly(tagAla, tagBartek, tagCelina);
+    }
+
+    /**
+     * UPDATE
+     */
     @Test
     public void shouldUpdateTagName() {
         // given
@@ -102,6 +140,9 @@ public class TagServiceOrmLiteTest {
         assertThat(tagService.findById(tag.getId()).getName()).isEqualTo(newTagName);
     }
 
+    /**
+     * DELETE
+     */
     @Test
     public void shouldDeleteTag() {
         // given

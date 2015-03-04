@@ -1,13 +1,8 @@
 package info.korzeniowski.walletplus;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
 import java.util.List;
 
 import dagger.ObjectGraph;
-import info.korzeniowski.walletplus.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.util.PrefUtils;
 
 public class TestWalletPlus extends WalletPlus {

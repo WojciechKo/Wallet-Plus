@@ -2,6 +2,8 @@ package info.korzeniowski.walletplus.service.ormlite;
 
 import android.graphics.Color;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
@@ -13,16 +15,17 @@ import javax.inject.Inject;
 import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
-import info.korzeniowski.walletplus.service.ormlite.validation.TagValidator;
+import info.korzeniowski.walletplus.service.exception.EntityAlreadyExistsException;
+import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TagServiceOrmLite implements TagService {
-    private final TagValidator tagValidator;
     private final Dao<Tag, Long> tagDao;
 
     @Inject
     public TagServiceOrmLite(Dao<Tag, Long> tagDao) {
         this.tagDao = tagDao;
-        this.tagValidator = new TagValidator(this);
     }
 
     /**
@@ -33,8 +36,7 @@ public class TagServiceOrmLite implements TagService {
     @Override
     public Long insert(Tag tag) {
         try {
-            generateColorIfNull(tag);
-            tagValidator.validateInsert(tag);
+            validateInsert(tag);
             tagDao.create(tag);
             return tag.getId();
         } catch (SQLException e) {
@@ -42,16 +44,18 @@ public class TagServiceOrmLite implements TagService {
         }
     }
 
-    private void generateColorIfNull(Tag tag) {
-        if (tag.getColor() == null) {
-            float[] hsv = new float[3];
-            hsv[0] = new Random().nextFloat() * 360; // Hue (0 .. 360)
-            hsv[1] = (float) 0.5; // Saturation (0 .. 1)
-            hsv[2] = (float) 0.95; // Value (0 .. 1)
-            tag.setColor(Color.HSVToColor(hsv));
-        }
+    public void validateInsert(Tag tag) {
+        checkNotNull(tag);
+        generateColorIfNull(tag);
+        validateIfNameIsNotNullOrEmpty(tag);
+        validateIfIdIsUnique(tag);
     }
 
+    private void validateIfIdIsUnique(Tag tag) {
+        if (tag.getId() != null && findById(tag.getId()) != null) {
+            throw new EntityAlreadyExistsException(Tag.class.getSimpleName(), tag.getId());
+        }
+    }
     /**
      * ******
      * READ *
@@ -101,11 +105,33 @@ public class TagServiceOrmLite implements TagService {
     @Override
     public void update(final Tag newValue) {
         try {
-            generateColorIfNull(newValue);
-            tagValidator.validateUpdate(newValue);
+            validateUpdate(newValue);
             tagDao.update(newValue);
         } catch (SQLException e) {
             throw new DatabaseException(e);
+        }
+    }
+
+    public void validateUpdate(Tag newTag) {
+        checkNotNull(newTag);
+        generateColorIfNull(newTag);
+        Tag oldTag = findById(newTag.getId());
+        validateIfNameIsNotNullOrEmpty(newTag);
+    }
+
+    private void generateColorIfNull(Tag tag) {
+        if (tag.getColor() == null) {
+            float[] hsv = new float[3];
+            hsv[0] = new Random().nextFloat() * 360; // Hue (0 .. 360)
+            hsv[1] = (float) 0.5; // Saturation (0 .. 1)
+            hsv[2] = (float) 0.95; // Value (0 .. 1)
+            tag.setColor(Color.HSVToColor(hsv));
+        }
+    }
+
+    private void validateIfNameIsNotNullOrEmpty(Tag tag) {
+        if (Strings.isNullOrEmpty(tag.getName())) {
+            throw new EntityPropertyCannotBeNullOrEmptyException(Tag.class.getSimpleName(), Tag.NAME_COLUMN_NAME);
         }
     }
 
@@ -117,15 +143,9 @@ public class TagServiceOrmLite implements TagService {
     @Override
     public void deleteById(Long id) {
         try {
-            tagValidator.validateDelete(id);
             tagDao.deleteById(id);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
-    }
-
-    @Override
-    public long countDependentCashFlows(Long tagId) {
-        throw new RuntimeException("Not implemented");
     }
 }
