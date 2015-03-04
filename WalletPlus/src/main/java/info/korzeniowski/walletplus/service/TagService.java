@@ -10,7 +10,5 @@ public interface TagService extends BaseService<Tag> {
 
     List<Tag> getAll();
 
-    public List<CashFlow> getAssociatedCashFlows(Long tagid, Long n);
-
     long countDependentCashFlows(Long tagId);
 }

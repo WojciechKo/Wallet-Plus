@@ -45,7 +45,7 @@ public class TagValidator implements Validator<Tag> {
 
     private void validateIfNameIsNotNullOrEmpty(Tag tag) {
         if (Strings.isNullOrEmpty(tag.getName())) {
-            throw new EntityPropertyCannotBeNullOrEmptyException(Tag.class.getSimpleName(), "Name");
+            throw new EntityPropertyCannotBeNullOrEmptyException(Tag.class.getSimpleName(), Tag.NAME_COLUMN_NAME);
         }
     }
 

@@ -13,7 +13,6 @@ import info.korzeniowski.walletplus.service.ormlite.UserDatabaseHelper;
 import info.korzeniowski.walletplus.test.service.cashflow.CashFlowServiceOrmLiteTest;
 import info.korzeniowski.walletplus.test.service.statistic.StatisticServiceOrmLiteTest;
 import info.korzeniowski.walletplus.test.service.tag.TagServiceOrmLiteTest;
-import info.korzeniowski.walletplus.test.service.tag.TagStatisticsTest;
 import info.korzeniowski.walletplus.test.service.wallet.LocalWalletServiceTest;
 import info.korzeniowski.walletplus.test.service.wallet.WalletValidatorTest;
 import info.korzeniowski.walletplus.util.PrefUtils;
@@ -24,7 +23,6 @@ import info.korzeniowski.walletplus.util.PrefUtils;
                 CashFlowServiceOrmLiteTest.class,
                 StatisticServiceOrmLiteTest.class,
 
-                TagStatisticsTest.class,
                 TagServiceOrmLiteTest.class,
                 LocalWalletServiceTest.class,
                 WalletValidatorTest.class

@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.test.service.tag;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -8,12 +9,18 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.TestWalletPlus;
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
+import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.module.TestDatabaseModule;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.TagService;
+import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.service.exception.EntityAlreadyExistsException;
+import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
+import pl.wkr.fluentrule.api.FluentExpectedException;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -24,107 +31,114 @@ public class TagServiceOrmLiteTest {
     @Inject
     TagService tagService;
 
+    @Inject
+    WalletService walletService;
+
+    @Inject
+    CashFlowService cashFlowService;
+
+    @Rule
+    public FluentExpectedException exception = FluentExpectedException.none();
+
     @Before
     public void setUp() {
         ((TestWalletPlus) Robolectric.application).addModules(new TestDatabaseModule(Robolectric.application));
         ((TestWalletPlus) Robolectric.application).inject(this);
     }
 
-    /**
-     * *************
-     * TEST INSERT *
-     * *************
-     */
     @Test
-    public void shouldInsertMainAndTwoSubCategories() {
-        Integer mainCategorySize = tagService.getAll().size();
+    public void shouldGenerateColorForTagAfterInsert() {
+        // given
+        Tag tag = new Tag().setName("tag-1");
 
-        tagService.insert(new Tag().setName("Main"));
+        // when
+        tagService.insert(tag);
 
-        assertThat(tagService.getAll()).hasSize(mainCategorySize + 1);
+        // then
+        assertThat(tagService.findById(tag.getId()).getColor()).isNotNull();
+        assertThat(tagService.findById(tag.getId()).getColor()).isNotEqualTo(0);
     }
 
-    /**
-     * ***********
-     * TEST READ *
-     * ***********
-     */
     @Test
-    public void shouldReturnNullWhenTryingToFindNonExistingCategoryById() {
+    public void shouldThrowExceptionWhenCreateTagWithoutName() {
+        // then
+        exception.expect(EntityPropertyCannotBeNullOrEmptyException.class)
+                .hasMessageContaining(Tag.NAME_COLUMN_NAME);
+
+        tagService.insert(new Tag());
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenCreateTagWithDuplicatedId() {
+        // given
+        Tag tag = new Tag().setName("tag-1");
+        tagService.insert(tag);
+
+        // then
+        exception.expect(EntityAlreadyExistsException.class);
+        tagService.insert(new Tag().setName("tag-2").setId(tag.getId()));
+    }
+
+    @Test
+    public void shouldReturnNullWhenTryingToFindNonExistingTagById() {
+        // given
         Long categoryId = (long) 5326432;
+
+        // then
         assertThat(tagService.findById(categoryId)).isNull();
     }
 
     @Test
-    public void shouldReadMainCategory() {
-        String categoryName = "Main";
-        Tag inserted = new Tag().setName(categoryName);
-        Long id = tagService.insert(inserted);
-
-        Tag read = tagService.findById(id);
-
-        assertThat(inserted).isEqualTo(read);
-    }
-
-    /**
-     * ***********
-     * TEST EDIT *
-     * ***********
-     */
-    @Test
-    public void shouldEditNameInMainCategoryWithoutChildren() {
-        Tag oldTag = new Tag().setName("Main 1");
-        tagService.insert(oldTag);
-
-        Tag newTag = new Tag().setId(oldTag.getId()).setName("Main 1 Fix");
-        tagService.update(newTag);
-
-        Tag read = tagService.findById(newTag.getId());
-        assertThat(oldTag.getId()).isEqualTo(newTag.getId());
-        assertThat(read).isEqualTo(newTag);
-    }
-
-    @Test
-    public void shouldEditNameInMainCategoryWithChildren() {
-        insertMainAndSubs(new Tag().setName("Main 1"), 2);
-        Tag main2 = insertMainAndSubs(new Tag().setName("Main 2"), 3);
-
-        Long oldCategoryCount = tagService.count();
-        Integer oldMainSize = tagService.getAll().size();
-
-        Tag read = tagService.findById(main2.getId());
-        tagService.update(read.setName("Main 2 Fix"));
-
-        assertThat(tagService.count()).isEqualTo(oldCategoryCount);
-        assertThat(tagService.getAll()).hasSize(oldMainSize);
-    }
-
-    private Tag insertMainAndSubs(Tag tag, Integer numberOfChildren) {
+    public void shouldUpdateTagName() {
+        // given
+        Tag tag = new Tag().setName("Tag-1");
         tagService.insert(tag);
-        for (int i = 0; i < numberOfChildren; i++) {
-            tagService.insert(new Tag().setName(getSubName(i, tag.getName())));
-        }
-        return tag;
+        String newTagName = "Tag-1-new";
+
+        // when
+        tagService.update(tag.setName(newTagName));
+
+        // then
+        assertThat(tagService.findById(tag.getId()).getName()).isEqualTo(newTagName);
     }
 
-    private String getSubName(int number, String mainName) {
-        return "Sub " + number + " of " + mainName;
-    }
-
-    /**
-     * *************
-     * TEST DELETE *
-     * *************
-     */
     @Test
-    public void shouldDeleteMainCategoryWithoutSubs() {
-        Long categoryId = tagService.insert(new Tag().setName("Main"));
+    public void shouldDeleteTag() {
+        // given
+        Tag tag = new Tag().setName("tag-1");
+        tagService.insert(tag);
+        Long tagCount = tagService.count();
 
-        int mainCategories = tagService.getAll().size();
-        Long count = tagService.count();
-        tagService.deleteById(categoryId);
+        // when
+        tagService.deleteById(tag.getId());
 
-        assertThat(tagService.getAll()).hasSize(mainCategories - 1);
-        assertThat(tagService.count()).isEqualTo(count - 1);
+        // then
+        assertThat(tagService.count()).isEqualTo(tagCount - 1);
+        assertThat(tagService.count()).isEqualTo(tagService.getAll().size());
+    }
+
+    @Test
+    public void shouldRemoveTagFromAssociatedCashFlowsAfterDelete() {
+        // given
+        Wallet wallet = new Wallet().setName("wallet").setInitialAmount(100.0);
+        walletService.insert(wallet);
+        Tag tag1 = new Tag().setName("tag-1");
+        tagService.insert(tag1);
+        Tag tag2 = new Tag().setName("tag-2");
+        tagService.insert(tag2);
+
+        CashFlow cashFlow1 = new CashFlow().setAmount(50.0).addTag(tag1, tag2).setType(CashFlow.Type.INCOME).setWallet(wallet);
+        cashFlowService.insert(cashFlow1);
+        CashFlow cashFlow2 = new CashFlow().setAmount(50.0).addTag(tag1).setType(CashFlow.Type.EXPANSE).setWallet(wallet);
+        cashFlowService.insert(cashFlow2);
+
+        // when
+        tagService.deleteById(tag1.getId());
+
+        // then
+        assertThat(cashFlowService.findById(cashFlow1.getId()).getTags()).containsOnly(tag2);
+        assertThat(cashFlowService.findById(cashFlow2.getId()).getTags()).isEmpty();
+        assertThat(tagService.findByName(tag1.getName())).isNull();
+        assertThat(tagService.findById(tag1.getId())).isNull();
     }
 }

@@ -10,6 +10,7 @@ import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.stmt.Where;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -136,6 +137,14 @@ public class CashFlowServiceOrmLite implements CashFlowService {
 
         if (cashFlow.getWallet() == null) {
             throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), CashFlow.WALLET_ID_COLUMN_NAME);
+        }
+
+        if (cashFlow.getAmount() == null) {
+            throw new EntityPropertyCannotBeNullOrEmptyException(cashFlow.getClass().getSimpleName(), CashFlow.AMOUNT_COLUMN_NAME);
+        }
+
+        if (cashFlow.getDateTime() == null) {
+            cashFlow.setDateTime(new Date());
         }
     }
 

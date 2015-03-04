@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 
 import org.joda.time.DateTime;
 import org.joda.time.DurationFieldType;
+import org.joda.time.ReadableDuration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,6 +27,8 @@ import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
+import pl.wkr.fluentrule.api.FluentExpectedException;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -43,12 +46,61 @@ public class CashFlowServiceOrmLiteTest {
     TagService tagService;
 
     @Rule
-    public ExpectedException exception = ExpectedException.none();
+    public FluentExpectedException exception = FluentExpectedException.none();
 
     @Before
     public void setUp() {
         ((TestWalletPlus) Robolectric.application).addModules(new TestDatabaseModule(Robolectric.application));
         ((TestWalletPlus) Robolectric.application).inject(this);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenCreateCashFlowWithoutAmout() {
+        //given
+        Wallet wallet = new Wallet().setName("Wallet").setInitialAmount(100.0);
+
+        // then
+        exception.expect(EntityPropertyCannotBeNullOrEmptyException.class)
+                .hasMessageContaining(CashFlow.AMOUNT_COLUMN_NAME);
+
+        cashFlowService.insert(new CashFlow().setWallet(wallet).setType(CashFlow.Type.INCOME));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenCreateCashFlowWithoutType() {
+        //given
+        Wallet wallet = new Wallet().setName("Wallet").setInitialAmount(100.0);
+
+        // then
+        exception.expect(EntityPropertyCannotBeNullOrEmptyException.class)
+                .hasMessageContaining(CashFlow.TYPE_COLUMN_NAME);
+
+        cashFlowService.insert(new CashFlow().setWallet(wallet).setAmount(100.0));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenCreateCashFlowWithoutWallet() {
+
+        // then
+        exception.expect(EntityPropertyCannotBeNullOrEmptyException.class)
+                .hasMessageContaining(CashFlow.WALLET_ID_COLUMN_NAME);
+
+        cashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.INCOME));
+    }
+
+    @Test
+    public void shouldSetActualDateWhenInsertCashFlowWithoutDate() {
+        //given
+        Wallet wallet = new Wallet().setName("Wallet").setInitialAmount(100.0);
+        DateTime dateTime = DateTime.now();
+        // when
+        CashFlow cashFlow = new CashFlow().setWallet(wallet).setAmount(100.0).setType(CashFlow.Type.INCOME);
+        cashFlowService.insert(cashFlow);
+
+        // then
+        assertThat(cashFlow.getDateTime()).isBetween(
+                dateTime.withFieldAdded(DurationFieldType.seconds(), -1).toDate(),
+                dateTime.withFieldAdded(DurationFieldType.seconds(), 1).toDate());
     }
 
     @Test

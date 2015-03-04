@@ -162,8 +162,11 @@ dependencies {
     // Robolectric
     testCompile 'org.robolectric:robolectric:2.4'
 
-    //Fest Android
+    // Fest Android
     testCompile 'com.squareup:fest-android:1.0.8'
+
+    // Fluent Exception
+    testCompile 'pl.wkr:fluent-exception-rule:1.0.1'
 }
 
 apply plugin: "jacoco"
