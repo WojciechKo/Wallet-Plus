@@ -32,7 +32,7 @@
                 <TextView android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:text="@string/lastCashFlowsChartLabel"/>
+                        android:text="@string/dashboardChartLabel"/>
 
                 <lecho.lib.hellocharts.view.LineChartView android:id="@+id/chart"
                         android:layout_width="match_parent"

@@ -33,6 +33,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import lecho.lib.hellocharts.model.Axis;
@@ -63,6 +64,9 @@ public class TagDetailsFragment extends Fragment {
 
     @Inject
     TagService tagService;
+
+    @Inject
+    CashFlowService cashFlowService;
 
     @Inject
     @Named("amount")
@@ -112,15 +116,11 @@ public class TagDetailsFragment extends Fragment {
             tagName.setText(tagToEdit.get().getName());
             tagColor = tagToEdit.get().getColor();
 
-            chart.setLineChartData(getMainLineChartData());
+            chart.setLineChartData(getChartData());
             chart.setValueSelectionEnabled(true);
-            chart.setViewportCalculationEnabled(false);
-            final Viewport v = new Viewport(chart.getMaximumViewport());
-            float diff = v.top - v.bottom;
-            v.bottom -= 0.2 * diff;
-            v.top += 0.2 * diff;
-            chart.setMaximumViewport(v);
-            chart.setCurrentViewportWithAnimation(v);
+            Viewport viewport = new Viewport(chart.getMaximumViewport());
+            viewport.left = Math.max(viewport.right - 5, 0);
+            chart.setCurrentViewport(viewport);
 
         } else {
             tagColor = PrefUtils.getNextTagColor(getActivity());
@@ -129,11 +129,10 @@ public class TagDetailsFragment extends Fragment {
         colorPicker.setTag(tagColor);
     }
 
-    private LineChartData getMainLineChartData() {
+    private LineChartData getChartData() {
         List<PointValue> values = Lists.newArrayList();
         List<AxisValue> dateAxisValues = Lists.newArrayList();
-        long numberOfPoints = 5L;
-        List<CashFlow> cashFlowList = tagService.getAssociatedCashFlows(tagToEdit.get().getId(), numberOfPoints);
+        List<CashFlow> cashFlowList = cashFlowService.findCashFlows(new CashFlowService.CashFlowQuery().withTags(tagToEdit.get()));
 
         ListIterator<CashFlow> cashFlowIterator = cashFlowList.listIterator();
         for (int i = 0; i < cashFlowList.size(); i++) {
@@ -153,24 +152,15 @@ public class TagDetailsFragment extends Fragment {
                 values.add(new PointValue(i, cashFlow.getAmount().floatValue() * -1));
             }
         }
-        if (values.size() > 1) {
-            Line mainLine = new Line(values);
-            mainLine.setColor(getResources().getColor(R.color.green));
-            mainLine.setFilled(true);
-            mainLine.setHasLabelsOnlyForSelected(true);
+        Line line = new Line(values);
+        line.setColor(tagToEdit.get().getColor());
+        line.setHasLabelsOnlyForSelected(true);
 
-            LineChartData lineChartData = new LineChartData(Lists.newArrayList(mainLine));
+        LineChartData chartData = new LineChartData(Lists.newArrayList(line));
+        chartData.setAxisXBottom(new Axis(dateAxisValues));
+        chartData.setAxisYLeft(new Axis().setHasLines(true));
 
-            // setup axis with dates.
-            lineChartData.setAxisXBottom(new Axis(dateAxisValues));
-
-            // setup axis with values.
-            lineChartData.setAxisYLeft(new Axis().setHasLines(true));
-
-            return lineChartData;
-        } else {
-            return new LineChartData(Lists.<Line>newArrayList());
-        }
+        return chartData;
     }
 
     @Override

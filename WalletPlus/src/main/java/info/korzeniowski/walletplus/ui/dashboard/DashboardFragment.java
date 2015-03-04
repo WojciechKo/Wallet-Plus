@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -141,7 +140,7 @@ public class DashboardFragment extends Fragment {
         sumOfCurrentAmountOfWallets = getSumOfCurrentAmountOfWallets();
         String totalAmountString = NumberFormat.getCurrencyInstance().format(sumOfCurrentAmountOfWallets);
 
-        SpannableStringBuilder spanTxt = new SpannableStringBuilder(getString(R.string.totalAmountLabel) + "\n");
+        SpannableStringBuilder spanTxt = new SpannableStringBuilder(getString(R.string.dashboardTotalAmountLabel) + "\n");
         spanTxt.append(totalAmountString);
         spanTxt.setSpan(new RelativeSizeSpan(2f), spanTxt.length() - totalAmountString.length(), spanTxt.length(), 0);
         if (sumOfCurrentAmountOfWallets < 0) {
