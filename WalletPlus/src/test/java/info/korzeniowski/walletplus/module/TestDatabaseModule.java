@@ -13,8 +13,7 @@ import info.korzeniowski.walletplus.service.ormlite.UserDatabaseHelper;
 import info.korzeniowski.walletplus.test.service.cashflow.CashFlowServiceOrmLiteTest;
 import info.korzeniowski.walletplus.test.service.statistic.StatisticServiceOrmLiteTest;
 import info.korzeniowski.walletplus.test.service.tag.TagServiceOrmLiteTest;
-import info.korzeniowski.walletplus.test.service.wallet.LocalWalletServiceTest;
-import info.korzeniowski.walletplus.test.service.wallet.WalletValidatorTest;
+import info.korzeniowski.walletplus.test.service.wallet.WalletServiceOrmLiteTest;
 import info.korzeniowski.walletplus.util.PrefUtils;
 
 @Module(
@@ -22,10 +21,8 @@ import info.korzeniowski.walletplus.util.PrefUtils;
         injects = {
                 CashFlowServiceOrmLiteTest.class,
                 StatisticServiceOrmLiteTest.class,
-
                 TagServiceOrmLiteTest.class,
-                LocalWalletServiceTest.class,
-                WalletValidatorTest.class
+                WalletServiceOrmLiteTest.class
         },
         overrides = true,
         complete = false

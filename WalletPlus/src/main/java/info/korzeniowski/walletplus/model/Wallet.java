@@ -39,8 +39,7 @@ public class Wallet implements Identifiable, Parcelable {
     private Double currentAmount;
 
     public Wallet() {
-        initialAmount = 0.0;
-        currentAmount = 0.0;
+
     }
 
     private Wallet(Parcel parcel) {
