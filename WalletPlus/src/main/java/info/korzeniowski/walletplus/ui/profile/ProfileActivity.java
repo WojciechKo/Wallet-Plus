@@ -39,7 +39,7 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.ProfileService;
-import info.korzeniowski.walletplus.service.google.GoogleDriveReadService;
+import info.korzeniowski.walletplus.sync.google.GoogleDriveReadService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 import info.korzeniowski.walletplus.util.PrefUtils;

@@ -1,4 +1,4 @@
-package info.korzeniowski.walletplus.service.google;
+package info.korzeniowski.walletplus.sync.google;
 
 import com.google.gson.annotations.SerializedName;
 
