@@ -97,6 +97,9 @@ public class SynchronizeActivity extends BaseActivity {
         ProfileService profileService;
 
         @Inject
+        PrefUtils prefUtils;
+
+        @Inject
         @Named("read")
         RestAdapter googleDriveReadAdapter;
 
@@ -107,7 +110,7 @@ public class SynchronizeActivity extends BaseActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            ((WalletPlus) getActivity().getApplication()).inject(this);
+            ((WalletPlus) getActivity().getApplication()).component().inject(this);
         }
 
         @Override
@@ -115,7 +118,7 @@ public class SynchronizeActivity extends BaseActivity {
             View view = inflater.inflate(R.layout.fragment_synchronize, container, false);
             ButterKnife.inject(this, view);
 
-            Profile profile = profileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+            Profile profile = profileService.findById(prefUtils.getActiveProfileId());
             setupVisibility(!Strings.isNullOrEmpty(profile.getDriveId()));
 
             return view;
@@ -149,12 +152,12 @@ public class SynchronizeActivity extends BaseActivity {
         void onCreateBackupClicked() {
             final GoogleDriveUploadService googleDriveUploadService = googleDriveUploadAdapter.create(GoogleDriveUploadService.class);
 
-            final Profile activeProfile = profileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+            final Profile activeProfile = profileService.findById(prefUtils.getActiveProfileId());
             GoogleDriveUploadService.FileMetadata metadata = new GoogleDriveUploadService.FileMetadata();
             metadata.setTitle(activeProfile.getName() + ".db");
             metadata.setParentId("appfolder");
             TypedFile typedFile = new TypedFile("application/x-sqlite3", new File(activeProfile.getDatabaseFilePath()));
-            googleDriveUploadService.insert(metadata, typedFile, "Bearer " + PrefUtils.getGoogleToken(getActivity()), new Callback<GoogleDriveUploadService.FileMetadata>() {
+            googleDriveUploadService.insert(metadata, typedFile, "Bearer " + prefUtils.getGoogleToken(), new Callback<GoogleDriveUploadService.FileMetadata>() {
                 @Override
                 public void success(GoogleDriveUploadService.FileMetadata metadata, Response response) {
                     activeProfile.setDriveId(metadata.getId());
@@ -175,10 +178,10 @@ public class SynchronizeActivity extends BaseActivity {
         void onUploadUpdateClicked() {
             final GoogleDriveUploadService googleDriveUploadService = googleDriveUploadAdapter.create(GoogleDriveUploadService.class);
 
-            final Profile activeProfile = profileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+            final Profile activeProfile = profileService.findById(prefUtils.getActiveProfileId());
 
             TypedFile typedFile = new TypedFile("application/x-sqlite3", new File(activeProfile.getDatabaseFilePath()));
-            googleDriveUploadService.update(activeProfile.getDriveId(), typedFile, "Bearer " + PrefUtils.getGoogleToken(getActivity()), new Callback<GoogleDriveUploadService.FileMetadata>() {
+            googleDriveUploadService.update(activeProfile.getDriveId(), typedFile, "Bearer " + prefUtils.getGoogleToken(), new Callback<GoogleDriveUploadService.FileMetadata>() {
                 @Override
                 public void success(GoogleDriveUploadService.FileMetadata metadata, Response response) {
                     Toast.makeText(getActivity(), "Profil został uaktualniony na serwerze.", Toast.LENGTH_SHORT).show();
@@ -196,7 +199,7 @@ public class SynchronizeActivity extends BaseActivity {
         @OnClick(R.id.downloadUpdate)
         void onDownloadUpdateClicked() {
             GoogleDriveReadService googleDriveReadService = googleDriveReadAdapter.create(GoogleDriveReadService.class);
-            final Profile activeProfile = profileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+            final Profile activeProfile = profileService.findById(prefUtils.getActiveProfileId());
 
             googleDriveReadService.getFile(activeProfile.getDriveId(), new Callback<GoogleDriveReadService.DriveFile>() {
                 @Override
@@ -206,7 +209,7 @@ public class SynchronizeActivity extends BaseActivity {
                         protected Boolean doInBackground(Void... params) {
                             OkHttpClient okHttpClient = new OkHttpClient();
                             Request request = new Request.Builder()
-                                    .url(Uri.parse(driveFile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", PrefUtils.getGoogleToken(getActivity())).toString())
+                                    .url(Uri.parse(driveFile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", prefUtils.getGoogleToken()).toString())
                                     .build();
 
                             try {
@@ -261,7 +264,7 @@ public class SynchronizeActivity extends BaseActivity {
                 pickUserAccount();
             } else {
                 if (isDeviceOnline()) {
-                    new SetGoogleToken(getActivity(), mEmail, SCOPE_PREFIX + SCOPE_APPDATA).execute();
+                    new SetGoogleToken(getActivity(), mEmail, SCOPE_PREFIX + SCOPE_APPDATA, prefUtils).execute();
                 } else {
                     Toast.makeText(getActivity(), "Brak połączenia z internetem.", Toast.LENGTH_LONG).show();
                 }
@@ -275,14 +278,16 @@ public class SynchronizeActivity extends BaseActivity {
         }
 
         public static class SetGoogleToken extends AsyncTask<Void, Void, String> {
+            PrefUtils prefUtils;
             Activity mActivity;
             String mScope;
             String mEmail;
 
-            SetGoogleToken(Activity activity, String name, String scope) {
+            SetGoogleToken(Activity activity, String name, String scope, PrefUtils prefUtils) {
                 this.mActivity = activity;
                 this.mScope = scope;
                 this.mEmail = name;
+                this.prefUtils = prefUtils;
             }
 
             @Override
@@ -290,7 +295,7 @@ public class SynchronizeActivity extends BaseActivity {
                 try {
                     String token = fetchToken();
                     if (token != null) {
-                        PrefUtils.setGoogleToken(mActivity, token);
+                        prefUtils.setGoogleToken(token);
                         return token;
                     }
                 } catch (IOException e) {

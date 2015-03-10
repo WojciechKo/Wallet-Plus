@@ -5,13 +5,11 @@ import com.j256.ormlite.dao.Dao;
 import java.lang.ref.WeakReference;
 import java.sql.SQLException;
 
-import javax.inject.Named;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import info.korzeniowski.walletplus.DatabaseInitializer;
-import info.korzeniowski.walletplus.MainActivity;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
@@ -33,78 +31,12 @@ import info.korzeniowski.walletplus.service.ormlite.TagServiceOrmLite;
 import info.korzeniowski.walletplus.service.ormlite.WalletServiceOrmLite;
 import info.korzeniowski.walletplus.service.ormlite.MainDatabaseHelper;
 import info.korzeniowski.walletplus.service.ormlite.UserDatabaseHelper;
-import info.korzeniowski.walletplus.ui.BaseActivity;
-import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsActivity;
-import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsFragment;
-import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListActivity;
-import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListFragment;
-import info.korzeniowski.walletplus.ui.statistics.details.StaticticDetailsActivity;
-import info.korzeniowski.walletplus.ui.statistics.details.StatisticDetailsFragment;
-import info.korzeniowski.walletplus.ui.statistics.list.StatisticListActivity;
-import info.korzeniowski.walletplus.ui.statistics.list.StatisticListFragment;
-import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
-import info.korzeniowski.walletplus.ui.dashboard.DashboardFragment;
-import info.korzeniowski.walletplus.ui.tag.details.TagDetailsActivity;
-import info.korzeniowski.walletplus.ui.tag.details.TagDetailsFragment;
-import info.korzeniowski.walletplus.ui.tag.list.TagListFragment;
-import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
-import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsFragment;
-import info.korzeniowski.walletplus.ui.wallets.list.WalletListActivity;
-import info.korzeniowski.walletplus.ui.wallets.list.WalletListFragment;
-import info.korzeniowski.walletplus.ui.tag.list.TagListActivity;
-import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
-import info.korzeniowski.walletplus.ui.synchronize.SynchronizeActivity;
 import info.korzeniowski.walletplus.util.PrefUtils;
 
 /**
  * Module for Database objects.
  */
-@Module(
-        injects = {
-                BaseActivity.class,
-
-                MainActivity.class,
-
-                DashboardActivity.class,
-                DashboardFragment.class,
-
-                StatisticListActivity.class,
-                StatisticListFragment.class,
-
-                StaticticDetailsActivity.class,
-                StatisticDetailsFragment.class,
-
-                CashFlowListActivity.class,
-                CashFlowListFragment.class,
-
-                CashFlowDetailsActivity.class,
-                CashFlowDetailsFragment.class,
-
-                WalletListActivity.class,
-                WalletListFragment.class,
-
-                WalletDetailsActivity.class,
-                WalletDetailsFragment.class,
-
-                TagListActivity.class,
-                TagListFragment.class,
-
-                TagDetailsActivity.class,
-                TagDetailsFragment.class,
-
-                SynchronizeActivity.class,
-                SynchronizeActivity.SynchronizeFragment.class,
-
-                ProfileActivity.class,
-                ProfileActivity.CreateProfileFragment.class,
-
-                DatabaseInitializer.class,
-                AccountServiceOrmLite.class,
-                ProfileServiceOrmLite.class
-        },
-        complete = false,
-        library = true
-)
+@Module
 public class DatabaseModule {
 
     private final WeakReference<WalletPlus> application;
@@ -121,9 +53,12 @@ public class DatabaseModule {
 
     @Provides
     @Singleton
-    public UserDatabaseHelper provideUserDatabaseHelper(ProfileServiceOrmLite profileService) {
-        Profile profile = profileService.findById(PrefUtils.getActiveProfileId(application.get()));
-        return new UserDatabaseHelper(application.get(), profile.getName());
+    public UserDatabaseHelper provideUserDatabaseHelper(ProfileServiceOrmLite profileService, PrefUtils prefUtils) {
+        Profile profile = profileService.findById(prefUtils.getActiveProfileId());
+        if (profile != null) {
+            return new UserDatabaseHelper(application.get(), profile.getName());
+        }
+        return new UserDatabaseHelper(application.get(), null);
     }
 
     /**

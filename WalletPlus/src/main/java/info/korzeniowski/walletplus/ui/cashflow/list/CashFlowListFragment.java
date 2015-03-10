@@ -49,7 +49,7 @@ public class CashFlowListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
         setHasOptionsMenu(true);
     }
 

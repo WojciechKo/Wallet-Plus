@@ -77,7 +77,7 @@ public class WalletDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
 
         walletId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_WALLET_ID);
 

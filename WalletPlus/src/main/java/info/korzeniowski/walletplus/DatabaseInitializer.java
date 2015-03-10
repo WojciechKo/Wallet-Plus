@@ -4,12 +4,11 @@ import java.lang.ref.WeakReference;
 import java.util.Calendar;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
-import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Profile;
+import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.TagService;
@@ -30,6 +29,15 @@ public class DatabaseInitializer {
     @Inject
     TagService tagService;
 
+    @Inject
+    ProfileServiceOrmLite profileServiceOrmLite;
+
+    @Inject
+    AccountServiceOrmLite accountService;
+
+    @Inject
+    PrefUtils prefUtils;
+
     private final WeakReference<WalletPlus> walletPlus;
 
     public DatabaseInitializer(WalletPlus walletPlus) {
@@ -38,29 +46,27 @@ public class DatabaseInitializer {
 
     public void createExampleAccountWithProfile() {
         try {
-            AccountServiceOrmLite accountServiceOrmLite = walletPlus.get().getGraph().get(AccountServiceOrmLite.class);
-            Account exampleAccount = new Account().setName("Example Account");
-            accountServiceOrmLite.insert(exampleAccount);
-            ProfileServiceOrmLite profileServiceOrmLite = walletPlus.get().getGraph().get(ProfileServiceOrmLite.class);
+            walletPlus.get().component().inject(this);
+            if (accountService.count() == 0) {
+                accountService.insert(new Account().setName("Default account"));
+            }
+            Account exampleAccount = accountService.getAll().get(0);
+
             Profile exampleProfile = new Profile().setName("Personal example").setAccount(exampleAccount);
             profileServiceOrmLite.insert(exampleProfile);
-            PrefUtils.setActiveProfileId(walletPlus.get().getBaseContext(), exampleProfile.getId());
-            walletPlus.get().inject(this);
+
+            prefUtils.setActiveProfileId(exampleProfile.getId());
+            walletPlus.get().reinitializeObjectGraph();
+            walletPlus.get().component().inject(this);
             fillExampleDatabase();
 
-            Profile bestCompany = new Profile().setName("Best company").setAccount(exampleAccount);
-            profileServiceOrmLite.insert(bestCompany);
-            PrefUtils.setActiveProfileId(walletPlus.get().getBaseContext(), bestCompany.getId());
+            Profile myCompany = new Profile().setName("My company").setAccount(exampleAccount);
+            profileServiceOrmLite.insert(myCompany);
+            prefUtils.setActiveProfileId(myCompany.getId());
             walletPlus.get().reinitializeObjectGraph();
-            walletPlus.get().inject(this);
+            walletPlus.get().component().inject(this);
             fillExampleDatabase();
 
-            Profile oldCompany = new Profile().setName("Old company").setAccount(exampleAccount);
-            profileServiceOrmLite.insert(oldCompany);
-            PrefUtils.setActiveProfileId(walletPlus.get().getBaseContext(), oldCompany.getId());
-            walletPlus.get().reinitializeObjectGraph();
-            walletPlus.get().inject(this);
-            fillExampleDatabase();
         } catch (DatabaseException e) {
             e.printStackTrace();
         }

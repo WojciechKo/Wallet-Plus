@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.google.common.base.Strings;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
@@ -30,7 +31,7 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
     private WeakReference<WalletPlus> walletPlus;
 
     public UserDatabaseHelper(Context context, String profileName) {
-        super(context, profileName + ".db", null, DATABASE_VERSION);
+        super(context, profileName != null ? profileName + ".db" : null, null, DATABASE_VERSION);
         this.walletPlus = new WeakReference<>((WalletPlus) context);
     }
 

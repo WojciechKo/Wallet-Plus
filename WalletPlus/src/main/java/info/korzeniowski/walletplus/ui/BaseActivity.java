@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
@@ -80,6 +79,9 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     @Inject
     ProfileService profileService;
 
+    @Inject
+    PrefUtils prefUtils;
+
     private Toolbar mActionBarToolbar;
     private DrawerLayout mDrawerLayout;
     // A Runnable that we should execute when the navigation drawer finishes its closing animation
@@ -107,7 +109,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ((WalletPlus) getApplication()).inject(this);
+        ((WalletPlus) getApplication()).component().inject(this);
         mHandler = new Handler();
 
         mThemedStatusBarColor = getResources().getColor(R.color.theme_primary_dark);
@@ -134,7 +136,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         super.onStart();
 
         // Perform one-time bootstrap setup, if needed
-        if (!PrefUtils.isDataBootstrapDone(this) && mDataBootstrapThread == null) {
+        if (!prefUtils.isDataBootstrapDone() && mDataBootstrapThread == null) {
             Log.d(TAG, "One-time data bootstrap not done yet. Doing now.");
             performDataBootstrap();
         }
@@ -182,11 +184,11 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void startLoginProcess() {
-        Long profileId = PrefUtils.getActiveProfileId(this);
+        Long profileId = prefUtils.getActiveProfileId();
         if (profileId == -1) {
             List<Account> accountList = accountService.getAll();
             if (!accountList.isEmpty()) {
-                PrefUtils.setActiveProfileId(this, accountList.get(0).getProfiles().get(0).getId());
+                prefUtils.setActiveProfileId(accountList.get(0).getProfiles().get(0).getId());
             } else {
                 throw new RuntimeException("No account or profile available. TODO.");
             }
@@ -207,7 +209,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
                 // Load data from bootstrap raw resource
                 //...
                 mDataBootstrapThread = null;
-                PrefUtils.markDataBootstrapDone(appContext);
+                prefUtils.markDataBootstrapDone();
             }
         });
         mDataBootstrapThread.start();
@@ -496,9 +498,9 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     private void openDrawerOnWelcome() {
         // When the user runs the app for the first time, we want to land them with the
         // navigation drawer open. But just the first time.
-        if (!PrefUtils.isWelcomeDone(this)) {
+        if (!prefUtils.isWelcomeDone()) {
             // first run of the app starts with the nav drawer open
-            PrefUtils.markWelcomeDone(this);
+            prefUtils.markWelcomeDone();
             mDrawerLayout.openDrawer(Gravity.START);
         }
     }
@@ -518,7 +520,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         }
 
         final View chosenAccountView = findViewById(R.id.chosen_account_view);
-        final Long activeProfileId = PrefUtils.getActiveProfileId(this);
+        final Long activeProfileId = prefUtils.getActiveProfileId();
         if (activeProfileId == -1) {
             // No account logged in; hide account box
             chosenAccountView.setVisibility(View.GONE);
@@ -591,7 +593,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         switch (requestCode) {
             case RC_NEW_PROFILE:
                 if (resultCode == RESULT_OK) {
-                    selectProfileById(PrefUtils.getActiveProfileId(BaseActivity.this));
+                    selectProfileById(prefUtils.getActiveProfileId());
                 }
                 break;
         }
@@ -607,7 +609,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             TextView profileNameView = (TextView) itemView.findViewById(R.id.title);
             profileNameView.setText(profile.getName());
 
-            if (profile.getId().equals(PrefUtils.getActiveProfileId(BaseActivity.this))) {
+            if (profile.getId().equals(prefUtils.getActiveProfileId())) {
                 profileNameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color_selected));
 
                 itemView.setOnClickListener(new View.OnClickListener() {
@@ -633,7 +635,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void selectProfileById(Long id) {
-        PrefUtils.setActiveProfileId(this, id);
+        prefUtils.setActiveProfileId(id);
         ((WalletPlus) getApplication()).reinitializeObjectGraph();
         startActivity(new Intent(this, DashboardActivity.class));
         finish();

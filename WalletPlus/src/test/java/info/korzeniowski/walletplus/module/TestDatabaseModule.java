@@ -39,7 +39,7 @@ public class TestDatabaseModule {
     public UserDatabaseHelper provideUserDatabaseHelper(ProfileServiceOrmLite profileService, AccountServiceOrmLite accountService) {
         Profile profile = new Profile().setName("Test profile");
         profileService.insert(profile);
-        PrefUtils.setActiveProfileId(context, profile.getId());
+        PrefUtils.setActiveProfileId(profile.getId());
         return new UserDatabaseHelper(context, profile.getName());
     }
 }

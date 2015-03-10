@@ -63,7 +63,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ((WalletPlus) getApplication()).inject(this);
+        ((WalletPlus) getApplication()).component().inject(this);
         ButterKnife.inject(this);
         restoreOrInitState(savedInstanceState);
         setupViews();

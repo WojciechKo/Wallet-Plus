@@ -31,48 +31,54 @@ public class PrefUtils {
      */
     private static final String PREF_LAST_TAG_COLOR_HUE = "pref_last_tag_color_hue";
 
-    public static boolean isWelcomeDone(final Context context) {
+    private final Context context;
+
+    public PrefUtils(Context context) {
+        this.context = context;
+    }
+
+    public boolean isWelcomeDone() {
         SharedPreferences sp = getSharedPreferences(context);
         return sp.getBoolean(PREF_WELCOME_DONE, false);
     }
 
-    public static void markWelcomeDone(final Context context) {
+    public void markWelcomeDone() {
         SharedPreferences sp = getSharedPreferences(context);
         sp.edit().putBoolean(PREF_WELCOME_DONE, true).commit();
     }
 
-    public static boolean isDataBootstrapDone(final Context context) {
+    public boolean isDataBootstrapDone() {
         SharedPreferences sp = getSharedPreferences(context);
         return sp.getBoolean(PREF_DATA_BOOTSTRAP_DONE, false);
     }
 
-    public static void markDataBootstrapDone(final Context context) {
+    public void markDataBootstrapDone() {
         SharedPreferences sp = getSharedPreferences(context);
         sp.edit().putBoolean(PREF_DATA_BOOTSTRAP_DONE, true).commit();
     }
 
-    public static Long getActiveProfileId(final Context context) {
+    public Long getActiveProfileId() {
         SharedPreferences sp = getSharedPreferences(context);
         return sp.getLong(PREF_ACTIVE_PROFILE_ID, -1);
     }
 
-    public static boolean setActiveProfileId(final Context context, final Long id) {
+    public boolean setActiveProfileId(final Long id) {
         SharedPreferences sp = getSharedPreferences(context);
         sp.edit().putLong(PREF_ACTIVE_PROFILE_ID, id).commit();
         return true;
     }
 
-    public static String getGoogleToken(final Context context) {
+    public  String getGoogleToken() {
         SharedPreferences sp = getSharedPreferences(context);
         return sp.getString(GOOGLE_TOKEN, "");
     }
 
-    public static void setGoogleToken(final Context context, final String token) {
+    public  void setGoogleToken(final String token) {
         SharedPreferences sp = getSharedPreferences(context);
         sp.edit().putString(GOOGLE_TOKEN, token).commit();
     }
 
-    public static int getNextTagColor(final Context context) {
+    public  int getNextTagColor() {
         SharedPreferences sp = getSharedPreferences(context);
         float goldenRatio = (float) 0.618033988749895;
         float nextHue = (sp.getFloat(PREF_LAST_TAG_COLOR_HUE, 0) + goldenRatio) % 1;

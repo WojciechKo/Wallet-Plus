@@ -58,7 +58,7 @@ public class StatisticDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
 
         Long categoryId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_CATEGORY_ID);
 

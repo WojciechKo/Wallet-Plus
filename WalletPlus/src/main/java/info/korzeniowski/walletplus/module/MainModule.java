@@ -14,9 +14,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.ui.statistics.list.StatisticListActivity;
 import info.korzeniowski.walletplus.ui.statistics.list.StatisticListActivityState;
-import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsFragment;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -25,14 +23,7 @@ import retrofit.converter.GsonConverter;
 /**
  * Module for common objects.
  */
-@Module(
-        includes = DatabaseModule.class,
-        injects = {
-                StatisticListActivity.class,
-
-                WalletDetailsFragment.class
-        }
-)
+@Module
 public class MainModule {
     private final WalletPlus application;
 
@@ -62,15 +53,21 @@ public class MainModule {
     }
 
     @Provides
+    @Singleton
+    PrefUtils providePrefUtils() {
+        return new PrefUtils(application);
+    }
+
+    @Provides
     @Named("read")
-    RestAdapter provideReadRestAdapter(final Context context) {
+    RestAdapter provideReadRestAdapter(final PrefUtils prefUtils) {
         return new RestAdapter.Builder()
                 .setEndpoint("https://www.googleapis.com/drive/v2")
                 .setConverter(new GsonConverter(new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create()))
                 .setRequestInterceptor(new RequestInterceptor() {
                     @Override
                     public void intercept(RequestInterceptor.RequestFacade request) {
-                        request.addQueryParam("access_token", PrefUtils.getGoogleToken(context));
+                        request.addQueryParam("access_token", prefUtils.getGoogleToken());
                     }
                 })
                 .build();
@@ -78,7 +75,7 @@ public class MainModule {
 
     @Provides
     @Named("upload")
-    RestAdapter provideUploadRestAdapter(final Context context) {
+    RestAdapter provideUploadRestAdapter() {
         return new RestAdapter.Builder()
                 .setLogLevel(RestAdapter.LogLevel.FULL)
                 .setEndpoint("https://www.googleapis.com/upload/drive/v2")

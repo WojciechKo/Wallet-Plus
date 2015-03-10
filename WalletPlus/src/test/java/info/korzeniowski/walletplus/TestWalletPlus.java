@@ -20,7 +20,7 @@ public class TestWalletPlus extends WalletPlus {
 
     @Override
     public void initExampleData() {
-        PrefUtils.setActiveProfileId(this, activeProfileId);
+        PrefUtils.setActiveProfileId(activeProfileId);
     }
 
     public void addModules(Object module) {

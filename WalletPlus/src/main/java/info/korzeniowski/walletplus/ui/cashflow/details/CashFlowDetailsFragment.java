@@ -54,7 +54,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -118,6 +117,9 @@ public class CashFlowDetailsFragment extends Fragment {
     @Inject
     TagService tagService;
 
+    @Inject
+    PrefUtils prefUtils;
+
     private List<Wallet> wallets;
     private List<Tag> tags;
 
@@ -137,7 +139,7 @@ public class CashFlowDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
 
         Long cashFlowId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_CASH_FLOW_ID);
         if (cashFlowId == -1) {
@@ -271,7 +273,7 @@ public class CashFlowDetailsFragment extends Fragment {
                         Tag tag = tagService.findByName(tagName);
                         color = tag != null
                                 ? tag.getColor()
-                                : PrefUtils.getNextTagColor(getActivity());
+                                : prefUtils.getNextTagColor();
                         cashFlowDetailsState.getTagToColorMap().put(tagName, color);
                     }
 

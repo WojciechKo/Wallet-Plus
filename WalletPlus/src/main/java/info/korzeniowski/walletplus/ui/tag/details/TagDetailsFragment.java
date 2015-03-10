@@ -69,6 +69,9 @@ public class TagDetailsFragment extends Fragment {
     CashFlowService cashFlowService;
 
     @Inject
+    PrefUtils prefUtils;
+
+    @Inject
     @Named("amount")
     NumberFormat amountFormat;
 
@@ -88,7 +91,7 @@ public class TagDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
 
         Long tagId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_TAG_ID);
 
@@ -123,7 +126,7 @@ public class TagDetailsFragment extends Fragment {
             chart.setCurrentViewport(viewport);
 
         } else {
-            tagColor = PrefUtils.getNextTagColor(getActivity());
+            tagColor = prefUtils.getNextTagColor();
         }
         colorPicker.setBackgroundColor(tagColor);
         colorPicker.setTag(tagColor);

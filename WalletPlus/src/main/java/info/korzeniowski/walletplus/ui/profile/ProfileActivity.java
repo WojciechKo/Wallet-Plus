@@ -80,6 +80,9 @@ public class ProfileActivity extends BaseActivity {
         ProfileService profileService;
 
         @Inject
+        PrefUtils prefUtils;
+
+        @Inject
         @Named("read")
         RestAdapter googleDriveReadRestAdapter;
 
@@ -89,7 +92,7 @@ public class ProfileActivity extends BaseActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            ((WalletPlus) getActivity().getApplication()).inject(this);
+            ((WalletPlus) getActivity().getApplication()).component().inject(this);
         }
 
         @Override
@@ -167,12 +170,12 @@ public class ProfileActivity extends BaseActivity {
             String name = profileName.getText().toString();
             Profile found = profileService.findByName(name);
             if (found == null) {
-                Profile actualProfile = profileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+                Profile actualProfile = profileService.findById(prefUtils.getActiveProfileId());
                 Profile profile = new Profile();
                 profile.setName(name);
                 profile.setAccount(actualProfile.getAccount());
                 profileService.insert(profile);
-                PrefUtils.setActiveProfileId(getActivity(), profile.getId());
+                prefUtils.setActiveProfileId(profile.getId());
                 getActivity().setResult(RESULT_OK);
                 getActivity().finish();
             } else {
@@ -245,7 +248,7 @@ public class ProfileActivity extends BaseActivity {
                 protected Boolean doInBackground(Void... params) {
                     OkHttpClient okHttpClient = new OkHttpClient();
                     Request request = new Request.Builder()
-                            .url(Uri.parse(selectedProfile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", PrefUtils.getGoogleToken(getActivity())).toString())
+                            .url(Uri.parse(selectedProfile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", prefUtils.getGoogleToken()).toString())
                             .build();
 
                     try {
@@ -253,11 +256,11 @@ public class ProfileActivity extends BaseActivity {
                         Profile newProfile = new Profile()
                                 .setName(KorzeniowskiUtils.Files.getBaseName(selectedProfile.getTitle()))
                                 .setDriveId(selectedProfile.getId())
-                                .setAccount(profileService.findById(PrefUtils.getActiveProfileId(getActivity())).getAccount());
+                                .setAccount(profileService.findById(prefUtils.getActiveProfileId()).getAccount());
 
                         profileService.insert(newProfile);
                         ByteStreams.copy(inputStream, new FileOutputStream(newProfile.getDatabaseFilePath()));
-                        PrefUtils.setActiveProfileId(getActivity(), newProfile.getId());
+                        prefUtils.setActiveProfileId(newProfile.getId());
                         return true;
                     } catch (IOException e) {
                         e.printStackTrace();
