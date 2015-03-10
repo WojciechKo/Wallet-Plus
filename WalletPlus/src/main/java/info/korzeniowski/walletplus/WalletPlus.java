@@ -8,9 +8,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.module.DatabaseModule;
+import info.korzeniowski.walletplus.module.GoogleDriveRestModule;
 import info.korzeniowski.walletplus.module.MainModule;
+import info.korzeniowski.walletplus.module.ServicesModule;
 import info.korzeniowski.walletplus.service.ormlite.AccountServiceOrmLite;
 import info.korzeniowski.walletplus.service.ormlite.ProfileServiceOrmLite;
 import info.korzeniowski.walletplus.ui.BaseActivity;
@@ -42,8 +43,18 @@ import info.korzeniowski.walletplus.util.PrefUtils;
 public class WalletPlus extends Application {
 
     @Singleton
-    @Component(modules = {MainModule.class,
-            DatabaseModule.class})
+    @Component(
+            modules = {
+                    MainModule.class,
+                    DatabaseModule.class,
+                    ServicesModule.class,
+                    GoogleDriveRestModule.class}
+    )
+
+    public interface RealComponent extends ApplicationComponent {
+
+    }
+
     public interface ApplicationComponent {
         void inject(WalletPlus object);
 
@@ -110,18 +121,14 @@ public class WalletPlus extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        component = Dagger_WalletPlus_ApplicationComponent.builder()
-                .databaseModule(new DatabaseModule(this))
-                .mainModule(new MainModule(this))
-                .build();
+        reinitializeObjectGraph();
         component().inject(this);
         JodaTimeAndroid.init(this);
         initExampleData();
     }
 
     public void reinitializeObjectGraph() {
-        component = Dagger_WalletPlus_ApplicationComponent.builder()
-                .databaseModule(new DatabaseModule(this))
+        component = Dagger_WalletPlus_RealComponent.builder()
                 .mainModule(new MainModule(this))
                 .build();
     }

@@ -5,7 +5,6 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.1.0'
         classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
         classpath 'com.github.jcandksolutions.gradle:android-unit-test:2.1.1'
     }
@@ -38,10 +37,6 @@ android {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
 
-    sourceSets {
-        androidTest.setRoot('src/test')
-    }
-
     signingConfigs {
         config {
             keyAlias signingKeyAlias
@@ -67,26 +62,6 @@ apt {
     arguments {
         androidManifestFile variant.outputs[0].processResources.manifestFile
         resourcePackageName android.defaultConfig.applicationId
-    }
-}
-
-apply plugin: 'android-unit-test'
-
-androidUnitTest {
-    downloadDependenciesSources true
-    downloadDependenciesJavadoc true
-    downloadTestDependenciesSources true
-    downloadTestDependenciesJavadoc true
-
-    testTasks {
-        all {
-            //Allows to run tests in parallel by specifying how many threads to run tests on.
-            maxParallelForks = 4
-            //Allow to group a number of tests for each thread to run.
-            forkEvery = 5
-            minHeapSize = '128m'
-            maxHeapSize = '1024m'
-        }
     }
 }
 
@@ -129,6 +104,7 @@ dependencies {
     apt "com.google.dagger:dagger-compiler:$daggerVersion"
     testCompile "com.google.dagger:dagger-compiler:$daggerVersion"
     compile "com.google.dagger:dagger:$daggerVersion"
+    testCompile "com.google.dagger:dagger-compiler:$daggerVersion"
     provided 'org.glassfish:javax.annotation:10.0-b28'
 
     // Guava
