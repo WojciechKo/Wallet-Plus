@@ -6,7 +6,7 @@ buildscript {
 
     dependencies {
         classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
-        classpath 'com.github.jcandksolutions.gradle:android-unit-test:2.1.1'
+        classpath 'org.robolectric:robolectric-gradle-plugin:1.0.1'
     }
 }
 
@@ -62,6 +62,24 @@ apt {
     arguments {
         androidManifestFile variant.outputs[0].processResources.manifestFile
         resourcePackageName android.defaultConfig.applicationId
+    }
+}
+
+apply plugin: 'org.robolectric'
+
+robolectric {
+    include '**/*Test.class'
+    exclude '**/espresso/**/*.class'
+
+    maxHeapSize = '2048m'
+    jvmArgs '-XX:MaxPermSize=512m', '-XX:-UseSplitVerifier'
+
+    maxParallelForks = 4
+    forkEvery = 150
+    ignoreFailures true
+
+    afterTest { descriptor, result ->
+        println "Executing test for ${descriptor.name} with result: ${result.resultType}"
     }
 }
 
@@ -131,13 +149,15 @@ dependencies {
     compile project(':colorPickerView-library')
 
     // JUnit
-    testCompile 'junit:junit:4.11'
+    testCompile 'junit:junit:4.12'
 
     // Mockito
     testCompile 'org.mockito:mockito-core:1.9.5'
 
     // Robolectric
-    testCompile 'org.robolectric:robolectric:2.4'
+    def robolectricVersion = '3.0-SNAPSHOT'
+    testCompile "org.robolectric:shadows-support-v4:$robolectricVersion"
+    testCompile "org.robolectric:robolectric:$robolectricVersion"
 
     // Fest Android
     testCompile 'com.squareup:fest-android:1.0.8'

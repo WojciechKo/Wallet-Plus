@@ -28,7 +28,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.model.Account;
-import info.korzeniowski.walletplus.service.ormlite.AccountServiceOrmLite;
+import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.ui.drawer.DrawerAccountAdapter;
 import info.korzeniowski.walletplus.widget.SquareImageButton;
 
@@ -53,7 +53,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     ListView drawerList;
 
     @Inject
-    AccountServiceOrmLite accountServiceOrmLite;
+    AccountService accountServiceOrmLite;
 
     private DrawerAccountAdapter drawerAccountAdapter;
     private View accountListFooter;

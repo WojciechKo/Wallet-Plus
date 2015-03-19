@@ -3,19 +3,17 @@ package info.korzeniowski.walletplus.test.service.statistic;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+import org.robolectric.RuntimeEnvironment;
 
 import java.util.Date;
 
 import javax.inject.Inject;
 
+import info.korzeniowski.walletplus.MyRobolectricTestRunner;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Wallet;
-import info.korzeniowski.walletplus.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.TagService;
@@ -23,8 +21,7 @@ import info.korzeniowski.walletplus.service.WalletService;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-@Config(emulateSdk = 18)
-@RunWith(RobolectricTestRunner.class)
+@RunWith(MyRobolectricTestRunner.class)
 public class StatisticServiceOrmLiteTest {
 
     @Inject
@@ -41,8 +38,7 @@ public class StatisticServiceOrmLiteTest {
 
     @Before
     public void setUp() {
-        ((TestWalletPlus) Robolectric.application).addModules(new TestDatabaseModule(Robolectric.application));
-        ((TestWalletPlus) Robolectric.application).inject(this);
+        ((TestWalletPlus) RuntimeEnvironment.application).component().inject(this);
     }
 
     @Test

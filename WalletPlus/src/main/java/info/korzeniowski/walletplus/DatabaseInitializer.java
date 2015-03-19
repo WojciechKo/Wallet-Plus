@@ -10,12 +10,12 @@ import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
-import info.korzeniowski.walletplus.service.ormlite.AccountServiceOrmLite;
-import info.korzeniowski.walletplus.service.ormlite.ProfileServiceOrmLite;
 import info.korzeniowski.walletplus.util.PrefUtils;
 
 public class DatabaseInitializer {
@@ -30,10 +30,10 @@ public class DatabaseInitializer {
     TagService tagService;
 
     @Inject
-    ProfileServiceOrmLite profileServiceOrmLite;
+    ProfileService profileService;
 
     @Inject
-    AccountServiceOrmLite accountService;
+    AccountService accountService;
 
     @Inject
     PrefUtils prefUtils;
@@ -53,7 +53,7 @@ public class DatabaseInitializer {
             Account exampleAccount = accountService.getAll().get(0);
 
             Profile exampleProfile = new Profile().setName("Personal example").setAccount(exampleAccount);
-            profileServiceOrmLite.insert(exampleProfile);
+            profileService.insert(exampleProfile);
 
             prefUtils.setActiveProfileId(exampleProfile.getId());
             walletPlus.get().reinitializeObjectGraph();
@@ -61,7 +61,7 @@ public class DatabaseInitializer {
             fillExampleDatabase();
 
             Profile myCompany = new Profile().setName("My company").setAccount(exampleAccount);
-            profileServiceOrmLite.insert(myCompany);
+            profileService.insert(myCompany);
             prefUtils.setActiveProfileId(myCompany.getId());
             walletPlus.get().reinitializeObjectGraph();
             walletPlus.get().component().inject(this);
