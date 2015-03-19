@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -44,7 +43,6 @@ import info.korzeniowski.walletplus.ui.BaseActivity;
 import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import retrofit.Callback;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
@@ -83,8 +81,7 @@ public class ProfileActivity extends BaseActivity {
         PrefUtils prefUtils;
 
         @Inject
-        @Named("read")
-        RestAdapter googleDriveReadRestAdapter;
+        GoogleDriveReadService googleDriveReadService;
 
         private int lastPosition;
         private List<GoogleDriveReadService.DriveFile> profiles;
@@ -133,7 +130,6 @@ public class ProfileActivity extends BaseActivity {
         @Override
         public void onResume() {
             super.onResume();
-            final GoogleDriveReadService googleDriveReadService = googleDriveReadRestAdapter.create(GoogleDriveReadService.class);
             googleDriveReadService.getChildren("appfolder", new Callback<GoogleDriveReadService.FileChildren>() {
                 @Override
                 public void success(GoogleDriveReadService.FileChildren fileChildren, Response response) {

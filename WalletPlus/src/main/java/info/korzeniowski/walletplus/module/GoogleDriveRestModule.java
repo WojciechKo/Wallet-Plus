@@ -6,6 +6,8 @@ import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
+import info.korzeniowski.walletplus.sync.google.GoogleDriveReadService;
+import info.korzeniowski.walletplus.sync.google.GoogleDriveUploadService;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -14,8 +16,7 @@ import retrofit.converter.GsonConverter;
 @Module
 public class GoogleDriveRestModule {
     @Provides
-    @Named("read")
-    RestAdapter provideReadRestAdapter(final PrefUtils prefUtils) {
+    GoogleDriveReadService provideReadRestAdapter(final PrefUtils prefUtils) {
         return new RestAdapter.Builder()
                 .setEndpoint("https://www.googleapis.com/drive/v2")
                 .setConverter(new GsonConverter(new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create()))
@@ -25,16 +26,17 @@ public class GoogleDriveRestModule {
                         request.addQueryParam("access_token", prefUtils.getGoogleToken());
                     }
                 })
-                .build();
+                .build()
+                .create(GoogleDriveReadService.class);
     }
 
     @Provides
-    @Named("upload")
-    RestAdapter provideUploadRestAdapter() {
+    GoogleDriveUploadService provideUploadRestAdapter() {
         return new RestAdapter.Builder()
                 .setLogLevel(RestAdapter.LogLevel.FULL)
                 .setEndpoint("https://www.googleapis.com/upload/drive/v2")
                 .setConverter(new GsonConverter(new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create()))
-                .build();
+                .build()
+                .create(GoogleDriveUploadService.class);
     }
 }
