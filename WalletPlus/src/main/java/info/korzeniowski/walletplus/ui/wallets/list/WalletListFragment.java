@@ -15,7 +15,6 @@ import com.fortysevendeg.swipelistview.SwipeListView;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;

@@ -2,7 +2,6 @@ package info.korzeniowski.walletplus.service.ormlite;
 
 import android.graphics.Color;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.j256.ormlite.dao.Dao;
 

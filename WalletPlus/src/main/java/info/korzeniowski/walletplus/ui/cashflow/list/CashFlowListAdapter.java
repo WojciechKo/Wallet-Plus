@@ -7,8 +7,6 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.text.Editable;
-import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.format.DateFormat;
@@ -18,7 +16,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.text.NumberFormat;
-import java.util.Iterator;
 import java.util.List;
 
 import butterknife.ButterKnife;

@@ -43,13 +43,13 @@ import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListActivity;
+import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
+import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
 import info.korzeniowski.walletplus.ui.statistics.list.StatisticListActivity;
 import info.korzeniowski.walletplus.ui.statistics.list.StatisticListActivityState;
-import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
-import info.korzeniowski.walletplus.ui.wallets.list.WalletListActivity;
-import info.korzeniowski.walletplus.ui.tag.list.TagListActivity;
-import info.korzeniowski.walletplus.ui.profile.ProfileActivity;
 import info.korzeniowski.walletplus.ui.synchronize.SynchronizeActivity;
+import info.korzeniowski.walletplus.ui.tag.list.TagListActivity;
+import info.korzeniowski.walletplus.ui.wallets.list.WalletListActivity;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import info.korzeniowski.walletplus.util.UIUtils;
 

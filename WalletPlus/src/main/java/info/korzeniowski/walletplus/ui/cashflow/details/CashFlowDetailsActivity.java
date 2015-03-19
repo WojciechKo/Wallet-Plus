@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.service.CashFlowService;

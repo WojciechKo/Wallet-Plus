@@ -11,7 +11,6 @@ import android.view.View;
 import java.text.MessageFormat;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.service.StatisticService;

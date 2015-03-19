@@ -18,7 +18,6 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;

@@ -1,7 +1,6 @@
 package info.korzeniowski.walletplus.model;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
