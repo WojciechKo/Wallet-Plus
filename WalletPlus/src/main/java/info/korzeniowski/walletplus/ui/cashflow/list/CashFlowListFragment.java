@@ -18,7 +18,6 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -38,8 +37,7 @@ public class CashFlowListFragment extends Fragment {
     ListView list;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    CashFlowService cashFlowService;
 
     private List<CashFlow> cashFlows;
 
@@ -50,7 +48,7 @@ public class CashFlowListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
         setHasOptionsMenu(true);
     }
 
@@ -64,7 +62,7 @@ public class CashFlowListFragment extends Fragment {
     }
 
     void setupList() {
-        cashFlows = localCashFlowService.getAll();
+        cashFlows = cashFlowService.getAll();
         selected = Lists.newArrayList();
         list.setAdapter(new CashFlowListAdapter(getActivity(), cashFlows));
     }
@@ -157,7 +155,7 @@ public class CashFlowListFragment extends Fragment {
 
     private void deleteSelectedCashFlows() {
         for (CashFlow cashFlow : selected) {
-            localCashFlowService.deleteById(cashFlow.getId());
+            cashFlowService.deleteById(cashFlow.getId());
         }
         cashFlows.removeAll(selected);
         selected.clear();

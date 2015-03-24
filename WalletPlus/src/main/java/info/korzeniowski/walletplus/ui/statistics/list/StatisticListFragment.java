@@ -15,13 +15,13 @@ import org.joda.time.Period;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.ui.statistics.details.StaticticDetailsActivity;
 
@@ -32,12 +32,10 @@ public class StatisticListFragment extends Fragment {
     ListView list;
 
     @Inject
-    @Named("local")
-    TagService localTagService;
+    TagService tagService;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    CashFlowService cashFlowService;
 
     @Inject
     StatisticListActivityState statisticListActivityState;
@@ -55,7 +53,7 @@ public class StatisticListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
         iteration = getArguments().getInt(ITERATION);
     }
 
@@ -84,8 +82,9 @@ public class StatisticListFragment extends Fragment {
     }
 
 
-    private List<TagService.TagStats> getCategoryStatsList() {
-        return localTagService.getTagStatsList(statisticListActivityState.getStartDate(), getPeriod(statisticListActivityState.getPeriod()), iteration);
+    private List<StatisticService.TagStats> getCategoryStatsList() {
+        return null;
+//        return tagService.getTagStatsList(statisticListActivityState.getStartDate(), getPeriod(statisticListActivityState.getPeriod()), iteration);
     }
 
     private Period getPeriod(StatisticListActivity.Period period) {

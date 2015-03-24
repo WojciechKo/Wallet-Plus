@@ -9,35 +9,43 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.style.ImageSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.FrameLayout;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import com.google.common.base.Function;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
 import java.lang.ref.WeakReference;
@@ -46,7 +54,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -62,6 +69,9 @@ import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.util.PrefUtils;
+
+import static info.korzeniowski.walletplus.util.KorzeniowskiUtils.Views.dipToPixels;
 
 public class CashFlowDetailsFragment extends Fragment {
     public static final String TAG = "CashFlowDetailsFragment";
@@ -99,19 +109,19 @@ public class CashFlowDetailsFragment extends Fragment {
     CheckedTextView isCompleted;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    CashFlowService cashFlowService;
 
     @Inject
-    @Named("local")
-    WalletService localWalletService;
+    WalletService walletService;
 
     @Inject
-    @Named("local")
-    TagService localTagService;
+    TagService tagService;
+
+    @Inject
+    PrefUtils prefUtils;
 
     private List<Wallet> wallets;
-    private List<Tag> tagList;
+    private List<Tag> tags;
 
     private CashFlowDetailsParcelableState cashFlowDetailsState;
     private DetailsAction detailsAction;
@@ -129,7 +139,7 @@ public class CashFlowDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
 
         Long cashFlowId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_CASH_FLOW_ID);
         if (cashFlowId == -1) {
@@ -144,15 +154,15 @@ public class CashFlowDetailsFragment extends Fragment {
         }
         cashFlowDetailsState = MoreObjects.firstNonNull(restored, initCashFlowDetailsState(cashFlowId));
 
-        tagList = localTagService.getAll();
-        wallets = localWalletService.getMyWallets();
+        tags = tagService.getAll();
+        wallets = walletService.getAll();
     }
 
     private CashFlowDetailsParcelableState initCashFlowDetailsState(Long cashFlowId) {
         if (detailsAction == DetailsAction.ADD) {
             return new CashFlowDetailsParcelableState();
         } else if (detailsAction == DetailsAction.EDIT) {
-            return new CashFlowDetailsParcelableState(localCashFlowService.findById(cashFlowId));
+            return new CashFlowDetailsParcelableState(cashFlowService.findById(cashFlowId));
         }
         return null;
     }
@@ -173,20 +183,37 @@ public class CashFlowDetailsFragment extends Fragment {
         wallet.setSelection(wallets.indexOf(cashFlowDetailsState.getWallet()));
 
         isCompleted.setChecked(cashFlowDetailsState.isCompleted());
-        datePicker.setText(DateFormat.getDateFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
-        timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(new Date(cashFlowDetailsState.getDate())));
+        Date date = new Date(cashFlowDetailsState.getDate());
+        datePicker.setText(DateFormat.getDateFormat(getActivity()).format(date));
+        timePicker.setText(DateFormat.getTimeFormat(getActivity()).format(date));
 
-        List<String> tagNameList = Lists.transform(tagList, new Function<Tag, String>() {
-            @Override
-            public String apply(Tag input) {
-                return input.getName();
-            }
-        });
-        tag.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, tagNameList));
+        tag.setDropDownBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        tag.setAdapter(getAdapter(tags));
         tag.setTokenizer(new SpaceTokenizer());
+        tag.setFilters(new InputFilter[]{new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                StringBuilder builder = new StringBuilder();
+                for (int i = start; i < end; i++) {
+                    char c = source.charAt(i);
+                    if (isAllowed(c)) {
+                        builder.append(c);
+                    }
+                }
+                return builder.toString();
+            }
+
+            private boolean isAllowed(char c) {
+                return Character.isLetterOrDigit(c) || c == ' ' || c == '-';
+            }
+        }});
 
         getActivity().findViewById(R.id.focusable).requestFocus();
         return view;
+    }
+
+    private TagAdapter getAdapter(List<Tag> tags) {
+        return new TagAdapter(tags);
     }
 
     @Override
@@ -232,15 +259,25 @@ public class CashFlowDetailsFragment extends Fragment {
 
     private void resetTagSpans(Editable s) {
         ImageSpan[] spans = s.getSpans(0, s.length(), ImageSpan.class);
-        for (int i = 0 ; i < spans.length ; i++) {
+        for (int i = 0; i < spans.length; i++) {
             s.removeSpan(spans[i]);
         }
 
         int start = 0;
-        for (int i = 0 ; i < s.length() ; i++) {
+        for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == ' ') {
                 if (i - 1 >= start) {
-                    ImageSpan imageSpan = new ImageSpan(convertViewToDrawable(createTagTextView(s.subSequence(start, i).toString())));
+                    String tagName = s.subSequence(start, i).toString();
+                    Integer color = cashFlowDetailsState.getTagToColorMap().get(tagName);
+                    if (color == null) {
+                        Tag tag = tagService.findByName(tagName);
+                        color = tag != null
+                                ? tag.getColor()
+                                : prefUtils.getNextTagColor();
+                        cashFlowDetailsState.getTagToColorMap().put(tagName, color);
+                    }
+
+                    ImageSpan imageSpan = new ImageSpan(createTagDrawable(tagName, color));
                     s.setSpan(imageSpan, start, i, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
                 start = i + 1;
@@ -248,32 +285,29 @@ public class CashFlowDetailsFragment extends Fragment {
         }
     }
 
-    private TextView createTagTextView(final String tagName) {
+    private BitmapDrawable createTagDrawable(String tagName, Integer color) {
         //creating textview dynamically
         final TextView tv = new TextView(getActivity());
         tv.setText(tagName);
         tv.setTextSize(getResources().getDimension(R.dimen.mediumFontSize));
         Drawable drawable = getResources().getDrawable(R.drawable.oval);
-        drawable.setColorFilter(Color.MAGENTA, PorterDuff.Mode.SRC);
+        drawable.setColorFilter(color, PorterDuff.Mode.SRC);
         tv.setBackground(drawable);
         tv.setTextColor(Color.WHITE);
-        tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_close, 0);
-        tv.setCompoundDrawablePadding((int) getResources().getDimension(R.dimen.tagCrossPadding));
-        return tv;
-    }
+        tv.setPadding(dipToPixels(getActivity(), 15), 0, dipToPixels(getActivity(), 15), dipToPixels(getActivity(), 1));
 
-    private static BitmapDrawable convertViewToDrawable(View view) {
+        // Convert View to Drawable
         int spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        view.measure(spec, spec);
-        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
-        Bitmap b = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        tv.measure(spec, spec);
+        tv.layout(0, 0, tv.getMeasuredWidth(), tv.getMeasuredHeight());
+        Bitmap b = Bitmap.createBitmap(tv.getMeasuredWidth(), tv.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(b);
-        c.translate(-view.getScrollX(), -view.getScrollY());
-        view.draw(c);
-        view.setDrawingCacheEnabled(true);
-        Bitmap cacheBmp = view.getDrawingCache();
+        c.translate(-tv.getScrollX(), -tv.getScrollY());
+        tv.draw(c);
+        tv.setDrawingCacheEnabled(true);
+        Bitmap cacheBmp = tv.getDrawingCache();
         Bitmap viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
-        view.destroyDrawingCache();
+        tv.destroyDrawingCache();
 
         BitmapDrawable bitmapDrawable = new BitmapDrawable(viewBmp);
         bitmapDrawable.setBounds(0, 0, bitmapDrawable.getIntrinsicWidth(), bitmapDrawable.getIntrinsicHeight());
@@ -400,9 +434,9 @@ public class CashFlowDetailsFragment extends Fragment {
 
         if (isValid) {
             if (DetailsAction.ADD.equals(detailsAction)) {
-                localCashFlowService.insert(cashFlowDetailsState.buildCashFlow());
+                cashFlowService.insert(cashFlowDetailsState.buildCashFlow());
             } else if (DetailsAction.EDIT.equals(detailsAction)) {
-                localCashFlowService.update(cashFlowDetailsState.buildCashFlow());
+                cashFlowService.update(cashFlowDetailsState.buildCashFlow());
             }
             getActivity().setResult(Activity.RESULT_OK);
             getActivity().finish();
@@ -410,6 +444,172 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private enum DetailsAction {ADD, EDIT}
+
+    public static class WalletAdapter extends BaseAdapter {
+        final List<Wallet> wallets;
+        final WeakReference<Context> context;
+
+        private WalletAdapter(Context context, List<Wallet> list) {
+            this.context = new WeakReference<>(context);
+            wallets = list;
+        }
+
+        @Override
+        public int getCount() {
+            return wallets.size();
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return getView(position, convertView, parent);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            TextView textView;
+            if (convertView == null) {
+                textView = new TextView(context.get());
+                textView.setTextSize(context.get().getResources().getDimension(R.dimen.xSmallFontSize));
+            } else {
+                textView = (TextView) convertView;
+            }
+            textView.setText(getItem(position).getName());
+            return textView;
+        }
+
+        @Override
+        public Wallet getItem(int position) {
+            return wallets.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+    }
+
+    private class TagAdapter extends BaseAdapter implements Filterable {
+
+        private List<Tag> tags;
+        private List<Tag> filtered;
+
+        public TagAdapter(List<Tag> tags) {
+            this.tags = tags;
+            this.filtered = tags;
+        }
+
+        @Override
+        public int getCount() {
+            return filtered.size();
+        }
+
+        @Override
+        public Tag getItem(int position) {
+            return filtered.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return getItem(position).getId();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final Boolean[] tagClicked = {false};
+            final TextView tv = new TextView(getActivity()) {
+                @Override
+                public boolean onTouchEvent(MotionEvent event) {
+                    tagClicked[0] = true;
+                    return false;
+                }
+            };
+            tv.setText(getItem(position).getName());
+            tv.setTextSize(getActivity().getResources().getDimension(R.dimen.xSmallFontSize));
+            Drawable drawable = getActivity().getResources().getDrawable(R.drawable.oval);
+            drawable.setColorFilter(getItem(position).getColor(), PorterDuff.Mode.SRC);
+            tv.setBackground(drawable);
+            tv.setTextColor(Color.WHITE);
+            tv.setPadding(dipToPixels(getActivity(), 15), 0, dipToPixels(getActivity(), 15), dipToPixels(getActivity(), 1));
+            tv.setGravity(Gravity.CENTER);
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.gravity = Gravity.CENTER;
+            tv.setLayoutParams(layoutParams);
+
+
+            FrameLayout view = new FrameLayout(getActivity()) {
+                public static final float SCROLL_THRESHOLD = 5;
+                boolean isOnClick;
+                float mDownX;
+                float mDownY;
+
+                @Override
+                public boolean onTouchEvent(MotionEvent event) {
+                    switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                        case MotionEvent.ACTION_DOWN:
+                            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            break;
+                        case MotionEvent.ACTION_CANCEL:
+                        case MotionEvent.ACTION_UP:
+                            if (!tagClicked[0] && isOnClick) {
+                                tag.dismissDropDown();
+                                return true;
+                            }
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            if (isOnClick && (Math.abs(mDownX - event.getX()) > SCROLL_THRESHOLD || Math.abs(mDownY - event.getY()) > SCROLL_THRESHOLD)) {
+                                isOnClick = false;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    return false;
+                }
+            };
+            view.addView(tv);
+            return view;
+        }
+
+        @Override
+        public Filter getFilter() {
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(final CharSequence constraint) {
+                    FilterResults filterResults = new FilterResults();
+
+                    if (constraint == null || constraint.length() == 0) {
+                        filterResults.values = tags;
+                        filterResults.count = tags.size();
+                    } else {
+                        List<Tag> filtered = Lists.newArrayList(Collections2.filter(tags, new Predicate<Tag>() {
+                            @Override
+                            public boolean apply(Tag input) {
+                                return input.getName().toLowerCase().startsWith(constraint.toString().toLowerCase());
+                            }
+                        }));
+                        filterResults.count = filtered.size();
+                        filterResults.values = filtered;
+                    }
+                    return filterResults;
+                }
+
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    if (results.count == 0) {
+                        notifyDataSetInvalidated();
+                    } else {
+                        filtered = (List<Tag>) results.values;
+                        notifyDataSetChanged();
+                    }
+                }
+
+                @Override
+                public CharSequence convertResultToString(Object tag) {
+                    return ((Tag) tag).getName();
+                }
+            };
+        }
+    }
 
     public class SpaceTokenizer implements MultiAutoCompleteTextView.Tokenizer {
 
@@ -460,50 +660,6 @@ public class CashFlowDetailsFragment extends Fragment {
                     return text + " ";
                 }
             }
-        }
-    }
-
-
-    class WalletAdapter extends BaseAdapter {
-        final List<Wallet> wallets;
-        final WeakReference<Context> context;
-
-        private WalletAdapter(Context context, List<Wallet> list) {
-            this.context = new WeakReference<>(context);
-            wallets = list;
-        }
-
-        @Override
-        public int getCount() {
-            return wallets.size();
-        }
-
-        @Override
-        public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            return getView(position, convertView, parent);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            TextView textView;
-            if (convertView == null) {
-                textView = new TextView(context.get());
-                textView.setTextSize(context.get().getResources().getDimension(R.dimen.verySmallFontSize));
-            } else {
-                textView = (TextView) convertView;
-            }
-            textView.setText(getItem(position).getName());
-            return textView;
-        }
-
-        @Override
-        public Wallet getItem(int position) {
-            return wallets.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
         }
     }
 }

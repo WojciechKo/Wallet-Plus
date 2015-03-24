@@ -6,30 +6,64 @@
         android:clipToPadding="false"
         android:padding="@dimen/cardMargin">
 
-    <android.support.v7.widget.CardView android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <RelativeLayout android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/cardContentPadding">
+        <android.support.v7.widget.CardView android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <TextView android:id="@+id/tagNameLabel"
-                    android:layout_width="match_parent"
+            <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentTop="true"
-                    android:text="@string/tagNameLabel"
-                    android:textAppearance="?android:attr/textAppearanceSmall"/>
+                    android:padding="@dimen/cardContentPadding">
 
-            <EditText android:id="@+id/tagName"
-                    android:layout_width="match_parent"
+                <TextView android:id="@+id/tagNameLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:text="@string/tagNameLabel"
+                        android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+                <EditText android:id="@+id/tagName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_below="@+id/tagNameLabel"
+                        android:layout_toStartOf="@+id/colorPicker"
+                        android:hint="@string/tagNameHint"
+                        android:inputType="textAutoCorrect"
+                        android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+                <Button android:id="@+id/colorPicker"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignBottom="@+id/tagName"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignTop="@id/tagName"
+                        android:layout_below="@id/tagNameLabel"/>
+
+            </RelativeLayout>
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <LinearLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_below="@+id/tagNameLabel"
-                    android:hint="@string/tagNameHint"
-                    android:inputType="textAutoCorrect"
-                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+                    android:orientation="vertical">
 
-        </RelativeLayout>
-    </android.support.v7.widget.CardView>
+                <TextView android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="@string/tagChartLabel"/>
+
+                <lecho.lib.hellocharts.view.LineChartView android:id="@+id/chart"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:padding="@dimen/cardContentPadding"/>
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+    </LinearLayout>
 </ScrollView>

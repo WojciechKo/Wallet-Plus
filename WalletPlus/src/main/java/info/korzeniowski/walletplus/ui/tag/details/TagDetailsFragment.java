@@ -1,6 +1,7 @@
 package info.korzeniowski.walletplus.ui.tag.details;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -8,25 +9,42 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 
 import java.text.NumberFormat;
+import java.util.List;
+import java.util.ListIterator;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import afzkl.development.colorpickerview.dialog.ColorPickerDialog;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import butterknife.OnTextChanged;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
+import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
-import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.TagService;
+import info.korzeniowski.walletplus.util.PrefUtils;
+import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.AxisValue;
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.Viewport;
+import lecho.lib.hellocharts.view.LineChartView;
+
+import static info.korzeniowski.walletplus.util.KorzeniowskiUtils.Dates;
 
 public class TagDetailsFragment extends Fragment {
     public static final String TAG = TagDetailsFragment.class.getSimpleName();
@@ -38,15 +56,25 @@ public class TagDetailsFragment extends Fragment {
     @InjectView(R.id.tagName)
     EditText tagName;
 
+    @InjectView(R.id.colorPicker)
+    Button colorPicker;
+
+    @InjectView(R.id.chart)
+    LineChartView chart;
+
     @Inject
-    @Named("local")
-    TagService localTagService;
+    TagService tagService;
+
+    @Inject
+    CashFlowService cashFlowService;
+
+    @Inject
+    PrefUtils prefUtils;
 
     @Inject
     @Named("amount")
     NumberFormat amountFormat;
 
-    private Long tagId;
     private DetailsAction detailsAction;
     private Optional<Tag> tagToEdit;
 
@@ -63,16 +91,16 @@ public class TagDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
 
-        tagId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_TAG_ID);
+        Long tagId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_TAG_ID);
 
         if (tagId == -1) {
             detailsAction = DetailsAction.ADD;
             tagToEdit = Optional.absent();
         } else {
             detailsAction = DetailsAction.EDIT;
-            tagToEdit = Optional.of(localTagService.findById(tagId));
+            tagToEdit = Optional.of(tagService.findById(tagId));
         }
     }
 
@@ -81,11 +109,61 @@ public class TagDetailsFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_tag_details, container, false);
         ButterKnife.inject(this, view);
+        setupViews();
+        return view;
+    }
 
+    private void setupViews() {
+        int tagColor;
         if (detailsAction == DetailsAction.EDIT) {
             tagName.setText(tagToEdit.get().getName());
+            tagColor = tagToEdit.get().getColor();
+
+            chart.setLineChartData(getChartData());
+            chart.setValueSelectionEnabled(true);
+            Viewport viewport = new Viewport(chart.getMaximumViewport());
+            viewport.left = Math.max(viewport.right - 5, 0);
+            chart.setCurrentViewport(viewport);
+
+        } else {
+            tagColor = prefUtils.getNextTagColor();
         }
-        return view;
+        colorPicker.setBackgroundColor(tagColor);
+        colorPicker.setTag(tagColor);
+    }
+
+    private LineChartData getChartData() {
+        List<PointValue> values = Lists.newArrayList();
+        List<AxisValue> dateAxisValues = Lists.newArrayList();
+        List<CashFlow> cashFlowList = cashFlowService.findCashFlows(new CashFlowService.CashFlowQuery().withTags(tagToEdit.get()));
+
+        ListIterator<CashFlow> cashFlowIterator = cashFlowList.listIterator();
+        for (int i = 0; i < cashFlowList.size(); i++) {
+            if (!cashFlowIterator.hasNext()) {
+                break;
+            }
+            CashFlow cashFlow = cashFlowIterator.next();
+
+            dateAxisValues.add(
+                    new AxisValue(
+                            i,
+                            Dates.getShortDateLabel(getActivity(), cashFlow.getDateTime()).toCharArray()));
+
+            if (cashFlow.getType() == CashFlow.Type.INCOME) {
+                values.add(new PointValue(i, cashFlow.getAmount().floatValue()));
+            } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
+                values.add(new PointValue(i, cashFlow.getAmount().floatValue() * -1));
+            }
+        }
+        Line line = new Line(values);
+        line.setColor(tagToEdit.get().getColor());
+        line.setHasLabelsOnlyForSelected(true);
+
+        LineChartData chartData = new LineChartData(Lists.newArrayList(line));
+        chartData.setAxisXBottom(new Axis(dateAxisValues));
+        chartData.setAxisYLeft(new Axis().setHasLines(true));
+
+        return chartData;
     }
 
     @Override
@@ -114,13 +192,13 @@ public class TagDetailsFragment extends Fragment {
         if (tagName.getError() == null) {
             Tag tag = new Tag();
             tag.setName(tagName.getText().toString());
-
+            tag.setColor((int) colorPicker.getTag());
             if (detailsAction == DetailsAction.ADD) {
-                localTagService.insert(tag);
+                tagService.insert(tag);
                 getActivity().setResult(Activity.RESULT_OK);
             } else if (detailsAction == DetailsAction.EDIT) {
-                tag.setId(tagId);
-                localTagService.update(tag);
+                tag.setId(tagToEdit.get().getId());
+                tagService.update(tag);
                 getActivity().setResult(Activity.RESULT_OK);
             }
             getActivity().finish();
@@ -138,6 +216,26 @@ public class TagDetailsFragment extends Fragment {
         }
 
         tagNameLabel.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.colorPicker)
+    public void onColorPickerClicked() {
+        final ColorPickerDialog colorPickerDialog = new ColorPickerDialog(getActivity(), (int) colorPicker.getTag());
+        colorPickerDialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(android.R.string.ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                int selectedColor = colorPickerDialog.getColor();
+                colorPicker.setTag(selectedColor);
+                colorPicker.setBackgroundColor(selectedColor);
+            }
+        });
+        colorPickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        colorPickerDialog.show();
     }
 
     private enum DetailsAction {ADD, EDIT}

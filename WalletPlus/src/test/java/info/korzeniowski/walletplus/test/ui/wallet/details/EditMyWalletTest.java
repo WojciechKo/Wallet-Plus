@@ -11,28 +11,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-import org.robolectric.tester.android.view.TestMenuItem;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.fakes.RoboMenuItem;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import info.korzeniowski.walletplus.MyRobolectricTestRunner;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.fest.assertions.api.Assertions.assertThat;
 
-@Config(emulateSdk = 18, reportSdk = 18)
-@RunWith(RobolectricTestRunner.class)
+@Ignore
+@RunWith(MyRobolectricTestRunner.class)
 public class EditMyWalletTest {
 
     @InjectView(R.id.walletNameLabel)
@@ -54,20 +51,18 @@ public class EditMyWalletTest {
     TextView walletCurrentAmount;
 
     @Inject
-    @Named("local")
-    WalletService walletService;
+    WalletService walletServiceMock;
 
     private Activity activity;
     private Wallet wallet;
 
     @Before
     public void setUp() {
-        ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
-        ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
-        ((TestWalletPlus) Robolectric.application).inject(this);
+        ((TestWalletPlus) RuntimeEnvironment.application).setMockComponent();
+        ((TestWalletPlus) RuntimeEnvironment.application).component().inject(this);
 
         wallet = new Wallet().setId(47L).setName("Test wallet").setInitialAmount(100.0).setCurrentAmount(200.0);
-        Mockito.when(walletService.findById(wallet.getId())).thenReturn(wallet);
+        Mockito.when(walletServiceMock.findById(wallet.getId())).thenReturn(wallet);
 
         Intent intent = new Intent();
         intent.putExtra(WalletDetailsActivity.EXTRAS_WALLET_ID, wallet.getId());
@@ -145,7 +140,7 @@ public class EditMyWalletTest {
         assertThat(newCurrentAmount).isEqualTo(currentAmount + difference);
     }
 
-    @Test @Ignore
+    @Test
     public void shouldCallUpdateWallet() {
         walletInitialAmount.setText("150.0");
         walletName.setText("newTextName");
@@ -155,20 +150,20 @@ public class EditMyWalletTest {
                 .setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()))
                 .setCurrentAmount(wallet.getCurrentAmount());
 
-        activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
+        activity.onOptionsItemSelected(new RoboMenuItem(R.id.menu_save));
 
-        Mockito.verify(walletService, Mockito.times(1)).update(toUpdate);
+        Mockito.verify(walletServiceMock, Mockito.times(1)).update(toUpdate);
     }
 
-    @Test @Ignore
+    @Test
     public void shouldNotCallUpdateWhenErrors() {
         walletName.setError("simple error");
-        activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
-        Mockito.verify(walletService, Mockito.never()).update(Mockito.any(Wallet.class));
+        activity.onOptionsItemSelected(new RoboMenuItem(R.id.menu_save));
+        Mockito.verify(walletServiceMock, Mockito.never()).update(Mockito.any(Wallet.class));
 
         walletName.setError(null);
         walletInitialAmount.setError("other error");
-        activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
-        Mockito.verify(walletService, Mockito.never()).update(Mockito.any(Wallet.class));
+        activity.onOptionsItemSelected(new RoboMenuItem(R.id.menu_save));
+        Mockito.verify(walletServiceMock, Mockito.never()).update(Mockito.any(Wallet.class));
     }
 }

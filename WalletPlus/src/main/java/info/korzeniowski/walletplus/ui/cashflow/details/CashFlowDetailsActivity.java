@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.service.CashFlowService;
@@ -23,8 +22,7 @@ public class CashFlowDetailsActivity extends BaseActivity {
     public static final int RESULT_DELETED = 103;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    CashFlowService cashFlowService;
 
     private Long cashFlowId;
     private DetailsAction detailsAction;
@@ -87,7 +85,7 @@ public class CashFlowDetailsActivity extends BaseActivity {
                 .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        localCashFlowService.deleteById(cashFlowId);
+                        cashFlowService.deleteById(cashFlowId);
                         setResult(RESULT_DELETED);
                         finish();
                     }

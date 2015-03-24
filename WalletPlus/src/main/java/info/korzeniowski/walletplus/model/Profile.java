@@ -1,22 +1,32 @@
 package info.korzeniowski.walletplus.model;
 
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
+@DatabaseTable(tableName = Profile.TABLE_NAME)
 public class Profile implements Identifiable {
 
-    @DatabaseField(generatedId = true)
+    public static final String TABLE_NAME = "profile";
+
+    public static final String ID_COLUMN_NAME = "id";
+    public static final String DRIVE_ID_COLUMN_NAME = "driveId";
+    public static final String ACCOUNT_ID_COLUMN_NAME = "account_id";
+    public static final String NAME_COLUMN_NAME = "name";
+    public static final String DATABASE_FILE_PATH_COLUMN_NAME = "databaseFilePath";
+
+    @DatabaseField(columnName = ID_COLUMN_NAME, generatedId = true)
     private Long id;
 
-    @DatabaseField
+    @DatabaseField(columnName = DRIVE_ID_COLUMN_NAME)
     private String driveId;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true)
+    @DatabaseField(columnName = ACCOUNT_ID_COLUMN_NAME, foreign = true, foreignAutoRefresh = true)
     private Account account;
 
-    @DatabaseField(uniqueIndex = true)
+    @DatabaseField(columnName = NAME_COLUMN_NAME, uniqueIndex = true)
     private String name;
 
-    @DatabaseField(canBeNull = false)
+    @DatabaseField(columnName = DATABASE_FILE_PATH_COLUMN_NAME, canBeNull = false)
     private String databaseFilePath;
 
     @Override

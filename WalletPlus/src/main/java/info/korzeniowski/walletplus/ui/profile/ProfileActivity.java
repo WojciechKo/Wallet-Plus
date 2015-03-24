@@ -1,7 +1,6 @@
 package info.korzeniowski.walletplus.ui.profile;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,7 +28,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -40,13 +38,11 @@ import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.ProfileService;
-import info.korzeniowski.walletplus.service.google.GoogleDriveReadService;
+import info.korzeniowski.walletplus.sync.google.GoogleDriveReadService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
-import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
 import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 import info.korzeniowski.walletplus.util.PrefUtils;
 import retrofit.Callback;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
@@ -79,12 +75,13 @@ public class ProfileActivity extends BaseActivity {
         ListView remoteProfiles;
 
         @Inject
-        @Named("local")
-        ProfileService localProfileService;
+        ProfileService profileService;
 
         @Inject
-        @Named("read")
-        RestAdapter googleDriveReadRestAdapter;
+        PrefUtils prefUtils;
+
+        @Inject
+        GoogleDriveReadService googleDriveReadService;
 
         private int lastPosition;
         private List<GoogleDriveReadService.DriveFile> profiles;
@@ -92,7 +89,7 @@ public class ProfileActivity extends BaseActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            ((WalletPlus) getActivity().getApplication()).inject(this);
+            ((WalletPlus) getActivity().getApplication()).component().inject(this);
         }
 
         @Override
@@ -133,7 +130,6 @@ public class ProfileActivity extends BaseActivity {
         @Override
         public void onResume() {
             super.onResume();
-            final GoogleDriveReadService googleDriveReadService = googleDriveReadRestAdapter.create(GoogleDriveReadService.class);
             googleDriveReadService.getChildren("appfolder", new Callback<GoogleDriveReadService.FileChildren>() {
                 @Override
                 public void success(GoogleDriveReadService.FileChildren fileChildren, Response response) {
@@ -168,14 +164,14 @@ public class ProfileActivity extends BaseActivity {
         @OnClick(R.id.create_local_profile)
         void onCreateLocalProfileClicked() {
             String name = profileName.getText().toString();
-            Profile found = localProfileService.findByName(name);
+            Profile found = profileService.findByName(name);
             if (found == null) {
-                Profile actualProfile = localProfileService.findById(PrefUtils.getActiveProfileId(getActivity()));
+                Profile actualProfile = profileService.findById(prefUtils.getActiveProfileId());
                 Profile profile = new Profile();
                 profile.setName(name);
                 profile.setAccount(actualProfile.getAccount());
-                localProfileService.insert(profile);
-                PrefUtils.setActiveProfileId(getActivity(), profile.getId());
+                profileService.insert(profile);
+                prefUtils.setActiveProfileId(profile.getId());
                 getActivity().setResult(RESULT_OK);
                 getActivity().finish();
             } else {
@@ -248,7 +244,7 @@ public class ProfileActivity extends BaseActivity {
                 protected Boolean doInBackground(Void... params) {
                     OkHttpClient okHttpClient = new OkHttpClient();
                     Request request = new Request.Builder()
-                            .url(Uri.parse(selectedProfile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", PrefUtils.getGoogleToken(getActivity())).toString())
+                            .url(Uri.parse(selectedProfile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", prefUtils.getGoogleToken()).toString())
                             .build();
 
                     try {
@@ -256,11 +252,11 @@ public class ProfileActivity extends BaseActivity {
                         Profile newProfile = new Profile()
                                 .setName(KorzeniowskiUtils.Files.getBaseName(selectedProfile.getTitle()))
                                 .setDriveId(selectedProfile.getId())
-                                .setAccount(localProfileService.findById(PrefUtils.getActiveProfileId(getActivity())).getAccount());
+                                .setAccount(profileService.findById(prefUtils.getActiveProfileId()).getAccount());
 
-                        localProfileService.insert(newProfile);
+                        profileService.insert(newProfile);
                         ByteStreams.copy(inputStream, new FileOutputStream(newProfile.getDatabaseFilePath()));
-                        PrefUtils.setActiveProfileId(getActivity(), newProfile.getId());
+                        prefUtils.setActiveProfileId(newProfile.getId());
                         return true;
                     } catch (IOException e) {
                         e.printStackTrace();

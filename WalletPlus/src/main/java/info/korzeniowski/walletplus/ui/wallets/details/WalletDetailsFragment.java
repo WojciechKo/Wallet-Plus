@@ -51,12 +51,10 @@ public class WalletDetailsFragment extends Fragment {
     TextView walletCurrentAmount;
 
     @Inject
-    @Named("local")
-    WalletService localWalletService;
+    WalletService walletService;
 
     @Inject
-    @Named("local")
-    CashFlowService localCashFlowService;
+    CashFlowService cashFlowService;
 
     @Inject
     @Named("amount")
@@ -79,7 +77,7 @@ public class WalletDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
 
         walletId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_WALLET_ID);
 
@@ -88,14 +86,14 @@ public class WalletDetailsFragment extends Fragment {
             walletToEdit = Optional.absent();
         } else {
             detailsAction = DetailsAction.EDIT;
-            walletToEdit = Optional.of(localWalletService.findById(walletId));
+            walletToEdit = Optional.of(walletService.findById(walletId));
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_my_wallet_details, container, false);
+        View view = inflater.inflate(R.layout.fragment_wallet_details, container, false);
         ButterKnife.inject(this, view);
 
         if (detailsAction == DetailsAction.ADD) {
@@ -142,11 +140,11 @@ public class WalletDetailsFragment extends Fragment {
             wallet.setInitialAmount(initialAmount);
 
             if (detailsAction == DetailsAction.ADD) {
-                localWalletService.insert(wallet);
+                walletService.insert(wallet);
                 getActivity().setResult(Activity.RESULT_OK);
             } else if (detailsAction == DetailsAction.EDIT) {
                 wallet.setId(walletId);
-                localWalletService.update(wallet);
+                walletService.update(wallet);
                 getActivity().setResult(Activity.RESULT_OK);
             }
             getActivity().finish();

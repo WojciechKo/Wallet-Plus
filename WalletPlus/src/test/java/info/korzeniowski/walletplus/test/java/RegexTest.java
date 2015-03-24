@@ -1,13 +1,9 @@
 package info.korzeniowski.walletplus.test.java;
 
-import org.apache.tools.ant.types.FileList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import info.korzeniowski.walletplus.util.KorzeniowskiUtils;
 

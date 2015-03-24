@@ -11,9 +11,9 @@ import android.view.View;
 import java.text.MessageFormat;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import info.korzeniowski.walletplus.R;
+import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.WalletService;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 
@@ -26,8 +26,10 @@ public class WalletDetailsActivity extends BaseActivity {
     public static final int RESULT_DELETED = 102;
 
     @Inject
-    @Named("local")
-    WalletService localWalletService;
+    WalletService walletService;
+
+    @Inject
+    StatisticService statisticService;
 
     private Long walletId;
     private DetailsAction detailsAction;
@@ -90,7 +92,7 @@ public class WalletDetailsActivity extends BaseActivity {
                 .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        localWalletService.deleteById(walletId);
+                        walletService.deleteById(walletId);
                         setResult(RESULT_DELETED);
                         finish();
                     }
@@ -106,7 +108,7 @@ public class WalletDetailsActivity extends BaseActivity {
     }
 
     private String getConfirmationMessage() {
-        int count = (int) localWalletService.countDependentCashFlows(walletId);
+        Long count = statisticService.countCashFlowsAssignedToWallet(walletId);
         String msg = getString(R.string.walletDeleteConfirmation);
         return MessageFormat.format(msg, count);
     }

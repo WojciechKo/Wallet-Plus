@@ -5,9 +5,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.1'
         classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
-        classpath 'com.github.jcandksolutions.gradle:android-unit-test:2.1.1'
+        classpath 'org.robolectric:robolectric-gradle-plugin:1.0.1'
     }
 }
 
@@ -17,13 +16,25 @@ android {
     compileSdkVersion 21
     buildToolsVersion '21.1.2'
 
+    signingConfigs {
+        config {
+            keyAlias signingKeyAlias
+            storePassword signingStorePassword
+            keyPassword signingKeyPassword
+            storeFile file(signingStoreFile)
+        }
+    }
+
     defaultConfig {
         versionCode 1
-        versionName "0.1"
+        versionName "1.0.0-SNAPSHOT"
         applicationId 'info.korzeniowski.walletplus'
 
         minSdkVersion 17
         targetSdkVersion 21
+
+        signingConfig signingConfigs.config
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     lintOptions {
@@ -37,28 +48,6 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
-
-    sourceSets {
-        androidTest.setRoot('src/test')
-    }
-
-    signingConfigs {
-        config {
-            keyAlias signingKeyAlias
-            storePassword signingStorePassword
-            keyPassword signingKeyPassword
-            storeFile file(signingStoreFile)
-        }
-    }
-
-    buildTypes {
-        debug {
-            signingConfig signingConfigs.config
-        }
-        release {
-            signingConfig signingConfigs.config
-        }
-    }
 }
 
 apply plugin: 'com.neenbedankt.android-apt'
@@ -70,23 +59,21 @@ apt {
     }
 }
 
-apply plugin: 'android-unit-test'
+apply plugin: 'org.robolectric'
 
-androidUnitTest {
-    downloadDependenciesSources true
-    downloadDependenciesJavadoc true
-    downloadTestDependenciesSources true
-    downloadTestDependenciesJavadoc true
+robolectric {
+    include '**/*Test.class'
+    exclude '**/espresso/**/*.class'
 
-    testTasks {
-        all {
-            //Allows to run tests in parallel by specifying how many threads to run tests on.
-            maxParallelForks = 4
-            //Allow to group a number of tests for each thread to run.
-            forkEvery = 5
-            minHeapSize = '128m'
-            maxHeapSize = '1024m'
-        }
+    maxHeapSize = '2048m'
+    jvmArgs '-XX:MaxPermSize=512m', '-XX:-UseSplitVerifier'
+
+    maxParallelForks = 4
+    forkEvery = 150
+    ignoreFailures true
+
+    afterTest { descriptor, result ->
+        println "Executing test for ${descriptor.name} with result: ${result.resultType}"
     }
 }
 
@@ -106,7 +93,7 @@ dependencies {
     compile "com.android.support:cardview-v7:$androidSupportVersion"
     compile "com.android.support:recyclerview-v7:$androidSupportVersion"
 
-    //Google Drive API
+    // Google Drive API
     compile 'com.google.android.gms:play-services-identity:6.5.87'
     compile 'com.google.android.gms:play-services-drive:6.5.87'
 
@@ -122,13 +109,15 @@ dependencies {
     compile "com.j256.ormlite:ormlite-core:$ormLiteVersion"
 
     // Butter Knife
-    compile 'com.jakewharton:butterknife:5.1.2'
+    compile 'com.jakewharton:butterknife:6.1.0'
 
     // Dagger
-    def daggerVersion = '1.2.+'
-    apt "com.squareup.dagger:dagger-compiler:$daggerVersion"
-    testCompile "com.squareup.dagger:dagger-compiler:$daggerVersion"
-    compile "com.squareup.dagger:dagger:$daggerVersion"
+    def daggerVersion = '2.0-SNAPSHOT'
+    apt "com.google.dagger:dagger-compiler:$daggerVersion"
+    testCompile "com.google.dagger:dagger-compiler:$daggerVersion"
+    compile "com.google.dagger:dagger:$daggerVersion"
+    testCompile "com.google.dagger:dagger-compiler:$daggerVersion"
+    provided 'org.glassfish:javax.annotation:10.0-b28'
 
     // Guava
     compile 'com.google.guava:guava:18.0'
@@ -148,19 +137,35 @@ dependencies {
     }
 
     // HelloCharts
-    compile project(':hellocharts-library')
+    compile 'com.github.lecho:hellocharts-library:1.5.3@aar'
+
+    // ColorPickerView
+    compile project(':colorPickerView-library')
+
+    // Espresso
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.0')
+    androidTestCompile('com.android.support.test:testing-support-lib:0.1')
+
+    // AssertJ Android
+//    androidTestCompile 'com.squareup.assertj:assertj-android:1.0.0'
 
     // JUnit
-    testCompile 'junit:junit:4.11'
+    testCompile 'junit:junit:4.12'
 
     // Mockito
     testCompile 'org.mockito:mockito-core:1.9.5'
+    androidTestCompile 'org.mockito:mockito-core:1.9.5'
 
     // Robolectric
-    testCompile 'org.robolectric:robolectric:2.4'
+    def robolectricVersion = '3.0-SNAPSHOT'
+    testCompile "org.robolectric:shadows-support-v4:$robolectricVersion"
+    testCompile "org.robolectric:robolectric:$robolectricVersion"
 
-    //Fest Android
+    // Fest Android
     testCompile 'com.squareup:fest-android:1.0.8'
+
+    // Fluent Exception
+    testCompile 'pl.wkr:fluent-exception-rule:1.0.1'
 }
 
 apply plugin: "jacoco"

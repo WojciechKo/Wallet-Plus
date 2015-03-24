@@ -26,7 +26,8 @@
     <string name="accountLinkWithGoogle">Link with Google</string>
 
     <!-- Dashboard fragment -->
-    <string name="totalAmountLabel">Total:</string>
+    <string name="dashboardTotalAmountLabel">Total:</string>
+    <string name="dashboardChartLabel">Last cash flows</string>
 
     <!-- Tag list fragment -->
     <string name="tagListLabel">Tags</string>
@@ -37,6 +38,7 @@
     <string name="tagNameHint">name</string>
     <string name="tagDeleteConfirmation">Do you want to delete this tag?{0, choice, 0#|1#\n\n{0, number} cash flow will have removed this tag.| 1&lt;\n\n{0, number} cash flows will have removed this tag.}</string>
     <string name="tagNameIsRequired">Tag name is required.</string>
+    <string name="tagChartLabel">Cash flows with tag</string>
 
     <!-- Wallet list fragment -->
     <string name="walletListLabel">Wallets</string>
@@ -78,7 +80,7 @@
     <!-- Statistic list fragment -->
     <string name="statisticListLabel">Statistics</string>
 
-    <!-- Tag details fragment -->
+    <!-- Statistic details fragment -->
     <string name="statisticDetailsLabel">Statistic details</string>
 
     <!-- Synchronize fragment -->

@@ -1,1 +1,1 @@
-include ':WalletPlus', ':hellocharts-library'
+include ':WalletPlus', ':colorPickerView-library'

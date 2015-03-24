@@ -10,28 +10,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
-import org.robolectric.tester.android.view.TestMenuItem;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
+import org.robolectric.fakes.RoboMenuItem;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import info.korzeniowski.walletplus.MyRobolectricTestRunner;
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.TestWalletPlus;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.test.module.MockDatabaseModule;
-import info.korzeniowski.walletplus.test.module.TestDatabaseModule;
 import info.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 
-
-@Config(emulateSdk = 18, reportSdk = 18)
-@RunWith(RobolectricTestRunner.class)
+@Ignore
+@RunWith(MyRobolectricTestRunner.class)
 public class CreateNewMyWalletTest {
 
     @InjectView(R.id.walletNameLabel)
@@ -53,29 +50,18 @@ public class CreateNewMyWalletTest {
     TextView walletCurrentAmount;
 
     @Inject
-    @Named("local")
-    WalletService walletService;
+    WalletService walletServiceMock;
 
     private Activity activity;
 
     @Before
     public void setUp() {
-        ((TestWalletPlus) Robolectric.application).removeModule(TestDatabaseModule.class);
-        ((TestWalletPlus) Robolectric.application).addModules(new MockDatabaseModule());
-        ((TestWalletPlus) Robolectric.application).inject(this);
+        ((TestWalletPlus) RuntimeEnvironment.application).setMockComponent();
+        ((TestWalletPlus) RuntimeEnvironment.application).component().inject(this);
 
         activity = Robolectric.buildActivity(WalletDetailsActivity.class).create().start().restart().get();
         ButterKnife.inject(this, activity);
     }
-
-//    TODO: change it to check textValue in dialog.
-//    @Test
-//    public void testConfirmationMessage() {
-//        assertThat(MessageFormat.format(message, 0)).isEqualTo("Do you want to delete this wallet?");
-//        assertThat(MessageFormat.format(message, 1)).isEqualTo("Do you want to delete this wallet?\\n\\nYou will also delete 1 cashflow.");
-//        assertThat(MessageFormat.format(message, 2)).isEqualTo("Do you want to delete this wallet?\\n\\nYou will also delete 2 cashflows.");
-//    }
-
 
     @Test
     public void shouldCurrentAmountBeInvisible() {
@@ -122,7 +108,7 @@ public class CreateNewMyWalletTest {
     }
 
 
-    @Test @Ignore
+    @Test
     public void shouldCallUpdateWallet() {
         walletInitialAmount.setText("150.0");
         walletName.setText("textName");
@@ -130,20 +116,20 @@ public class CreateNewMyWalletTest {
                 .setName(walletName.getText().toString())
                 .setInitialAmount(Double.parseDouble(walletInitialAmount.getText().toString()));
 
-        activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
+        Shadows.shadowOf(activity).clickMenuItem(R.id.menu_save);
 
-        Mockito.verify(walletService, Mockito.times(1)).insert(toInsert);
+        Mockito.verify(walletServiceMock, Mockito.times(1)).insert(toInsert);
     }
 
-    @Test @Ignore
+    @Test
     public void shouldNotCallUpdateWhenErrors() {
         walletName.setError("simple error");
-        activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
-        Mockito.verify(walletService, Mockito.never()).insert(Mockito.any(Wallet.class));
+        activity.onOptionsItemSelected(new RoboMenuItem(R.id.menu_save));
+        Mockito.verify(walletServiceMock, Mockito.never()).insert(Mockito.any(Wallet.class));
 
         walletName.setError(null);
         walletInitialAmount.setError("other error");
-        activity.onOptionsItemSelected(new TestMenuItem(R.id.menu_save));
-        Mockito.verify(walletService, Mockito.never()).insert(Mockito.any(Wallet.class));
+        activity.onOptionsItemSelected(new RoboMenuItem(R.id.menu_save));
+        Mockito.verify(walletServiceMock, Mockito.never()).insert(Mockito.any(Wallet.class));
     }
 }

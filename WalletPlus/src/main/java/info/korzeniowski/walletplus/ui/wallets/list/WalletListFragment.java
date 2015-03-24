@@ -15,7 +15,6 @@ import com.fortysevendeg.swipelistview.SwipeListView;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -32,28 +31,27 @@ public class WalletListFragment extends Fragment {
     SwipeListView list;
 
     @Inject
-    @Named("local")
-    WalletService localWalletService;
+    WalletService walletService;
 
     private List<Wallet> walletList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((WalletPlus) getActivity().getApplication()).inject(this);
+        ((WalletPlus) getActivity().getApplication()).component().inject(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_my_wallet_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_wallet_list, container, false);
         ButterKnife.inject(this, view);
         setupList();
         return view;
     }
 
     private void setupList() {
-        walletList = localWalletService.getMyWallets();
+        walletList = walletService.getAll();
         list.setSwipeListViewListener(new BaseSwipeListViewListener() {
             @Override
             public void onClickFrontView(int position) {
