@@ -20,6 +20,7 @@ import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.CashFlowService;
+import info.korzeniowski.walletplus.service.aspect.DatabaseChanger;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 
@@ -49,6 +50,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
      * CREATE
      */
     @Override
+    @DatabaseChanger
     public Long insert(CashFlow cashFlow) {
         try {
             validateInsert(cashFlow);
@@ -198,6 +200,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
      * UPDATE
      */
     @Override
+    @DatabaseChanger
     public void update(CashFlow cashFlow) {
         try {
             CashFlow toUpdate = findById(cashFlow.getId());
@@ -267,6 +270,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
      * DELETE
      */
     @Override
+    @DatabaseChanger
     public void deleteById(Long id) {
         try {
             CashFlow cashFlow = cashFlowDao.queryForId(id);

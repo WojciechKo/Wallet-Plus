@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.service.TagService;
+import info.korzeniowski.walletplus.service.aspect.DatabaseChanger;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.exception.EntityAlreadyExistsException;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
@@ -33,6 +34,7 @@ public class TagServiceOrmLite implements TagService {
      * ********
      */
     @Override
+    @DatabaseChanger
     public Long insert(Tag tag) {
         try {
             validateInsert(tag);
@@ -102,6 +104,7 @@ public class TagServiceOrmLite implements TagService {
      * ********
      */
     @Override
+    @DatabaseChanger
     public void update(final Tag newValue) {
         try {
             validateUpdate(newValue);
@@ -140,6 +143,7 @@ public class TagServiceOrmLite implements TagService {
      * ********
      */
     @Override
+    @DatabaseChanger
     public void deleteById(Long id) {
         try {
             tagDao.deleteById(id);

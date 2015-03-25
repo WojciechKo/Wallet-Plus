@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Wallet;
 import info.korzeniowski.walletplus.service.WalletService;
+import info.korzeniowski.walletplus.service.aspect.DatabaseChanger;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
 import info.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 
@@ -30,6 +31,7 @@ public class WalletServiceOrmLite implements WalletService {
     }
 
     @Override
+    @DatabaseChanger
     public Long insert(Wallet wallet) {
         try {
             validateInsert(wallet);
@@ -95,6 +97,7 @@ public class WalletServiceOrmLite implements WalletService {
     }
 
     @Override
+    @DatabaseChanger
     public void update(Wallet newValue) {
         try {
             validateUpdate(newValue);
@@ -115,6 +118,7 @@ public class WalletServiceOrmLite implements WalletService {
     }
 
     @Override
+    @DatabaseChanger
     public void deleteById(Long id) {
         try {
             validateDelete(id);
