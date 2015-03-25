@@ -12,7 +12,7 @@ import info.korzeniowski.walletplus.module.DatabaseModule;
 import info.korzeniowski.walletplus.module.GoogleDriveRestModule;
 import info.korzeniowski.walletplus.module.MainModule;
 import info.korzeniowski.walletplus.module.ServicesModule;
-import info.korzeniowski.walletplus.service.ormlite.AccountServiceOrmLite;
+import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.ormlite.ProfileServiceOrmLite;
 import info.korzeniowski.walletplus.ui.BaseActivity;
 import info.korzeniowski.walletplus.ui.cashflow.details.CashFlowDetailsActivity;
@@ -108,9 +108,9 @@ public class WalletPlus extends Application {
 
         void inject(DatabaseInitializer object);
 
-        void inject(AccountServiceOrmLite object);
-
         void inject(ProfileServiceOrmLite object);
+
+        ProfileService profileService();
     }
 
     @Inject
@@ -118,9 +118,12 @@ public class WalletPlus extends Application {
 
     ApplicationComponent component;
 
+    private static WalletPlus walletPlus;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        walletPlus = this;
         reinitializeObjectGraph();
         component().inject(this);
         JodaTimeAndroid.init(this);
@@ -142,5 +145,9 @@ public class WalletPlus extends Application {
 
     public ApplicationComponent component() {
         return component;
+    }
+
+    public static WalletPlus getInstance() {
+        return walletPlus;
     }
 }

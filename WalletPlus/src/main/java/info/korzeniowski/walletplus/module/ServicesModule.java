@@ -8,19 +8,16 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Wallet;
-import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.StatisticService;
 import info.korzeniowski.walletplus.service.TagService;
 import info.korzeniowski.walletplus.service.WalletService;
-import info.korzeniowski.walletplus.service.ormlite.AccountServiceOrmLite;
 import info.korzeniowski.walletplus.service.ormlite.CashFlowServiceOrmLite;
 import info.korzeniowski.walletplus.service.ormlite.MainDatabaseHelper;
 import info.korzeniowski.walletplus.service.ormlite.ProfileServiceOrmLite;
@@ -34,28 +31,6 @@ import info.korzeniowski.walletplus.service.ormlite.WalletServiceOrmLite;
  */
 @Module
 public class ServicesModule {
-
-    /**
-     * *************
-     * ACCOUNT
-     * *************
-     */
-    @Provides
-    public Dao<Account, Long> provideAccountDao(MainDatabaseHelper mainDatabaseHelper) {
-        try {
-            return mainDatabaseHelper.getAccountDao();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    @Provides
-    @Singleton
-    public AccountService provideAccountService(AccountServiceOrmLite accountServiceOrmLite) {
-        return accountServiceOrmLite;
-    }
-
     /**
      * *************
      * PROFILE

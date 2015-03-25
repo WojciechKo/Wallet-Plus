@@ -68,17 +68,17 @@ public class PrefUtils {
         return true;
     }
 
-    public  String getGoogleToken() {
+    public String getGoogleToken() {
         SharedPreferences sp = getSharedPreferences(context);
         return sp.getString(GOOGLE_TOKEN, "");
     }
 
-    public  void setGoogleToken(final String token) {
+    public void setGoogleToken(final String token) {
         SharedPreferences sp = getSharedPreferences(context);
         sp.edit().putString(GOOGLE_TOKEN, token).commit();
     }
 
-    public  int getNextTagColor() {
+    public int getNextTagColor() {
         SharedPreferences sp = getSharedPreferences(context);
         float goldenRatio = (float) 0.618033988749895;
         float nextHue = (sp.getFloat(PREF_LAST_TAG_COLOR_HUE, 0) + goldenRatio) % 1;

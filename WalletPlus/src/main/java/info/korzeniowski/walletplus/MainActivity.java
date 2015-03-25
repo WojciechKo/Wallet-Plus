@@ -23,13 +23,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import javax.inject.Inject;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import info.korzeniowski.walletplus.model.Account;
-import info.korzeniowski.walletplus.service.AccountService;
-import info.korzeniowski.walletplus.ui.drawer.DrawerAccountAdapter;
 import info.korzeniowski.walletplus.widget.SquareImageButton;
 
 public class MainActivity extends ActionBarActivity implements FragmentManager.OnBackStackChangedListener {
@@ -52,10 +47,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     @InjectView(R.id.drawerList)
     ListView drawerList;
 
-    @Inject
-    AccountService accountServiceOrmLite;
-
-    private DrawerAccountAdapter drawerAccountAdapter;
+//    private DrawerAccountAdapter drawerAccountAdapter;
     private View accountListFooter;
     private MainActivityParcelableState state;
 
@@ -84,7 +76,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
     void setupViews() {
 //        drawerMenuAdapter = new DrawerMenuAdapter(this, mainDrawerContent);
-        drawerAccountAdapter = getDrawerAccountAdapter();
+//        drawerAccountAdapter = getDrawerAccountAdapter();
         accountListFooter = getNewAccountFooter();
 
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -96,9 +88,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
 
-    private DrawerAccountAdapter getDrawerAccountAdapter() {
-        return new DrawerAccountAdapter(this, accountServiceOrmLite.getAll());
-    }
 
     private View getNewAccountFooter() {
         TextView accountListFooter = (TextView) getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);
@@ -116,9 +105,9 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
                         .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                accountServiceOrmLite.insert(new Account().setName(input.getText().toString()));
-                                drawerAccountAdapter = getDrawerAccountAdapter();
-                                drawerList.setAdapter(drawerAccountAdapter);
+//                                accountServiceOrmLite.insert(new Account().setName(input.getText().toString()));
+//                                drawerAccountAdapter = getDrawerAccountAdapter();
+//                                drawerList.setAdapter(drawerAccountAdapter);
                             }
                         })
                         .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -181,7 +170,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     private void setupDrawerListAsAccountList() {
-        drawerList.setAdapter(drawerAccountAdapter);
+//        drawerList.setAdapter(drawerAccountAdapter);
         drawerList.addFooterView(accountListFooter, null, true);
         drawerList.setFooterDividersEnabled(true);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {

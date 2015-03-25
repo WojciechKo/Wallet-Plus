@@ -14,13 +14,17 @@ import javax.inject.Inject;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.exception.DatabaseException;
+import info.korzeniowski.walletplus.util.PrefUtils;
+import info.korzeniowski.walletplus.util.Utils;
 
 public class ProfileServiceOrmLite implements ProfileService {
     private final Dao<Profile, Long> profileDao;
     private final WeakReference<Context> context;
+    private final PrefUtils prefUtils;
 
     @Inject
-    public ProfileServiceOrmLite(Context context, Dao<Profile, Long> profileDao) {
+    public ProfileServiceOrmLite(Context context, Dao<Profile, Long> profileDao, PrefUtils prefUtils) {
+        this.prefUtils = prefUtils;
         this.context = new WeakReference(context);
         this.profileDao = profileDao;
     }
@@ -28,19 +32,12 @@ public class ProfileServiceOrmLite implements ProfileService {
     @Override
     public Long insert(Profile entity) {
         try {
-            entity.setDatabaseFilePath(getFilePath(entity));
+            entity.setDatabaseFilePath(Utils.getProfileDatabaseFilePath(context.get(), entity.getName()));
             profileDao.create(entity);
             return entity.getId();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
-    }
-
-    private String getFilePath(Profile entity) {
-        return context.get().getApplicationInfo().dataDir
-                + "/databases/"
-                + entity.getName()
-                + ".db";
     }
 
     @Override
@@ -71,6 +68,20 @@ public class ProfileServiceOrmLite implements ProfileService {
     }
 
     @Override
+    public Profile getActiveProfile() {
+        Long activeProfileId = prefUtils.getActiveProfileId();
+        Profile activeProfile = null;
+        if (activeProfileId != -1) {
+            activeProfile = findById(activeProfileId);
+        }
+        if (activeProfile == null && count() != 0) {
+            activeProfile = getAll().get(0);
+        }
+
+        return activeProfile;
+    }
+
+    @Override
     public List<Profile> getAll() {
         try {
             return profileDao.queryBuilder().orderByRaw(Profile.NAME_COLUMN_NAME + " COLLATE NOCASE").query();
@@ -83,11 +94,11 @@ public class ProfileServiceOrmLite implements ProfileService {
     public void update(Profile newValue) {
         try {
             Profile original = profileDao.queryForId(newValue.getId());
-            newValue.setDatabaseFilePath(getFilePath(newValue));
+            newValue.setDatabaseFilePath(Utils.getProfileDatabaseFilePath(context.get(), newValue.getName()));
             profileDao.update(newValue);
             if (!original.getName().equals(newValue.getName())) {
                 File database = new File(original.getDatabaseFilePath());
-                database.renameTo(new File(getFilePath(newValue)));
+                database.renameTo(new File(newValue.getDatabaseFilePath()));
             }
         } catch (SQLException e) {
             throw new DatabaseException(e);

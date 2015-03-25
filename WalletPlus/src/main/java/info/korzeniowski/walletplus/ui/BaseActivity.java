@@ -38,9 +38,7 @@ import javax.inject.Inject;
 
 import info.korzeniowski.walletplus.R;
 import info.korzeniowski.walletplus.WalletPlus;
-import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.Profile;
-import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.ui.cashflow.list.CashFlowListActivity;
 import info.korzeniowski.walletplus.ui.dashboard.DashboardActivity;
@@ -72,9 +70,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Inject
     protected StatisticListActivityState statisticListActivityState;
-
-    @Inject
-    AccountService accountService;
 
     @Inject
     ProfileService profileService;
@@ -184,14 +179,10 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void startLoginProcess() {
-        Long profileId = prefUtils.getActiveProfileId();
-        if (profileId == -1) {
-            List<Account> accountList = accountService.getAll();
-            if (!accountList.isEmpty()) {
-                prefUtils.setActiveProfileId(accountList.get(0).getProfiles().get(0).getId());
-            } else {
-                throw new RuntimeException("No account or profile available. TODO.");
-            }
+        Profile activeProfile = profileService.getActiveProfile();
+
+        if (activeProfile == null) {
+            throw new RuntimeException("No profile available. TODO.");
         }
     }
 
@@ -520,8 +511,8 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         }
 
         final View chosenAccountView = findViewById(R.id.chosen_account_view);
-        final Long activeProfileId = prefUtils.getActiveProfileId();
-        if (activeProfileId == -1) {
+        Profile activeProfile = profileService.getActiveProfile();
+        if (activeProfile == null) {
             // No account logged in; hide account box
             chosenAccountView.setVisibility(View.GONE);
             mAccountListContainer.setVisibility(View.GONE);
@@ -546,9 +537,8 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 //            return;
 //        }
 
-        Profile activeProfile = profileService.findById(activeProfileId);
         nameView.setText(activeProfile.getName());
-        emailView.setText(activeProfile.getAccount().getGmailAccount());
+        emailView.setText(activeProfile.getGmailAccount());
 
         chosenAccountView.setEnabled(true);
         mExpandAccountBoxIndicator.setVisibility(View.VISIBLE);
@@ -593,7 +583,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         switch (requestCode) {
             case RC_NEW_PROFILE:
                 if (resultCode == RESULT_OK) {
-                    selectProfileById(prefUtils.getActiveProfileId());
+                    selectProfileById(profileService.getActiveProfile().getId());
                 }
                 break;
         }
@@ -609,7 +599,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             TextView profileNameView = (TextView) itemView.findViewById(R.id.title);
             profileNameView.setText(profile.getName());
 
-            if (profile.getId().equals(prefUtils.getActiveProfileId())) {
+            if (profile.getId().equals(profileService.getActiveProfile().getId())) {
                 profileNameView.setTextColor(getResources().getColor(R.color.navdrawer_text_color_selected));
 
                 itemView.setOnClickListener(new View.OnClickListener() {

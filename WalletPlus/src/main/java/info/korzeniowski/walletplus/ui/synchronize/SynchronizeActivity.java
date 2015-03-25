@@ -114,7 +114,7 @@ public class SynchronizeActivity extends BaseActivity {
             View view = inflater.inflate(R.layout.fragment_synchronize, container, false);
             ButterKnife.inject(this, view);
 
-            Profile profile = profileService.findById(prefUtils.getActiveProfileId());
+            Profile profile = profileService.getActiveProfile();
             setupVisibility(!Strings.isNullOrEmpty(profile.getDriveId()));
 
             return view;
@@ -146,7 +146,7 @@ public class SynchronizeActivity extends BaseActivity {
 
         @OnClick(R.id.createBackup)
         void onCreateBackupClicked() {
-            final Profile activeProfile = profileService.findById(prefUtils.getActiveProfileId());
+            final Profile activeProfile = profileService.getActiveProfile();
             GoogleDriveUploadService.FileMetadata metadata = new GoogleDriveUploadService.FileMetadata();
             metadata.setTitle(activeProfile.getName() + ".db");
             metadata.setParentId("appfolder");
@@ -170,7 +170,7 @@ public class SynchronizeActivity extends BaseActivity {
 
         @OnClick(R.id.uploadUpdate)
         void onUploadUpdateClicked() {
-            final Profile activeProfile = profileService.findById(prefUtils.getActiveProfileId());
+            final Profile activeProfile = profileService.getActiveProfile();
 
             TypedFile typedFile = new TypedFile("application/x-sqlite3", new File(activeProfile.getDatabaseFilePath()));
             googleDriveUploadService.update(activeProfile.getDriveId(), typedFile, "Bearer " + prefUtils.getGoogleToken(), new Callback<GoogleDriveUploadService.FileMetadata>() {
@@ -190,7 +190,7 @@ public class SynchronizeActivity extends BaseActivity {
 
         @OnClick(R.id.downloadUpdate)
         void onDownloadUpdateClicked() {
-            final Profile activeProfile = profileService.findById(prefUtils.getActiveProfileId());
+            final Profile activeProfile = profileService.getActiveProfile();
 
             googleDriveReadService.getFile(activeProfile.getDriveId(), new Callback<GoogleDriveReadService.DriveFile>() {
                 @Override
@@ -240,25 +240,24 @@ public class SynchronizeActivity extends BaseActivity {
                     // Receiving a result from the AccountPicker
                     if (resultCode == RESULT_OK) {
                         String mEmail = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                        Profile activeProfile = profileService.getActiveProfile();
+                        profileService.update(activeProfile.setGmailAccount(mEmail));
+
                         // With the account name acquired, go get the auth token
-                        setGoogleToken(mEmail);
+                        if (mEmail == null) {
+                            pickUserAccount();
+                        } else {
+                            if (isDeviceOnline()) {
+                                new FetchGoogleToken(getActivity(), mEmail, SCOPE_PREFIX + SCOPE_APPDATA, prefUtils).execute();
+                            } else {
+                                Toast.makeText(getActivity(), "Brak połączenia z internetem.", Toast.LENGTH_LONG).show();
+                            }
+                        }
                     } else if (resultCode == RESULT_CANCELED) {
                         // The account picker dialog closed without selecting an account.
                         // Notify users that they must pick an account to proceed.
                         Toast.makeText(getActivity(), "Wybierz konto", Toast.LENGTH_SHORT).show();
                     }
-            }
-        }
-
-        private void setGoogleToken(String mEmail) {
-            if (mEmail == null) {
-                pickUserAccount();
-            } else {
-                if (isDeviceOnline()) {
-                    new SetGoogleToken(getActivity(), mEmail, SCOPE_PREFIX + SCOPE_APPDATA, prefUtils).execute();
-                } else {
-                    Toast.makeText(getActivity(), "Brak połączenia z internetem.", Toast.LENGTH_LONG).show();
-                }
             }
         }
 
@@ -268,13 +267,13 @@ public class SynchronizeActivity extends BaseActivity {
             return networkInfo != null && networkInfo.isConnected();
         }
 
-        public static class SetGoogleToken extends AsyncTask<Void, Void, String> {
+        public static class FetchGoogleToken extends AsyncTask<Void, Void, String> {
             PrefUtils prefUtils;
             Activity mActivity;
             String mScope;
             String mEmail;
 
-            SetGoogleToken(Activity activity, String name, String scope, PrefUtils prefUtils) {
+            FetchGoogleToken(Activity activity, String name, String scope, PrefUtils prefUtils) {
                 this.mActivity = activity;
                 this.mScope = scope;
                 this.mEmail = name;
@@ -284,20 +283,11 @@ public class SynchronizeActivity extends BaseActivity {
             @Override
             protected String doInBackground(Void... params) {
                 try {
-                    String token = fetchToken();
-                    if (token != null) {
-                        prefUtils.setGoogleToken(token);
-                        return token;
-                    }
+                    return fetchToken();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 return null;
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-                Toast.makeText(mActivity, "Zalogowano do konta: " + mEmail, Toast.LENGTH_SHORT).show();
             }
 
             protected String fetchToken() throws IOException {
@@ -313,6 +303,12 @@ public class SynchronizeActivity extends BaseActivity {
 
                 }
                 return null;
+            }
+
+            @Override
+            protected void onPostExecute(String token) {
+                prefUtils.setGoogleToken(token);
+                Toast.makeText(mActivity, "Zalogowano do konta: " + mEmail, Toast.LENGTH_SHORT).show();
             }
         }
     }

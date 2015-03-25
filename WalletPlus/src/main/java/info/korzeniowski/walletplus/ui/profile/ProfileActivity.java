@@ -102,8 +102,10 @@ public class ProfileActivity extends BaseActivity {
             return view;
         }
 
+        /**
+         * http://stackoverflow.com/a/25725568/2399340
+         */
         private void enableListViewScrolling() {
-            // http://stackoverflow.com/a/25725568/2399340
             remoteProfiles.setOnTouchListener(new ListView.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -166,10 +168,8 @@ public class ProfileActivity extends BaseActivity {
             String name = profileName.getText().toString();
             Profile found = profileService.findByName(name);
             if (found == null) {
-                Profile actualProfile = profileService.findById(prefUtils.getActiveProfileId());
                 Profile profile = new Profile();
                 profile.setName(name);
-                profile.setAccount(actualProfile.getAccount());
                 profileService.insert(profile);
                 prefUtils.setActiveProfileId(profile.getId());
                 getActivity().setResult(RESULT_OK);
@@ -237,7 +237,6 @@ public class ProfileActivity extends BaseActivity {
         @OnClick(R.id.downloadProfile)
         void onDownloadProfileClicked() {
             final GoogleDriveReadService.DriveFile selectedProfile = (GoogleDriveReadService.DriveFile) remoteProfiles.getItemAtPosition(lastPosition);
-            selectedProfile.getId();
 
             new AsyncTask<Void, Void, Boolean>() {
                 @Override
@@ -252,7 +251,7 @@ public class ProfileActivity extends BaseActivity {
                         Profile newProfile = new Profile()
                                 .setName(KorzeniowskiUtils.Files.getBaseName(selectedProfile.getTitle()))
                                 .setDriveId(selectedProfile.getId())
-                                .setAccount(profileService.findById(prefUtils.getActiveProfileId()).getAccount());
+                                .setGmailAccount(selectedProfile.getOwner());
 
                         profileService.insert(newProfile);
                         ByteStreams.copy(inputStream, new FileOutputStream(newProfile.getDatabaseFilePath()));

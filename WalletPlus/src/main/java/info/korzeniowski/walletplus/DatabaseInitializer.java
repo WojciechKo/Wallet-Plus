@@ -5,12 +5,10 @@ import java.util.Calendar;
 
 import javax.inject.Inject;
 
-import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Profile;
 import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.Wallet;
-import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.TagService;
@@ -30,12 +28,6 @@ public class DatabaseInitializer {
     TagService tagService;
 
     @Inject
-    ProfileService profileService;
-
-    @Inject
-    AccountService accountService;
-
-    @Inject
     PrefUtils prefUtils;
 
     private final WeakReference<WalletPlus> walletPlus;
@@ -46,23 +38,19 @@ public class DatabaseInitializer {
 
     public void createExampleAccountWithProfile() {
         try {
-            walletPlus.get().component().inject(this);
-            if (accountService.count() == 0) {
-                accountService.insert(new Account().setName("Default account"));
-            }
-            Account exampleAccount = accountService.getAll().get(0);
+            ProfileService profileService = walletPlus.get().component().profileService();
 
-            Profile exampleProfile = new Profile().setName("Personal example").setAccount(exampleAccount);
+            Profile exampleProfile = new Profile().setName("Personal");
             profileService.insert(exampleProfile);
 
-            prefUtils.setActiveProfileId(exampleProfile.getId());
             walletPlus.get().reinitializeObjectGraph();
             walletPlus.get().component().inject(this);
             fillExampleDatabase();
 
-            Profile myCompany = new Profile().setName("My company").setAccount(exampleAccount);
+            Profile myCompany = new Profile().setName("My startup");
             profileService.insert(myCompany);
             prefUtils.setActiveProfileId(myCompany.getId());
+
             walletPlus.get().reinitializeObjectGraph();
             walletPlus.get().component().inject(this);
             fillExampleDatabase();

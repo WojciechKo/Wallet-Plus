@@ -29,6 +29,7 @@ public interface GoogleDriveReadService {
         Long fileSize;
         Date createdDate;
         Date modifiedDate;
+        List<Owner> owners;
 
         public String getId() {
             return id;
@@ -52,6 +53,20 @@ public interface GoogleDriveReadService {
 
         public Date getModifiedDate() {
             return modifiedDate;
+        }
+
+        public String getOwner() {
+            return owners.isEmpty()
+                    ? ""
+                    : owners.get(0).getEmailAddress();
+        }
+    }
+
+    class Owner {
+        String emailAddress;
+
+        public String getEmailAddress() {
+            return emailAddress;
         }
     }
 

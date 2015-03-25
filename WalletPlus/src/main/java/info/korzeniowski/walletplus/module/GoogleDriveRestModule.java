@@ -2,8 +2,6 @@ package info.korzeniowski.walletplus.module;
 
 import com.google.gson.GsonBuilder;
 
-import javax.inject.Named;
-
 import dagger.Module;
 import dagger.Provides;
 import info.korzeniowski.walletplus.sync.google.GoogleDriveReadService;

@@ -1,7 +1,10 @@
 package info.korzeniowski.walletplus.service.ormlite;
 
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.util.Log;
 
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
@@ -9,14 +12,14 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
-import java.lang.ref.WeakReference;
+import java.io.File;
 import java.sql.SQLException;
 
-import info.korzeniowski.walletplus.WalletPlus;
 import info.korzeniowski.walletplus.model.CashFlow;
 import info.korzeniowski.walletplus.model.Tag;
 import info.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import info.korzeniowski.walletplus.model.Wallet;
+import info.korzeniowski.walletplus.util.Utils;
 
 public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
 
@@ -27,11 +30,8 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
     private Dao<CashFlow, Long> cashFlowDao;
     private Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao;
 
-    private WeakReference<WalletPlus> walletPlus;
-
     public UserDatabaseHelper(Context context, String profileName) {
-        super(context, profileName != null ? profileName + ".db" : null, null, DATABASE_VERSION);
-        this.walletPlus = new WeakReference<>((WalletPlus) context);
+        super(new DatabaseContext(context), profileName, null, DATABASE_VERSION);
     }
 
     public Dao<Wallet, Long> getWalletDao() throws SQLException {
@@ -84,6 +84,54 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
         walletDao = null;
         tagDao = null;
         cashFlowDao = null;
-        walletPlus = null;
+    }
+
+    static class DatabaseContext extends ContextWrapper {
+
+        private static final String DEBUG_CONTEXT = "DatabaseContext";
+
+        public DatabaseContext(Context base) {
+            super(base);
+        }
+
+        @Override
+        public File getDatabasePath(String name) {
+
+            String dbfile = Utils.getMainDatabaseFolder(getApplicationContext()) + name;
+            if (!dbfile.endsWith(".db")) {
+                dbfile += ".db";
+            }
+
+            File result = new File(dbfile);
+
+            if (!result.getParentFile().exists()) {
+                result.getParentFile().mkdirs();
+            }
+
+            if (Log.isLoggable(DEBUG_CONTEXT, Log.WARN)) {
+                Log.w(DEBUG_CONTEXT,
+                        "getDatabasePath(" + name + ") = " + result.getAbsolutePath());
+            }
+
+            return result;
+        }
+
+        /* this version is called for android devices >= api-11. thank to @damccull for fixing this. */
+        @Override
+        public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory, DatabaseErrorHandler errorHandler) {
+            return openOrCreateDatabase(name, mode, factory);
+        }
+
+        /* this version is called for android devices < api-11 */
+        @Override
+        public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory) {
+            SQLiteDatabase result = SQLiteDatabase.openOrCreateDatabase(getDatabasePath(name), null);
+            // SQLiteDatabase result = super.openOrCreateDatabase(name, mode, factory);
+            if (Log.isLoggable(DEBUG_CONTEXT, Log.WARN)) {
+                Log.w(DEBUG_CONTEXT,
+                        "openOrCreateDatabase(" + name + ",,) = " + result.getPath());
+            }
+            return result;
+        }
     }
 }

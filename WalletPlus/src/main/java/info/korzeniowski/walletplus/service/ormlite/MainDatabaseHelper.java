@@ -13,26 +13,18 @@ import java.sql.SQLException;
 
 import javax.inject.Inject;
 
-import info.korzeniowski.walletplus.model.Account;
 import info.korzeniowski.walletplus.model.Profile;
 
 public class MainDatabaseHelper extends OrmLiteSqliteOpenHelper {
+    public static final String MAIN_DATABASE_NAME = "WalletPlus.db";
 
     private static final int DATABASE_VERSION = 1;
 
-    private Dao<Account, Long> accountDao;
     private Dao<Profile, Long> profileDao;
 
     @Inject
     public MainDatabaseHelper(Context context) {
-        super(context, "WalletPlus.db", null, DATABASE_VERSION);
-    }
-
-    public Dao<Account, Long> getAccountDao() throws SQLException {
-        if (accountDao == null) {
-            accountDao = getDao(Account.class);
-        }
-        return accountDao;
+        super(context, MAIN_DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     public Dao<Profile, Long> getProfileDao() throws SQLException {
@@ -45,7 +37,6 @@ public class MainDatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
         try {
-            TableUtils.createTable(connectionSource, Account.class);
             TableUtils.createTable(connectionSource, Profile.class);
         } catch (SQLException e) {
             Log.e(MainDatabaseHelper.class.getName(), "Can't create main database", e);
@@ -60,6 +51,6 @@ public class MainDatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     @Override
     public void close() {
-        accountDao = null;
+        profileDao = null;
     }
 }

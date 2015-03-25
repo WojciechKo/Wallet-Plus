@@ -10,24 +10,28 @@ public class Profile implements Identifiable {
 
     public static final String ID_COLUMN_NAME = "id";
     public static final String DRIVE_ID_COLUMN_NAME = "driveId";
-    public static final String ACCOUNT_ID_COLUMN_NAME = "account_id";
     public static final String NAME_COLUMN_NAME = "name";
     public static final String DATABASE_FILE_PATH_COLUMN_NAME = "databaseFilePath";
+    public static final String SYNCHRONIZED_COLUMN_NAME = "synchronized";
+    public static final String GMAIL_ACCOUNT_COLUMN_NAME = "gmailAccount";
 
     @DatabaseField(columnName = ID_COLUMN_NAME, generatedId = true)
     private Long id;
-
-    @DatabaseField(columnName = DRIVE_ID_COLUMN_NAME)
-    private String driveId;
-
-    @DatabaseField(columnName = ACCOUNT_ID_COLUMN_NAME, foreign = true, foreignAutoRefresh = true)
-    private Account account;
 
     @DatabaseField(columnName = NAME_COLUMN_NAME, uniqueIndex = true)
     private String name;
 
     @DatabaseField(columnName = DATABASE_FILE_PATH_COLUMN_NAME, canBeNull = false)
     private String databaseFilePath;
+
+    @DatabaseField(columnName = GMAIL_ACCOUNT_COLUMN_NAME)
+    private String gmailAccount;
+
+    @DatabaseField(columnName = DRIVE_ID_COLUMN_NAME)
+    private String driveId;
+
+    @DatabaseField(columnName = SYNCHRONIZED_COLUMN_NAME, canBeNull = false)
+    private boolean synchronize;
 
     @Override
     public Long getId() {
@@ -36,24 +40,6 @@ public class Profile implements Identifiable {
 
     public Profile setId(Long id) {
         this.id = id;
-        return this;
-    }
-
-    public String getDriveId() {
-        return driveId;
-    }
-
-    public Profile setDriveId(String driveId) {
-        this.driveId = driveId;
-        return this;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public Profile setAccount(Account account) {
-        this.account = account;
         return this;
     }
 
@@ -72,6 +58,33 @@ public class Profile implements Identifiable {
 
     public Profile setDatabaseFilePath(String databaseFilePath) {
         this.databaseFilePath = databaseFilePath;
+        return this;
+    }
+
+    public String getGmailAccount() {
+        return gmailAccount;
+    }
+
+    public Profile setGmailAccount(String gmailAccount) {
+        this.gmailAccount = gmailAccount;
+        return this;
+    }
+
+    public String getDriveId() {
+        return driveId;
+    }
+
+    public Profile setDriveId(String driveId) {
+        this.driveId = driveId;
+        return this;
+    }
+
+    public Boolean isSynchronized() {
+        return synchronize;
+    }
+
+    public Profile setSynchronized(Boolean synchronize) {
+        this.synchronize = synchronize;
         return this;
     }
 }

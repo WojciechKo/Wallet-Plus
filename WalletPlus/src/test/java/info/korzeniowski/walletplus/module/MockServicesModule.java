@@ -6,7 +6,6 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import info.korzeniowski.walletplus.service.AccountService;
 import info.korzeniowski.walletplus.service.CashFlowService;
 import info.korzeniowski.walletplus.service.ProfileService;
 import info.korzeniowski.walletplus.service.StatisticService;
@@ -15,12 +14,6 @@ import info.korzeniowski.walletplus.service.WalletService;
 
 @Module
 public class MockServicesModule {
-
-    @Provides
-    @Singleton
-    public AccountService provideAccountService() {
-        return Mockito.mock(AccountService.class);
-    }
 
     @Provides
     @Singleton
