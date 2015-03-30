@@ -33,7 +33,7 @@ android {
     defaultConfig {
         versionCode 1
         versionName "1.0.0-SNAPSHOT"
-        applicationId 'info.korzeniowski.walletplus'
+        applicationId 'pl.net.korzeniowski.walletplus'
 
         minSdkVersion 17
         targetSdkVersion 21

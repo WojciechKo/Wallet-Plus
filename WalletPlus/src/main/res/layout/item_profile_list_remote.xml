@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<info.korzeniowski.walletplus.widget.CheckableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<pl.net.korzeniowski.walletplus.widget.CheckableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/selector_list_item">
@@ -35,4 +35,4 @@
                 android:layout_below="@id/size"/>
 
     </RelativeLayout>
-</info.korzeniowski.walletplus.widget.CheckableFrameLayout>
+</pl.net.korzeniowski.walletplus.widget.CheckableFrameLayout>

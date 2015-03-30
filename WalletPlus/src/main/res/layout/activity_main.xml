@@ -63,7 +63,7 @@
                         android:textSize="@dimen/smallFontSize"/>
             </LinearLayout>
 
-            <info.korzeniowski.walletplus.widget.SquareImageButton android:id="@+id/switchAccount"
+            <pl.net.korzeniowski.walletplus.widget.SquareImageButton android:id="@+id/switchAccount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@id/accountLayout"
