@@ -1,7 +1,3 @@
-import org.aspectj.bridge.IMessage
-import org.aspectj.bridge.MessageHandler
-import org.aspectj.tools.ajc.Main
-
 buildscript {
     repositories {
         mavenCentral()
@@ -36,10 +32,14 @@ android {
         applicationId 'pl.net.korzeniowski.walletplus'
 
         minSdkVersion 17
-        targetSdkVersion 21
+        targetSdkVersion 22
 
         signingConfig signingConfigs.config
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        memorydb.initWith(buildTypes.debug)
     }
 
     lintOptions {
@@ -52,6 +52,10 @@ android {
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 
@@ -92,14 +96,11 @@ repositories {
 
 dependencies {
     // Android Support
-    def androidSupportVersion = '21.0.+'
+    def androidSupportVersion = '22.+'
     compile "com.android.support:support-v4:$androidSupportVersion"
     compile "com.android.support:appcompat-v7:$androidSupportVersion"
     compile "com.android.support:cardview-v7:$androidSupportVersion"
     compile "com.android.support:recyclerview-v7:$androidSupportVersion"
-
-    // AspectJ
-    compile 'org.aspectj:aspectjrt:1.8.1'
 
     // Google Drive API
     compile 'com.google.android.gms:play-services-identity:6.5.87'
@@ -120,7 +121,7 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.1.0'
 
     // Dagger
-    def daggerVersion = '2.0-SNAPSHOT'
+    def daggerVersion = '2.0'
     apt "com.google.dagger:dagger-compiler:$daggerVersion"
     compile "com.google.dagger:dagger:$daggerVersion"
     provided 'org.glassfish:javax.annotation:10.0-b28'
@@ -150,27 +151,24 @@ dependencies {
     // ColorPickerView
     compile project(':colorPickerView-library')
 
+    // SQLite
+    memorydbCompile 'org.xerial:sqlite-jdbc:3.8.7'
+    memorydbCompile 'com.j256.ormlite:ormlite-jdbc:4.48'
+
     // Espresso
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.0')
     androidTestCompile('com.android.support.test:testing-support-lib:0.1')
-
-    // AssertJ Android
-//    androidTestCompile 'com.squareup.assertj:assertj-android:1.0.0'
 
     // JUnit
     testCompile 'junit:junit:4.12'
 
     // Mockito
-    testCompile 'org.mockito:mockito-core:1.9.5'
-    androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    def mockitoVersion = '1.9.5'
+    memorydbCompile "org.mockito:mockito-core:$mockitoVersion"
+    androidTestCompile "org.mockito:mockito-core:$mockitoVersion"
 
-    // Robolectric
-    def robolectricVersion = '3.0-SNAPSHOT'
-    testCompile "org.robolectric:shadows-support-v4:$robolectricVersion"
-    testCompile "org.robolectric:robolectric:$robolectricVersion"
-
-    // Fest Android
-    testCompile 'com.squareup:fest-android:1.0.8'
+    // AssertJ
+    androidTestCompile 'org.assertj:assertj-core:2.0.0'
 
     // Fluent Exception
     testCompile 'pl.wkr:fluent-exception-rule:1.0.1'
@@ -214,45 +212,5 @@ apply plugin: 'idea'
 idea {
     module {
         downloadSources = true
-    }
-}
-
-final def log = project.logger
-final def variants = project.android.applicationVariants
-variants.all { variant ->
-    if (!variant.buildType.isDebuggable()) {
-        log.debug("Skipping non-debuggable build type '${variant.buildType.name}'.")
-        return;
-    }
-    JavaCompile javaCompile = variant.javaCompile
-    javaCompile.doLast {
-        String[] args = ["-showWeaveInfo",
-                         "-1.5",
-                         "-inpath", javaCompile.destinationDir.toString(),
-                         "-aspectpath", javaCompile.classpath.asPath,
-                         "-d", javaCompile.destinationDir.toString(),
-                         "-classpath", javaCompile.classpath.asPath,
-                         "-bootclasspath", project.android.bootClasspath.join(File.pathSeparator)]
-        log.debug "ajc args: " + Arrays.toString(args)
-        MessageHandler handler = new MessageHandler(true);
-        new Main().run(args, handler);
-        for (IMessage message : handler.getMessages(null, true)) {
-            switch (message.getKind()) {
-                case IMessage.ABORT:
-                case IMessage.ERROR:
-                case IMessage.FAIL:
-                    log.error message.message, message.thrown
-                    break;
-                case IMessage.WARNING:
-                    log.warn message.message, message.thrown
-                    break;
-                case IMessage.INFO:
-                    log.info message.message, message.thrown
-                    break;
-                case IMessage.DEBUG:
-                    log.debug message.message, message.thrown
-                    break;
-            }
-        }
     }
 }

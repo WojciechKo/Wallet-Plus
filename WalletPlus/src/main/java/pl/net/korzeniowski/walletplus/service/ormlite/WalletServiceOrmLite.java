@@ -13,8 +13,8 @@ import javax.inject.Inject;
 
 import pl.net.korzeniowski.walletplus.model.CashFlow;
 import pl.net.korzeniowski.walletplus.model.Wallet;
+import pl.net.korzeniowski.walletplus.service.ProfileService;
 import pl.net.korzeniowski.walletplus.service.WalletService;
-import pl.net.korzeniowski.walletplus.service.aspect.DatabaseChanger;
 import pl.net.korzeniowski.walletplus.service.exception.DatabaseException;
 import pl.net.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 
@@ -23,20 +23,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class WalletServiceOrmLite implements WalletService {
     private final Dao<Wallet, Long> walletDao;
     private final Dao<CashFlow, Long> cashFlowDao;
+    private ProfileService profileService;
 
     @Inject
-    public WalletServiceOrmLite(Dao<Wallet, Long> walletDao, Dao<CashFlow, Long> cashFlowDao) {
+    public WalletServiceOrmLite(Dao<Wallet, Long> walletDao,
+                                Dao<CashFlow, Long> cashFlowDao,
+                                ProfileService profileService) {
         this.walletDao = walletDao;
         this.cashFlowDao = cashFlowDao;
+        this.profileService = profileService;
     }
 
     @Override
-    @DatabaseChanger
     public Long insert(Wallet wallet) {
         try {
             validateInsert(wallet);
             wallet.setCurrentAmount(wallet.getInitialAmount());
             walletDao.create(wallet);
+            profileService.actualProfileHasChanged();
             return wallet.getId();
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -97,12 +101,12 @@ public class WalletServiceOrmLite implements WalletService {
     }
 
     @Override
-    @DatabaseChanger
     public void update(Wallet newValue) {
         try {
             validateUpdate(newValue);
             fixCurrentAmount(newValue);
             walletDao.update(newValue);
+            profileService.actualProfileHasChanged();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -118,7 +122,6 @@ public class WalletServiceOrmLite implements WalletService {
     }
 
     @Override
-    @DatabaseChanger
     public void deleteById(Long id) {
         try {
             validateDelete(id);
@@ -126,6 +129,7 @@ public class WalletServiceOrmLite implements WalletService {
             db.where().eq(CashFlow.WALLET_ID_COLUMN_NAME, id);
             cashFlowDao.delete(db.prepare());
             walletDao.deleteById(id);
+            profileService.actualProfileHasChanged();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

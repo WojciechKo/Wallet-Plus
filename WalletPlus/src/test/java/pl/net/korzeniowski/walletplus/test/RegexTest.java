@@ -1,16 +1,14 @@
-package pl.net.korzeniowski.walletplus.test.java;
+package pl.net.korzeniowski.walletplus.test;
+
+import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 import pl.net.korzeniowski.walletplus.util.KorzeniowskiUtils;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@Config(emulateSdk = 18)
-@RunWith(RobolectricTestRunner.class)
+@SmallTest
 public class RegexTest {
 
     @Test

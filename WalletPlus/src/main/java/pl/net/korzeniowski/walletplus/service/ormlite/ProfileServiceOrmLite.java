@@ -81,6 +81,10 @@ public class ProfileServiceOrmLite implements ProfileService {
         return activeProfile;
     }
 
+    public void actualProfileHasChanged() {
+        update(getActiveProfile().setSynchronized(false));
+    }
+
     @Override
     public List<Profile> getAll() {
         try {

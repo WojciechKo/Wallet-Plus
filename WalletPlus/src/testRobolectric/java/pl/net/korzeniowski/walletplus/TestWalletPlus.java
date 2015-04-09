@@ -5,11 +5,11 @@ import net.danlew.android.joda.JodaTimeAndroid;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import pl.net.korzeniowski.walletplus.module.GoogleDriveRestModule;
-import pl.net.korzeniowski.walletplus.module.MainModule;
-import pl.net.korzeniowski.walletplus.module.MockServicesModule;
-import pl.net.korzeniowski.walletplus.module.ServicesModule;
-import pl.net.korzeniowski.walletplus.module.TestDatabaseModule;
+import pl.net.korzeniowski.walletplus.dagger.module.GoogleDriveRestModule;
+import pl.net.korzeniowski.walletplus.dagger.module.MainModule;
+import pl.net.korzeniowski.walletplus.dagger.MockServicesModule;
+import pl.net.korzeniowski.walletplus.dagger.module.InMemoryServicesModule;
+import pl.net.korzeniowski.walletplus.dagger.TestDatabaseModule;
 import pl.net.korzeniowski.walletplus.test.service.cashflow.CashFlowServiceOrmLiteTest;
 import pl.net.korzeniowski.walletplus.test.service.statistic.StatisticServiceOrmLiteTest;
 import pl.net.korzeniowski.walletplus.test.service.tag.TagServiceOrmLiteTest;
@@ -25,7 +25,7 @@ public class TestWalletPlus extends WalletPlus {
             modules = {
                     MainModule.class,
                     TestDatabaseModule.class,
-                    ServicesModule.class,
+                    InMemoryServicesModule.class,
                     GoogleDriveRestModule.class}
     )
     public interface DatabaseComponent extends TestComponent {

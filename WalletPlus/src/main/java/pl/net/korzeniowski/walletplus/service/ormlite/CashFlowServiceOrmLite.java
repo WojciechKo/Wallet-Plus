@@ -20,7 +20,7 @@ import pl.net.korzeniowski.walletplus.model.Tag;
 import pl.net.korzeniowski.walletplus.model.TagAndCashFlowBind;
 import pl.net.korzeniowski.walletplus.model.Wallet;
 import pl.net.korzeniowski.walletplus.service.CashFlowService;
-import pl.net.korzeniowski.walletplus.service.aspect.DatabaseChanger;
+import pl.net.korzeniowski.walletplus.service.ProfileService;
 import pl.net.korzeniowski.walletplus.service.exception.DatabaseException;
 import pl.net.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 
@@ -30,6 +30,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
     private final Dao<Tag, Long> tagDao;
     private final Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao;
     private final TagServiceOrmLite tagServiceOrmLite;
+    private ProfileService profileService;
 
     private PreparedQuery<Tag> tagsOfCashFlowQuery;
 
@@ -38,25 +39,27 @@ public class CashFlowServiceOrmLite implements CashFlowService {
                                   Dao<Wallet, Long> walletDao,
                                   Dao<Tag, Long> tagDao,
                                   Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao,
-                                  TagServiceOrmLite tagServiceOrmLite) {
+                                  TagServiceOrmLite tagServiceOrmLite,
+                                  ProfileService profileService) {
         this.cashFlowDao = cashFlowDao;
         this.walletDao = walletDao;
         this.tagDao = tagDao;
         this.tagAndCashFlowBindsDao = tagAndCashFlowBindsDao;
         this.tagServiceOrmLite = tagServiceOrmLite;
+        this.profileService = profileService;
     }
 
     /**
      * CREATE
      */
     @Override
-    @DatabaseChanger
     public Long insert(CashFlow cashFlow) {
         try {
             validateInsert(cashFlow);
             cashFlowDao.create(cashFlow);
             bindWithTags(cashFlow);
             fixCurrentAmountInWalletAfterInsert(cashFlow);
+            profileService.actualProfileHasChanged();
             return cashFlow.getId();
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -200,7 +203,6 @@ public class CashFlowServiceOrmLite implements CashFlowService {
      * UPDATE
      */
     @Override
-    @DatabaseChanger
     public void update(CashFlow cashFlow) {
         try {
             CashFlow toUpdate = findById(cashFlow.getId());
@@ -210,6 +212,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
             bindWithTags(cashFlow);
             fixCurrentAmountInWalletAfterDelete(toUpdate);
             fixCurrentAmountInWalletAfterInsert(cashFlow);
+            profileService.actualProfileHasChanged();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -270,13 +273,13 @@ public class CashFlowServiceOrmLite implements CashFlowService {
      * DELETE
      */
     @Override
-    @DatabaseChanger
     public void deleteById(Long id) {
         try {
             CashFlow cashFlow = cashFlowDao.queryForId(id);
             cashFlowDao.deleteById(id);
             unbindFromTags(cashFlow);
             fixCurrentAmountInWalletAfterDelete(cashFlow);
+            profileService.actualProfileHasChanged();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

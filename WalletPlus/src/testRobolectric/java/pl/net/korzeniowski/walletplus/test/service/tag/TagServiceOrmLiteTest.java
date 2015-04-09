@@ -1,33 +1,47 @@
 package pl.net.korzeniowski.walletplus.test.service.tag;
 
 import android.graphics.Color;
-import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.runner.RunWith;
+import org.robolectric.RuntimeEnvironment;
 
-import pl.net.korzeniowski.walletplus.dagger.test.ServiceInjectedUnitTest;
+import javax.inject.Inject;
+
+import pl.net.korzeniowski.walletplus.MyRobolectricTestRunner;
+import pl.net.korzeniowski.walletplus.TestWalletPlus;
 import pl.net.korzeniowski.walletplus.model.CashFlow;
 import pl.net.korzeniowski.walletplus.model.Tag;
 import pl.net.korzeniowski.walletplus.model.Wallet;
+import pl.net.korzeniowski.walletplus.service.CashFlowService;
+import pl.net.korzeniowski.walletplus.service.TagService;
+import pl.net.korzeniowski.walletplus.service.WalletService;
 import pl.net.korzeniowski.walletplus.service.exception.EntityAlreadyExistsException;
 import pl.net.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 import pl.wkr.fluentrule.api.FluentExpectedException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
-@SmallTest
-public class TagServiceOrmLiteTest extends ServiceInjectedUnitTest {
+@RunWith(MyRobolectricTestRunner.class)
+public class TagServiceOrmLiteTest {
+
+    @Inject
+    TagService tagService;
+
+    @Inject
+    WalletService walletService;
+
+    @Inject
+    CashFlowService cashFlowService;
 
     @Rule
     public FluentExpectedException exception = FluentExpectedException.none();
 
     @Before
     public void setUp() {
-        super.setUp();
+        ((TestWalletPlus) RuntimeEnvironment.application).component().inject(this);
     }
 
     /**
@@ -55,7 +69,6 @@ public class TagServiceOrmLiteTest extends ServiceInjectedUnitTest {
     }
 
     @Test
-    @Ignore
     public void shouldGenerateColorForTagIfNotSpecifiedAfterInsert() {
         // given
         Tag tag = new Tag().setName("tag-1");

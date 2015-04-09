@@ -1,4 +1,4 @@
-package pl.net.korzeniowski.walletplus.module;
+package pl.net.korzeniowski.walletplus.dagger.module;
 
 import android.content.Context;
 

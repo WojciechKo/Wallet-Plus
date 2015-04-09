@@ -1,6 +1,15 @@
-package pl.net.korzeniowski.walletplus.module;
+package pl.net.korzeniowski.walletplus.dagger.module;
+
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.DaoManager;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
+
+import org.mockito.Mockito;
 
 import java.sql.SQLException;
 
@@ -19,36 +28,70 @@ import pl.net.korzeniowski.walletplus.service.StatisticService;
 import pl.net.korzeniowski.walletplus.service.TagService;
 import pl.net.korzeniowski.walletplus.service.WalletService;
 import pl.net.korzeniowski.walletplus.service.ormlite.CashFlowServiceOrmLite;
-import pl.net.korzeniowski.walletplus.service.ormlite.MainDatabaseHelper;
 import pl.net.korzeniowski.walletplus.service.ormlite.ProfileServiceOrmLite;
 import pl.net.korzeniowski.walletplus.service.ormlite.StatisticServiceOrmLite;
 import pl.net.korzeniowski.walletplus.service.ormlite.TagServiceOrmLite;
-import pl.net.korzeniowski.walletplus.service.ormlite.UserDatabaseHelper;
 import pl.net.korzeniowski.walletplus.service.ormlite.WalletServiceOrmLite;
+import pl.net.korzeniowski.walletplus.util.PrefUtils;
 
 /**
  * Module for Database objects.
  */
 @Module
-public class ServicesModule {
+public class InMemoryServicesModule {
+
+    @Provides
+    @Singleton
+    public Context provideContext() {
+        ApplicationInfo applicationInfo = Mockito.mock(ApplicationInfo.class);
+        applicationInfo.dataDir = "";
+
+        Context context = Mockito.mock(Context.class);
+        Mockito.when(context.getApplicationInfo()).thenReturn(applicationInfo);
+        return context;
+    }
+
+    @Provides
+    @Singleton
+    public PrefUtils providePrefUtils() {
+        return Mockito.mock(PrefUtils.class);
+    }
+
+    @Provides
+    @Singleton
+    public ConnectionSource provideConnectionSource() {
+        try {
+            JdbcConnectionSource connectionSource = new JdbcConnectionSource("jdbc:sqlite::memory:");
+            TableUtils.createTable(connectionSource, Wallet.class);
+            TableUtils.createTable(connectionSource, Tag.class);
+            TableUtils.createTable(connectionSource, CashFlow.class);
+            TableUtils.createTable(connectionSource, TagAndCashFlowBind.class);
+            TableUtils.createTable(connectionSource, Profile.class);
+            return connectionSource;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * *************
      * PROFILE
      * *************
      */
     @Provides
-    public Dao<Profile, Long> provideProfileDao(MainDatabaseHelper mainDatabaseHelper) {
+    @Singleton
+    public Dao<Profile, Long> provideProfileDao(ConnectionSource connectionSource) {
         try {
-            return mainDatabaseHelper.getProfileDao();
+            return DaoManager.createDao(connectionSource, Profile.class);
         } catch (SQLException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Provides
     @Singleton
     public ProfileService provideProfileService(ProfileServiceOrmLite profileServiceOrmLite) {
+        profileServiceOrmLite.insert(new Profile().setName("Test profile"));
         return profileServiceOrmLite;
     }
 
@@ -58,13 +101,13 @@ public class ServicesModule {
      * *************
      */
     @Provides
-    public Dao<Tag, Long> provideTagDao(UserDatabaseHelper userDatabaseHelper) {
+    @Singleton
+    public Dao<Tag, Long> provideTagDao(ConnectionSource connectionSource) {
         try {
-            return userDatabaseHelper.getTagDao();
+            return DaoManager.createDao(connectionSource, Tag.class);
         } catch (SQLException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Provides
@@ -79,13 +122,13 @@ public class ServicesModule {
      * *************
      */
     @Provides
-    public Dao<CashFlow, Long> provideCashFlowDao(UserDatabaseHelper userDatabaseHelper) {
+    @Singleton
+    public Dao<CashFlow, Long> provideCashFlowDao(ConnectionSource connectionSource) {
         try {
-            return userDatabaseHelper.getCashFlowDao();
+            return DaoManager.createDao(connectionSource, CashFlow.class);
         } catch (SQLException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Provides
@@ -100,13 +143,13 @@ public class ServicesModule {
      * *************
      */
     @Provides
-    public Dao<TagAndCashFlowBind, Long> provideTagAndCashFlowDao(UserDatabaseHelper userDatabaseHelper) {
+    @Singleton
+    public Dao<TagAndCashFlowBind, Long> provideTagAndCashFlowDao(ConnectionSource connectionSource) {
         try {
-            return userDatabaseHelper.getTagAndCashFlowBindsDao();
+            return DaoManager.createDao(connectionSource, TagAndCashFlowBind.class);
         } catch (SQLException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     /**
@@ -115,13 +158,13 @@ public class ServicesModule {
      * *************
      */
     @Provides
-    public Dao<Wallet, Long> provideWalletDao(UserDatabaseHelper userDatabaseHelper) {
+    @Singleton
+    public Dao<Wallet, Long> provideWalletDao(ConnectionSource connectionSource) {
         try {
-            return userDatabaseHelper.getWalletDao();
+            return DaoManager.createDao(connectionSource, Wallet.class);
         } catch (SQLException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Provides

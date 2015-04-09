@@ -1,8 +1,6 @@
-package pl.net.korzeniowski.walletplus.module;
+package pl.net.korzeniowski.walletplus.dagger.module;
 
 import android.content.Context;
-
-import java.util.List;
 
 import javax.inject.Singleton;
 
@@ -12,7 +10,6 @@ import pl.net.korzeniowski.walletplus.model.Profile;
 import pl.net.korzeniowski.walletplus.service.ormlite.MainDatabaseHelper;
 import pl.net.korzeniowski.walletplus.service.ormlite.ProfileServiceOrmLite;
 import pl.net.korzeniowski.walletplus.service.ormlite.UserDatabaseHelper;
-import pl.net.korzeniowski.walletplus.util.PrefUtils;
 import pl.net.korzeniowski.walletplus.util.Utils;
 
 @Module

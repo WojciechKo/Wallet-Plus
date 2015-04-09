@@ -12,8 +12,8 @@ import java.util.Random;
 import javax.inject.Inject;
 
 import pl.net.korzeniowski.walletplus.model.Tag;
+import pl.net.korzeniowski.walletplus.service.ProfileService;
 import pl.net.korzeniowski.walletplus.service.TagService;
-import pl.net.korzeniowski.walletplus.service.aspect.DatabaseChanger;
 import pl.net.korzeniowski.walletplus.service.exception.DatabaseException;
 import pl.net.korzeniowski.walletplus.service.exception.EntityAlreadyExistsException;
 import pl.net.korzeniowski.walletplus.service.exception.EntityPropertyCannotBeNullOrEmptyException;
@@ -22,10 +22,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TagServiceOrmLite implements TagService {
     private final Dao<Tag, Long> tagDao;
+    private ProfileService profileService;
 
     @Inject
-    public TagServiceOrmLite(Dao<Tag, Long> tagDao) {
+    public TagServiceOrmLite(Dao<Tag, Long> tagDao, ProfileService profileService) {
         this.tagDao = tagDao;
+        this.profileService = profileService;
     }
 
     /**
@@ -34,11 +36,11 @@ public class TagServiceOrmLite implements TagService {
      * ********
      */
     @Override
-    @DatabaseChanger
     public Long insert(Tag tag) {
         try {
             validateInsert(tag);
             tagDao.create(tag);
+            profileService.actualProfileHasChanged();
             return tag.getId();
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -104,11 +106,11 @@ public class TagServiceOrmLite implements TagService {
      * ********
      */
     @Override
-    @DatabaseChanger
     public void update(final Tag newValue) {
         try {
             validateUpdate(newValue);
             tagDao.update(newValue);
+            profileService.actualProfileHasChanged();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -143,10 +145,10 @@ public class TagServiceOrmLite implements TagService {
      * ********
      */
     @Override
-    @DatabaseChanger
     public void deleteById(Long id) {
         try {
             tagDao.deleteById(id);
+            profileService.actualProfileHasChanged();
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

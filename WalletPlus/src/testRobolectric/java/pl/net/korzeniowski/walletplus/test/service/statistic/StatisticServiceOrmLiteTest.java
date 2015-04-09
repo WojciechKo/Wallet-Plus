@@ -1,25 +1,44 @@
 package pl.net.korzeniowski.walletplus.test.service.statistic;
 
-import android.test.suitebuilder.annotation.SmallTest;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RuntimeEnvironment;
 
 import java.util.Date;
 
-import pl.net.korzeniowski.walletplus.dagger.test.ServiceInjectedUnitTest;
+import javax.inject.Inject;
+
+import pl.net.korzeniowski.walletplus.MyRobolectricTestRunner;
+import pl.net.korzeniowski.walletplus.TestWalletPlus;
 import pl.net.korzeniowski.walletplus.model.CashFlow;
 import pl.net.korzeniowski.walletplus.model.Tag;
 import pl.net.korzeniowski.walletplus.model.Wallet;
+import pl.net.korzeniowski.walletplus.service.CashFlowService;
+import pl.net.korzeniowski.walletplus.service.StatisticService;
+import pl.net.korzeniowski.walletplus.service.TagService;
+import pl.net.korzeniowski.walletplus.service.WalletService;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
 
-@SmallTest
-public class StatisticServiceOrmLiteTest extends ServiceInjectedUnitTest{
+@RunWith(MyRobolectricTestRunner.class)
+public class StatisticServiceOrmLiteTest {
+
+    @Inject
+    CashFlowService cashFlowService;
+
+    @Inject
+    WalletService walletService;
+
+    @Inject
+    TagService tagService;
+
+    @Inject
+    StatisticService statisticService;
 
     @Before
     public void setUp() {
-        super.setUp();
+        ((TestWalletPlus) RuntimeEnvironment.application).component().inject(this);
     }
 
     @Test

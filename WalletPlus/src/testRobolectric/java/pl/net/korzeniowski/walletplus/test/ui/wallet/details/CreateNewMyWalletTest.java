@@ -27,7 +27,7 @@ import pl.net.korzeniowski.walletplus.ui.wallets.details.WalletDetailsActivity;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 
-@Ignore
+//@Ignore
 @RunWith(MyRobolectricTestRunner.class)
 public class CreateNewMyWalletTest {
 
