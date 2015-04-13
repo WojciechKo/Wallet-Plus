@@ -43,7 +43,7 @@ public class InMemoryServicesModule {
     @Provides
     @Singleton
     public Context provideContext() {
-        ApplicationInfo applicationInfo = Mockito.mock(ApplicationInfo.class);
+        ApplicationInfo applicationInfo = new ApplicationInfo();
         applicationInfo.dataDir = "";
 
         Context context = Mockito.mock(Context.class);
