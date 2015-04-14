@@ -164,8 +164,12 @@ dependencies {
 
     // Mockito
     def mockitoVersion = '1.9.5'
-    memorydbCompile "org.mockito:mockito-core:$mockitoVersion"
-    androidTestCompile "org.mockito:mockito-core:$mockitoVersion"
+    memorydbCompile ("org.mockito:mockito-core:$mockitoVersion") {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
+    androidTestCompile ("org.mockito:mockito-core:$mockitoVersion") {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
 
     // AssertJ
     androidTestCompile 'org.assertj:assertj-core:2.0.0'
