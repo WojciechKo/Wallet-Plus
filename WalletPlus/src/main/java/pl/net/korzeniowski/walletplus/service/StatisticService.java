@@ -3,6 +3,7 @@ package pl.net.korzeniowski.walletplus.service;
 import org.joda.time.Period;
 
 import java.util.Date;
+import java.util.Map;
 
 import pl.net.korzeniowski.walletplus.model.Tag;
 
@@ -13,6 +14,26 @@ public interface StatisticService {
     Long countCashFlowsAssignedToTag(Long tagId);
 
     TagStats getTagStats(Tag tag, Date firstDay, Period period, Integer iteration);
+
+    Map<Tag, TagStats2> getTagStats2(Tag tag);
+
+    class TagStats2 {
+        private Double income = 0.0;
+        private Double expense = 0.0;
+
+        public TagStats2(Double income, Double expense) {
+            this.income = income;
+            this.expense = expense;
+        }
+
+        public Double getIncome() {
+            return income;
+        }
+
+        public Double getExpense() {
+            return expense;
+        }
+    }
 
     class TagStats {
         private final Long tagId;

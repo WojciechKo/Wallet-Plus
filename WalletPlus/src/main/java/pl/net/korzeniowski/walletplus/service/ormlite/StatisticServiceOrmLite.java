@@ -1,18 +1,20 @@
 package pl.net.korzeniowski.walletplus.service.ormlite;
 
+import com.google.common.collect.Maps;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.QueryBuilder;
 
 import org.joda.time.Period;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import pl.net.korzeniowski.walletplus.model.CashFlow;
 import pl.net.korzeniowski.walletplus.model.Tag;
 import pl.net.korzeniowski.walletplus.model.TagAndCashFlowBind;
-import pl.net.korzeniowski.walletplus.service.CashFlowService;
 import pl.net.korzeniowski.walletplus.service.StatisticService;
 import pl.net.korzeniowski.walletplus.service.exception.DatabaseException;
 
@@ -20,17 +22,17 @@ public class StatisticServiceOrmLite implements StatisticService {
 
     private Dao<CashFlow, Long> cashFlowDao;
     private Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindDao;
-    private CashFlowService cashFlowService;
+    private Dao<Tag, Long> tagDao;
 
     @Inject
     public StatisticServiceOrmLite(
             Dao<CashFlow, Long> cashFlowDao,
             Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindDao,
-            CashFlowService cashFlowService) {
+            Dao<Tag, Long> tagDao) {
 
         this.cashFlowDao = cashFlowDao;
         this.tagAndCashFlowBindDao = tagAndCashFlowBindDao;
-        this.cashFlowService = cashFlowService;
+        this.tagDao = tagDao;
     }
 
     @Override
@@ -80,5 +82,73 @@ public class StatisticServiceOrmLite implements StatisticService {
 //        }
 //
 //        return stats;
+    }
+
+    private Long getSelectedTagOnlyStatsQuery(Long tagId, CashFlow.Type type) throws SQLException {
+
+        QueryBuilder<TagAndCashFlowBind, Long> getSelectedTagOnlyStatsSubQuery = tagAndCashFlowBindDao.queryBuilder();
+        getSelectedTagOnlyStatsSubQuery.selectRaw("CASE" +
+                " WHEN " + TagAndCashFlowBind.TABLE_NAME + "." + TagAndCashFlowBind.TAG_ID_COLUMN_NAME + "=" + tagId +
+                " THEN IFNULL(SUM(" + CashFlow.TABLE_NAME + "." + CashFlow.AMOUNT_COLUMN_NAME + "), 0)" +
+                " ELSE 0" +
+                " END AS sums");
+        QueryBuilder<CashFlow, Long> cashFlowQb = cashFlowDao.queryBuilder();
+        cashFlowQb.where().eq(CashFlow.TYPE_COLUMN_NAME, type);
+        getSelectedTagOnlyStatsSubQuery.join(cashFlowQb);
+        getSelectedTagOnlyStatsSubQuery.groupBy(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME);
+        getSelectedTagOnlyStatsSubQuery.having("COUNT(" + TagAndCashFlowBind.TAG_ID_COLUMN_NAME + ")=1");
+
+        return tagAndCashFlowBindDao.queryRawValue("SELECT SUM(sums) FROM (" + getSelectedTagOnlyStatsSubQuery.prepareStatementString() + ")");
+    }
+
+    @Override
+    public Map<Tag, TagStats2> getTagStats2(Tag tag) {
+        try {
+            QueryBuilder<TagAndCashFlowBind, Long> tagStatisticsQuery = tagAndCashFlowBindDao.queryBuilder();
+
+            tagStatisticsQuery.selectRaw(
+                    Tag.TABLE_NAME + "." + Tag.ID_COLUMN_NAME,
+
+                    "CASE" +
+                            " WHEN " + Tag.TABLE_NAME + "." + Tag.ID_COLUMN_NAME + "=" + tag.getId() +
+                            " THEN " + getSelectedTagOnlyStatsQuery(tag.getId(), CashFlow.Type.INCOME) +
+                            " ELSE SUM(CASE" +
+                            " WHEN " + CashFlow.TABLE_NAME + "." + CashFlow.TYPE_COLUMN_NAME + "='" + CashFlow.Type.INCOME + "'" +
+                            " THEN " + CashFlow.AMOUNT_COLUMN_NAME +
+                            " ELSE 0" +
+                            " END)" +
+                            " END AS " + CashFlow.Type.INCOME,
+
+                    "CASE" +
+                            " WHEN " + Tag.TABLE_NAME + "." + Tag.ID_COLUMN_NAME + "=" + tag.getId() +
+                            " THEN " + getSelectedTagOnlyStatsQuery(tag.getId(), CashFlow.Type.EXPANSE) +
+                            " ELSE SUM(CASE" +
+                            " WHEN " + CashFlow.TABLE_NAME + "." + CashFlow.TYPE_COLUMN_NAME + "='" + CashFlow.Type.EXPANSE + "'" +
+                            " THEN " + CashFlow.AMOUNT_COLUMN_NAME +
+                            " ELSE 0" +
+                            " END)" +
+                            " END AS " + CashFlow.Type.EXPANSE);
+
+
+            tagStatisticsQuery.join(cashFlowDao.queryBuilder());
+            tagStatisticsQuery.join(tagDao.queryBuilder());
+
+            QueryBuilder<TagAndCashFlowBind, Long> subBindQuery = tagAndCashFlowBindDao.queryBuilder();
+            subBindQuery.selectColumns(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME);
+            subBindQuery.where().eq(TagAndCashFlowBind.TAG_ID_COLUMN_NAME, tag.getId());
+            tagStatisticsQuery.where().in(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME, subBindQuery);
+
+            tagStatisticsQuery.groupByRaw(Tag.TABLE_NAME + "." + Tag.ID_COLUMN_NAME);
+
+            Map<Tag, TagStats2> result = Maps.newTreeMap();
+            for (String[] resultRow : tagStatisticsQuery.queryRaw()) {
+                Tag rowTag = tagDao.queryForId(Long.parseLong(resultRow[0]));
+                TagStats2 tagStats = new TagStats2(Double.parseDouble(resultRow[1]), Double.parseDouble(resultRow[2]));
+                result.put(rowTag, tagStats);
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
