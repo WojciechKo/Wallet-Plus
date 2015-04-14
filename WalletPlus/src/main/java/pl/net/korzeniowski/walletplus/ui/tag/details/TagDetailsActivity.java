@@ -13,6 +13,7 @@ import java.text.MessageFormat;
 import javax.inject.Inject;
 
 import pl.net.korzeniowski.walletplus.R;
+import pl.net.korzeniowski.walletplus.WalletPlus;
 import pl.net.korzeniowski.walletplus.service.StatisticService;
 import pl.net.korzeniowski.walletplus.service.TagService;
 import pl.net.korzeniowski.walletplus.ui.BaseActivity;
@@ -42,6 +43,7 @@ public class TagDetailsActivity extends BaseActivity {
             return;
         }
 
+        ((WalletPlus) getApplication()).component().inject(this);
         setContentView(R.layout.activity_drawer);
 
         Bundle extras = getIntent().getExtras();
