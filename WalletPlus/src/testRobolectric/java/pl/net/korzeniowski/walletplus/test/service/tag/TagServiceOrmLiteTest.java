@@ -166,7 +166,7 @@ public class TagServiceOrmLiteTest {
 
         CashFlow cashFlow1 = new CashFlow().setAmount(50.0).addTag(tag1, tag2).setType(CashFlow.Type.INCOME).setWallet(wallet);
         cashFlowService.insert(cashFlow1);
-        CashFlow cashFlow2 = new CashFlow().setAmount(50.0).addTag(tag1).setType(CashFlow.Type.EXPANSE).setWallet(wallet);
+        CashFlow cashFlow2 = new CashFlow().setAmount(50.0).addTag(tag1).setType(CashFlow.Type.EXPENSE).setWallet(wallet);
         cashFlowService.insert(cashFlow2);
 
         // when

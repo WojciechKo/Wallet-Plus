@@ -26,7 +26,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         }
     };
 
-    private static final CashFlow.Type defaultType = CashFlow.Type.EXPANSE;
+    private static final CashFlow.Type defaultType = CashFlow.Type.EXPENSE;
 
     private Long id;
     private String amount;

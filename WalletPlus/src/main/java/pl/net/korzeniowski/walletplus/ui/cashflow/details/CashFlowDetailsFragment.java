@@ -236,8 +236,8 @@ public class CashFlowDetailsFragment extends Fragment {
     @OnClick(R.id.typeToggle)
     void onTypeToggleClicked() {
         if (CashFlow.Type.INCOME.equals(cashFlowDetailsState.getType())) {
-            cashFlowDetailsState.setType(CashFlow.Type.EXPANSE);
-        } else if (CashFlow.Type.EXPANSE.equals(cashFlowDetailsState.getType())) {
+            cashFlowDetailsState.setType(CashFlow.Type.EXPENSE);
+        } else if (CashFlow.Type.EXPENSE.equals(cashFlowDetailsState.getType())) {
             cashFlowDetailsState.setType(CashFlow.Type.INCOME);
         }
         setupTypeDependentViews();
@@ -390,8 +390,8 @@ public class CashFlowDetailsFragment extends Fragment {
             typeToggle.setTextColor(getResources().getColor(R.color.white));
             typeToggle.setButtonColor(getResources().getColor(R.color.green));
 
-        } else if (cashFlowDetailsState.getType() == CashFlow.Type.EXPANSE) {
-            typeToggle.setText(getString(R.string.expanse));
+        } else if (cashFlowDetailsState.getType() == CashFlow.Type.EXPENSE) {
+            typeToggle.setText(getString(R.string.expense));
             typeToggle.setTextColor(getResources().getColor(R.color.white));
             typeToggle.setButtonColor(getResources().getColor(R.color.red));
 
@@ -406,8 +406,8 @@ public class CashFlowDetailsFragment extends Fragment {
     private String getPreviousTypeName() {
         if (cashFlowDetailsState.getPreviousType() == CashFlow.Type.INCOME) {
             return getString(R.string.income);
-        } else if (cashFlowDetailsState.getPreviousType() == CashFlow.Type.EXPANSE) {
-            return getString(R.string.expanse);
+        } else if (cashFlowDetailsState.getPreviousType() == CashFlow.Type.EXPENSE) {
+            return getString(R.string.expense);
         }
         return "";
     }

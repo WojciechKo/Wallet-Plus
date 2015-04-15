@@ -100,7 +100,7 @@ public class DashboardFragment extends Fragment {
 
             if (cashFlow.getType() == CashFlow.Type.INCOME) {
                 values.add(new PointValue(i, cashFlow.getAmount().floatValue()));
-            } else if (cashFlow.getType() == CashFlow.Type.EXPANSE) {
+            } else if (cashFlow.getType() == CashFlow.Type.EXPENSE) {
                 values.add(new PointValue(i, cashFlow.getAmount().floatValue() * -1));
             }
 

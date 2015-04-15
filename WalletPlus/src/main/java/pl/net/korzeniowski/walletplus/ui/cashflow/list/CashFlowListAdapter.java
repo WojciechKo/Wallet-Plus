@@ -95,7 +95,7 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
     private int getAmountColor(CashFlow item) {
         CashFlow.Type type = item.getType();
 
-        if (type == CashFlow.Type.EXPANSE) {
+        if (type == CashFlow.Type.EXPENSE) {
             return getContext().getResources().getColor(R.color.red);
         } else if (type == CashFlow.Type.INCOME) {
             return getContext().getResources().getColor(R.color.green);

@@ -187,11 +187,11 @@ public class WalletServiceOrmLiteTest {
 
         CashFlow cashFlow1 = new CashFlow().setWallet(wallet1).setAmount(10.0).setType(CashFlow.Type.INCOME);
         cashFlowService.insert(cashFlow1);
-        CashFlow cashFlow2 = new CashFlow().setWallet(wallet2).setAmount(10.0).setType(CashFlow.Type.EXPANSE);
+        CashFlow cashFlow2 = new CashFlow().setWallet(wallet2).setAmount(10.0).setType(CashFlow.Type.EXPENSE);
         cashFlowService.insert(cashFlow2);
         CashFlow cashFlow3 = new CashFlow().setWallet(wallet2).setAmount(10.0).setType(CashFlow.Type.INCOME);
         cashFlowService.insert(cashFlow3);
-        CashFlow cashFlow4 = new CashFlow().setWallet(wallet1).setAmount(10.0).setType(CashFlow.Type.EXPANSE);
+        CashFlow cashFlow4 = new CashFlow().setWallet(wallet1).setAmount(10.0).setType(CashFlow.Type.EXPENSE);
         cashFlowService.insert(cashFlow4);
 
         assertThat(statisticService.countCashFlowsAssignedToWallet(wallet1.getId())).isEqualTo(2);

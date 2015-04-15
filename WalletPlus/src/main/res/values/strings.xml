@@ -13,7 +13,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="income">Income</string>
-    <string name="expanse">Expanse</string>
+    <string name="expense">Expense</string>
     <string name="transfer">Transfer</string>
     <string name="divider">Divider</string>
     <string name="groupIndicator">Group indicator</string>

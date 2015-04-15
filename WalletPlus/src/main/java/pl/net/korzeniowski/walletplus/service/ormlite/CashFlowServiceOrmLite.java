@@ -261,7 +261,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
         Double newCurrentAmount = null;
         if (CashFlow.Type.INCOME.equals(cashFlow.getType())) {
             newCurrentAmount = wallet.getCurrentAmount() + cashFlow.getAmount();
-        } else if (CashFlow.Type.EXPANSE.equals(cashFlow.getType())) {
+        } else if (CashFlow.Type.EXPENSE.equals(cashFlow.getType())) {
             newCurrentAmount = wallet.getCurrentAmount() - cashFlow.getAmount();
         }
         Preconditions.checkNotNull(newCurrentAmount);
@@ -302,7 +302,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
         Double newCurrentAmount = null;
         if (CashFlow.Type.INCOME.equals(cashFlow.getType())) {
             newCurrentAmount = wallet.getCurrentAmount() - cashFlow.getAmount();
-        } else if (CashFlow.Type.EXPANSE.equals(cashFlow.getType())) {
+        } else if (CashFlow.Type.EXPENSE.equals(cashFlow.getType())) {
             newCurrentAmount = wallet.getCurrentAmount() + cashFlow.getAmount();
         }
         Preconditions.checkNotNull(newCurrentAmount);

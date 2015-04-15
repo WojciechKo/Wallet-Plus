@@ -76,7 +76,7 @@ public class StatisticServiceOrmLite implements StatisticService {
 //            CashFlow.Type type = cashFlow.getType();
 //            if (type == CashFlow.Type.INCOME) {
 //                stats.incomeAmount(cashFlow.getAmount());
-//            } else if (type == CashFlow.Type.EXPANSE) {
+//            } else if (type == CashFlow.Type.EXPENSE) {
 //                stats.expanseAmount(cashFlow.getAmount());
 //            }
 //        }
@@ -121,13 +121,13 @@ public class StatisticServiceOrmLite implements StatisticService {
 
                     "CASE" +
                             " WHEN " + Tag.TABLE_NAME + "." + Tag.ID_COLUMN_NAME + "=" + tag.getId() +
-                            " THEN " + getSelectedTagOnlyStatsQuery(tag.getId(), CashFlow.Type.EXPANSE) +
+                            " THEN " + getSelectedTagOnlyStatsQuery(tag.getId(), CashFlow.Type.EXPENSE) +
                             " ELSE SUM(CASE" +
-                            " WHEN " + CashFlow.TABLE_NAME + "." + CashFlow.TYPE_COLUMN_NAME + "='" + CashFlow.Type.EXPANSE + "'" +
+                            " WHEN " + CashFlow.TABLE_NAME + "." + CashFlow.TYPE_COLUMN_NAME + "='" + CashFlow.Type.EXPENSE + "'" +
                             " THEN " + CashFlow.AMOUNT_COLUMN_NAME +
                             " ELSE 0" +
                             " END)" +
-                            " END AS " + CashFlow.Type.EXPANSE);
+                            " END AS " + CashFlow.Type.EXPENSE);
 
 
             tagStatisticsQuery.join(cashFlowDao.queryBuilder());
@@ -139,7 +139,7 @@ public class StatisticServiceOrmLite implements StatisticService {
             tagStatisticsQuery.where().in(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME, subBindQuery);
 
             tagStatisticsQuery.groupByRaw(Tag.TABLE_NAME + "." + Tag.ID_COLUMN_NAME);
-            tagStatisticsQuery.orderByRaw(CashFlow.Type.INCOME + " + " + CashFlow.Type.EXPANSE + " DESC");
+            tagStatisticsQuery.orderByRaw(CashFlow.Type.INCOME + " + " + CashFlow.Type.EXPENSE + " DESC");
 
             Map<Tag, TagStats2> result = Maps.newLinkedHashMap();
             for (String[] resultRow : tagStatisticsQuery.queryRaw()) {

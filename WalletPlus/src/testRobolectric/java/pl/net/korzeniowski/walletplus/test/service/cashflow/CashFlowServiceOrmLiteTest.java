@@ -167,7 +167,7 @@ public class CashFlowServiceOrmLiteTest {
                 .setAmount(amount)
                 .setWallet(myWallet)
                 .addTag(new Tag("tag-1"))
-                .setType(CashFlow.Type.EXPANSE)
+                .setType(CashFlow.Type.EXPENSE)
                 .setDateTime(new Date());
 
         // when
@@ -215,7 +215,7 @@ public class CashFlowServiceOrmLiteTest {
         CashFlow cashFlow2 = new CashFlow()
                 .setAmount(20.0)
                 .setDateTime(now.withFieldAdded(DurationFieldType.minutes(), -8).toDate())
-                .setType(CashFlow.Type.EXPANSE)
+                .setType(CashFlow.Type.EXPENSE)
                 .addTag(new Tag("tag-2"))
                 .setWallet(wallet);
         cashFlowService.insert(cashFlow2);
@@ -260,7 +260,7 @@ public class CashFlowServiceOrmLiteTest {
         CashFlow cashFlow2 = new CashFlow()
                 .setAmount(20.0)
                 .setDateTime(now.withFieldAdded(DurationFieldType.minutes(), -8).toDate())
-                .setType(CashFlow.Type.EXPANSE)
+                .setType(CashFlow.Type.EXPENSE)
                 .addTag(new Tag("tag-2"))
                 .setWallet(wallet);
         cashFlowService.insert(cashFlow2);
@@ -291,7 +291,7 @@ public class CashFlowServiceOrmLiteTest {
         CashFlow cashFlow2 = new CashFlow()
                 .setAmount(20.0)
                 .setDateTime(now.withFieldAdded(DurationFieldType.days(), -2).toDate())
-                .setType(CashFlow.Type.EXPANSE)
+                .setType(CashFlow.Type.EXPENSE)
                 .setWallet(wallet);
         cashFlowService.insert(cashFlow2);
 
@@ -359,7 +359,7 @@ public class CashFlowServiceOrmLiteTest {
         CashFlow cashFlow2 = new CashFlow()
                 .setAmount(20.0)
                 .setDateTime(now.withFieldAdded(DurationFieldType.days(), -2).toDate())
-                .setType(CashFlow.Type.EXPANSE)
+                .setType(CashFlow.Type.EXPENSE)
                 .setWallet(wallet2);
         cashFlowService.insert(cashFlow2);
 
@@ -579,7 +579,7 @@ public class CashFlowServiceOrmLiteTest {
 
         // when
         Double newAmount = 200.0;
-        cashFlowService.update(cashFlow.setType(CashFlow.Type.EXPANSE).setAmount(newAmount));
+        cashFlowService.update(cashFlow.setType(CashFlow.Type.EXPENSE).setAmount(newAmount));
 
         // then
         assertThat(walletService.findById(wallet.getId()).getCurrentAmount())
@@ -596,7 +596,7 @@ public class CashFlowServiceOrmLiteTest {
         CashFlow cashFlow = new CashFlow()
                 .setAmount(oldAmount)
                 .setWallet(wallet)
-                .setType(CashFlow.Type.EXPANSE)
+                .setType(CashFlow.Type.EXPENSE)
                 .setDateTime(new Date());
         cashFlowService.insert(cashFlow);
 
@@ -656,7 +656,7 @@ public class CashFlowServiceOrmLiteTest {
                 .setAmount(75.0)
                 .setWallet(wallet)
                 .addTag(new Tag("tag-1"))
-                .setType(CashFlow.Type.EXPANSE)
+                .setType(CashFlow.Type.EXPENSE)
                 .setDateTime(new Date());
         cashFlowService.insert(cashFlow);
 

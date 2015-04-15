@@ -92,17 +92,17 @@ public class DatabaseInitializer {
         /** Init cashflows **/
         Calendar date = Calendar.getInstance();
 
-        cashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPANSE).addTag(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Food"));
+        cashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPENSE).addTag(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Food"));
 
         date.add(Calendar.DATE, -1);
-        cashFlowService.insert(new CashFlow().setAmount(150.0).setType(CashFlow.Type.EXPANSE).addTag(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Cleaning products"));
+        cashFlowService.insert(new CashFlow().setAmount(150.0).setType(CashFlow.Type.EXPENSE).addTag(mainHouse).setWallet(personalWallet).setDateTime(date.getTime()).setComment("Cleaning products"));
 
         date.add(Calendar.HOUR_OF_DAY, -1);
 
         date.add(Calendar.HOUR_OF_DAY, -1);
-        cashFlowService.insert(new CashFlow().setAmount(75.0).setType(CashFlow.Type.EXPANSE).addTag(energy).setWallet(bankAccount).setDateTime(date.getTime()));
-        cashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPANSE).addTag(water).setWallet(bankAccount).setDateTime(date.getTime()));
-        cashFlowService.insert(new CashFlow().setAmount(50.0).setType(CashFlow.Type.EXPANSE).addTag(gas).setWallet(bankAccount).setDateTime(date.getTime()));
+        cashFlowService.insert(new CashFlow().setAmount(75.0).setType(CashFlow.Type.EXPENSE).addTag(energy).setWallet(bankAccount).setDateTime(date.getTime()));
+        cashFlowService.insert(new CashFlow().setAmount(100.0).setType(CashFlow.Type.EXPENSE).addTag(water).setWallet(bankAccount).setDateTime(date.getTime()));
+        cashFlowService.insert(new CashFlow().setAmount(50.0).setType(CashFlow.Type.EXPENSE).addTag(gas).setWallet(bankAccount).setDateTime(date.getTime()));
 
         date.add(Calendar.DATE, -1);
         cashFlowService.insert(new CashFlow().setAmount(500.0).setType(CashFlow.Type.INCOME).setWallet(bankAccount).setWallet(personalWallet).setDateTime(date.getTime()));

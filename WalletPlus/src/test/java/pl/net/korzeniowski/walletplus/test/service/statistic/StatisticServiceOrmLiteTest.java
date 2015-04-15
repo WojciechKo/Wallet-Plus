@@ -36,9 +36,9 @@ public class StatisticServiceOrmLiteTest extends ServiceInjectedUnitTest {
                 .setAmount(50.0)
                 .setDateTime(new Date());
 
-        cashFlowService.insert(cashFlow.setId(null).setWallet(wallet1).setType(CashFlow.Type.EXPANSE));
+        cashFlowService.insert(cashFlow.setId(null).setWallet(wallet1).setType(CashFlow.Type.EXPENSE));
         cashFlowService.insert(cashFlow.setId(null).setWallet(wallet1).setType(CashFlow.Type.INCOME));
-        cashFlowService.insert(cashFlow.setId(null).setWallet(wallet2).setType(CashFlow.Type.EXPANSE));
+        cashFlowService.insert(cashFlow.setId(null).setWallet(wallet2).setType(CashFlow.Type.EXPENSE));
         cashFlowService.insert(cashFlow.setId(null).setWallet(wallet2).setType(CashFlow.Type.INCOME));
         cashFlowService.insert(cashFlow.setId(null).setWallet(wallet2).setType(CashFlow.Type.INCOME));
 
@@ -65,12 +65,12 @@ public class StatisticServiceOrmLiteTest extends ServiceInjectedUnitTest {
                 .setDateTime(new Date());
 
         cashFlowService.insert(cashFlow.setId(null).clearTags().setType(CashFlow.Type.INCOME));
-        cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag1).setType(CashFlow.Type.EXPANSE));
-        cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag2).setType(CashFlow.Type.EXPANSE));
+        cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag1).setType(CashFlow.Type.EXPENSE));
+        cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag2).setType(CashFlow.Type.EXPENSE));
         cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag3).setType(CashFlow.Type.INCOME));
         cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag1, tag2).setType(CashFlow.Type.INCOME));
-        cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag1, tag3).setType(CashFlow.Type.EXPANSE));
-        cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag2, tag3).setType(CashFlow.Type.EXPANSE));
+        cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag1, tag3).setType(CashFlow.Type.EXPENSE));
+        cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag2, tag3).setType(CashFlow.Type.EXPENSE));
         cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag1, tag2, tag3).setType(CashFlow.Type.INCOME));
 
         cashFlowService.insert(cashFlow.setId(null).clearTags().addTag(tag2, tag3).setType(CashFlow.Type.INCOME));
@@ -102,13 +102,13 @@ public class StatisticServiceOrmLiteTest extends ServiceInjectedUnitTest {
         cashFlowService.insert(new CashFlow().addTag(tag1, tag3).setAmount(13.0).setType(CashFlow.Type.INCOME).setWallet(wallet));
         cashFlowService.insert(new CashFlow().addTag(tag1, tag2, tag3).setAmount(17.0).setType(CashFlow.Type.INCOME).setWallet(wallet));
 
-        cashFlowService.insert(new CashFlow().addTag(tag1).setAmount(19.0).setType(CashFlow.Type.EXPANSE).setWallet(wallet));
-        cashFlowService.insert(new CashFlow().addTag(tag2).setAmount(23.0).setType(CashFlow.Type.EXPANSE).setWallet(wallet));
-        cashFlowService.insert(new CashFlow().addTag(tag3).setAmount(29.0).setType(CashFlow.Type.EXPANSE).setWallet(wallet));
-        cashFlowService.insert(new CashFlow().addTag(tag1, tag2).setAmount(31.0).setType(CashFlow.Type.EXPANSE).setWallet(wallet));
-        cashFlowService.insert(new CashFlow().addTag(tag2, tag3).setAmount(37.0).setType(CashFlow.Type.EXPANSE).setWallet(wallet));
-        cashFlowService.insert(new CashFlow().addTag(tag1, tag3).setAmount(41.0).setType(CashFlow.Type.EXPANSE).setWallet(wallet));
-        cashFlowService.insert(new CashFlow().addTag(tag1, tag2, tag3).setAmount(43.0).setType(CashFlow.Type.EXPANSE).setWallet(wallet));
+        cashFlowService.insert(new CashFlow().addTag(tag1).setAmount(19.0).setType(CashFlow.Type.EXPENSE).setWallet(wallet));
+        cashFlowService.insert(new CashFlow().addTag(tag2).setAmount(23.0).setType(CashFlow.Type.EXPENSE).setWallet(wallet));
+        cashFlowService.insert(new CashFlow().addTag(tag3).setAmount(29.0).setType(CashFlow.Type.EXPENSE).setWallet(wallet));
+        cashFlowService.insert(new CashFlow().addTag(tag1, tag2).setAmount(31.0).setType(CashFlow.Type.EXPENSE).setWallet(wallet));
+        cashFlowService.insert(new CashFlow().addTag(tag2, tag3).setAmount(37.0).setType(CashFlow.Type.EXPENSE).setWallet(wallet));
+        cashFlowService.insert(new CashFlow().addTag(tag1, tag3).setAmount(41.0).setType(CashFlow.Type.EXPENSE).setWallet(wallet));
+        cashFlowService.insert(new CashFlow().addTag(tag1, tag2, tag3).setAmount(43.0).setType(CashFlow.Type.EXPENSE).setWallet(wallet));
 
         // then
 

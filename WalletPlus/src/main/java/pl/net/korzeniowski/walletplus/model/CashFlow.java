@@ -203,8 +203,7 @@ public class CashFlow implements Identifiable {
 
     public enum Type {
         INCOME,
-        //TODO: rename to EXPENSE
-        EXPANSE,
+        EXPENSE,
         TRANSFER
     }
 }
