@@ -7,14 +7,15 @@ buildscript {
     dependencies {
         classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
         classpath 'org.robolectric:robolectric-gradle-plugin:1.0.1'
+        classpath 'org.aspectj:aspectjtools:1.8.1'
     }
 }
 
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion '21.1.2'
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
 
     signingConfigs {
         config {
@@ -28,13 +29,17 @@ android {
     defaultConfig {
         versionCode 1
         versionName "1.0.0-SNAPSHOT"
-        applicationId 'info.korzeniowski.walletplus'
+        applicationId 'pl.net.korzeniowski.walletplus'
 
         minSdkVersion 17
-        targetSdkVersion 21
+        targetSdkVersion 22
 
         signingConfig signingConfigs.config
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        memorydb.initWith(buildTypes.debug)
     }
 
     lintOptions {
@@ -47,6 +52,10 @@ android {
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 
@@ -80,14 +89,14 @@ robolectric {
 repositories {
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-
+    maven { url "https://jitpack.io" }
     // For SwipeListView
     maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
 }
 
 dependencies {
     // Android Support
-    def androidSupportVersion = '21.0.+'
+    def androidSupportVersion = '22.+'
     compile "com.android.support:support-v4:$androidSupportVersion"
     compile "com.android.support:appcompat-v7:$androidSupportVersion"
     compile "com.android.support:cardview-v7:$androidSupportVersion"
@@ -112,12 +121,12 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.1.0'
 
     // Dagger
-    def daggerVersion = '2.0-SNAPSHOT'
+    def daggerVersion = '2.0'
     apt "com.google.dagger:dagger-compiler:$daggerVersion"
-    testCompile "com.google.dagger:dagger-compiler:$daggerVersion"
     compile "com.google.dagger:dagger:$daggerVersion"
-    testCompile "com.google.dagger:dagger-compiler:$daggerVersion"
     provided 'org.glassfish:javax.annotation:10.0-b28'
+
+    testCompile "com.google.dagger:dagger-compiler:$daggerVersion"
 
     // Guava
     compile 'com.google.guava:guava:18.0'
@@ -139,30 +148,34 @@ dependencies {
     // HelloCharts
     compile 'com.github.lecho:hellocharts-library:1.5.3@aar'
 
+    // MPAndroidChart
+    compile 'com.github.PhilJay:MPAndroidChart:v2.0.9'
+
     // ColorPickerView
     compile project(':colorPickerView-library')
+
+    // SQLite
+    memorydbCompile 'org.xerial:sqlite-jdbc:3.8.7'
+    memorydbCompile 'com.j256.ormlite:ormlite-jdbc:4.48'
 
     // Espresso
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.0')
     androidTestCompile('com.android.support.test:testing-support-lib:0.1')
 
-    // AssertJ Android
-//    androidTestCompile 'com.squareup.assertj:assertj-android:1.0.0'
-
     // JUnit
     testCompile 'junit:junit:4.12'
 
     // Mockito
-    testCompile 'org.mockito:mockito-core:1.9.5'
-    androidTestCompile 'org.mockito:mockito-core:1.9.5'
+    def mockitoVersion = '1.9.5'
+    memorydbCompile ("org.mockito:mockito-core:$mockitoVersion") {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
+    androidTestCompile ("org.mockito:mockito-core:$mockitoVersion") {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
 
-    // Robolectric
-    def robolectricVersion = '3.0-SNAPSHOT'
-    testCompile "org.robolectric:shadows-support-v4:$robolectricVersion"
-    testCompile "org.robolectric:robolectric:$robolectricVersion"
-
-    // Fest Android
-    testCompile 'com.squareup:fest-android:1.0.8'
+    // AssertJ
+    androidTestCompile 'org.assertj:assertj-core:2.0.0'
 
     // Fluent Exception
     testCompile 'pl.wkr:fluent-exception-rule:1.0.1'

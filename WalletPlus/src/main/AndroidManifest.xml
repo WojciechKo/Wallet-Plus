@@ -1,122 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-        package="info.korzeniowski.walletplus"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:installLocation="auto">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="pl.net.korzeniowski.walletplus"
+    android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-            android:name=".WalletPlus"
-            android:allowBackup="true"
-            android:icon="@drawable/ic_launcher_walletplus"
-            android:label="@string/appName"
-            android:supportsRtl="false"
-            android:theme="@style/WalletPlusTheme">
+        android:name=".WalletPlus"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher_walletplus"
+        android:label="@string/appName"
+        android:supportsRtl="false"
+        android:theme="@style/WalletPlusTheme">
+
         <meta-data
-                android:name="com.google.android.gms.version"
-                android:value="@integer/google_play_services_version"/>
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <activity
-                android:name=".ui.dashboard.DashboardActivity"
-                android:label="@string/appName">
+            android:name=".ui.dashboard.DashboardActivity"
+            android:label="@string/appName">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-                android:name=".ui.wallets.list.WalletListActivity"
-                android:label="@string/walletListLabel"
-                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            android:name=".ui.wallets.list.WalletListActivity"
+            android:label="@string/walletListLabel"
+            android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.dashboard.DashboardActivity"/>
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.dashboard.DashboardActivity" />
         </activity>
 
         <activity
-                android:name=".ui.wallets.details.WalletDetailsActivity"
-                android:label="@string/walletDetailsLabel"
-                android:parentActivityName=".ui.wallets.list.WalletListActivity">
+            android:name=".ui.wallets.details.WalletDetailsActivity"
+            android:label="@string/walletDetailsLabel"
+            android:parentActivityName=".ui.wallets.list.WalletListActivity">
             <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.wallets.list.WalletListActivity"/>
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.wallets.list.WalletListActivity" />
         </activity>
 
         <activity
-                android:name=".ui.tag.list.TagListActivity"
-                android:label="@string/tagListLabel"
-                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            android:name=".ui.tag.list.TagListActivity"
+            android:label="@string/tagListLabel"
+            android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.dashboard.DashboardActivity"/>
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.dashboard.DashboardActivity" />
         </activity>
 
         <activity
-                android:name=".ui.tag.details.TagDetailsActivity"
-                android:label="@string/tagDetailsLabel"
-                android:parentActivityName=".ui.tag.list.TagListActivity">
+            android:name=".ui.tag.details.TagDetailsActivity"
+            android:label="@string/tagDetailsLabel"
+            android:parentActivityName=".ui.tag.list.TagListActivity">
             <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.tag.list.TagListActivity"/>
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.tag.list.TagListActivity" />
         </activity>
 
         <activity
-                android:name=".ui.cashflow.list.CashFlowListActivity"
-                android:label="@string/cashFlowListLabel"
-                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            android:name=".ui.cashflow.list.CashFlowListActivity"
+            android:label="@string/cashFlowListLabel"
+            android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.dashboard.DashboardActivity"/>
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.dashboard.DashboardActivity" />
         </activity>
 
         <activity
-                android:name=".ui.cashflow.details.CashFlowDetailsActivity"
-                android:label="@string/cashFlowDetailsLabel"
-                android:parentActivityName=".ui.cashflow.list.CashFlowListActivity">
+            android:name=".ui.cashflow.details.CashFlowDetailsActivity"
+            android:label="@string/cashFlowDetailsLabel"
+            android:parentActivityName=".ui.cashflow.list.CashFlowListActivity">
             <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.cashflow.list.CashFlowListActivity"/>
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.cashflow.list.CashFlowListActivity" />
         </activity>
 
         <activity
-                android:name=".ui.statistics.list.StatisticListActivity"
-                android:label="@string/statisticListLabel"
-                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            android:name=".ui.statistics.list.StatisticListActivity"
+            android:label="@string/statisticListLabel"
+            android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.dashboard.DashboardActivity"/>
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.dashboard.DashboardActivity" />
         </activity>
 
         <activity
-                android:name=".ui.statistics.details.StaticticDetailsActivity"
-                android:label="@string/statisticDetailsLabel"
-                android:parentActivityName=".ui.statistics.list.StatisticListActivity">
+            android:name=".ui.statistics.details.StaticticDetailsActivity"
+            android:label="@string/statisticDetailsLabel"
+            android:parentActivityName=".ui.statistics.list.StatisticListActivity">
             <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.statistics.list.StatisticListActivity"/>
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.statistics.list.StatisticListActivity" />
         </activity>
 
         <activity
-                android:name=".ui.synchronize.SynchronizeActivity"
-                android:label="@string/synchronizeLabel"
-                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            android:name=".ui.synchronize.SynchronizeActivity"
+            android:label="@string/synchronizeLabel"
+            android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.dashboard.DashboardActivity"/>
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.dashboard.DashboardActivity" />
         </activity>
 
         <activity
-                android:name=".ui.profile.ProfileActivity"
-                android:label="@string/profileLabel"
-                android:parentActivityName=".ui.dashboard.DashboardActivity">
+            android:name=".ui.profile.ProfileActivity"
+            android:label="@string/profileLabel"
+            android:parentActivityName=".ui.dashboard.DashboardActivity">
             <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.dashboard.DashboardActivity"/>
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.dashboard.DashboardActivity" />
         </activity>
     </application>
 </manifest>

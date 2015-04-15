@@ -25,7 +25,7 @@ import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.widget.ScrollView;
 
-import info.korzeniowski.walletplus.R;
+import pl.net.korzeniowski.walletplus.R;
 
 /**
  * A layout that draws something in the insets passed to {@link #fitSystemWindows(android.graphics.Rect)}, i.e. the area above UI chrome
