@@ -73,6 +73,7 @@ public class TagListFragment extends Fragment {
                 public void onClick(View widget) {
                     Intent intent = new Intent(getActivity(), TagDetailsActivity.class);
                     intent.putExtra(TagDetailsActivity.EXTRAS_TAG_ID, tag.getId());
+                    intent.putExtra(TagDetailsActivity.EXTRAS_TAG_NAME, tag.getName());
                     startActivityForResult(intent, TagDetailsActivity.REQUEST_CODE_EDIT_TAG);
                 }
             };

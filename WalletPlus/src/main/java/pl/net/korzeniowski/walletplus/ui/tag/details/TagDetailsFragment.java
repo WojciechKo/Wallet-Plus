@@ -2,6 +2,7 @@ package pl.net.korzeniowski.walletplus.ui.tag.details;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -12,14 +13,25 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.Highlight;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -29,13 +41,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnTextChanged;
-import pl.net.korzeniowski.walletplus.R;
-import pl.net.korzeniowski.walletplus.WalletPlus;
-import pl.net.korzeniowski.walletplus.model.CashFlow;
-import pl.net.korzeniowski.walletplus.model.Tag;
-import pl.net.korzeniowski.walletplus.service.CashFlowService;
-import pl.net.korzeniowski.walletplus.service.TagService;
-import pl.net.korzeniowski.walletplus.util.PrefUtils;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
@@ -43,6 +48,14 @@ import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
+import pl.net.korzeniowski.walletplus.R;
+import pl.net.korzeniowski.walletplus.WalletPlus;
+import pl.net.korzeniowski.walletplus.model.CashFlow;
+import pl.net.korzeniowski.walletplus.model.Tag;
+import pl.net.korzeniowski.walletplus.service.CashFlowService;
+import pl.net.korzeniowski.walletplus.service.StatisticService;
+import pl.net.korzeniowski.walletplus.service.TagService;
+import pl.net.korzeniowski.walletplus.util.PrefUtils;
 
 import static pl.net.korzeniowski.walletplus.util.KorzeniowskiUtils.Dates;
 
@@ -62,11 +75,20 @@ public class TagDetailsFragment extends Fragment {
     @InjectView(R.id.chart)
     LineChartView chart;
 
+    @InjectView(R.id.relatedTagsChartLabel)
+    TextView relatedTagsChartLabel;
+
+    @InjectView(R.id.relatedTagsChart)
+    BarChart relatedTagsChart;
+
     @Inject
     TagService tagService;
 
     @Inject
     CashFlowService cashFlowService;
+
+    @Inject
+    StatisticService statisticService;
 
     @Inject
     PrefUtils prefUtils;
@@ -77,6 +99,8 @@ public class TagDetailsFragment extends Fragment {
 
     private DetailsAction detailsAction;
     private Optional<Tag> tagToEdit;
+    private int myselfIndex;
+    private int lastSelectedXVal;
 
     public static TagDetailsFragment newInstance(Long tagId) {
         TagDetailsFragment fragment = new TagDetailsFragment();
@@ -116,6 +140,71 @@ public class TagDetailsFragment extends Fragment {
     private void setupViews() {
         int tagColor;
         if (detailsAction == DetailsAction.EDIT) {
+            relatedTagsChartLabel.setText(getString(R.string.tagDetailsRelatedTagsChartLabel, tagToEdit.get().getName()));
+
+            relatedTagsChart.setDescription("");
+            relatedTagsChart.setDrawGridBackground(false);
+
+            final Map<Tag, StatisticService.TagStats2> tagStats = statisticService.getTagStats2(tagToEdit.get());
+
+            final List<String> xVals = Lists.newArrayList();
+            List<BarEntry> incomeValues = Lists.newArrayList();
+            List<BarEntry> expenseValues = Lists.newArrayList();
+            int index = 0;
+            for (Map.Entry<Tag, StatisticService.TagStats2> entry : tagStats.entrySet()) {
+                if (entry.getKey().getId().equals(tagToEdit.get().getId())) {
+                    xVals.add(entry.getKey().getName() + " " + getString(R.string.only));
+                    myselfIndex = xVals.size() - 1;
+                } else {
+                    xVals.add(entry.getKey().getName());
+                }
+                incomeValues.add(new BarEntry(entry.getValue().getIncome().floatValue(), index));
+                expenseValues.add(new BarEntry(entry.getValue().getExpense().floatValue(), index));
+                index++;
+            }
+            relatedTagsChart.getAxisLeft().setDrawGridLines(false);
+            relatedTagsChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
+            ArrayList<BarDataSet> dataSets = Lists.newArrayList();
+            final BarDataSet incomeSet = new BarDataSet(incomeValues, "income");
+            incomeSet.setColor(getResources().getColor(R.color.green));
+            dataSets.add(incomeSet);
+            final BarDataSet expenseSet = new BarDataSet(expenseValues, "expense");
+            expenseSet.setColor(getResources().getColor(R.color.red));
+            dataSets.add(expenseSet);
+
+            BarData data = new BarData(xVals, dataSets);
+
+            relatedTagsChart.setData(data);
+            relatedTagsChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                @Override
+                public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+                    if (h.getXIndex() != myselfIndex) {
+                        Tag selectedTag = tagService.findByName(xVals.get(h.getXIndex()));
+                        Toast.makeText(getActivity(), selectedTag.getId().toString(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        // myself selected
+                    }
+                    lastSelectedXVal = h.getXIndex();
+                }
+
+                @Override
+                public void onNothingSelected() {
+                    if (lastSelectedXVal != myselfIndex) {
+                        Tag selectedTag = tagService.findByName(xVals.get(lastSelectedXVal));
+
+                        Intent intent = new Intent(getActivity(), TagDetailsActivity.class);
+                        intent.putExtra(TagDetailsActivity.EXTRAS_TAG_ID, selectedTag.getId());
+                        intent.putExtra(TagDetailsActivity.EXTRAS_TAG_NAME, selectedTag.getName());
+                        startActivityForResult(intent, TagDetailsActivity.REQUEST_CODE_EDIT_TAG);
+                        startActivity(intent);
+
+                        Toast.makeText(getActivity(), "Przenosimy się do:" + selectedTag.getId(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            relatedTagsChart.invalidate();
+
             tagName.setText(tagToEdit.get().getName());
             tagColor = tagToEdit.get().getColor();
 

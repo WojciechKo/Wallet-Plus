@@ -89,7 +89,7 @@ robolectric {
 repositories {
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-
+    maven { url "https://jitpack.io" }
     // For SwipeListView
     maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
 }
@@ -147,6 +147,9 @@ dependencies {
 
     // HelloCharts
     compile 'com.github.lecho:hellocharts-library:1.5.3@aar'
+
+    // MPAndroidChart
+    compile 'com.github.PhilJay:MPAndroidChart:v2.0.9'
 
     // ColorPickerView
     compile project(':colorPickerView-library')

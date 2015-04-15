@@ -18,9 +18,12 @@ import pl.net.korzeniowski.walletplus.service.StatisticService;
 import pl.net.korzeniowski.walletplus.service.TagService;
 import pl.net.korzeniowski.walletplus.ui.BaseActivity;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 public class TagDetailsActivity extends BaseActivity {
     public static final String TAG = TagDetailsActivity.class.getSimpleName();
     public static final String EXTRAS_TAG_ID = "TAG_ID";
+    public static final String EXTRAS_TAG_NAME = "TAG_NAME";
 
     public static final int REQUEST_CODE_ADD_TAG = 601;
     public static final int REQUEST_CODE_EDIT_TAG = 602;
@@ -47,11 +50,16 @@ public class TagDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_drawer);
 
         Bundle extras = getIntent().getExtras();
-        tagId = extras == null ? -1 : extras.getLong(EXTRAS_TAG_ID);
+        tagId = extras != null ? extras.getLong(EXTRAS_TAG_ID) : -1;
         if (tagId == -1) {
             detailsAction = DetailsAction.ADD;
         } else {
             detailsAction = DetailsAction.EDIT;
+        }
+
+        String extrasTagName = extras != null ? extras.getString(EXTRAS_TAG_NAME) : null;
+        if (!isNullOrEmpty(extrasTagName)) {
+            getSupportActionBar().setTitle(extrasTagName + " tag");
         }
 
         if (savedInstanceState == null) {

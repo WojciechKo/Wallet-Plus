@@ -139,8 +139,9 @@ public class StatisticServiceOrmLite implements StatisticService {
             tagStatisticsQuery.where().in(TagAndCashFlowBind.CASH_FLOW_ID_COLUMN_NAME, subBindQuery);
 
             tagStatisticsQuery.groupByRaw(Tag.TABLE_NAME + "." + Tag.ID_COLUMN_NAME);
+            tagStatisticsQuery.orderByRaw(CashFlow.Type.INCOME + " + " + CashFlow.Type.EXPANSE + " DESC");
 
-            Map<Tag, TagStats2> result = Maps.newTreeMap();
+            Map<Tag, TagStats2> result = Maps.newLinkedHashMap();
             for (String[] resultRow : tagStatisticsQuery.queryRaw()) {
                 Tag rowTag = tagDao.queryForId(Long.parseLong(resultRow[0]));
                 TagStats2 tagStats = new TagStats2(Double.parseDouble(resultRow[1]), Double.parseDouble(resultRow[2]));
