@@ -4,6 +4,7 @@ import com.walletudo.WalletUDo;
 import com.walletudo.dagger.module.DatabaseModule;
 import com.walletudo.dagger.module.GoogleDriveRestModule;
 import com.walletudo.dagger.module.MainModule;
+import com.walletudo.dagger.module.NavigationDrawerMenuModule;
 import com.walletudo.dagger.module.ServicesModule;
 
 import javax.inject.Singleton;
@@ -14,6 +15,7 @@ import dagger.Component;
 @Component(
         modules = {
                 MainModule.class,
+                NavigationDrawerMenuModule.class,
                 DatabaseModule.class,
                 ServicesModule.class,
                 GoogleDriveRestModule.class}

@@ -27,21 +27,14 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.samples.apps.iosched.ui.widget.ScrimInsetsScrollView;
 import com.walletudo.R;
 import com.walletudo.WalletUDo;
 import com.walletudo.model.Profile;
 import com.walletudo.service.ProfileService;
-import com.walletudo.ui.cashflow.list.CashFlowListActivity;
 import com.walletudo.ui.dashboard.DashboardActivity;
 import com.walletudo.ui.profile.ProfileActivity;
-import com.walletudo.ui.statistics.list.StatisticListActivity;
 import com.walletudo.ui.statistics.list.StatisticListActivityState;
-import com.walletudo.ui.synchronize.SynchronizeActivity;
-import com.walletudo.ui.tag.list.TagListActivity;
-import com.walletudo.ui.wallets.list.WalletListActivity;
 import com.walletudo.util.PrefUtils;
 import com.walletudo.util.UIUtils;
 
@@ -76,6 +69,12 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     @Inject
     PrefUtils prefUtils;
 
+    @Inject
+    Map<DrawerItemType, DrawerItemContent> navigationDrawerMap;
+
+    @Inject
+    List<DrawerItemType> navigationDrawerList;
+
     private Toolbar mActionBarToolbar;
     private DrawerLayout mDrawerLayout;
     // A Runnable that we should execute when the navigation drawer finishes its closing animation
@@ -90,8 +89,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     private View[] mNavDrawerItemViews = null;
     private Thread mDataBootstrapThread;
     // Navigation drawer menu items
-    private Map<DrawerItemType, DrawerItemContent> navigationDrawerMap = Maps.newHashMap();
-    private List<DrawerItemType> navigationDrawerItemList = Lists.newArrayList();
 
     private LinearLayout mAccountListContainer;
     private LinearLayout mAccountListFooter;
@@ -324,8 +321,8 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
         ImageView iconView = (ImageView) view.findViewById(R.id.icon);
         TextView titleView = (TextView) view.findViewById(R.id.title);
-        int iconId = navigationDrawerMap.get(type).icon;
-        String title = navigationDrawerMap.get(type).tittle;
+        int iconId = navigationDrawerMap.get(type).getIcon();
+        String title = navigationDrawerMap.get(type).getTittle();
 
         // set icon and text
         iconView.setVisibility(iconId > 0 ? View.VISIBLE : View.GONE);
@@ -369,30 +366,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void populateNavigationDrawer() {
-        if (navigationDrawerMap.isEmpty()) {
-            navigationDrawerMap.put(DrawerItemType.DASHBOARD,
-                    new DrawerItemContent(android.R.drawable.ic_media_pause, "Dashboard", DashboardActivity.class));
-            navigationDrawerMap.put(DrawerItemType.CASH_FLOW,
-                    new DrawerItemContent(android.R.drawable.ic_lock_silent_mode, "Cash flows", CashFlowListActivity.class));
-            navigationDrawerMap.put(DrawerItemType.STATISTIC,
-                    new DrawerItemContent(android.R.drawable.ic_menu_camera, "Statistics", StatisticListActivity.class));
-            navigationDrawerMap.put(DrawerItemType.WALLET,
-                    new DrawerItemContent(android.R.drawable.ic_menu_week, "Wallets", WalletListActivity.class));
-            navigationDrawerMap.put(DrawerItemType.TAG,
-                    new DrawerItemContent(android.R.drawable.ic_menu_agenda, "Tags", TagListActivity.class));
-            navigationDrawerMap.put(DrawerItemType.SYNCHRONIZE,
-                    new DrawerItemContent(android.R.drawable.stat_notify_sync_noanim, "Synchronization", SynchronizeActivity.class));
-        }
-        if (navigationDrawerItemList.isEmpty()) {
-            navigationDrawerItemList.add(DrawerItemType.DASHBOARD);
-            navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
-            navigationDrawerItemList.add(DrawerItemType.CASH_FLOW);
-            navigationDrawerItemList.add(DrawerItemType.TAG);
-            navigationDrawerItemList.add(DrawerItemType.STATISTIC);
-            navigationDrawerItemList.add(DrawerItemType.WALLET);
-            navigationDrawerItemList.add(DrawerItemType.SEPARATOR);
-            navigationDrawerItemList.add(DrawerItemType.SYNCHRONIZE);
-        }
         setupNavDrawerViewContent();
         setupNavDrawerFooter();
     }
@@ -404,10 +377,10 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             return;
         }
 
-        mNavDrawerItemViews = new View[navigationDrawerItemList.size()];
+        mNavDrawerItemViews = new View[navigationDrawerList.size()];
         mNavDrawerListContainer.removeAllViews();
         int i = 0;
-        for (DrawerItemType type : navigationDrawerItemList) {
+        for (DrawerItemType type : navigationDrawerList) {
             mNavDrawerItemViews[i] = makeNavDrawerItem(type, mNavDrawerListContainer);
             mNavDrawerListContainer.addView(mNavDrawerItemViews[i]);
             ++i;
@@ -474,8 +447,8 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     private void setSelectedNavDrawerItem(DrawerItemType drawerItemType) {
         if (mNavDrawerItemViews != null) {
             for (int i = 0; i < mNavDrawerItemViews.length; i++) {
-                if (i < navigationDrawerItemList.size()) {
-                    DrawerItemType thisType = navigationDrawerItemList.get(i);
+                if (i < navigationDrawerList.size()) {
+                    DrawerItemType thisType = navigationDrawerList.get(i);
                     formatNavDrawerItem(mNavDrawerItemViews[i], thisType, drawerItemType == thisType);
                 }
             }
@@ -760,12 +733,12 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         SYNCHRONIZE
     }
 
-    private class DrawerItemContent {
+    public static class DrawerItemContent {
         private String tittle;
         private int icon;
         private Class<? extends BaseActivity> activityClass;
 
-        private DrawerItemContent(int icon, String tittle, Class<? extends BaseActivity> activityClass) {
+        public DrawerItemContent(int icon, String tittle, Class<? extends BaseActivity> activityClass) {
             this.tittle = tittle;
             this.icon = icon;
             this.activityClass = activityClass;
