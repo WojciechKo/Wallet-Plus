@@ -1,4 +1,2 @@
-Wallet-Plus
+Wallet U Do - Money Manager
 ===========
-
-Aplikacja do zarządzania finansami.
