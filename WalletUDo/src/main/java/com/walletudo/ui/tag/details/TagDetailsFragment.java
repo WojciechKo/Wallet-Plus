@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,8 +73,11 @@ public class TagDetailsFragment extends Fragment {
     @InjectView(R.id.colorPicker)
     Button colorPicker;
 
+    @InjectView(R.id.chartContainer)
+    LinearLayout chartContainer;
+
     @InjectView(R.id.chart)
-    LineChartView chart;
+    LineChartView cashFlowsWithTagChart;
 
     @InjectView(R.id.relatedTagsChartLabel)
     TextView relatedTagsChartLabel;
@@ -138,87 +142,94 @@ public class TagDetailsFragment extends Fragment {
     }
 
     private void setupViews() {
-        int tagColor;
+        int tagColor = 0;
         if (detailsAction == DetailsAction.EDIT) {
-            relatedTagsChartLabel.setText(getString(R.string.tagDetailsRelatedTagsChartLabel, tagToEdit.get().getName()));
-
-            relatedTagsChart.setDescription("");
-            relatedTagsChart.setDrawGridBackground(false);
-
-            final Map<Tag, StatisticService.TagStats2> tagStats = statisticService.getTagStats2(tagToEdit.get());
-
-            final List<String> xVals = Lists.newArrayList();
-            List<BarEntry> incomeValues = Lists.newArrayList();
-            List<BarEntry> expenseValues = Lists.newArrayList();
-            int index = 0;
-            for (Map.Entry<Tag, StatisticService.TagStats2> entry : tagStats.entrySet()) {
-                if (entry.getKey().getId().equals(tagToEdit.get().getId())) {
-                    xVals.add(entry.getKey().getName() + " " + getString(R.string.only));
-                    myselfIndex = xVals.size() - 1;
-                } else {
-                    xVals.add(entry.getKey().getName());
-                }
-                incomeValues.add(new BarEntry(entry.getValue().getIncome().floatValue(), index));
-                expenseValues.add(new BarEntry(entry.getValue().getExpense().floatValue(), index));
-                index++;
-            }
-            relatedTagsChart.getAxisLeft().setDrawGridLines(false);
-            relatedTagsChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-
-            ArrayList<BarDataSet> dataSets = Lists.newArrayList();
-            final BarDataSet incomeSet = new BarDataSet(incomeValues, "income");
-            incomeSet.setColor(getResources().getColor(R.color.green));
-            dataSets.add(incomeSet);
-            final BarDataSet expenseSet = new BarDataSet(expenseValues, "expense");
-            expenseSet.setColor(getResources().getColor(R.color.red));
-            dataSets.add(expenseSet);
-
-            BarData data = new BarData(xVals, dataSets);
-
-            relatedTagsChart.setData(data);
-            relatedTagsChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-                @Override
-                public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
-                    if (h.getXIndex() != myselfIndex) {
-                        Tag selectedTag = tagService.findByName(xVals.get(h.getXIndex()));
-                        Toast.makeText(getActivity(), selectedTag.getId().toString(), Toast.LENGTH_SHORT).show();
-                    } else {
-                        // myself selected
-                    }
-                    lastSelectedXVal = h.getXIndex();
-                }
-
-                @Override
-                public void onNothingSelected() {
-                    if (lastSelectedXVal != myselfIndex) {
-                        Tag selectedTag = tagService.findByName(xVals.get(lastSelectedXVal));
-
-                        Intent intent = new Intent(getActivity(), TagDetailsActivity.class);
-                        intent.putExtra(TagDetailsActivity.EXTRAS_TAG_ID, selectedTag.getId());
-                        intent.putExtra(TagDetailsActivity.EXTRAS_TAG_NAME, selectedTag.getName());
-                        startActivityForResult(intent, TagDetailsActivity.REQUEST_CODE_EDIT_TAG);
-                        startActivity(intent);
-
-                        Toast.makeText(getActivity(), "Przenosimy się do:" + selectedTag.getId(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-            relatedTagsChart.invalidate();
+            setupRelatedTagsChart();
+            setupLastCashFlowsWithTagChart();
 
             tagName.setText(tagToEdit.get().getName());
             tagColor = tagToEdit.get().getColor();
-
-            chart.setLineChartData(getChartData());
-            chart.setValueSelectionEnabled(true);
-            Viewport viewport = new Viewport(chart.getMaximumViewport());
-            viewport.left = Math.max(viewport.right - 5, 0);
-            chart.setCurrentViewport(viewport);
-
-        } else {
+        } else if (detailsAction == DetailsAction.ADD) {
+            chartContainer.setVisibility(View.GONE);
             tagColor = prefUtils.getNextTagColor();
         }
         colorPicker.setBackgroundColor(tagColor);
         colorPicker.setTag(tagColor);
+    }
+
+    private void setupRelatedTagsChart() {
+        relatedTagsChartLabel.setText(getString(R.string.tagDetailsRelatedTagsChartLabel, tagToEdit.get().getName()));
+
+        relatedTagsChart.setDescription("");
+        relatedTagsChart.setDrawGridBackground(false);
+
+        final Map<Tag, StatisticService.TagStats2> tagStats = statisticService.getTagStats2(tagToEdit.get());
+
+        final List<String> xVals = Lists.newArrayList();
+        List<BarEntry> incomeValues = Lists.newArrayList();
+        List<BarEntry> expenseValues = Lists.newArrayList();
+        int index = 0;
+        for (Map.Entry<Tag, StatisticService.TagStats2> entry : tagStats.entrySet()) {
+            if (entry.getKey().getId().equals(tagToEdit.get().getId())) {
+                xVals.add(entry.getKey().getName() + " " + getString(R.string.only));
+                myselfIndex = xVals.size() - 1;
+            } else {
+                xVals.add(entry.getKey().getName());
+            }
+            incomeValues.add(new BarEntry(entry.getValue().getIncome().floatValue(), index));
+            expenseValues.add(new BarEntry(entry.getValue().getExpense().floatValue(), index));
+            index++;
+        }
+        relatedTagsChart.getAxisLeft().setDrawGridLines(false);
+        relatedTagsChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
+        ArrayList<BarDataSet> dataSets = Lists.newArrayList();
+        final BarDataSet incomeSet = new BarDataSet(incomeValues, "income");
+        incomeSet.setColor(getResources().getColor(R.color.green));
+        dataSets.add(incomeSet);
+        final BarDataSet expenseSet = new BarDataSet(expenseValues, "expense");
+        expenseSet.setColor(getResources().getColor(R.color.red));
+        dataSets.add(expenseSet);
+
+        BarData data = new BarData(xVals, dataSets);
+
+        relatedTagsChart.setData(data);
+        relatedTagsChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+                if (h.getXIndex() != myselfIndex) {
+                    Tag selectedTag = tagService.findByName(xVals.get(h.getXIndex()));
+                    Toast.makeText(getActivity(), selectedTag.getId().toString(), Toast.LENGTH_SHORT).show();
+                } else {
+                    // myself selected
+                }
+                lastSelectedXVal = h.getXIndex();
+            }
+
+            @Override
+            public void onNothingSelected() {
+                if (lastSelectedXVal != myselfIndex) {
+                    Tag selectedTag = tagService.findByName(xVals.get(lastSelectedXVal));
+
+                    Intent intent = new Intent(getActivity(), TagDetailsActivity.class);
+                    intent.putExtra(TagDetailsActivity.EXTRAS_TAG_ID, selectedTag.getId());
+                    intent.putExtra(TagDetailsActivity.EXTRAS_TAG_NAME, selectedTag.getName());
+                    startActivityForResult(intent, TagDetailsActivity.REQUEST_CODE_EDIT_TAG);
+                    startActivity(intent);
+
+                    Toast.makeText(getActivity(), "Przenosimy się do:" + selectedTag.getId(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        relatedTagsChart.invalidate();
+    }
+
+    private void setupLastCashFlowsWithTagChart() {
+        cashFlowsWithTagChart.setLineChartData(getChartData());
+        cashFlowsWithTagChart.setValueSelectionEnabled(true);
+        Viewport viewport = new Viewport(cashFlowsWithTagChart.getMaximumViewport());
+        viewport.left = Math.max(viewport.right - 5, 0);
+        cashFlowsWithTagChart.setCurrentViewport(viewport);
     }
 
     private LineChartData getChartData() {
