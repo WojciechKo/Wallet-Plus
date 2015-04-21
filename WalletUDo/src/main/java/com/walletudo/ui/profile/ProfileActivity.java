@@ -98,7 +98,9 @@ public class ProfileActivity extends BaseActivity {
             ButterKnife.inject(this, view);
             enableListViewScrolling();
             profiles = Lists.newArrayList();
-            remoteProfiles.setAdapter(new RemoteProfileAdapter(getActivity(), profiles));
+            if (remoteProfiles.getVisibility() != View.GONE) {
+                remoteProfiles.setAdapter(new RemoteProfileAdapter(getActivity(), profiles));
+            }
             return view;
         }
 
@@ -132,30 +134,32 @@ public class ProfileActivity extends BaseActivity {
         @Override
         public void onResume() {
             super.onResume();
-            googleDriveReadService.getChildren("appfolder", new Callback<GoogleDriveReadService.FileChildren>() {
-                @Override
-                public void success(GoogleDriveReadService.FileChildren fileChildren, Response response) {
-                    for (GoogleDriveReadService.FileChildren.FileId fileId : fileChildren.getChildren()) {
-                        googleDriveReadService.getFile(fileId.getId(), new Callback<GoogleDriveReadService.DriveFile>() {
-                            @Override
-                            public void success(GoogleDriveReadService.DriveFile driveFile, Response response) {
-                                profiles.add(driveFile);
-                                ((BaseAdapter) remoteProfiles.getAdapter()).notifyDataSetChanged();
-                            }
+            if (remoteProfiles.getVisibility() != View.GONE) {
+                googleDriveReadService.getChildren("appfolder", new Callback<GoogleDriveReadService.FileChildren>() {
+                    @Override
+                    public void success(GoogleDriveReadService.FileChildren fileChildren, Response response) {
+                        for (GoogleDriveReadService.FileChildren.FileId fileId : fileChildren.getChildren()) {
+                            googleDriveReadService.getFile(fileId.getId(), new Callback<GoogleDriveReadService.DriveFile>() {
+                                @Override
+                                public void success(GoogleDriveReadService.DriveFile driveFile, Response response) {
+                                    profiles.add(driveFile);
+                                    ((BaseAdapter) remoteProfiles.getAdapter()).notifyDataSetChanged();
+                                }
 
-                            @Override
-                            public void failure(RetrofitError error) {
-                                Toast.makeText(getActivity(), "Error podczas pobierania informacji o dziecku", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    Toast.makeText(getActivity(), "Error podczas pobierania informacji o dziecku", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
                     }
-                }
 
-                @Override
-                public void failure(RetrofitError error) {
-                    Toast.makeText(getActivity(), "Error pobierania dzieci:\n" + error, Toast.LENGTH_SHORT).show();
-                }
-            });
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Toast.makeText(getActivity(), "Error pobierania dzieci:\n" + error, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
 
         @OnTextChanged(value = R.id.profile_name, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)

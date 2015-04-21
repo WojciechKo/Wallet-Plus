@@ -9,13 +9,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.walletudo.R;
-import com.walletudo.service.StatisticService;
-import com.walletudo.service.WalletService;
 import com.walletudo.ui.BaseActivity;
 
 import java.text.MessageFormat;
-
-import javax.inject.Inject;
 
 public class WalletDetailsActivity extends BaseActivity {
     public static final String TAG = WalletDetailsActivity.class.getSimpleName();
@@ -24,13 +20,6 @@ public class WalletDetailsActivity extends BaseActivity {
     public static final int REQUEST_CODE_ADD_WALLET = 601;
     public static final int REQUEST_CODE_EDIT_WALLET = 602;
     public static final int RESULT_DELETED = 102;
-
-    @Inject
-    WalletService walletService;
-
-    @Inject
-    StatisticService statisticService;
-
     private Long walletId;
     private DetailsAction detailsAction;
 

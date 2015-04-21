@@ -9,13 +9,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.walletudo.R;
-import com.walletudo.service.StatisticService;
-import com.walletudo.service.TagService;
 import com.walletudo.ui.BaseActivity;
 
 import java.text.MessageFormat;
-
-import javax.inject.Inject;
 
 public class StaticticDetailsActivity extends BaseActivity {
     public static final String TAG = StaticticDetailsActivity.class.getSimpleName();
@@ -25,12 +21,6 @@ public class StaticticDetailsActivity extends BaseActivity {
     public static final int REQUEST_CODE_EDIT_CATEGORY = 702;
     public static final int RESULT_DELETED = 102;
     public static final String RESULT_DATA_DELETED_TAG_ID = "DELETED_TAG_ID";
-
-    @Inject
-    TagService tagService;
-
-    @Inject
-    StatisticService statisticService;
 
     private Long tagId;
     private DetailsAction detailsAction;

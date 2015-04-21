@@ -9,10 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.walletudo.R;
-import com.walletudo.service.CashFlowService;
 import com.walletudo.ui.BaseActivity;
-
-import javax.inject.Inject;
 
 public class CashFlowDetailsActivity extends BaseActivity {
     public static final String EXTRAS_CASH_FLOW_ID = "CASH_FLOW_ID";
@@ -20,9 +17,6 @@ public class CashFlowDetailsActivity extends BaseActivity {
     public static final int REQUEST_CODE_ADD_CASH_FLOW = 401;
     public static final int REQUEST_CODE_EDIT_CASH_FLOW = 402;
     public static final int RESULT_DELETED = 103;
-
-    @Inject
-    CashFlowService cashFlowService;
 
     private Long cashFlowId;
     private DetailsAction detailsAction;

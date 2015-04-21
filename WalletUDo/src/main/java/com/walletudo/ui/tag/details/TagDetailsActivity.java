@@ -10,13 +10,9 @@ import android.view.View;
 
 import com.walletudo.R;
 import com.walletudo.WalletUDo;
-import com.walletudo.service.StatisticService;
-import com.walletudo.service.TagService;
 import com.walletudo.ui.BaseActivity;
 
 import java.text.MessageFormat;
-
-import javax.inject.Inject;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -28,12 +24,6 @@ public class TagDetailsActivity extends BaseActivity {
     public static final int REQUEST_CODE_ADD_TAG = 601;
     public static final int REQUEST_CODE_EDIT_TAG = 602;
     public static final int RESULT_DELETED = 102;
-
-    @Inject
-    TagService tagService;
-
-    @Inject
-    StatisticService statisticService;
 
     private Long tagId;
     private DetailsAction detailsAction;

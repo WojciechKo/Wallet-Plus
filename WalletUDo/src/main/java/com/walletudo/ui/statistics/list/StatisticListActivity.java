@@ -15,7 +15,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.walletudo.R;
 import com.walletudo.model.Tag;
-import com.walletudo.service.TagService;
 import com.walletudo.ui.BaseActivity;
 import com.walletudo.ui.statistics.details.StaticticDetailsActivity;
 import com.walletudo.util.KorzeniowskiUtils;
@@ -29,8 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -42,9 +39,6 @@ public class StatisticListActivity extends BaseActivity {
 
     @InjectView(R.id.pager)
     ViewPager pager;
-
-    @Inject
-    TagService tagService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

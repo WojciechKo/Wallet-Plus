@@ -31,7 +31,11 @@ import com.google.samples.apps.iosched.ui.widget.ScrimInsetsScrollView;
 import com.walletudo.R;
 import com.walletudo.WalletUDo;
 import com.walletudo.model.Profile;
+import com.walletudo.service.CashFlowService;
 import com.walletudo.service.ProfileService;
+import com.walletudo.service.StatisticService;
+import com.walletudo.service.TagService;
+import com.walletudo.service.WalletService;
 import com.walletudo.ui.dashboard.DashboardActivity;
 import com.walletudo.ui.profile.ProfileActivity;
 import com.walletudo.ui.statistics.list.StatisticListActivityState;
@@ -64,7 +68,19 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     protected StatisticListActivityState statisticListActivityState;
 
     @Inject
-    ProfileService profileService;
+    protected ProfileService profileService;
+
+    @Inject
+    protected StatisticService statisticService;
+
+    @Inject
+    protected WalletService walletService;
+
+    @Inject
+    protected TagService tagService;
+
+    @Inject
+    protected CashFlowService cashFlowService;
 
     @Inject
     PrefUtils prefUtils;
