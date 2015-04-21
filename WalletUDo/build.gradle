@@ -1,0 +1,223 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    }
+
+    dependencies {
+        classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
+        classpath 'org.robolectric:robolectric-gradle-plugin:1.0.1'
+        classpath 'org.aspectj:aspectjtools:1.8.1'
+    }
+}
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion '22.0.1'
+
+    signingConfigs {
+        config {
+            keyAlias signingKeyAlias
+            storePassword signingStorePassword
+            keyPassword signingKeyPassword
+            storeFile file(signingStoreFile)
+        }
+    }
+
+    defaultConfig {
+        versionCode 1
+        versionName "1.0.0-SNAPSHOT"
+        applicationId 'com.walletudo'
+
+        minSdkVersion 17
+        targetSdkVersion 22
+
+        signingConfig signingConfigs.config
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        memorydb.initWith(buildTypes.debug)
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+apply plugin: 'com.neenbedankt.android-apt'
+
+apt {
+    arguments {
+        androidManifestFile variant.outputs[0].processResources.manifestFile
+        resourcePackageName android.defaultConfig.applicationId
+    }
+}
+
+apply plugin: 'org.robolectric'
+
+robolectric {
+    include '**/*Test.class'
+    exclude '**/espresso/**/*.class'
+
+    maxHeapSize = '2048m'
+    jvmArgs '-XX:MaxPermSize=512m', '-XX:-UseSplitVerifier'
+
+    maxParallelForks = 4
+    forkEvery = 150
+    ignoreFailures true
+
+    afterTest { descriptor, result ->
+        println "Executing test for ${descriptor.name} with result: ${result.resultType}"
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url "https://jitpack.io" }
+    // For SwipeListView
+    maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
+}
+
+dependencies {
+    // Android Support
+    def androidSupportVersion = '22.+'
+    compile "com.android.support:support-v4:$androidSupportVersion"
+    compile "com.android.support:appcompat-v7:$androidSupportVersion"
+    compile "com.android.support:cardview-v7:$androidSupportVersion"
+    compile "com.android.support:recyclerview-v7:$androidSupportVersion"
+
+    // Google Drive API
+    compile 'com.google.android.gms:play-services-identity:6.5.87'
+    compile 'com.google.android.gms:play-services-drive:6.5.87'
+
+    // Retrofit
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+
+    //OkHttp
+    compile 'com.squareup.okhttp:okhttp:2.2.0'
+
+    // OrmLite
+    def ormLiteVersion = '4.48'
+    compile "com.j256.ormlite:ormlite-android:$ormLiteVersion"
+    compile "com.j256.ormlite:ormlite-core:$ormLiteVersion"
+
+    // Butter Knife
+    compile 'com.jakewharton:butterknife:6.1.0'
+
+    // Dagger
+    def daggerVersion = '2.0'
+    apt "com.google.dagger:dagger-compiler:$daggerVersion"
+    compile "com.google.dagger:dagger:$daggerVersion"
+    provided 'org.glassfish:javax.annotation:10.0-b28'
+
+    testCompile "com.google.dagger:dagger-compiler:$daggerVersion"
+
+    // Guava
+    compile 'com.google.guava:guava:18.0'
+
+    // Joda time android
+    compile 'net.danlew:android.joda:2.5.0'
+
+    // PagerSlidingTabStrip
+    compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+
+    // FButton
+    compile 'info.hoang8f:fbutton:1.0.5'
+
+    // SwipeListView
+    compile('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
+        transitive = true
+    }
+
+    // HelloCharts
+    compile 'com.github.lecho:hellocharts-library:1.5.3@aar'
+
+    // MPAndroidChart
+    compile 'com.github.PhilJay:MPAndroidChart:v2.0.9'
+
+    // ColorPickerView
+    compile project(':colorPickerView-library')
+
+    // SQLite
+    memorydbCompile 'org.xerial:sqlite-jdbc:3.8.7'
+    memorydbCompile 'com.j256.ormlite:ormlite-jdbc:4.48'
+
+    // Espresso
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.0')
+    androidTestCompile('com.android.support.test:testing-support-lib:0.1')
+
+    // JUnit
+    testCompile 'junit:junit:4.12'
+
+    // Mockito
+    def mockitoVersion = '1.9.5'
+    memorydbCompile ("org.mockito:mockito-core:$mockitoVersion") {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
+    androidTestCompile ("org.mockito:mockito-core:$mockitoVersion") {
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
+
+    // AssertJ
+    androidTestCompile 'org.assertj:assertj-core:2.0.0'
+
+    // Fluent Exception
+    testCompile 'pl.wkr:fluent-exception-rule:1.0.1'
+}
+
+apply plugin: "jacoco"
+
+jacoco {
+    toolVersion = "0.7.1.201405082137"
+}
+
+def coverageSourceDirs = [
+        'src/main/java',
+        'src/gen'
+]
+
+task jacocoTestReport(type: JacocoReport, dependsOn: "testDebug") {
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports after running tests."
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+    classDirectories = fileTree(
+            dir: './build/intermediates/classes/debug',
+            includes: [
+                    '**/com/walletudo/ui/**',
+                    '**/com/walletudo/service/**'],
+            excludes: ['**/R.class',
+                       '**/R$*.class',
+                       '**/*$InjectAdapter.class',
+                       '**/*$ModuleAdapter.class',
+                       '**/*$ViewInjector*.class'
+            ])
+    sourceDirectories = files(coverageSourceDirs)
+    executionData = files('build/jacoco/testDebug.exec')
+}
+
+apply plugin: 'idea'
+
+idea {
+    module {
+        downloadSources = true
+    }
+}
