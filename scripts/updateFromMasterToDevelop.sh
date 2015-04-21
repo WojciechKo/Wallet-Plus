@@ -1,11 +1,11 @@
-adb uninstall info.korzeniowski.walletplus
+adb uninstall com.walletudo
 
 git checkout master
 gradle clean assemble
-adb install ../WalletPlus/build/outputs/apk/WalletPlus-debug.apk
-adb shell am start -n info.korzeniowski.walletplus/.MainActivity
+adb install ../WalletUDo/build/outputs/apk/WalletUDo-debug.apk
+adb shell am start -n com.walletudo/.DashboardActivity
 
 git checkout develop
 gradle clean assemble
-adb install -r ../WalletPlus/build/outputs/apk/WalletPlus-debug.apk
-adb shell am start -n info.korzeniowski.walletplus/.MainActivity
+adb install -r ../WalletUDo/build/outputs/apk/WalletUDo-debug.apk
+adb shell am start -n com.walletudo/.DashboardActivity
