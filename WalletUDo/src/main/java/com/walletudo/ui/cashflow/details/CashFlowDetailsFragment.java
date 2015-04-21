@@ -55,6 +55,7 @@ import com.walletudo.model.Wallet;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.service.TagService;
 import com.walletudo.service.WalletService;
+import com.walletudo.ui.tag.TagInputFilter;
 import com.walletudo.util.PrefUtils;
 
 import java.lang.ref.WeakReference;
@@ -190,23 +191,7 @@ public class CashFlowDetailsFragment extends Fragment {
         tag.setDropDownBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         tag.setAdapter(getAdapter(tags));
         tag.setTokenizer(new SpaceTokenizer());
-        tag.setFilters(new InputFilter[]{new InputFilter() {
-            @Override
-            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                StringBuilder builder = new StringBuilder();
-                for (int i = start; i < end; i++) {
-                    char c = source.charAt(i);
-                    if (isAllowed(c)) {
-                        builder.append(c);
-                    }
-                }
-                return builder.toString();
-            }
-
-            private boolean isAllowed(char c) {
-                return Character.isLetterOrDigit(c) || c == ' ' || c == '-';
-            }
-        }});
+        tag.setFilters(new InputFilter[]{new TagInputFilter.MultipleTags()});
 
         getActivity().findViewById(R.id.focusable).requestFocus();
         return view;

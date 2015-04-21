@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +35,7 @@ import com.walletudo.model.Tag;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.service.StatisticService;
 import com.walletudo.service.TagService;
+import com.walletudo.ui.tag.TagInputFilter;
 import com.walletudo.util.PrefUtils;
 
 import java.text.NumberFormat;
@@ -153,6 +155,7 @@ public class TagDetailsFragment extends Fragment {
             chartContainer.setVisibility(View.GONE);
             tagColor = prefUtils.getNextTagColor();
         }
+        tagName.setFilters(new InputFilter[] {new TagInputFilter.SingleTag()});
         colorPicker.setBackgroundColor(tagColor);
         colorPicker.setTag(tagColor);
     }
