@@ -24,6 +24,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -306,6 +308,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
         getActionBarToolbar();
+        setupAdBanner();
     }
 
     public Toolbar getActionBarToolbar() {
@@ -317,6 +320,13 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             }
         }
         return mActionBarToolbar;
+    }
+
+    private void setupAdBanner() {
+        AdView adView = (AdView) findViewById(R.id.adView);
+        if (adView != null) {
+            adView.loadAd(new AdRequest.Builder().build());
+        }
     }
 
     private View makeNavDrawerItem(final DrawerItemType type, ViewGroup container) {
