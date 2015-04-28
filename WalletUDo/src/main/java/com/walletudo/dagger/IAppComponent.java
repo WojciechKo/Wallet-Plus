@@ -26,6 +26,7 @@ import com.walletudo.ui.wallets.details.WalletDetailsActivity;
 import com.walletudo.ui.wallets.details.WalletDetailsFragment;
 import com.walletudo.ui.wallets.list.WalletListActivity;
 import com.walletudo.ui.wallets.list.WalletListFragment;
+import com.walletudo.util.PrefUtils;
 
 public interface IAppComponent {
 
@@ -84,4 +85,6 @@ public interface IAppComponent {
     void inject(ProfileServiceOrmLite object);
 
     ProfileService profileService();
+
+    PrefUtils prefUtils();
 }

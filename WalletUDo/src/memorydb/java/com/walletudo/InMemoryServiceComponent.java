@@ -1,0 +1,25 @@
+package com.walletudo;
+
+import javax.inject.Singleton;
+
+import dagger.Component;
+
+import com.walletudo.dagger.module.InMemoryServicesModule;
+import com.walletudo.dagger.test.ServiceInjectedUnitTest;
+
+@Singleton
+@Component(
+        modules = {
+                InMemoryServicesModule.class}
+)
+public interface InMemoryServiceComponent {
+
+    void inject(ServiceInjectedUnitTest serviceInjectedUnitTest);
+
+    static class Initializer {
+
+        public static InMemoryServiceComponent init() {
+            return DaggerInMemoryServiceComponent.create();
+        }
+    }
+}

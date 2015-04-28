@@ -73,8 +73,9 @@ public class ProfileServiceOrmLite implements ProfileService {
         if (activeProfileId != -1) {
             activeProfile = findById(activeProfileId);
         }
-        if (activeProfile == null && count() != 0) {
-            activeProfile = getAll().get(0);
+        List<Profile> allProfiles = getAll();
+        if (activeProfile == null && !allProfiles.isEmpty()) {
+            activeProfile = allProfiles.get(0);
         }
 
         return activeProfile;

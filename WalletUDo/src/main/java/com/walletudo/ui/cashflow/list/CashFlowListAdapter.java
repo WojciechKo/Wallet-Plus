@@ -15,6 +15,7 @@ import android.text.style.ImageSpan;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.common.base.Strings;
 import com.walletudo.R;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
@@ -56,6 +57,12 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
         holder.wallet.setText(getWalletText(item));
         holder.amount.setText(NumberFormat.getCurrencyInstance().format(item.getAmount()));
         holder.amount.setTextColor(getAmountColor(item));
+        if (Strings.isNullOrEmpty(item.getComment())) {
+            holder.comment.setVisibility(View.GONE);
+        } else {
+            holder.comment.setVisibility(View.VISIBLE);
+            holder.comment.setText(item.getComment());
+        }
         holder.date.setText(getDateText(item));
     }
 
@@ -124,6 +131,9 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
 
         @InjectView(R.id.amount)
         TextView amount;
+
+        @InjectView(R.id.comment)
+        TextView comment;
 
         @InjectView(R.id.tag)
         TextView tag;

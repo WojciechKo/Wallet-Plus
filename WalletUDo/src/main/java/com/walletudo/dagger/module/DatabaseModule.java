@@ -30,7 +30,6 @@ public class DatabaseModule {
         if (profile != null) {
             return new UserDatabaseHelper(context, Utils.getProfileDatabaseName(profile.getName()));
         }
-
-        throw new RuntimeException("No profile exists! Should be handled.");
+        return new UserDatabaseHelper(context, null);
     }
 }

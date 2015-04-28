@@ -34,8 +34,13 @@ android {
         minSdkVersion 17
         targetSdkVersion 22
 
+        multiDexEnabled = true
         signingConfig signingConfigs.config
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    dexOptions {
+        javaMaxHeapSize "2g"
     }
 
     buildTypes {
@@ -129,7 +134,9 @@ dependencies {
     compile "com.google.dagger:dagger:$daggerVersion"
     provided 'org.glassfish:javax.annotation:10.0-b28'
 
-    testCompile "com.google.dagger:dagger-compiler:$daggerVersion"
+    androidTestApt 'com.google.dagger:dagger-compiler:' + daggerVersion
+    testCompile 'com.google.dagger:dagger-compiler:' + daggerVersion
+    memorydbCompile 'com.google.dagger:dagger-compiler:' + daggerVersion
 
     // Guava
     compile 'com.google.guava:guava:18.0'

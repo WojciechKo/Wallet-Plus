@@ -4,10 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Rect;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -30,6 +30,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.samples.apps.iosched.ui.widget.ScrimInsetsScrollView;
+import com.walletudo.DatabaseInitializer;
 import com.walletudo.R;
 import com.walletudo.WalletUDo;
 import com.walletudo.model.Profile;
@@ -105,7 +106,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     private int mNormalStatusBarColor;
     // views that correspond to each navigation_drawer type, null if not yet created
     private View[] mNavDrawerItemViews = null;
-    private Thread mDataBootstrapThread;
     // Navigation drawer menu items
 
     private LinearLayout mAccountListContainer;
@@ -116,9 +116,18 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        WalletUDo application = (WalletUDo) getApplication();
+        prefUtils = application.component().prefUtils();
+        // Perform one-time bootstrap setup, if needed
+        if (!prefUtils.isDataBootstrapDone()) {
+            Log.d(TAG, "One-time data bootstrap not done yet. Doing now.");
+            performDataBootstrap();
+        }
+
+        application.component().inject(this);
+
         super.onCreate(savedInstanceState);
 
-        ((WalletUDo) getApplication()).component().inject(this);
         mHandler = new Handler();
 
         mThemedStatusBarColor = getResources().getColor(R.color.theme_primary_dark);
@@ -143,13 +152,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     @Override
     public void onStart() {
         super.onStart();
-
-        // Perform one-time bootstrap setup, if needed
-        if (!prefUtils.isDataBootstrapDone() && mDataBootstrapThread == null) {
-            Log.d(TAG, "One-time data bootstrap not done yet. Doing now.");
-            performDataBootstrap();
-        }
-
         startLoginProcess();
     }
 
@@ -206,18 +208,21 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
      * data contains the sessions, speakers, etc.
      */
     private void performDataBootstrap() {
-        final Context appContext = getApplicationContext();
-        mDataBootstrapThread = new Thread(new Runnable() {
+        new AsyncTask<Void, Void, Void>() {
             @Override
-            public void run() {
+            protected Void doInBackground(Void... params) {
                 Log.d(TAG, "Starting data bootstrap process.");
-                // Load data from bootstrap raw resource
-                //...
-                mDataBootstrapThread = null;
+
+                new DatabaseInitializer(BaseActivity.this).createExampleAccountWithProfile();
                 prefUtils.markDataBootstrapDone();
+                return null;
             }
-        });
-        mDataBootstrapThread.start();
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                BaseActivity.this.recreate();
+            }
+        }.execute();
     }
 
     private void setupNavDrawer() {
