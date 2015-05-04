@@ -30,6 +30,7 @@ import com.walletudo.ui.BaseActivity;
 import com.walletudo.util.KorzeniowskiUtils;
 import com.walletudo.util.PrefUtils;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -253,7 +254,7 @@ public class ProfileActivity extends BaseActivity {
                 protected Boolean doInBackground(Void... params) {
                     OkHttpClient okHttpClient = new OkHttpClient();
                     Request request = new Request.Builder()
-                            .url(Uri.parse(selectedProfile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", prefUtils.getGoogleToken()).toString())
+                            .url(Uri.parse(selectedProfile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", profileService.getActiveProfile().getGoogleToken()).toString())
                             .build();
 
                     try {
@@ -261,10 +262,11 @@ public class ProfileActivity extends BaseActivity {
                         Profile newProfile = new Profile()
                                 .setName(KorzeniowskiUtils.Files.getBaseName(selectedProfile.getTitle()))
                                 .setDriveId(selectedProfile.getId())
-                                .setGmailAccount(selectedProfile.getOwner());
+                                .setGoogleAccount(selectedProfile.getOwner());
 
                         profileService.insert(newProfile);
-                        ByteStreams.copy(inputStream, new FileOutputStream(newProfile.getDatabaseFilePath()));
+                        File databaseFile = getActivity().getDatabasePath(newProfile.getDatabaseFileName());
+                        ByteStreams.copy(inputStream, new FileOutputStream(databaseFile));
                         prefUtils.setActiveProfileId(newProfile.getId());
                         return true;
                     } catch (IOException e) {

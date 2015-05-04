@@ -17,11 +17,6 @@ public class PrefUtils {
     public static final String PREF_DATA_BOOTSTRAP_DONE = "pref_data_bootstrap_done";
 
     /**
-     * String containing Google auth token.
-     */
-    private static final String GOOGLE_TOKEN = "pref_google_token";
-
-    /**
      * Long containing id of Profile that is active.
      */
     private static final String PREF_ACTIVE_PROFILE_ID = "pref_active_profile_id";
@@ -66,16 +61,6 @@ public class PrefUtils {
         SharedPreferences sp = getSharedPreferences(context);
         sp.edit().putLong(PREF_ACTIVE_PROFILE_ID, id).commit();
         return true;
-    }
-
-    public String getGoogleToken() {
-        SharedPreferences sp = getSharedPreferences(context);
-        return sp.getString(GOOGLE_TOKEN, "");
-    }
-
-    public void setGoogleToken(final String token) {
-        SharedPreferences sp = getSharedPreferences(context);
-        sp.edit().putString(GOOGLE_TOKEN, token).commit();
     }
 
     public int getNextTagColor() {

@@ -541,7 +541,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 //        }
 
         nameView.setText(activeProfile.getName());
-        emailView.setText(activeProfile.getGmailAccount());
+        emailView.setText(activeProfile.getGoogleAccount());
 
         chosenAccountView.setEnabled(true);
         mExpandAccountBoxIndicator.setVisibility(View.VISIBLE);

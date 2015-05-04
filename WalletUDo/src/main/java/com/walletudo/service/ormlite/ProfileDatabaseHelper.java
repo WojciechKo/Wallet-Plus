@@ -1,8 +1,6 @@
 package com.walletudo.service.ormlite;
 
 import android.content.Context;
-import android.content.ContextWrapper;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -14,22 +12,21 @@ import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
 import com.walletudo.model.TagAndCashFlowBind;
 import com.walletudo.model.Wallet;
-import com.walletudo.util.Utils;
 
-import java.io.File;
 import java.sql.SQLException;
 
-public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
+public class ProfileDatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
+    public static final String PROFILE_DATABASE_PREFIX = "profile_";
 
     private Dao<Wallet, Long> walletDao;
     private Dao<Tag, Long> tagDao;
     private Dao<CashFlow, Long> cashFlowDao;
     private Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao;
 
-    public UserDatabaseHelper(Context context, String profileName) {
-        super(new DatabaseContext(context), profileName, null, DATABASE_VERSION);
+    public ProfileDatabaseHelper(Context context, String profileName) {
+        super(context, PROFILE_DATABASE_PREFIX + profileName, null, DATABASE_VERSION);
     }
 
     public Dao<Wallet, Long> getWalletDao() throws SQLException {
@@ -68,7 +65,7 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, CashFlow.class);
             TableUtils.createTable(connectionSource, TagAndCashFlowBind.class);
         } catch (SQLException e) {
-            Log.e(UserDatabaseHelper.class.getName(), "Can't create database", e);
+            Log.e(ProfileDatabaseHelper.class.getName(), "Can't create database", e);
             throw new RuntimeException(e);
         }
     }
@@ -82,54 +79,6 @@ public class UserDatabaseHelper extends OrmLiteSqliteOpenHelper {
         walletDao = null;
         tagDao = null;
         cashFlowDao = null;
-    }
-
-    static class DatabaseContext extends ContextWrapper {
-
-        private static final String DEBUG_CONTEXT = "DatabaseContext";
-
-        public DatabaseContext(Context base) {
-            super(base);
-        }
-
-        @Override
-        public File getDatabasePath(String name) {
-
-            String dbfile = Utils.getMainDatabaseFolder(getApplicationContext()) + name;
-            if (!dbfile.endsWith(".db")) {
-                dbfile += ".db";
-            }
-
-            File result = new File(dbfile);
-
-            if (!result.getParentFile().exists()) {
-                result.getParentFile().mkdirs();
-            }
-
-            if (Log.isLoggable(DEBUG_CONTEXT, Log.WARN)) {
-                Log.w(DEBUG_CONTEXT,
-                        "getDatabasePath(" + name + ") = " + result.getAbsolutePath());
-            }
-
-            return result;
-        }
-
-        /* this version is called for android devices >= api-11. thank to @damccull for fixing this. */
-        @Override
-        public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory, DatabaseErrorHandler errorHandler) {
-            return openOrCreateDatabase(name, mode, factory);
-        }
-
-        /* this version is called for android devices < api-11 */
-        @Override
-        public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory) {
-            SQLiteDatabase result = SQLiteDatabase.openOrCreateDatabase(getDatabasePath(name), null);
-            // SQLiteDatabase result = super.openOrCreateDatabase(name, mode, factory);
-            if (Log.isLoggable(DEBUG_CONTEXT, Log.WARN)) {
-                Log.w(DEBUG_CONTEXT,
-                        "openOrCreateDatabase(" + name + ",,) = " + result.getPath());
-            }
-            return result;
-        }
+        tagAndCashFlowBindsDao = null;
     }
 }

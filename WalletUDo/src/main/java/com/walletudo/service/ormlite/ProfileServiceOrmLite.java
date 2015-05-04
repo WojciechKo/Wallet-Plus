@@ -2,14 +2,15 @@ package com.walletudo.service.ormlite;
 
 import android.content.Context;
 
+import com.google.common.io.Files;
 import com.j256.ormlite.dao.Dao;
 import com.walletudo.model.Profile;
 import com.walletudo.service.ProfileService;
 import com.walletudo.service.exception.DatabaseException;
 import com.walletudo.util.PrefUtils;
-import com.walletudo.util.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.sql.SQLException;
 import java.util.List;
@@ -31,7 +32,6 @@ public class ProfileServiceOrmLite implements ProfileService {
     @Override
     public Long insert(Profile entity) {
         try {
-            entity.setDatabaseFilePath(Utils.getProfileDatabaseFilePath(context.get(), entity.getName()));
             profileDao.create(entity);
             return entity.getId();
         } catch (SQLException e) {
@@ -98,14 +98,16 @@ public class ProfileServiceOrmLite implements ProfileService {
     public void update(Profile newValue) {
         try {
             Profile original = profileDao.queryForId(newValue.getId());
-            newValue.setDatabaseFilePath(Utils.getProfileDatabaseFilePath(context.get(), newValue.getName()));
             profileDao.update(newValue);
             if (!original.getName().equals(newValue.getName())) {
-                File database = new File(original.getDatabaseFilePath());
-                database.renameTo(new File(newValue.getDatabaseFilePath()));
+                File oldDatabaseFile = context.get().getDatabasePath(original.getDatabaseFileName());
+                File newDatabaseFile = context.get().getDatabasePath(newValue.getDatabaseFileName());
+                Files.move(oldDatabaseFile, newDatabaseFile);
             }
         } catch (SQLException e) {
             throw new DatabaseException(e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -113,14 +115,10 @@ public class ProfileServiceOrmLite implements ProfileService {
     public void deleteById(Long id) {
         try {
             Profile profile = profileDao.queryForId(id);
-            deleteDatabaseFile(profile.getDatabaseFilePath());
+            context.get().getDatabasePath(profile.getDatabaseFileName()).delete();
             profileDao.deleteById(id);
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
-    }
-
-    private void deleteDatabaseFile(String databaseFileName) {
-        throw new RuntimeException("Not implemented!");
     }
 }
