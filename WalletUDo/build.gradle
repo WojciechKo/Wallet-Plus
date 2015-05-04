@@ -7,7 +7,6 @@ buildscript {
     dependencies {
         classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
         classpath 'org.robolectric:robolectric-gradle-plugin:1.0.1'
-        classpath 'org.aspectj:aspectjtools:1.8.1'
     }
 }
 
@@ -45,6 +44,10 @@ android {
 
     buildTypes {
         memorydb.initWith(buildTypes.debug)
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
     }
 
     lintOptions {
