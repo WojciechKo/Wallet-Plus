@@ -110,7 +110,7 @@ dependencies {
     compile "com.android.support:cardview-v7:$androidSupportVersion"
     compile "com.android.support:recyclerview-v7:$androidSupportVersion"
 
-    def googlePlayServiceVersion = '7.0.0'
+    def googlePlayServiceVersion = '7.3.+'
 
     // Google Drive API
     compile 'com.google.android.gms:play-services-identity:' + googlePlayServiceVersion
