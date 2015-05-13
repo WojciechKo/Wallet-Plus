@@ -41,7 +41,9 @@ import com.walletudo.service.TagService;
 import com.walletudo.service.WalletService;
 import com.walletudo.ui.dashboard.DashboardActivity;
 import com.walletudo.ui.profile.ProfileActivity;
+import com.walletudo.ui.settings.SettingsActivity;
 import com.walletudo.ui.statistics.list.StatisticListActivityState;
+import com.walletudo.util.AndroidUtils;
 import com.walletudo.util.PrefUtils;
 import com.walletudo.util.UIUtils;
 
@@ -425,6 +427,13 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         View footerItem = getLayoutInflater().inflate(R.layout.item_navigation_drawer, mNavDrawerListFooter, false);
         TextView title = (TextView) footerItem.findViewById(R.id.title);
         title.setText("Settings");
+        footerItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(BaseActivity.this, SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
         mNavDrawerListFooter.addView(footerItem);
     }
 
@@ -629,9 +638,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
     private void selectProfileById(Long id) {
         prefUtils.setActiveProfileId(id);
-        ((WalletUDo) getApplication()).reinitializeObjectGraph();
-        startActivity(new Intent(this, DashboardActivity.class));
-        finish();
+        AndroidUtils.restartApplication(this);
     }
 
 

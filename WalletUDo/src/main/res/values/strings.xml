@@ -88,4 +88,7 @@
     <!-- Synchronize fragment -->
     <string name="synchronizeLabel">Synchronize</string>
 
+    <!-- Settings fragment -->
+    <string name="settingsLabel">Settings</string>
+
 </resources>

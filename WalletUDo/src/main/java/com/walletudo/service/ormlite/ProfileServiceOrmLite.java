@@ -1,7 +1,10 @@
 package com.walletudo.service.ormlite;
 
 import android.content.Context;
+import android.widget.Toast;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import com.j256.ormlite.dao.Dao;
 import com.walletudo.model.Profile;
@@ -114,8 +117,17 @@ public class ProfileServiceOrmLite implements ProfileService {
     @Override
     public void deleteById(Long id) {
         try {
-            Profile profile = profileDao.queryForId(id);
-            context.get().getDatabasePath(profile.getDatabaseFileName()).delete();
+            final Long activeProfileId = prefUtils.getActiveProfileId();
+            prefUtils.setActiveProfileId(Iterables.find(getAll(), new Predicate<Profile>() {
+                @Override
+                public boolean apply(Profile input) {
+                    return !input.getId().equals(activeProfileId);
+                }
+            }).getId());
+            Profile profileToDelete = profileDao.queryForId(id);
+            if (context.get().getDatabasePath(profileToDelete.getDatabaseFileName()).delete()) {
+                Toast.makeText(context.get(), "Profile database file deleted.", Toast.LENGTH_SHORT).show();
+            }
             profileDao.deleteById(id);
         } catch (SQLException e) {
             throw new DatabaseException(e);

@@ -13,6 +13,7 @@ import com.walletudo.ui.cashflow.list.CashFlowListFragment;
 import com.walletudo.ui.dashboard.DashboardActivity;
 import com.walletudo.ui.dashboard.DashboardFragment;
 import com.walletudo.ui.profile.ProfileActivity;
+import com.walletudo.ui.settings.SettingsActivity;
 import com.walletudo.ui.statistics.details.StaticticDetailsActivity;
 import com.walletudo.ui.statistics.details.StatisticDetailsFragment;
 import com.walletudo.ui.statistics.list.StatisticListActivity;
@@ -83,6 +84,8 @@ public interface IAppComponent {
     void inject(DatabaseInitializer object);
 
     void inject(ProfileServiceOrmLite object);
+
+    void inject(SettingsActivity.SettingsFragment settingsFragment);
 
     ProfileService profileService();
 

@@ -98,8 +98,12 @@ repositories {
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url "https://jitpack.io" }
+
     // For SwipeListView
     maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
+
+    // Material dialogs
+    maven { url 'https://dl.bintray.com/drummer-aidan/maven' }
 }
 
 dependencies {
@@ -166,6 +170,9 @@ dependencies {
 
     // ColorPickerView
     compile project(':colorPickerView-library')
+
+    // Material dialogs
+    compile 'com.afollestad:material-dialogs:0.7.3.1'
 
     // SQLite
     memorydbCompile 'org.xerial:sqlite-jdbc:3.8.7'

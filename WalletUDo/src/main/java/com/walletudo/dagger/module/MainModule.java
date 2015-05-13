@@ -80,6 +80,7 @@ public class MainModule {
                 new DrawerItemContent(android.R.drawable.ic_menu_agenda, "Tags", TagListActivity.class));
         navigationDrawerContent.put(BaseActivity.DrawerItemType.SYNCHRONIZE,
                 new DrawerItemContent(android.R.drawable.stat_notify_sync_noanim, "Synchronization", SynchronizeActivity.class));
+
         return navigationDrawerContent;
     }
 }

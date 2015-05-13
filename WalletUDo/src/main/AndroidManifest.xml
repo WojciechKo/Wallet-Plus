@@ -120,6 +120,15 @@
         </activity>
 
         <activity
+            android:name="com.walletudo.ui.settings.SettingsActivity"
+            android:label="@string/settingsLabel"
+            android:parentActivityName="com.walletudo.ui.dashboard.DashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.dashboard.DashboardActivity" />
+        </activity>
+
+        <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent" />
