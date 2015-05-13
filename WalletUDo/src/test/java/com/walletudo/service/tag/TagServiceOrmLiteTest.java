@@ -3,21 +3,19 @@ package com.walletudo.service.tag;
 import android.graphics.Color;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import com.walletudo.dagger.test.ServiceInjectedUnitTest;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
 import com.walletudo.model.Wallet;
 import com.walletudo.service.exception.EntityAlreadyExistsException;
 import com.walletudo.service.exception.EntityPropertyCannotBeNullOrEmptyException;
-import pl.wkr.fluentrule.api.FluentExpectedException;
+import com.walletudo.test.ServiceInjectedUnitTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+
+import pl.wkr.fluentrule.api.FluentExpectedException;
 
 @SmallTest
 public class TagServiceOrmLiteTest extends ServiceInjectedUnitTest {

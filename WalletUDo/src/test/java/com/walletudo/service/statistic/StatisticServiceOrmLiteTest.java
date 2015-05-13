@@ -2,17 +2,17 @@ package com.walletudo.service.statistic;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Date;
-import java.util.Map;
-
 import com.walletudo.dagger.test.ServiceInjectedUnitTest;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
 import com.walletudo.model.Wallet;
 import com.walletudo.service.StatisticService;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Date;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

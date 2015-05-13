@@ -39,7 +39,6 @@ import com.walletudo.service.ProfileService;
 import com.walletudo.service.StatisticService;
 import com.walletudo.service.TagService;
 import com.walletudo.service.WalletService;
-import com.walletudo.ui.dashboard.DashboardActivity;
 import com.walletudo.ui.profile.ProfileActivity;
 import com.walletudo.ui.settings.SettingsActivity;
 import com.walletudo.ui.statistics.list.StatisticListActivityState;

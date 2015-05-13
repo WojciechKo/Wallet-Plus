@@ -83,7 +83,6 @@ robolectric {
     exclude '**/espresso/**/*.class'
 
     maxHeapSize = '2048m'
-    jvmArgs '-XX:MaxPermSize=512m', '-XX:-UseSplitVerifier'
 
     maxParallelForks = 4
     forkEvery = 150

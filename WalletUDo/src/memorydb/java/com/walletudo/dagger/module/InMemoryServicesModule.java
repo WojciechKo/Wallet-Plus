@@ -8,15 +8,6 @@ import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
-
-import org.mockito.Mockito;
-
-import java.sql.SQLException;
-
-import javax.inject.Singleton;
-
-import dagger.Module;
-import dagger.Provides;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Profile;
 import com.walletudo.model.Tag;
@@ -33,6 +24,15 @@ import com.walletudo.service.ormlite.StatisticServiceOrmLite;
 import com.walletudo.service.ormlite.TagServiceOrmLite;
 import com.walletudo.service.ormlite.WalletServiceOrmLite;
 import com.walletudo.util.PrefUtils;
+
+import org.mockito.Mockito;
+
+import java.sql.SQLException;
+
+import javax.inject.Singleton;
+
+import dagger.Module;
+import dagger.Provides;
 
 /**
  * Module for Database objects.
