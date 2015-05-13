@@ -51,7 +51,7 @@ public class StatisticListAdapter extends IdentifiableListAdapter<Tag> {
         return Iterables.find(stats, new Predicate<StatisticService.TagStats>() {
             @Override
             public boolean apply(StatisticService.TagStats input) {
-                return tag.getId().equals(input.getTagId());
+                return tag.getId().equals(input.getTag().getId());
             }
         });
     }

@@ -1,19 +1,24 @@
 package com.walletudo.service.ormlite;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
 import com.walletudo.model.TagAndCashFlowBind;
+import com.walletudo.service.CashFlowService;
 import com.walletudo.service.StatisticService;
 import com.walletudo.service.exception.DatabaseException;
 
-import org.joda.time.Period;
-
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -22,16 +27,19 @@ public class StatisticServiceOrmLite implements StatisticService {
     private Dao<CashFlow, Long> cashFlowDao;
     private Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindDao;
     private Dao<Tag, Long> tagDao;
+    private CashFlowService cashFlowService;
 
     @Inject
     public StatisticServiceOrmLite(
             Dao<CashFlow, Long> cashFlowDao,
             Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindDao,
-            Dao<Tag, Long> tagDao) {
+            Dao<Tag, Long> tagDao,
+            CashFlowService cashFlowService) {
 
         this.cashFlowDao = cashFlowDao;
         this.tagAndCashFlowBindDao = tagAndCashFlowBindDao;
         this.tagDao = tagDao;
+        this.cashFlowService = cashFlowService;
     }
 
     @Override
@@ -53,34 +61,31 @@ public class StatisticServiceOrmLite implements StatisticService {
     }
 
     @Override
-    public TagStats getTagStats(Tag tag, final Date firstDay, final Period period, final Integer iteration) {
-        throw new RuntimeException("Not implemented.");
-//        checkNotNull(tag);
-//        checkNotNull(firstDay);
-//        checkNotNull(period);
-//        checkNotNull(iteration);
-//
-//        DateTime firstDayArg;
-//        if (iteration <= 0) {
-//            firstDayArg = new DateTime(firstDay).minus(period.multipliedBy(0 - iteration));
-//        } else {
-//            firstDayArg = new DateTime(firstDay).plus(period.multipliedBy(iteration));
-//        }
-//
-//        DateTime lastDayArg = firstDayArg.plus(period);
-//        List<CashFlow> cashFlowList = cashFlowService.findCashFlows(firstDayArg.toDate(), lastDayArg.toDate(), tag.getId(), null);
-//
-//        TagStats stats = new TagStats(tag.getId());
-//        for (CashFlow cashFlow : cashFlowList) {
-//            CashFlow.Type type = cashFlow.getType();
-//            if (type == CashFlow.Type.INCOME) {
-//                stats.incomeAmount(cashFlow.getAmount());
-//            } else if (type == CashFlow.Type.EXPENSE) {
-//                stats.expanseAmount(cashFlow.getAmount());
-//            }
-//        }
-//
-//        return stats;
+    public Statistics getStatistics(Date firstDay, Date lastDay) {
+        CashFlowService.CashFlowQuery cashFlowQuery = new CashFlowService.CashFlowQuery()
+                .withFromDate(firstDay)
+                .withToDate(lastDay);
+        List<CashFlow> cashFlows = cashFlowService.findCashFlows(cashFlowQuery);
+        Set<TagStats> tagStatsSet = Sets.newHashSet();
+        for (CashFlow cashFlow : cashFlows) {
+            for (final Tag tag : cashFlow.getTags()) {
+                Optional<TagStats> tagStatsOptional = Iterables.tryFind(tagStatsSet, new Predicate<TagStats>() {
+                    @Override
+                    public boolean apply(TagStats input) {
+                        return input.getTag().getId().equals(tag.getId());
+                    }
+                });
+                TagStats foundTagStats;
+                if (tagStatsOptional.isPresent()) {
+                    foundTagStats = tagStatsOptional.get();
+                } else {
+                    foundTagStats = new TagStats(tag);
+                    tagStatsSet.add(foundTagStats);
+                }
+                foundTagStats.includeCashFlow(cashFlow);
+            }
+        }
+        return new Statistics(Sets.<TagStats>newHashSet());
     }
 
     private Long getSelectedTagOnlyStatsQuery(Long tagId, CashFlow.Type type) throws SQLException {

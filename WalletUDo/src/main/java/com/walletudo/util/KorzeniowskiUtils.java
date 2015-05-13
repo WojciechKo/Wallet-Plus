@@ -7,14 +7,28 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.ListView;
 
+import com.google.common.collect.Maps;
+
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class KorzeniowskiUtils {
+    public static class Collections {
+        public static <K extends Comparable, V> Map<K, V> getMapFromEntryList(List<Map.Entry<K, V>> incomeList) {
+            Map<K, V> result = Maps.newLinkedHashMap();
+            for (Map.Entry<K, V> entry : incomeList) {
+                result.put(entry.getKey(), entry.getValue());
+            }
+            return result;
+        }
+    }
+
     public static class Dates {
         public static String getShortDateLabel(Context context, Date date) {
             return DateUtils.formatDateTime(
