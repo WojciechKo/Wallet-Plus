@@ -34,10 +34,8 @@ import butterknife.InjectView;
 public class StatisticListActivity extends BaseActivity {
     public static final String TAG = StatisticListActivity.class.getSimpleName();
 
-    @InjectView(R.id.tabs)
     PagerTabStrip tabs;
 
-    @InjectView(R.id.pager)
     ViewPager pager;
 
     @Override

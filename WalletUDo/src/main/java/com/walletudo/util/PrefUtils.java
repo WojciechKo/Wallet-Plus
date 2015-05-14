@@ -39,7 +39,7 @@ public class PrefUtils {
 
     public void markWelcomeDone() {
         SharedPreferences sp = getSharedPreferences(context);
-        sp.edit().putBoolean(PREF_WELCOME_DONE, true).commit();
+        sp.edit().putBoolean(PREF_WELCOME_DONE, true).apply();
     }
 
     public boolean isDataBootstrapDone() {
@@ -49,7 +49,7 @@ public class PrefUtils {
 
     public void markDataBootstrapDone() {
         SharedPreferences sp = getSharedPreferences(context);
-        sp.edit().putBoolean(PREF_DATA_BOOTSTRAP_DONE, true).commit();
+        sp.edit().putBoolean(PREF_DATA_BOOTSTRAP_DONE, true).apply();
     }
 
     public Long getActiveProfileId() {
@@ -59,7 +59,7 @@ public class PrefUtils {
 
     public boolean setActiveProfileId(final Long id) {
         SharedPreferences sp = getSharedPreferences(context);
-        sp.edit().putLong(PREF_ACTIVE_PROFILE_ID, id).commit();
+        sp.edit().putLong(PREF_ACTIVE_PROFILE_ID, id).apply();
         return true;
     }
 
@@ -67,7 +67,7 @@ public class PrefUtils {
         SharedPreferences sp = getSharedPreferences(context);
         float goldenRatio = (float) 0.618033988749895;
         float nextHue = (sp.getFloat(PREF_LAST_TAG_COLOR_HUE, 0) + goldenRatio) % 1;
-        sp.edit().putFloat(PREF_LAST_TAG_COLOR_HUE, nextHue).commit();
+        sp.edit().putFloat(PREF_LAST_TAG_COLOR_HUE, nextHue).apply();
 
         float[] hsv = new float[3];
         hsv[0] = nextHue * 360; // Hue (0 .. 360)

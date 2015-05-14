@@ -3,6 +3,7 @@ package com.walletudo.dagger.module;
 import android.content.Context;
 
 import com.google.common.collect.Maps;
+import com.walletudo.R;
 import com.walletudo.WalletUDo;
 import com.walletudo.ui.BaseActivity;
 import com.walletudo.ui.cashflow.list.CashFlowListActivity;
@@ -69,17 +70,17 @@ public class MainModule {
         Map<BaseActivity.DrawerItemType, DrawerItemContent> navigationDrawerContent = Maps.newHashMap();
 
         navigationDrawerContent.put(BaseActivity.DrawerItemType.DASHBOARD,
-                new DrawerItemContent(android.R.drawable.ic_media_pause, "Dashboard", DashboardActivity.class));
+                new DrawerItemContent(R.drawable.ic_menu_dashboard, application.get().getString(R.string.dashboardMenu), DashboardActivity.class));
         navigationDrawerContent.put(BaseActivity.DrawerItemType.CASH_FLOW,
-                new DrawerItemContent(android.R.drawable.ic_lock_silent_mode, "Cash flows", CashFlowListActivity.class));
+                new DrawerItemContent(R.drawable.ic_menu_cash_flow, application.get().getString(R.string.cashFlowMenu), CashFlowListActivity.class));
         navigationDrawerContent.put(BaseActivity.DrawerItemType.STATISTIC,
-                new DrawerItemContent(android.R.drawable.ic_menu_camera, "Statistics", StatisticListActivity.class));
+                new DrawerItemContent(R.drawable.ic_menu_statistic, application.get().getString(R.string.statisticsMenu), StatisticListActivity.class));
         navigationDrawerContent.put(BaseActivity.DrawerItemType.WALLET,
-                new DrawerItemContent(android.R.drawable.ic_menu_week, "Wallets", WalletListActivity.class));
+                new DrawerItemContent(R.drawable.ic_menu_wallet, application.get().getString(R.string.walletMenu), WalletListActivity.class));
         navigationDrawerContent.put(BaseActivity.DrawerItemType.TAG,
-                new DrawerItemContent(android.R.drawable.ic_menu_agenda, "Tags", TagListActivity.class));
+                new DrawerItemContent(R.drawable.ic_menu_tag, application.get().getString(R.string.tagMenu), TagListActivity.class));
         navigationDrawerContent.put(BaseActivity.DrawerItemType.SYNCHRONIZE,
-                new DrawerItemContent(android.R.drawable.stat_notify_sync_noanim, "Synchronization", SynchronizeActivity.class));
+                new DrawerItemContent(R.drawable.ic_menu_synchronization, application.get().getString(R.string.synchronizationLabel), SynchronizeActivity.class));
 
         return navigationDrawerContent;
     }

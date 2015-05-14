@@ -106,7 +106,7 @@ public class StatisticServiceOrmLite implements StatisticService {
     }
 
     @Override
-    public Map<Tag, TagStats2> getTagStats2(Tag tag) {
+    public Map<Tag, TagStatistics> getSingleTagStatistics(Tag tag) {
         try {
             QueryBuilder<TagAndCashFlowBind, Long> tagStatisticsQuery = tagAndCashFlowBindDao.queryBuilder();
 
@@ -145,10 +145,10 @@ public class StatisticServiceOrmLite implements StatisticService {
             tagStatisticsQuery.groupByRaw(Tag.TABLE_NAME + "." + Tag.ID_COLUMN_NAME);
             tagStatisticsQuery.orderByRaw(CashFlow.Type.INCOME + " + " + CashFlow.Type.EXPENSE + " DESC");
 
-            Map<Tag, TagStats2> result = Maps.newLinkedHashMap();
+            Map<Tag, TagStatistics> result = Maps.newLinkedHashMap();
             for (String[] resultRow : tagStatisticsQuery.queryRaw()) {
                 Tag rowTag = tagDao.queryForId(Long.parseLong(resultRow[0]));
-                TagStats2 tagStats = new TagStats2(Double.parseDouble(resultRow[1]), Double.parseDouble(resultRow[2]));
+                TagStatistics tagStats = new TagStatistics(Double.parseDouble(resultRow[1]), Double.parseDouble(resultRow[2]));
                 result.put(rowTag, tagStats);
             }
             return result;

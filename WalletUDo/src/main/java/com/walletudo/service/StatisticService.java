@@ -22,13 +22,13 @@ public interface StatisticService {
 
     Statistics getStatistics(Date firstDay, Date lastDay);
 
-    Map<Tag, TagStats2> getTagStats2(Tag tag);
+    Map<Tag, TagStatistics> getSingleTagStatistics(Tag tag);
 
-    class TagStats2 {
+    class TagStatistics {
         private Double income = 0.0;
         private Double expense = 0.0;
 
-        public TagStats2(Double income, Double expense) {
+        public TagStatistics(Double income, Double expense) {
             this.income = income;
             this.expense = expense;
         }

@@ -103,7 +103,7 @@
 
         <activity
             android:name="com.walletudo.ui.synchronize.SynchronizeActivity"
-            android:label="@string/synchronizeLabel"
+            android:label="@string/synchronizationLabel"
             android:parentActivityName="com.walletudo.ui.dashboard.DashboardActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

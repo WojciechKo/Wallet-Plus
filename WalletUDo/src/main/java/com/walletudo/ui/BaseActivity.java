@@ -100,11 +100,8 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     // A Runnable that we should execute when the navigation drawer finishes its closing animation
     private Runnable mDeferredOnDrawerClosedRunnable;
     private boolean mAccountBoxExpanded = false;
-    private boolean mActionBarShown = true;
     private ImageView mExpandAccountBoxIndicator;
     private Handler mHandler;
-    private int mThemedStatusBarColor;
-    private int mNormalStatusBarColor;
     // views that correspond to each navigation_drawer type, null if not yet created
     private View[] mNavDrawerItemViews = null;
     // Navigation drawer menu items
@@ -130,9 +127,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
 
         mHandler = new Handler();
-
-        mThemedStatusBarColor = getResources().getColor(R.color.theme_primary_dark);
-        mNormalStatusBarColor = mThemedStatusBarColor;
     }
 
     @Override
@@ -425,7 +419,9 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         mNavDrawerListFooter.addView(makeNavDrawerItem(DrawerItemType.SEPARATOR, mNavDrawerListFooter));
         View footerItem = getLayoutInflater().inflate(R.layout.item_navigation_drawer, mNavDrawerListFooter, false);
         TextView title = (TextView) footerItem.findViewById(R.id.title);
-        title.setText("Settings");
+        ImageView icon = (ImageView) footerItem.findViewById(R.id.icon);
+        icon.setImageResource(R.drawable.ic_menu_settings);
+        title.setText(getString(R.string.settingsMenu));
         footerItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -648,7 +644,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
         View newProfileView = getLayoutInflater().inflate(R.layout.item_navigation_drawer, mAccountListFooter, false);
         TextView title = (TextView) newProfileView.findViewById(R.id.title);
-        title.setText("Add profile");
+        title.setText(getString(R.string.addProfileMenu));
 
         newProfileView.setOnClickListener(new View.OnClickListener() {
             @Override

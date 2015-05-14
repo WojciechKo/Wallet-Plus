@@ -117,7 +117,7 @@ public class StatisticServiceOrmLiteTest extends ServiceInjectedUnitTest {
         // then
 
         // For tag1
-        Map<Tag, StatisticService.TagStats2> tagStatsForTag1 = statisticService.getTagStats2(tag1);
+        Map<Tag, StatisticService.TagStatistics> tagStatsForTag1 = statisticService.getSingleTagStatistics(tag1);
         assertThat(tagStatsForTag1).hasSize(3);
         assertThat(tagStatsForTag1).containsOnlyKeys(tag1, tag2, tag3);
 
@@ -129,7 +129,7 @@ public class StatisticServiceOrmLiteTest extends ServiceInjectedUnitTest {
         assertThat(tagStatsForTag1.get(tag3).getExpense()).isEqualTo(84.0);
 
         // For tag2
-        Map<Tag, StatisticService.TagStats2> tagStatsForTag2 = statisticService.getTagStats2(tag2);
+        Map<Tag, StatisticService.TagStatistics> tagStatsForTag2 = statisticService.getSingleTagStatistics(tag2);
         assertThat(tagStatsForTag2.get(tag1).getIncome()).isEqualTo(24.0);
         assertThat(tagStatsForTag2.get(tag1).getExpense()).isEqualTo(74.0);
         assertThat(tagStatsForTag2.get(tag2).getIncome()).isEqualTo(3.0);
@@ -138,7 +138,7 @@ public class StatisticServiceOrmLiteTest extends ServiceInjectedUnitTest {
         assertThat(tagStatsForTag2.get(tag3).getExpense()).isEqualTo(80.0);
 
         // For tag3
-        Map<Tag, StatisticService.TagStats2> tagStatsForTag3 = statisticService.getTagStats2(tag3);
+        Map<Tag, StatisticService.TagStatistics> tagStatsForTag3 = statisticService.getSingleTagStatistics(tag3);
         assertThat(tagStatsForTag3.get(tag1).getIncome()).isEqualTo(30.0);
         assertThat(tagStatsForTag3.get(tag1).getExpense()).isEqualTo(84.0);
         assertThat(tagStatsForTag3.get(tag2).getIncome()).isEqualTo(28.0);

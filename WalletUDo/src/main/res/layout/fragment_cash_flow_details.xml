@@ -48,7 +48,7 @@
             <TextView android:id="@+id/tagLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/cashflowTagLabel"
+                    android:text="@string/cashFlowTagLabel"
                     android:textSize="@dimen/smallFontSize"/>
 
             <MultiAutoCompleteTextView android:id="@+id/tag"
@@ -58,7 +58,7 @@
             <TextView android:id="@+id/amountLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/cashflowAmountLabel"
+                    android:text="@string/cashFlowAmountLabel"
                     android:textSize="@dimen/smallFontSize"
                     android:visibility="invisible"/>
 
@@ -66,14 +66,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    android:hint="@string/cashflowAmountHint"
+                    android:hint="@string/cashFlowAmountHint"
                     android:inputType="numberDecimal|numberSigned"
                     android:textSize="@dimen/mediumFontSize"/>
 
             <TextView android:id="@+id/commentLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/cashflowCommentLabel"
+                android:text="@string/cashFlowCommentLabel"
                 android:textSize="@dimen/smallFontSize"
                 android:visibility="invisible"/>
 
@@ -81,13 +81,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:hint="@string/cashflowCommentHint"
+                android:hint="@string/cashFlowCommentHint"
                 android:textSize="@dimen/mediumFontSize"/>
 
             <TextView android:id="@+id/extraLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/cashflowExtraLabel"
+                    android:text="@string/cashFlowExtraLabel"
                     android:textSize="@dimen/smallFontSize"/>
 
             <CheckedTextView android:id="@+id/isCompleted"
@@ -95,13 +95,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     android:checkMark="?android:attr/listChoiceIndicatorMultiple"
-                    android:text="Transaction is completed."
+                    android:text="@string/cashFlowTransactionIsCompleted"
                     android:textSize="@dimen/mediumFontSize"/>
 
             <TextView android:id="@+id/dateLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/cashflowDateLabel"
+                    android:text="@string/cashFlowDateLabel"
                     android:textSize="@dimen/smallFontSize"/>
 
             <LinearLayout android:layout_width="match_parent"
