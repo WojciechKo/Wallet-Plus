@@ -17,6 +17,8 @@ import org.junit.Test;
 
 import pl.wkr.fluentrule.api.FluentExpectedException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SmallTest
 public class TagServiceOrmLiteTest extends ServiceInjectedUnitTest {
 

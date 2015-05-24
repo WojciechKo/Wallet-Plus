@@ -85,7 +85,7 @@ public class StatisticServiceOrmLite implements StatisticService {
                 foundTagStats.includeCashFlow(cashFlow);
             }
         }
-        return new Statistics(Sets.<TagStats>newHashSet());
+        return new Statistics(tagStatsSet);
     }
 
     private Long getSelectedTagOnlyStatsQuery(Long tagId, CashFlow.Type type) throws SQLException {

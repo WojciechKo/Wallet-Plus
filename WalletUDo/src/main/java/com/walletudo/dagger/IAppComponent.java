@@ -14,6 +14,7 @@ import com.walletudo.ui.dashboard.DashboardActivity;
 import com.walletudo.ui.dashboard.DashboardFragment;
 import com.walletudo.ui.profile.ProfileActivity;
 import com.walletudo.ui.settings.SettingsActivity;
+import com.walletudo.ui.statistics.StatisticFragment;
 import com.walletudo.ui.statistics.details.StaticticDetailsActivity;
 import com.walletudo.ui.statistics.details.StatisticDetailsFragment;
 import com.walletudo.ui.statistics.list.StatisticListActivity;
@@ -40,6 +41,8 @@ public interface IAppComponent {
     void inject(DashboardActivity object);
 
     void inject(DashboardFragment object);
+
+    void inject(StatisticFragment statisticFragment);
 
     void inject(StatisticListActivity object);
 

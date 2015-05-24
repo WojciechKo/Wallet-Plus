@@ -148,7 +148,7 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
 
     // Joda time android
-    compile 'net.danlew:android.joda:2.5.0'
+    compile 'net.danlew:android.joda:2.7.2'
 
     // PagerSlidingTabStrip
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
@@ -170,6 +170,9 @@ dependencies {
     // ColorPickerView
     compile project(':colorPickerView-library')
 
+    // Floating action button
+    compile 'com.github.clans:fab:1.5.0'
+
     // Material dialogs
     compile 'com.afollestad:material-dialogs:0.7.3.1'
 
@@ -186,10 +189,10 @@ dependencies {
 
     // Mockito
     def mockitoVersion = '1.9.5'
-    memorydbCompile ("org.mockito:mockito-core:$mockitoVersion") {
+    memorydbCompile("org.mockito:mockito-core:$mockitoVersion") {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
-    androidTestCompile ("org.mockito:mockito-core:$mockitoVersion") {
+    androidTestCompile("org.mockito:mockito-core:$mockitoVersion") {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
 

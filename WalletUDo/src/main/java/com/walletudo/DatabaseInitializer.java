@@ -107,7 +107,6 @@ public class DatabaseInitializer {
 
         /** Init cashflows **/
         Calendar date = Calendar.getInstance();
-        date.add(Calendar.MONTH, -1);
         date.set(Calendar.DAY_OF_MONTH, 0);
 
         insertCashFlow(personalWallet, 30.0, EXPENSE, date, "Onion, flavor, oil, meat", food);

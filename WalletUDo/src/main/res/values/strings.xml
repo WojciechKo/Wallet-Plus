@@ -92,5 +92,9 @@
 
     <!-- Settings fragment -->
     <string name="settingsLabel">Settings</string>
+    <string name="statisticsBalanceLabel">Balance:</string>
+    <string name="statisticsProfitListLabel">Most profit:</string>
+    <string name="statisticsLostListLabel">Most lost:</string>
+    <string name="statisticCustomPeriodNotAvailable">Not yet available</string>
 
 </resources>

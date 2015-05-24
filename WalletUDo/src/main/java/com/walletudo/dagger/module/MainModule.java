@@ -8,7 +8,7 @@ import com.walletudo.WalletUDo;
 import com.walletudo.ui.BaseActivity;
 import com.walletudo.ui.cashflow.list.CashFlowListActivity;
 import com.walletudo.ui.dashboard.DashboardActivity;
-import com.walletudo.ui.statistics.list.StatisticListActivity;
+import com.walletudo.ui.statistics.StatisticActivity;
 import com.walletudo.ui.statistics.list.StatisticListActivityState;
 import com.walletudo.ui.synchronize.SynchronizeActivity;
 import com.walletudo.ui.tag.list.TagListActivity;
@@ -74,7 +74,7 @@ public class MainModule {
         navigationDrawerContent.put(BaseActivity.DrawerItemType.CASH_FLOW,
                 new DrawerItemContent(R.drawable.ic_menu_cash_flow, application.get().getString(R.string.cashFlowMenu), CashFlowListActivity.class));
         navigationDrawerContent.put(BaseActivity.DrawerItemType.STATISTIC,
-                new DrawerItemContent(R.drawable.ic_menu_statistic, application.get().getString(R.string.statisticsMenu), StatisticListActivity.class));
+                new DrawerItemContent(R.drawable.ic_menu_statistic, application.get().getString(R.string.statisticsMenu), StatisticActivity.class));
         navigationDrawerContent.put(BaseActivity.DrawerItemType.WALLET,
                 new DrawerItemContent(R.drawable.ic_menu_wallet, application.get().getString(R.string.walletMenu), WalletListActivity.class));
         navigationDrawerContent.put(BaseActivity.DrawerItemType.TAG,

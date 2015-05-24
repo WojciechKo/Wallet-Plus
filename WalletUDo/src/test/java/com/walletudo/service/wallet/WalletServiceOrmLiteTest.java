@@ -13,8 +13,10 @@ import org.junit.Test;
 
 import pl.wkr.fluentrule.api.FluentExpectedException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SmallTest
-public class WalletServiceOrmLiteTest extends ServiceInjectedUnitTest{
+public class WalletServiceOrmLiteTest extends ServiceInjectedUnitTest {
 
     @Rule
     public FluentExpectedException exception = FluentExpectedException.none();

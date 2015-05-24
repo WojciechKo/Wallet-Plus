@@ -10,6 +10,7 @@ import com.walletudo.util.KorzeniowskiUtils;
 
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,13 +44,15 @@ public interface StatisticService {
     }
 
     class Statistics {
-        Map<Tag, Double> profitMap;
-        Map<Tag, Double> lostMap;
-        Map<Tag, Double> incomeMap;
-        Map<Tag, Double> expenseMap;
+        private List<Map.Entry<Tag, Double>> profitMap;
+        private List<Map.Entry<Tag, Double>> lostMap;
+        private List<Map.Entry<Tag, Double>> incomeMap;
+        private List<Map.Entry<Tag, Double>> expenseMap;
+        private Double totalIncome = 0.0;
+        private Double totalExpense = 0.0;
 
         public Statistics(Set<TagStats> tagStatsSet) {
-            final List<Map.Entry<Tag, Double>> incomeList = Lists.newArrayList();
+            List<Map.Entry<Tag, Double>> incomeList = Lists.newArrayList();
             List<Map.Entry<Tag, Double>> expenseList = Lists.newArrayList();
             List<Map.Entry<Tag, Double>> profitList = Lists.newArrayList();
             List<Map.Entry<Tag, Double>> lostList = Lists.newArrayList();
@@ -66,6 +69,8 @@ public interface StatisticService {
                     profitList.add(Maps.immutableEntry(tagStats.getTag(), 0.0));
                     lostList.add(Maps.immutableEntry(tagStats.getTag(), 0.0));
                 }
+                totalIncome += tagStats.getIncome();
+                totalExpense += tagStats.getExpense();
             }
 
             Comparator<Map.Entry<Tag, Double>> greaterFirstComparator = new Comparator<Map.Entry<Tag, Double>>() {
@@ -75,26 +80,38 @@ public interface StatisticService {
                 }
             };
 
-            this.incomeMap = KorzeniowskiUtils.Collections.getMapFromEntryList(FluentIterable.from(incomeList).toSortedList(greaterFirstComparator));
-            this.expenseMap = KorzeniowskiUtils.Collections.getMapFromEntryList(FluentIterable.from(expenseList).toSortedList(greaterFirstComparator));
-            this.profitMap = KorzeniowskiUtils.Collections.getMapFromEntryList(FluentIterable.from(profitList).toSortedList(greaterFirstComparator));
-            this.lostMap = KorzeniowskiUtils.Collections.getMapFromEntryList(FluentIterable.from(lostList).toSortedList(greaterFirstComparator));
+            this.incomeMap = FluentIterable.from(incomeList).toSortedList(greaterFirstComparator);
+            this.expenseMap = FluentIterable.from(expenseList).toSortedList(greaterFirstComparator);
+            this.profitMap = FluentIterable.from(profitList).toSortedList(greaterFirstComparator);
+            this.lostMap = FluentIterable.from(lostList).toSortedList(greaterFirstComparator);
         }
 
-        public Map<Tag, Double> getProfit() {
+        public List<Map.Entry<Tag, Double>> getProfit() {
             return profitMap;
         }
 
-        public Map<Tag, Double> getLost() {
+        public List<Map.Entry<Tag, Double>> getLost() {
             return lostMap;
         }
 
-        public Map<Tag, Double> getIncome() {
+        public List<Map.Entry<Tag, Double>> getIncome() {
             return incomeMap;
         }
 
-        public Map<Tag, Double> getExpense() {
+        public List<Map.Entry<Tag, Double>> getExpense() {
             return expenseMap;
+        }
+
+        public Double getTotalIncome() {
+            return totalIncome;
+        }
+
+        public Double getTotalExpense() {
+            return totalExpense;
+        }
+
+        public Double getBalance() {
+            return getTotalIncome() - getTotalExpense();
         }
     }
 

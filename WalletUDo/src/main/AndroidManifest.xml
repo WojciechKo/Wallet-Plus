@@ -84,21 +84,12 @@
         </activity>
 
         <activity
-            android:name="com.walletudo.ui.statistics.list.StatisticListActivity"
+            android:name="com.walletudo.ui.statistics.StatisticActivity"
             android:label="@string/statisticListLabel"
             android:parentActivityName="com.walletudo.ui.dashboard.DashboardActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.walletudo.ui.dashboard.DashboardActivity" />
-        </activity>
-
-        <activity
-            android:name="com.walletudo.ui.statistics.details.StaticticDetailsActivity"
-            android:label="@string/statisticDetailsLabel"
-            android:parentActivityName="com.walletudo.ui.statistics.list.StatisticListActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.walletudo.ui.statistics.list.StatisticListActivity" />
         </activity>
 
         <activity
