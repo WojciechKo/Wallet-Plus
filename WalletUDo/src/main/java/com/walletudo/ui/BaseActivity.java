@@ -323,10 +323,10 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     private void setupAdBanner() {
-        AdView adView = (AdView) findViewById(R.id.adView);
-        if (adView != null) {
-            adView.loadAd(new AdRequest.Builder().build());
-        }
+//        AdView adView = (AdView) findViewById(R.id.adView);
+//        if (adView != null) {
+//            adView.loadAd(new AdRequest.Builder().build());
+//        }
     }
 
     private View makeNavDrawerItem(final DrawerItemType type, ViewGroup container) {
