@@ -98,9 +98,6 @@ repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url "https://jitpack.io" }
 
-    // For SwipeListView
-    maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
-
     // Material dialogs
     maven { url 'https://dl.bintray.com/drummer-aidan/maven' }
 }
@@ -157,7 +154,7 @@ dependencies {
     compile 'info.hoang8f:fbutton:1.0.5'
 
     // HelloCharts
-    compile 'com.github.lecho:hellocharts-library:1.5.3@aar'
+    compile 'com.github.lecho:hellocharts-android:v1.5.5'
 
     // MPAndroidChart
     compile 'com.github.PhilJay:MPAndroidChart:v2.0.9'

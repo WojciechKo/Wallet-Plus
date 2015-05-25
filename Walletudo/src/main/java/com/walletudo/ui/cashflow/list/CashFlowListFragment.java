@@ -19,7 +19,7 @@ import com.walletudo.Walletudo;
 import com.walletudo.model.CashFlow;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.ui.cashflow.details.CashFlowDetailsActivity;
-import com.walletudo.util.KorzeniowskiUtils;
+import com.walletudo.util.WalletudoUtils;
 
 import java.util.List;
 
@@ -71,11 +71,11 @@ public class CashFlowListFragment extends Fragment {
     boolean listItemLongClicked(int position) {
         if (list.getChoiceMode() == AbsListView.CHOICE_MODE_SINGLE) {
             startMultipleChoiceMode();
-            KorzeniowskiUtils.Views.performItemClick(list, position);
+            WalletudoUtils.Views.performItemClick(list, position);
             return true;
 
         } else if (list.getChoiceMode() == AbsListView.CHOICE_MODE_MULTIPLE) {
-            KorzeniowskiUtils.Views.performItemClick(list, position);
+            WalletudoUtils.Views.performItemClick(list, position);
             return true;
         }
         return false;

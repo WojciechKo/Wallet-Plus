@@ -60,7 +60,7 @@ import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.Viewport;
 import lecho.lib.hellocharts.view.LineChartView;
 
-import static com.walletudo.util.KorzeniowskiUtils.Dates;
+import static com.walletudo.util.WalletudoUtils.Dates;
 
 public class TagDetailsFragment extends Fragment {
     public static final String TAG = TagDetailsFragment.class.getSimpleName();

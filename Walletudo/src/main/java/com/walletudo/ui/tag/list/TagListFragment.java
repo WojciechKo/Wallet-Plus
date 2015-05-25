@@ -35,7 +35,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-import static com.walletudo.util.KorzeniowskiUtils.Views.dipToPixels;
+import static com.walletudo.util.WalletudoUtils.Views.dipToPixels;
 
 public class TagListFragment extends Fragment {
     public static final String TAG = TagListFragment.class.getSimpleName();

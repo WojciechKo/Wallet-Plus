@@ -14,7 +14,7 @@ import org.joda.time.Period;
 
 import java.util.Date;
 
-public class KorzeniowskiUtils {
+public class WalletudoUtils {
     public static class Dates {
         public static String getShortDateLabel(Context context, Date date) {
             return DateUtils.formatDateTime(

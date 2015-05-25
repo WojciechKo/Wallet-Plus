@@ -2,7 +2,7 @@ package com.walletudo;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
-import com.walletudo.util.KorzeniowskiUtils;
+import com.walletudo.util.WalletudoUtils;
 
 import org.junit.Test;
 
@@ -65,7 +65,7 @@ public class RegexTest {
 
     @Test
     public void testFileNameExtractor() {
-        assertThat(KorzeniowskiUtils.Files.getBaseName("TestName.db")).isEqualTo("TestName");
+        assertThat(WalletudoUtils.Files.getBaseName("TestName.db")).isEqualTo("TestName");
     }
 
     @Test

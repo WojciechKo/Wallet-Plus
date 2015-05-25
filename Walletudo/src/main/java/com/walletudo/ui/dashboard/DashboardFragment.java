@@ -19,7 +19,7 @@ import com.walletudo.model.CashFlow;
 import com.walletudo.model.Wallet;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.service.WalletService;
-import com.walletudo.util.KorzeniowskiUtils;
+import com.walletudo.util.WalletudoUtils;
 
 import java.text.NumberFormat;
 import java.util.Date;
@@ -73,7 +73,10 @@ public class DashboardFragment extends Fragment {
 
     void setupViews() {
         totalAmount.setText(getTotalAmountText());
+        setupChartOfLastNCashFlows();
+    }
 
+    private void setupChartOfLastNCashFlows() {
         chart.setLineChartData(getMainLineChartData());
         chart.setZoomEnabled(false);
         chart.setValueSelectionEnabled(true);
@@ -83,38 +86,27 @@ public class DashboardFragment extends Fragment {
         v.bottom -= 0.2 * diff;
         v.top += 0.2 * diff;
         chart.setMaximumViewport(v);
-        chart.setCurrentViewportWithAnimation(v);
+        chart.setCurrentViewport(v);
     }
 
     private LineChartData getMainLineChartData() {
-        List<PointValue> values = Lists.newArrayList();
+        List<PointValue> cashFlowAmountValues = Lists.newArrayList();
         List<AxisValue> dateAxisValues = Lists.newArrayList();
         List<CashFlow> cashFlowList = cashFlowService.getLastNCashFlows(MAX_NUMBER_OF_POINTS_IN_CHART);
-        ListIterator<CashFlow> cashFlowListIterator = cashFlowList.listIterator();
 
-        for (int i = 0; i < cashFlowList.size(); i++) {
-            if (!cashFlowListIterator.hasNext()) {
-                break;
-            }
-            CashFlow cashFlow = cashFlowListIterator.next();
-
-            if (cashFlow.getType() == CashFlow.Type.INCOME) {
-                values.add(new PointValue(i, cashFlow.getAmount().floatValue()));
-            } else if (cashFlow.getType() == CashFlow.Type.EXPENSE) {
-                values.add(new PointValue(i, cashFlow.getAmount().floatValue() * -1));
-            }
-
-            dateAxisValues.add(new AxisValue(
-                    i,
-                    KorzeniowskiUtils.Dates.getShortDateLabel(getActivity(), cashFlow.getDateTime()).toCharArray()));
-
+        int i = 0;
+        for (CashFlow cashFlow : cashFlowList) {
+            cashFlowAmountValues.add(getPointValue(i, cashFlow));
+            dateAxisValues.add(getAxisValue(i, cashFlow));
+            i++;
         }
-        if (values.size() > 1) {
-            Line mainLine = new Line(values);
-            mainLine.setColor(getResources().getColor(R.color.blue));
-            mainLine.setHasLabelsOnlyForSelected(true);
 
-            LineChartData lineChartData = new LineChartData(Lists.newArrayList(mainLine));
+        if (cashFlowAmountValues.size() > 1) {
+            Line cashFlowAmountLine = new Line(cashFlowAmountValues);
+            cashFlowAmountLine.setColor(getResources().getColor(R.color.blue));
+            cashFlowAmountLine.setHasLabels(true);
+
+            LineChartData lineChartData = new LineChartData(Lists.newArrayList(cashFlowAmountLine));
 
             // setup axis with dates.
             lineChartData.setAxisXBottom(new Axis(dateAxisValues));
@@ -126,6 +118,21 @@ public class DashboardFragment extends Fragment {
         } else {
             return new LineChartData(Lists.<Line>newArrayList());
         }
+    }
+
+    private PointValue getPointValue(int i, CashFlow cashFlow) {
+        if (cashFlow.getType() == CashFlow.Type.INCOME) {
+            return new PointValue(i, cashFlow.getAmount().floatValue());
+        } else if (cashFlow.getType() == CashFlow.Type.EXPENSE) {
+            return new PointValue(i, cashFlow.getAmount().floatValue() * -1);
+        }
+        return null;
+    }
+
+    private AxisValue getAxisValue(int i, CashFlow cashFlow) {
+        AxisValue axisValue = new AxisValue(i);
+        axisValue.setLabel(WalletudoUtils.Dates.getShortDateLabel(getActivity(), cashFlow.getDateTime()));
+        return axisValue;
     }
 
     private char[] getAxisLabel(Date dateTime) {

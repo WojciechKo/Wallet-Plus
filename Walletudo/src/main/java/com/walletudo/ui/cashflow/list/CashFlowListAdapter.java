@@ -27,7 +27,7 @@ import java.util.List;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-import static com.walletudo.util.KorzeniowskiUtils.Views.dipToPixels;
+import static com.walletudo.util.WalletudoUtils.Views.dipToPixels;
 
 public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
 
