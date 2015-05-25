@@ -2,9 +2,9 @@ package com.walletudo;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
-import org.junit.Test;
-
 import com.walletudo.util.KorzeniowskiUtils;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

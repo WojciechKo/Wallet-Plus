@@ -21,6 +21,7 @@ public class NavigationDrawerMenuModule {
         navigationDrawerItemList.add(BaseActivity.DrawerItemType.CASH_FLOW);
         navigationDrawerItemList.add(BaseActivity.DrawerItemType.TAG);
         navigationDrawerItemList.add(BaseActivity.DrawerItemType.WALLET);
+        navigationDrawerItemList.add(BaseActivity.DrawerItemType.STATISTIC);
         return navigationDrawerItemList;
     }
 }

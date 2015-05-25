@@ -29,7 +29,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
     private final Dao<Tag, Long> tagDao;
     private final Dao<TagAndCashFlowBind, Long> tagAndCashFlowBindsDao;
     private final TagServiceOrmLite tagServiceOrmLite;
-    private ProfileService profileService;
+    private final ProfileService profileService;
 
     private PreparedQuery<Tag> tagsOfCashFlowQuery;
 
@@ -206,11 +206,11 @@ public class CashFlowServiceOrmLite implements CashFlowService {
         try {
             CashFlow toUpdate = findById(cashFlow.getId());
             validateUpdate(toUpdate, cashFlow);
-            cashFlowDao.update(cashFlow);
             unbindFromTags(toUpdate);
-            bindWithTags(cashFlow);
+            cashFlowDao.update(cashFlow);
             fixCurrentAmountInWalletAfterDelete(toUpdate);
             fixCurrentAmountInWalletAfterInsert(cashFlow);
+            bindWithTags(cashFlow);
             profileService.actualProfileHasChanged();
         } catch (SQLException e) {
             throw new DatabaseException(e);

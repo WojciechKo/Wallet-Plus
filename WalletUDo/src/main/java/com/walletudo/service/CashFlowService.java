@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.Set;
 
 public interface CashFlowService extends BaseService<CashFlow> {
-    public List<CashFlow> findCashFlows(CashFlowQuery query);
+
+    List<CashFlow> findCashFlows(CashFlowQuery query);
 
     List<CashFlow> getLastNCashFlows(int n);
 
-    public static class CashFlowQuery {
+    class CashFlowQuery {
         private Long walletId;
         private Double minAmount;
         private Double maxAmount;

@@ -1,7 +1,5 @@
 package com.walletudo;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -48,8 +45,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     @InjectView(R.id.drawerList)
     ListView drawerList;
 
-    //    private DrawerAccountAdapter drawerAccountAdapter;
-    private View accountListFooter;
     private MainActivityParcelableState state;
 
     @Override
@@ -76,10 +71,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     void setupViews() {
-//        drawerMenuAdapter = new DrawerMenuAdapter(this, mainDrawerContent);
-//        drawerAccountAdapter = getDrawerAccountAdapter();
-        accountListFooter = getNewAccountFooter();
-
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         setupDrawerListAsMenu();
         setupAccountFrame();
@@ -89,59 +80,16 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
         getSupportFragmentManager().addOnBackStackChangedListener(this);
     }
 
-
-    private View getNewAccountFooter() {
-        TextView accountListFooter = (TextView) getLayoutInflater().inflate(android.R.layout.simple_list_item_1, null);
-        accountListFooter.setText(getString(R.string.newAccount));
-        accountListFooter.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_plus_grey600_24dp), null, null, null);
-        accountListFooter.setBackgroundResource(R.drawable.selector_list_item);
-        accountListFooter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final EditText input = new EditText(MainActivity.this);
-
-                new AlertDialog.Builder(MainActivity.this)
-                        .setMessage("Enter new account name")
-                        .setView(input)
-                        .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-//                                accountServiceOrmLite.insert(new Account().setName(input.getText().toString()));
-//                                drawerAccountAdapter = getDrawerAccountAdapter();
-//                                drawerList.setAdapter(drawerAccountAdapter);
-                            }
-                        })
-                        .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        })
-                        .create()
-                        .show();
-            }
-        });
-        return accountListFooter;
-    }
-
     private void setupDrawerListAsMenu() {
-//        drawerList.setAdapter(drawerMenuAdapter);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 drawerMenuClicked(position);
             }
         });
-
-        if (drawerList.getFooterViewsCount() != 0) {
-            drawerList.removeFooterView(accountListFooter);
-        }
     }
 
     private void setupAccountFrame() {
-//        ProfileUtils.getActiveProfileId(this)
-//        selectedAccount.setText(((WalletUDo) getApplication()).getCurrentProfile().getName());
-
         switchAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -171,8 +119,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     }
 
     private void setupDrawerListAsAccountList() {
-//        drawerList.setAdapter(drawerAccountAdapter);
-        drawerList.addFooterView(accountListFooter, null, true);
         drawerList.setFooterDividersEnabled(true);
         drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -184,7 +130,6 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
 
     private void drawerAccountClicked(int position) {
         drawerLayout.closeDrawer(drawer);
-//        ((WalletUDo) getApplication()).setCurrentProfile(drawerAccountAdapter.getItem(position));
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         ((WalletUDo) getApplication()).reinitializeObjectGraph();
         initMainActivityState();

@@ -166,13 +166,13 @@ public class TagDetailsFragment extends Fragment {
         relatedTagsChart.setDescription("");
         relatedTagsChart.setDrawGridBackground(false);
 
-        final Map<Tag, StatisticService.TagStats2> tagStats = statisticService.getTagStats2(tagToEdit.get());
+        final Map<Tag, StatisticService.TagStatistics> tagStats = statisticService.getSingleTagStatistics(tagToEdit.get());
 
         final List<String> xVals = Lists.newArrayList();
         List<BarEntry> incomeValues = Lists.newArrayList();
         List<BarEntry> expenseValues = Lists.newArrayList();
         int index = 0;
-        for (Map.Entry<Tag, StatisticService.TagStats2> entry : tagStats.entrySet()) {
+        for (Map.Entry<Tag, StatisticService.TagStatistics> entry : tagStats.entrySet()) {
             if (entry.getKey().getId().equals(tagToEdit.get().getId())) {
                 xVals.add(entry.getKey().getName() + " " + getString(R.string.only));
                 myselfIndex = xVals.size() - 1;

@@ -13,6 +13,8 @@ import com.walletudo.ui.cashflow.list.CashFlowListFragment;
 import com.walletudo.ui.dashboard.DashboardActivity;
 import com.walletudo.ui.dashboard.DashboardFragment;
 import com.walletudo.ui.profile.ProfileActivity;
+import com.walletudo.ui.settings.SettingsActivity;
+import com.walletudo.ui.statistics.StatisticFragment;
 import com.walletudo.ui.statistics.details.StaticticDetailsActivity;
 import com.walletudo.ui.statistics.details.StatisticDetailsFragment;
 import com.walletudo.ui.statistics.list.StatisticListActivity;
@@ -26,6 +28,7 @@ import com.walletudo.ui.wallets.details.WalletDetailsActivity;
 import com.walletudo.ui.wallets.details.WalletDetailsFragment;
 import com.walletudo.ui.wallets.list.WalletListActivity;
 import com.walletudo.ui.wallets.list.WalletListFragment;
+import com.walletudo.util.PrefUtils;
 
 public interface IAppComponent {
 
@@ -38,6 +41,8 @@ public interface IAppComponent {
     void inject(DashboardActivity object);
 
     void inject(DashboardFragment object);
+
+    void inject(StatisticFragment statisticFragment);
 
     void inject(StatisticListActivity object);
 
@@ -83,5 +88,9 @@ public interface IAppComponent {
 
     void inject(ProfileServiceOrmLite object);
 
+    void inject(SettingsActivity.SettingsFragment settingsFragment);
+
     ProfileService profileService();
+
+    PrefUtils prefUtils();
 }

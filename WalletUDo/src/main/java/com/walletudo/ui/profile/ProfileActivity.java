@@ -30,6 +30,7 @@ import com.walletudo.ui.BaseActivity;
 import com.walletudo.util.KorzeniowskiUtils;
 import com.walletudo.util.PrefUtils;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +43,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnItemClick;
 import butterknife.OnTextChanged;
+import butterknife.Optional;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -71,6 +73,7 @@ public class ProfileActivity extends BaseActivity {
         @InjectView(R.id.profile_name)
         EditText profileName;
 
+        @Optional
         @InjectView(R.id.remoteProfiles)
         ListView remoteProfiles;
 
@@ -94,11 +97,11 @@ public class ProfileActivity extends BaseActivity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_create_profile, container, false);
+            View view = inflater.inflate(R.layout.fragment_profile_new, container, false);
             ButterKnife.inject(this, view);
             enableListViewScrolling();
             profiles = Lists.newArrayList();
-            if (remoteProfiles.getVisibility() != View.GONE) {
+            if (remoteProfiles != null) {
                 remoteProfiles.setAdapter(new RemoteProfileAdapter(getActivity(), profiles));
             }
             return view;
@@ -108,33 +111,35 @@ public class ProfileActivity extends BaseActivity {
          * http://stackoverflow.com/a/25725568/2399340
          */
         private void enableListViewScrolling() {
-            remoteProfiles.setOnTouchListener(new ListView.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    int action = event.getAction();
-                    switch (action) {
-                        case MotionEvent.ACTION_DOWN:
-                            // Disallow ScrollView to intercept touch events.
-                            v.getParent().requestDisallowInterceptTouchEvent(true);
-                            break;
+            if (remoteProfiles != null) {
+                remoteProfiles.setOnTouchListener(new ListView.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        int action = event.getAction();
+                        switch (action) {
+                            case MotionEvent.ACTION_DOWN:
+                                // Disallow ScrollView to intercept touch events.
+                                v.getParent().requestDisallowInterceptTouchEvent(true);
+                                break;
 
-                        case MotionEvent.ACTION_UP:
-                            // Allow ScrollView to intercept touch events.
-                            v.getParent().requestDisallowInterceptTouchEvent(false);
-                            break;
+                            case MotionEvent.ACTION_UP:
+                                // Allow ScrollView to intercept touch events.
+                                v.getParent().requestDisallowInterceptTouchEvent(false);
+                                break;
+                        }
+
+                        // Handle ListView touch events.
+                        v.onTouchEvent(event);
+                        return true;
                     }
-
-                    // Handle ListView touch events.
-                    v.onTouchEvent(event);
-                    return true;
-                }
-            });
+                });
+            }
         }
 
         @Override
         public void onResume() {
             super.onResume();
-            if (remoteProfiles.getVisibility() != View.GONE) {
+            if (remoteProfiles != null) {
                 googleDriveReadService.getChildren("appfolder", new Callback<GoogleDriveReadService.FileChildren>() {
                     @Override
                     public void success(GoogleDriveReadService.FileChildren fileChildren, Response response) {
@@ -231,6 +236,7 @@ public class ProfileActivity extends BaseActivity {
             }
         }
 
+        @Optional
         @OnItemClick(R.id.remoteProfiles)
         void onRemoteProfilesItemClicked(View view, int position) {
             remoteProfiles.setItemChecked(lastPosition, false);
@@ -238,6 +244,7 @@ public class ProfileActivity extends BaseActivity {
             lastPosition = position;
         }
 
+        @Optional
         @OnClick(R.id.downloadProfile)
         void onDownloadProfileClicked() {
             final GoogleDriveReadService.DriveFile selectedProfile = (GoogleDriveReadService.DriveFile) remoteProfiles.getItemAtPosition(lastPosition);
@@ -247,7 +254,7 @@ public class ProfileActivity extends BaseActivity {
                 protected Boolean doInBackground(Void... params) {
                     OkHttpClient okHttpClient = new OkHttpClient();
                     Request request = new Request.Builder()
-                            .url(Uri.parse(selectedProfile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", prefUtils.getGoogleToken()).toString())
+                            .url(Uri.parse(selectedProfile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", profileService.getActiveProfile().getGoogleToken()).toString())
                             .build();
 
                     try {
@@ -255,10 +262,11 @@ public class ProfileActivity extends BaseActivity {
                         Profile newProfile = new Profile()
                                 .setName(KorzeniowskiUtils.Files.getBaseName(selectedProfile.getTitle()))
                                 .setDriveId(selectedProfile.getId())
-                                .setGmailAccount(selectedProfile.getOwner());
+                                .setGoogleAccount(selectedProfile.getOwner());
 
                         profileService.insert(newProfile);
-                        ByteStreams.copy(inputStream, new FileOutputStream(newProfile.getDatabaseFilePath()));
+                        File databaseFile = getActivity().getDatabasePath(newProfile.getDatabaseFileName());
+                        ByteStreams.copy(inputStream, new FileOutputStream(databaseFile));
                         prefUtils.setActiveProfileId(newProfile.getId());
                         return true;
                     } catch (IOException e) {

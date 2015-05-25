@@ -91,11 +91,17 @@ public class CashFlowDetailsFragment extends Fragment {
     @InjectView(R.id.amount)
     EditText amount;
 
+    @InjectView(R.id.tagLabel)
+    TextView tagLabel;
+
     @InjectView(R.id.tag)
     MultiAutoCompleteTextView tag;
 
-    @InjectView(R.id.tagLabel)
-    TextView tagLabel;
+    @InjectView(R.id.commentLabel)
+    TextView commentLabel;
+
+    @InjectView(R.id.comment)
+    EditText comment;
 
     @InjectView(R.id.datePicker)
     Button datePicker;
@@ -177,6 +183,7 @@ public class CashFlowDetailsFragment extends Fragment {
         setupTypeDependentViews();
         if (detailsAction == DetailsAction.EDIT) {
             amount.setText(Strings.nullToEmpty(cashFlowDetailsState.getAmount()));
+            comment.setText(Strings.nullToEmpty(cashFlowDetailsState.getComment()));
             tag.setText(cashFlowDetailsState.getTags());
             resetTagSpans(tag.getEditableText());
         }
@@ -303,16 +310,14 @@ public class CashFlowDetailsFragment extends Fragment {
     @OnTextChanged(value = R.id.amount, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
     public void onAmountChanged(Editable s) {
         cashFlowDetailsState.setAmount(s.toString());
-
-        if (Strings.isNullOrEmpty(cashFlowDetailsState.getAmount())) {
-            if (amountLabel.getVisibility() == View.VISIBLE) {
-                amount.setError("Amount can't be empty.");
-            }
-        } else if (!cashFlowDetailsState.isAmountValid()) {
-            amount.setError("Write amount in this pattern: (+/-)149.1234");
-        }
-
+        validateAmount(cashFlowDetailsState);
         amountLabel.setVisibility(View.VISIBLE);
+    }
+
+    @OnTextChanged(value = R.id.comment, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    public void onCommentChanged(Editable s) {
+        cashFlowDetailsState.setComment(s.toString());
+        commentLabel.setVisibility(View.VISIBLE);
     }
 
     @OnClick(R.id.datePicker)
@@ -409,13 +414,7 @@ public class CashFlowDetailsFragment extends Fragment {
     private void onSaveOptionSelected() {
         boolean isValid = true;
 
-        if (Strings.isNullOrEmpty(cashFlowDetailsState.getAmount())) {
-            amount.setError("Amount can't be empty.");
-            isValid = false;
-        } else if (!cashFlowDetailsState.isAmountValid()) {
-            amount.setError("Write amount in this pattern: [+|-] 149.1234");
-            isValid = false;
-        }
+        isValid = validateAmount(cashFlowDetailsState);
 
         if (isValid) {
             if (DetailsAction.ADD.equals(detailsAction)) {
@@ -426,6 +425,20 @@ public class CashFlowDetailsFragment extends Fragment {
             getActivity().setResult(Activity.RESULT_OK);
             getActivity().finish();
         }
+    }
+
+    private boolean validateAmount(CashFlowDetailsParcelableState state) {
+        if (Strings.isNullOrEmpty(state.getAmount())) {
+            if (amountLabel.getVisibility() == View.VISIBLE) {
+                amount.setError("Amount can't be empty.");
+            }
+            return false;
+        } else if (!state.isAmountValid()) {
+            amount.setError("Write amount in this pattern: [+|-] 149.1234");
+            return false;
+        }
+
+        return true;
     }
 
     private enum DetailsAction {ADD, EDIT}

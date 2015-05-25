@@ -7,7 +7,6 @@ buildscript {
     dependencies {
         classpath "com.neenbedankt.gradle.plugins:android-apt:1.4"
         classpath 'org.robolectric:robolectric-gradle-plugin:1.0.1'
-        classpath 'org.aspectj:aspectjtools:1.8.1'
     }
 }
 
@@ -34,12 +33,21 @@ android {
         minSdkVersion 17
         targetSdkVersion 22
 
+        multiDexEnabled = true
         signingConfig signingConfigs.config
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
+    dexOptions {
+        javaMaxHeapSize "2g"
+    }
+
     buildTypes {
         memorydb.initWith(buildTypes.debug)
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
     }
 
     lintOptions {
@@ -75,7 +83,6 @@ robolectric {
     exclude '**/espresso/**/*.class'
 
     maxHeapSize = '2048m'
-    jvmArgs '-XX:MaxPermSize=512m', '-XX:-UseSplitVerifier'
 
     maxParallelForks = 4
     forkEvery = 150
@@ -90,8 +97,12 @@ repositories {
     mavenCentral()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     maven { url "https://jitpack.io" }
+
     // For SwipeListView
     maven { url 'http://clinker.47deg.com/nexus/content/groups/public' }
+
+    // Material dialogs
+    maven { url 'https://dl.bintray.com/drummer-aidan/maven' }
 }
 
 dependencies {
@@ -102,7 +113,7 @@ dependencies {
     compile "com.android.support:cardview-v7:$androidSupportVersion"
     compile "com.android.support:recyclerview-v7:$androidSupportVersion"
 
-    def googlePlayServiceVersion = '7.0.0'
+    def googlePlayServiceVersion = '7.3.+'
 
     // Google Drive API
     compile 'com.google.android.gms:play-services-identity:' + googlePlayServiceVersion
@@ -129,13 +140,15 @@ dependencies {
     compile "com.google.dagger:dagger:$daggerVersion"
     provided 'org.glassfish:javax.annotation:10.0-b28'
 
-    testCompile "com.google.dagger:dagger-compiler:$daggerVersion"
+    androidTestApt 'com.google.dagger:dagger-compiler:' + daggerVersion
+    testCompile 'com.google.dagger:dagger-compiler:' + daggerVersion
+    memorydbCompile 'com.google.dagger:dagger-compiler:' + daggerVersion
 
     // Guava
     compile 'com.google.guava:guava:18.0'
 
     // Joda time android
-    compile 'net.danlew:android.joda:2.5.0'
+    compile 'net.danlew:android.joda:2.7.2'
 
     // PagerSlidingTabStrip
     compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
@@ -157,6 +170,12 @@ dependencies {
     // ColorPickerView
     compile project(':colorPickerView-library')
 
+    // Floating action button
+    compile 'com.github.clans:fab:1.5.0'
+
+    // Material dialogs
+    compile 'com.afollestad:material-dialogs:0.7.3.1'
+
     // SQLite
     memorydbCompile 'org.xerial:sqlite-jdbc:3.8.7'
     memorydbCompile 'com.j256.ormlite:ormlite-jdbc:4.48'
@@ -170,10 +189,10 @@ dependencies {
 
     // Mockito
     def mockitoVersion = '1.9.5'
-    memorydbCompile ("org.mockito:mockito-core:$mockitoVersion") {
+    memorydbCompile("org.mockito:mockito-core:$mockitoVersion") {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
-    androidTestCompile ("org.mockito:mockito-core:$mockitoVersion") {
+    androidTestCompile("org.mockito:mockito-core:$mockitoVersion") {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
 

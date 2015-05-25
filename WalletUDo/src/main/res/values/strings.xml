@@ -14,17 +14,19 @@
     <string name="no">No</string>
     <string name="income">Income</string>
     <string name="expense">Expense</string>
-    <string name="transfer">Transfer</string>
     <string name="divider">Divider</string>
     <string name="groupIndicator">Group indicator</string>
     <string name="only">only</string>
 
     <!-- Navigation drawer -->
     <string name="dashboardMenu">Dashboard</string>
-    <string name="cashflowMenu">Cash flow</string>
+    <string name="cashFlowMenu">Cash flow</string>
+    <string name="tagMenu">Tags</string>
     <string name="walletMenu">Wallets</string>
-    <string name="newAccount">New account</string>
-    <string name="accountLinkWithGoogle">Link with Google</string>
+    <string name="statisticsMenu">Statistics</string>
+    <string name="synchronizationMenu">Synchronization</string>
+    <string name="settingsMenu">Settings</string>
+    <string name="addProfileMenu">Add profile</string>
 
     <!-- Dashboard fragment -->
     <string name="dashboardTotalAmountLabel">Total:</string>
@@ -57,20 +59,19 @@
 
     <!-- Cashflow list fragment -->
     <string name="cashFlowListLabel">Cash flows</string>
-    <string name="cashflowListWalletLabel">From: </string>
-    <string name="cashflowListCommentLabel">Comment:</string>
 
     <!-- Cashflow details fragment -->
     <string name="cashFlowDetailsLabel">Cash flow details</string>
     <string name="cashFlowWalletLabel">Wallet:</string>
-    <string name="cashflowAmountLabel">Amount:</string>
-    <string name="cashflowAmountHint">amount</string>
-    <string name="cashflowCommentLabel">Comment:</string>
-    <string name="cashflowCommentHint">comment</string>
-    <string name="cashflowTagLabel">Tag:</string>
-    <string name="cashflowDateLabel">Date:</string>
-    <string name="cashflowExtraLabel">Extra:</string>
+    <string name="cashFlowAmountLabel">Amount:</string>
+    <string name="cashFlowAmountHint">amount</string>
+    <string name="cashFlowCommentLabel">Comment:</string>
+    <string name="cashFlowCommentHint">comment</string>
+    <string name="cashFlowTagLabel">Tag:</string>
+    <string name="cashFlowDateLabel">Date:</string>
+    <string name="cashFlowExtraLabel">Extra:</string>
 
+    <string name="cashFlowTransactionIsCompleted">Transaction is completed.</string>
     <string name="cashFlowDeleteConfirmation">Do you want to delete this cash flow?</string>
 
     <!-- Create Profile fragment -->
@@ -85,7 +86,15 @@
     <!-- Statistic details fragment -->
     <string name="statisticDetailsLabel">Statistic details</string>
 
-    <!-- Synchronize fragment -->
-    <string name="synchronizeLabel">Synchronize</string>
+    <!-- Synchronization fragment -->
+    <string name="synchronizationLabel">Synchronization</string>
+    <string name="accountLinkWithGoogle">Link with Google</string>
+
+    <!-- Settings fragment -->
+    <string name="settingsLabel">Settings</string>
+    <string name="statisticsBalanceLabel">Balance:</string>
+    <string name="statisticsProfitListLabel">Most profit:</string>
+    <string name="statisticsLostListLabel">Most lost:</string>
+    <string name="statisticCustomPeriodNotAvailable">Not yet available</string>
 
 </resources>

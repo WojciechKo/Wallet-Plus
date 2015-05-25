@@ -148,10 +148,11 @@ public class SynchronizeActivity extends BaseActivity {
         void onCreateBackupClicked() {
             final Profile activeProfile = profileService.getActiveProfile();
             GoogleDriveUploadService.FileMetadata metadata = new GoogleDriveUploadService.FileMetadata();
-            metadata.setTitle(activeProfile.getName() + ".db");
+            metadata.setTitle(activeProfile.getName());
             metadata.setParentId("appfolder");
-            TypedFile typedFile = new TypedFile("application/x-sqlite3", new File(activeProfile.getDatabaseFilePath()));
-            googleDriveUploadService.insert(metadata, typedFile, "Bearer " + prefUtils.getGoogleToken(), new Callback<GoogleDriveUploadService.FileMetadata>() {
+            File databaseFile = getActivity().getDatabasePath(activeProfile.getDatabaseFileName());
+            TypedFile typedFile = new TypedFile("application/x-sqlite3", databaseFile);
+            googleDriveUploadService.insert(metadata, typedFile, "Bearer " + activeProfile.getGoogleToken(), new Callback<GoogleDriveUploadService.FileMetadata>() {
                 @Override
                 public void success(GoogleDriveUploadService.FileMetadata metadata, Response response) {
                     activeProfile.setDriveId(metadata.getId());
@@ -171,19 +172,17 @@ public class SynchronizeActivity extends BaseActivity {
         @OnClick(R.id.uploadUpdate)
         void onUploadUpdateClicked() {
             final Profile activeProfile = profileService.getActiveProfile();
-
-            TypedFile typedFile = new TypedFile("application/x-sqlite3", new File(activeProfile.getDatabaseFilePath()));
-            googleDriveUploadService.update(activeProfile.getDriveId(), typedFile, "Bearer " + prefUtils.getGoogleToken(), new Callback<GoogleDriveUploadService.FileMetadata>() {
+            File databaseFile = getActivity().getDatabasePath(activeProfile.getDatabaseFileName());
+            TypedFile typedFile = new TypedFile("application/x-sqlite3", databaseFile);
+            googleDriveUploadService.update(activeProfile.getDriveId(), typedFile, "Bearer " + activeProfile.getGoogleToken(), new Callback<GoogleDriveUploadService.FileMetadata>() {
                 @Override
                 public void success(GoogleDriveUploadService.FileMetadata metadata, Response response) {
                     Toast.makeText(getActivity(), "Profil został uaktualniony na serwerze.", Toast.LENGTH_SHORT).show();
-
                 }
 
                 @Override
                 public void failure(RetrofitError error) {
                     Toast.makeText(getActivity(), "Uaktualnienie Profilu na serwerze nie powiodło się.", Toast.LENGTH_SHORT).show();
-
                 }
             });
         }
@@ -200,12 +199,13 @@ public class SynchronizeActivity extends BaseActivity {
                         protected Boolean doInBackground(Void... params) {
                             OkHttpClient okHttpClient = new OkHttpClient();
                             Request request = new Request.Builder()
-                                    .url(Uri.parse(driveFile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", prefUtils.getGoogleToken()).toString())
+                                    .url(Uri.parse(driveFile.getDownloadUrl()).buildUpon().appendQueryParameter("access_token", activeProfile.getGoogleToken()).toString())
                                     .build();
 
                             try {
                                 InputStream inputStream = okHttpClient.newCall(request).execute().body().byteStream();
-                                OutputStream outputStream = new FileOutputStream(activeProfile.getDatabaseFilePath());
+                                File databaseFile = getActivity().getDatabasePath(activeProfile.getDatabaseFileName());
+                                OutputStream outputStream = new FileOutputStream(databaseFile);
                                 ByteStreams.copy(inputStream, outputStream);
 
                                 return true;
@@ -239,16 +239,16 @@ public class SynchronizeActivity extends BaseActivity {
                 case RC_PICK_ACCOUNT:
                     // Receiving a result from the AccountPicker
                     if (resultCode == RESULT_OK) {
-                        String mEmail = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                        String email = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                         Profile activeProfile = profileService.getActiveProfile();
-                        profileService.update(activeProfile.setGmailAccount(mEmail));
+                        profileService.update(activeProfile.setGoogleAccount(email));
 
                         // With the account name acquired, go get the auth token
-                        if (mEmail == null) {
+                        if (email == null) {
                             pickUserAccount();
                         } else {
                             if (isDeviceOnline()) {
-                                new FetchGoogleToken(getActivity(), mEmail, SCOPE_PREFIX + SCOPE_APPDATA, prefUtils).execute();
+                                new FetchGoogleToken(getActivity(), email, SCOPE_PREFIX + SCOPE_APPDATA, profileService).execute();
                             } else {
                                 Toast.makeText(getActivity(), "Brak połączenia z internetem.", Toast.LENGTH_LONG).show();
                             }
@@ -268,47 +268,42 @@ public class SynchronizeActivity extends BaseActivity {
         }
 
         public static class FetchGoogleToken extends AsyncTask<Void, Void, String> {
-            PrefUtils prefUtils;
-            Activity mActivity;
-            String mScope;
-            String mEmail;
+            private Activity activity;
+            private String scope;
+            private String email;
+            private ProfileService profileService;
 
-            FetchGoogleToken(Activity activity, String name, String scope, PrefUtils prefUtils) {
-                this.mActivity = activity;
-                this.mScope = scope;
-                this.mEmail = name;
-                this.prefUtils = prefUtils;
+            FetchGoogleToken(Activity activity, String email, String scope, ProfileService profileService) {
+                this.activity = activity;
+                this.email = email;
+                this.scope = scope;
+                this.profileService = profileService;
             }
 
             @Override
             protected String doInBackground(Void... params) {
                 try {
-                    return fetchToken();
+                    return GoogleAuthUtil.getToken(activity, email, scope);
+                } catch (UserRecoverableAuthException userRecoverableException) {
+                    Intent recoveryIntent = userRecoverableException.getIntent();
+                    activity.startActivityForResult(recoveryIntent, RC_PICK_ACCOUNT);
+                } catch (GoogleAuthException fatalException) {
+                    fatalException.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 return null;
             }
 
-            protected String fetchToken() throws IOException {
-                try {
-                    return GoogleAuthUtil.getToken(mActivity, mEmail, mScope);
-
-                } catch (UserRecoverableAuthException userRecoverableException) {
-                    Intent recoveryIntent = userRecoverableException.getIntent();
-                    mActivity.startActivityForResult(recoveryIntent, RC_PICK_ACCOUNT);
-
-                } catch (GoogleAuthException fatalException) {
-                    fatalException.printStackTrace();
-
-                }
-                return null;
-            }
-
             @Override
             protected void onPostExecute(String token) {
-                prefUtils.setGoogleToken(token);
-                Toast.makeText(mActivity, "Zalogowano do konta: " + mEmail, Toast.LENGTH_SHORT).show();
+                if (!Strings.isNullOrEmpty(token)) {
+                    Profile activeProfile = profileService.getActiveProfile();
+                    profileService.update(activeProfile.setGoogleToken(token));
+                    Toast.makeText(activity, "Zalogowano do konta: " + email, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(activity, "Can't obtain google token", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }

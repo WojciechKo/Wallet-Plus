@@ -3,18 +3,18 @@ package com.walletudo.service.tag;
 import android.graphics.Color;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import com.walletudo.dagger.test.ServiceInjectedUnitTest;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
 import com.walletudo.model.Wallet;
 import com.walletudo.service.exception.EntityAlreadyExistsException;
 import com.walletudo.service.exception.EntityPropertyCannotBeNullOrEmptyException;
+import com.walletudo.test.ServiceInjectedUnitTest;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+
 import pl.wkr.fluentrule.api.FluentExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;

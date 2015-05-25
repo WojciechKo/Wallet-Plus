@@ -13,10 +13,10 @@ import com.walletudo.service.TagService;
 import com.walletudo.service.WalletService;
 import com.walletudo.service.ormlite.CashFlowServiceOrmLite;
 import com.walletudo.service.ormlite.MainDatabaseHelper;
+import com.walletudo.service.ormlite.ProfileDatabaseHelper;
 import com.walletudo.service.ormlite.ProfileServiceOrmLite;
 import com.walletudo.service.ormlite.StatisticServiceOrmLite;
 import com.walletudo.service.ormlite.TagServiceOrmLite;
-import com.walletudo.service.ormlite.UserDatabaseHelper;
 import com.walletudo.service.ormlite.WalletServiceOrmLite;
 
 import java.sql.SQLException;
@@ -58,9 +58,9 @@ public class ServicesModule {
      * *************
      */
     @Provides
-    public Dao<Tag, Long> provideTagDao(UserDatabaseHelper userDatabaseHelper) {
+    public Dao<Tag, Long> provideTagDao(ProfileDatabaseHelper profileDatabaseHelper) {
         try {
-            return userDatabaseHelper.getTagDao();
+            return profileDatabaseHelper.getTagDao();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -79,9 +79,9 @@ public class ServicesModule {
      * *************
      */
     @Provides
-    public Dao<CashFlow, Long> provideCashFlowDao(UserDatabaseHelper userDatabaseHelper) {
+    public Dao<CashFlow, Long> provideCashFlowDao(ProfileDatabaseHelper profileDatabaseHelper) {
         try {
-            return userDatabaseHelper.getCashFlowDao();
+            return profileDatabaseHelper.getCashFlowDao();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -100,9 +100,9 @@ public class ServicesModule {
      * *************
      */
     @Provides
-    public Dao<TagAndCashFlowBind, Long> provideTagAndCashFlowDao(UserDatabaseHelper userDatabaseHelper) {
+    public Dao<TagAndCashFlowBind, Long> provideTagAndCashFlowDao(ProfileDatabaseHelper profileDatabaseHelper) {
         try {
-            return userDatabaseHelper.getTagAndCashFlowBindsDao();
+            return profileDatabaseHelper.getTagAndCashFlowBindsDao();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -115,9 +115,9 @@ public class ServicesModule {
      * *************
      */
     @Provides
-    public Dao<Wallet, Long> provideWalletDao(UserDatabaseHelper userDatabaseHelper) {
+    public Dao<Wallet, Long> provideWalletDao(ProfileDatabaseHelper profileDatabaseHelper) {
         try {
-            return userDatabaseHelper.getWalletDao();
+            return profileDatabaseHelper.getWalletDao();
         } catch (SQLException e) {
             e.printStackTrace();
         }

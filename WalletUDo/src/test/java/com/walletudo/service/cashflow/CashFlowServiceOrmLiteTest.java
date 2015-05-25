@@ -3,6 +3,12 @@ package com.walletudo.service.cashflow;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import com.google.common.collect.Lists;
+import com.walletudo.model.CashFlow;
+import com.walletudo.model.Tag;
+import com.walletudo.model.Wallet;
+import com.walletudo.service.CashFlowService;
+import com.walletudo.service.exception.EntityPropertyCannotBeNullOrEmptyException;
+import com.walletudo.test.ServiceInjectedUnitTest;
 
 import org.joda.time.DateTime;
 import org.joda.time.DurationFieldType;
@@ -13,12 +19,6 @@ import org.junit.Test;
 import java.util.Date;
 import java.util.List;
 
-import com.walletudo.dagger.test.ServiceInjectedUnitTest;
-import com.walletudo.model.CashFlow;
-import com.walletudo.model.Tag;
-import com.walletudo.model.Wallet;
-import com.walletudo.service.CashFlowService;
-import com.walletudo.service.exception.EntityPropertyCannotBeNullOrEmptyException;
 import pl.wkr.fluentrule.api.FluentExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;

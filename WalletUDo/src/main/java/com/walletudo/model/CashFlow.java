@@ -1,6 +1,7 @@
 package com.walletudo.model;
 
 import com.google.common.collect.Lists;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -42,7 +43,7 @@ public class CashFlow implements Identifiable {
     @DatabaseField(columnName = COMMENT_COLUMN_NAME)
     private String comment;
 
-    @DatabaseField(columnName = DATETIME_COLUMN_NAME, canBeNull = false)
+    @DatabaseField(columnName = DATETIME_COLUMN_NAME, canBeNull = false, dataType = DataType.DATE)
     private Date dateTime;
 
     @DatabaseField(columnName = COMPLETED_COLUMN_NAME, canBeNull = false)
