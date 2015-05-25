@@ -1,6 +1,6 @@
 package com.walletudo.dagger;
 
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.dagger.module.DatabaseModule;
 import com.walletudo.dagger.module.GoogleDriveRestModule;
 import com.walletudo.dagger.module.MainModule;
@@ -26,7 +26,7 @@ public interface AppComponent extends IAppComponent {
         public static AppComponent init(boolean mockMode) {
             return DaggerAppComponent
                     .builder()
-                    .mainModule(new MainModule(WalletUDo.getInstance()))
+                    .mainModule(new MainModule(Walletudo.getInstance()))
                     .build();
         }
     }

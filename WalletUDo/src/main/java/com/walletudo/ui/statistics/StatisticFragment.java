@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionMenu;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.model.Tag;
 import com.walletudo.service.StatisticService;
 
@@ -49,7 +49,7 @@ public class StatisticFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((WalletUDo) getActivity().getApplication()).component().inject(this);
+        ((Walletudo) getActivity().getApplication()).component().inject(this);
     }
 
     @Override

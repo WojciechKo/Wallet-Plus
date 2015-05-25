@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.model.Profile;
 import com.walletudo.service.ProfileService;
 import com.walletudo.ui.BaseActivity;
@@ -53,7 +53,7 @@ public class SettingsActivity extends BaseActivity {
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            ((WalletUDo) getActivity().getApplication()).component().inject(this);
+            ((Walletudo) getActivity().getApplication()).component().inject(this);
         }
 
         @Nullable

@@ -2,7 +2,7 @@ package com.walletudo.dagger;
 
 import com.walletudo.DatabaseInitializer;
 import com.walletudo.MainActivity;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.service.ProfileService;
 import com.walletudo.service.ormlite.ProfileServiceOrmLite;
 import com.walletudo.ui.BaseActivity;
@@ -32,7 +32,7 @@ import com.walletudo.util.PrefUtils;
 
 public interface IAppComponent {
 
-    void inject(WalletUDo object);
+    void inject(Walletudo object);
 
     void inject(BaseActivity object);
 

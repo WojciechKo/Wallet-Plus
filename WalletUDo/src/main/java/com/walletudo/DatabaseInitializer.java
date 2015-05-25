@@ -40,7 +40,7 @@ public class DatabaseInitializer {
 
     public void createExampleAccountWithProfile() {
         try {
-            WalletUDo application = (WalletUDo) activity.get().getApplication();
+            Walletudo application = (Walletudo) activity.get().getApplication();
 
             ProfileService profileService = application.component().profileService();
             PrefUtils prefUtils = application.component().prefUtils();

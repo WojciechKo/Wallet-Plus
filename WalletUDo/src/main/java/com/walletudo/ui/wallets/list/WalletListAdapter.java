@@ -46,8 +46,5 @@ public class WalletListAdapter extends IdentifiableListAdapter<Wallet> {
 
         @InjectView(R.id.currentAmount)
         TextView currentAmount;
-
-        @InjectView(R.id.deleteButton)
-        Button delete;
     }
 }

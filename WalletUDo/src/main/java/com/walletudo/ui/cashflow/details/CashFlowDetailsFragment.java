@@ -48,7 +48,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
 import com.walletudo.model.Wallet;
@@ -146,7 +146,7 @@ public class CashFlowDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletUDo) getActivity().getApplication()).component().inject(this);
+        ((Walletudo) getActivity().getApplication()).component().inject(this);
 
         Long cashFlowId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_CASH_FLOW_ID);
         if (cashFlowId == -1) {

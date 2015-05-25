@@ -6,16 +6,16 @@ import com.walletudo.dagger.AppComponent;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
-public class WalletUDo extends Application {
+public class Walletudo extends Application {
 
     private AppComponent component;
 
-    private static WalletUDo walletUDo;
+    private static Walletudo walletudo;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        walletUDo = this;
+        walletudo = this;
         reinitializeObjectGraph();
         JodaTimeAndroid.init(this);
     }
@@ -28,7 +28,7 @@ public class WalletUDo extends Application {
         return component;
     }
 
-    public static WalletUDo getInstance() {
-        return walletUDo;
+    public static Walletudo getInstance() {
+        return walletudo;
     }
 }

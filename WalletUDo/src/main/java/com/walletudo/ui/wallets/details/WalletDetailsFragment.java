@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.model.Wallet;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.service.WalletService;
@@ -77,7 +77,7 @@ public class WalletDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletUDo) getActivity().getApplication()).component().inject(this);
+        ((Walletudo) getActivity().getApplication()).component().inject(this);
 
         walletId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_WALLET_ID);
 

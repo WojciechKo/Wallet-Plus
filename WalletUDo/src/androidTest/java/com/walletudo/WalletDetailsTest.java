@@ -32,7 +32,7 @@ public class WalletDetailsTest extends ActivityInstrumentationTestCase2<WalletDe
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        WalletUDo app = (WalletUDo) getInstrumentation().getTargetContext().getApplicationContext();
+        Walletudo app = (Walletudo) getInstrumentation().getTargetContext().getApplicationContext();
         app.component().inject(this);
         getActivity().getApplication();
     }

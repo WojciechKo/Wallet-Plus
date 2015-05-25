@@ -26,7 +26,7 @@ import com.google.common.io.ByteStreams;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.google.GoogleDriveReadService;
 import com.walletudo.google.GoogleDriveUploadService;
 import com.walletudo.model.Profile;
@@ -106,7 +106,7 @@ public class SynchronizeActivity extends BaseActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            ((WalletUDo) getActivity().getApplication()).component().inject(this);
+            ((Walletudo) getActivity().getApplication()).component().inject(this);
         }
 
         @Override

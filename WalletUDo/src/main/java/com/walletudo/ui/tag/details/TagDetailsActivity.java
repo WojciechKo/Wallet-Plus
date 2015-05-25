@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.ui.BaseActivity;
 
 import java.text.MessageFormat;
@@ -36,7 +36,7 @@ public class TagDetailsActivity extends BaseActivity {
             return;
         }
 
-        ((WalletUDo) getApplication()).component().inject(this);
+        ((Walletudo) getApplication()).component().inject(this);
         setContentView(R.layout.activity_drawer);
 
         Bundle extras = getIntent().getExtras();

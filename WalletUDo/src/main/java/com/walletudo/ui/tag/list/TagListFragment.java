@@ -23,7 +23,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.model.Tag;
 import com.walletudo.service.TagService;
 import com.walletudo.ui.tag.details.TagDetailsActivity;
@@ -49,7 +49,7 @@ public class TagListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((WalletUDo) getActivity().getApplication()).component().inject(this);
+        ((Walletudo) getActivity().getApplication()).component().inject(this);
     }
 
     @Override
