@@ -1,1 +1,1 @@
-include ':WalletUDo', ':colorPickerView-library'
+include ':Walletudo', ':colorPickerView-library'

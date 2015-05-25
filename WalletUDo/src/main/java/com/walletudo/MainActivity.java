@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ((WalletUDo) getApplication()).component().inject(this);
+        ((Walletudo) getApplication()).component().inject(this);
         ButterKnife.inject(this);
         restoreOrInitState(savedInstanceState);
         setupViews();
@@ -131,7 +131,7 @@ public class MainActivity extends ActionBarActivity implements FragmentManager.O
     private void drawerAccountClicked(int position) {
         drawerLayout.closeDrawer(drawer);
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        ((WalletUDo) getApplication()).reinitializeObjectGraph();
+        ((Walletudo) getApplication()).reinitializeObjectGraph();
         initMainActivityState();
         startActivity(new Intent(this, MainActivity.class));
         finish();

@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.google.common.collect.Lists;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Wallet;
 import com.walletudo.service.CashFlowService;
@@ -59,7 +59,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((WalletUDo) getActivity().getApplication()).component().inject(this);
+        ((Walletudo) getActivity().getApplication()).component().inject(this);
     }
 
     @Override

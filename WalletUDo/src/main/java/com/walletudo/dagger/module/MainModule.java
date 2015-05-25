@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.google.common.collect.Maps;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.ui.BaseActivity;
 import com.walletudo.ui.cashflow.list.CashFlowListActivity;
 import com.walletudo.ui.dashboard.DashboardActivity;
@@ -31,9 +31,9 @@ import static com.walletudo.ui.BaseActivity.DrawerItemContent;
 
 @Module
 public class MainModule {
-    private final WeakReference<WalletUDo> application;
+    private final WeakReference<Walletudo> application;
 
-    public MainModule(WalletUDo application) {
+    public MainModule(Walletudo application) {
         this.application = new WeakReference<>(application);
     }
 

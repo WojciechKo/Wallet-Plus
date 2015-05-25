@@ -15,7 +15,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.model.CashFlow;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.ui.cashflow.details.CashFlowDetailsActivity;
@@ -48,7 +48,7 @@ public class CashFlowListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((WalletUDo) getActivity().getApplication()).component().inject(this);
+        ((Walletudo) getActivity().getApplication()).component().inject(this);
         setHasOptionsMenu(true);
     }
 

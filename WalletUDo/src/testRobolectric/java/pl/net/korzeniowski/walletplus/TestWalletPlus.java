@@ -6,7 +6,7 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.dagger.module.GoogleDriveRestModule;
 import com.walletudo.dagger.module.MainModule;
 import com.walletudo.dagger.MockServicesModule;
@@ -20,7 +20,7 @@ import pl.net.korzeniowski.walletplus.test.ui.wallet.details.CreateNewMyWalletTe
 import pl.net.korzeniowski.walletplus.test.ui.wallet.details.EditMyWalletTest;
 import pl.net.korzeniowski.walletplus.test.ui.wallet.list.MyWalletListTest;
 
-public class TestWalletPlus extends WalletUDo {
+public class TestWalletPlus extends Walletudo {
 
     @Singleton
     @Component(

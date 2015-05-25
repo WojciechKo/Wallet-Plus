@@ -32,7 +32,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.samples.apps.iosched.ui.widget.ScrimInsetsScrollView;
 import com.walletudo.DatabaseInitializer;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.model.Profile;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.service.ProfileService;
@@ -114,7 +114,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        WalletUDo application = (WalletUDo) getApplication();
+        Walletudo application = (Walletudo) getApplication();
         prefUtils = application.component().prefUtils();
         // Perform one-time bootstrap setup, if needed
         if (!prefUtils.isDataBootstrapDone()) {

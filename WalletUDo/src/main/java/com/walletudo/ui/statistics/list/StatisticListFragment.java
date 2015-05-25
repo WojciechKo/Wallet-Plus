@@ -11,7 +11,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.service.StatisticService;
 import com.walletudo.service.TagService;
@@ -54,7 +54,7 @@ public class StatisticListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((WalletUDo) getActivity().getApplication()).component().inject(this);
+        ((Walletudo) getActivity().getApplication()).component().inject(this);
         iteration = getArguments().getInt(ITERATION);
     }
 

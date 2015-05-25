@@ -29,7 +29,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
 import com.walletudo.service.CashFlowService;
@@ -121,7 +121,7 @@ public class TagDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletUDo) getActivity().getApplication()).component().inject(this);
+        ((Walletudo) getActivity().getApplication()).component().inject(this);
 
         Long tagId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_TAG_ID);
 

@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.walletudo.R;
-import com.walletudo.WalletUDo;
+import com.walletudo.Walletudo;
 import com.walletudo.model.Tag;
 import com.walletudo.service.TagService;
 
@@ -57,7 +57,7 @@ public class StatisticDetailsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        ((WalletUDo) getActivity().getApplication()).component().inject(this);
+        ((Walletudo) getActivity().getApplication()).component().inject(this);
 
         Long categoryId = getArguments() == null ? -1 : getArguments().getLong(ARGUMENT_CATEGORY_ID);
 
