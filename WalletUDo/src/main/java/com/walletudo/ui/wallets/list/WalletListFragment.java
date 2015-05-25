@@ -8,9 +8,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
-import com.fortysevendeg.swipelistview.BaseSwipeListViewListener;
-import com.fortysevendeg.swipelistview.SwipeListView;
 import com.walletudo.R;
 import com.walletudo.WalletUDo;
 import com.walletudo.model.Wallet;
@@ -28,7 +28,7 @@ public class WalletListFragment extends Fragment {
     public static final String TAG = WalletListFragment.class.getSimpleName();
 
     @InjectView(R.id.swipe_list)
-    SwipeListView list;
+    ListView list;
 
     @Inject
     WalletService walletService;
@@ -52,20 +52,12 @@ public class WalletListFragment extends Fragment {
 
     private void setupList() {
         walletList = walletService.getAll();
-        list.setSwipeListViewListener(new BaseSwipeListViewListener() {
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClickFrontView(int position) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getActivity(), WalletDetailsActivity.class);
                 intent.putExtra(WalletDetailsActivity.EXTRAS_WALLET_ID, list.getAdapter().getItemId(position));
                 startActivityForResult(intent, WalletDetailsActivity.REQUEST_CODE_EDIT_WALLET);
-            }
-
-            @Override
-            public void onDismiss(int[] reverseSortedPositions) {
-                for (int index : reverseSortedPositions) {
-                    walletList.remove(index);
-                }
-                list.setAdapter(new WalletListAdapter(getActivity(), walletList));
             }
         });
         list.setAdapter(new WalletListAdapter(getActivity(), walletList));

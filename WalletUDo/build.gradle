@@ -156,11 +156,6 @@ dependencies {
     // FButton
     compile 'info.hoang8f:fbutton:1.0.5'
 
-    // SwipeListView
-    compile('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
-        transitive = true
-    }
-
     // HelloCharts
     compile 'com.github.lecho:hellocharts-library:1.5.3@aar'
 
