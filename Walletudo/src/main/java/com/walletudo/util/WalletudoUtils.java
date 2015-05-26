@@ -7,12 +7,17 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.ListView;
 
+import com.google.common.collect.Lists;
+import com.walletudo.model.CashFlow;
+
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class WalletudoUtils {
     public static class Dates {
@@ -68,6 +73,56 @@ public class WalletudoUtils {
         public static String getBaseName(String fileName) {
             String split = "\\.(?=[^\\.]+$)";
             return fileName.split(split)[0];
+        }
+    }
+
+    public static class Charts {
+        private static final ArrayList<Integer> CORE_DIVIDERS = Lists.newArrayList(1, 2, 5);
+
+        public static List<Integer> getHelperLineValues(List<CashFlow> cashFlows) {
+            List<Integer> result = Lists.newArrayList();
+            Double min = Double.MAX_VALUE;
+            Double max = Double.MIN_VALUE;
+            for (CashFlow cashFlow : cashFlows) {
+                Double amountOfCashFlow = cashFlow.getRelativeAmount();
+                if (amountOfCashFlow > max) {
+                    max = amountOfCashFlow;
+                }
+                if (amountOfCashFlow < min) {
+                    min = amountOfCashFlow;
+                }
+            }
+            Integer step = calculateStep(min, max);
+            Integer first = ((int) (min / step)) * step - step;
+
+            int iteration = (int) (max - min) / step + 2;
+
+            for (int i = 0; i < iteration; i++) {
+                result.add(first + step * i);
+            }
+
+            return result;
+        }
+
+        private static Integer calculateStep(Double min, Double max) {
+            Double diff = max - min;
+            Integer previousStepValue = getNStepValue(0);
+            for (int i = 0; i < 1000; i++) {
+                Integer stepValue = getNStepValue(i);
+                if (diff / stepValue <= 4) {
+                    if (diff / stepValue >= 2) {
+                        return stepValue;
+                    } else {
+                        return previousStepValue;
+                    }
+                }
+                previousStepValue = stepValue;
+            }
+            return previousStepValue;
+        }
+
+        private static Integer getNStepValue(int n) {
+            return CORE_DIVIDERS.get(n % CORE_DIVIDERS.size()) * (int) Math.pow(10, n / CORE_DIVIDERS.size());
         }
     }
 }

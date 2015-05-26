@@ -1,4 +1,4 @@
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.walletudo.ui.hacky.HackyDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
@@ -40,5 +40,5 @@
     <!-- Nav drawer -->
     <include layout="@layout/navigation_drawer" />
 
-</android.support.v4.widget.DrawerLayout>
+</com.walletudo.ui.hacky.HackyDrawerLayout>
 

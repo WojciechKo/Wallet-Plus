@@ -138,6 +138,12 @@ public class CashFlow implements Identifiable {
         return this;
     }
 
+    public Double getRelativeAmount() {
+        return getType().equals(Type.EXPENSE)
+                ? getAmount() * -1
+                : getAmount();
+    }
+
     public Wallet getWallet() {
         return wallet;
     }
