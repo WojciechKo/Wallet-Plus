@@ -3,6 +3,7 @@ package com.walletudo.ui.cashflow.details;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
@@ -113,10 +114,13 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         cashFlow.setType(getType());
         cashFlow.setAmount(Double.parseDouble(getAmount()));
         cashFlow.setWallet(getWallet());
-        for (String tagName : getTags().replaceAll("\\s+", " ").split(" ")) {
-            Tag tag = new Tag(tagName);
-            tag.setColor(tagToColorMap.get(tagName));
-            cashFlow.addTag(tag);
+
+        if (!Strings.isNullOrEmpty(getTags())) {
+            for (String tagName : getTags().replaceAll("\\s+", " ").split(" ")) {
+                Tag tag = new Tag(tagName);
+                tag.setColor(tagToColorMap.get(tagName));
+                cashFlow.addTag(tag);
+            }
         }
         cashFlow.setComment(getComment());
         cashFlow.setDateTime(new Date(getDate()));
