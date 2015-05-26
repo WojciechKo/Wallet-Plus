@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.SpannableStringBuilder;
-import android.text.format.DateFormat;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
@@ -12,41 +11,42 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.common.collect.Lists;
 import com.walletudo.R;
 import com.walletudo.Walletudo;
-import com.walletudo.model.CashFlow;
 import com.walletudo.model.Wallet;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.service.WalletService;
-import com.walletudo.util.KorzeniowskiUtils;
+import com.walletudo.ui.cashflow.list.CashFlowListItemView;
+
+import org.joda.time.LocalDate;
 
 import java.text.NumberFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.ListIterator;
 
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.AxisValue;
-import lecho.lib.hellocharts.model.Line;
-import lecho.lib.hellocharts.model.LineChartData;
-import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.gesture.ContainerScrollType;
+import lecho.lib.hellocharts.listener.BubbleChartOnValueSelectListener;
+import lecho.lib.hellocharts.model.BubbleValue;
 import lecho.lib.hellocharts.model.Viewport;
-import lecho.lib.hellocharts.view.LineChartView;
+import lecho.lib.hellocharts.view.BubbleChartView;
 
 public class DashboardFragment extends Fragment {
-    public static final String TAG = "dashboard";
-    private static final int MAX_NUMBER_OF_POINTS_IN_CHART = 5;
+    public static final String TAG = DashboardFragment.class.getSimpleName();
 
     @InjectView(R.id.totalAmount)
     TextView totalAmount;
 
+    @InjectView(R.id.chartLabel)
+    TextView chartLabel;
+
     @InjectView(R.id.chart)
-    LineChartView chart;
+    BubbleChartView chart;
+
+    @InjectView(R.id.selectedCashFlow)
+    CashFlowListItemView selectedCashFlow;
 
     @Inject
     WalletService walletService;
@@ -54,12 +54,13 @@ public class DashboardFragment extends Fragment {
     @Inject
     CashFlowService cashFlowService;
 
-    private Double sumOfCurrentAmountOfWallets;
+    private BubbleChartDataProvider bubbleChartDataProvider;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((Walletudo) getActivity().getApplication()).component().inject(this);
+        bubbleChartDataProvider = new BubbleChartDataProvider(getActivity(), cashFlowService);
     }
 
     @Override
@@ -73,71 +74,12 @@ public class DashboardFragment extends Fragment {
 
     void setupViews() {
         totalAmount.setText(getTotalAmountText());
-
-        chart.setLineChartData(getMainLineChartData());
-        chart.setZoomEnabled(false);
-        chart.setValueSelectionEnabled(true);
-        chart.setViewportCalculationEnabled(false);
-        final Viewport v = new Viewport(chart.getMaximumViewport());
-        float diff = v.top - v.bottom;
-        v.bottom -= 0.2 * diff;
-        v.top += 0.2 * diff;
-        chart.setMaximumViewport(v);
-        chart.setCurrentViewportWithAnimation(v);
-    }
-
-    private LineChartData getMainLineChartData() {
-        List<PointValue> values = Lists.newArrayList();
-        List<AxisValue> dateAxisValues = Lists.newArrayList();
-        List<CashFlow> cashFlowList = cashFlowService.getLastNCashFlows(MAX_NUMBER_OF_POINTS_IN_CHART);
-        ListIterator<CashFlow> cashFlowListIterator = cashFlowList.listIterator();
-
-        for (int i = 0; i < cashFlowList.size(); i++) {
-            if (!cashFlowListIterator.hasNext()) {
-                break;
-            }
-            CashFlow cashFlow = cashFlowListIterator.next();
-
-            if (cashFlow.getType() == CashFlow.Type.INCOME) {
-                values.add(new PointValue(i, cashFlow.getAmount().floatValue()));
-            } else if (cashFlow.getType() == CashFlow.Type.EXPENSE) {
-                values.add(new PointValue(i, cashFlow.getAmount().floatValue() * -1));
-            }
-
-            dateAxisValues.add(new AxisValue(
-                    i,
-                    KorzeniowskiUtils.Dates.getShortDateLabel(getActivity(), cashFlow.getDateTime()).toCharArray()));
-
-        }
-        if (values.size() > 1) {
-            Line mainLine = new Line(values);
-            mainLine.setColor(getResources().getColor(R.color.blue));
-            mainLine.setHasLabelsOnlyForSelected(true);
-
-            LineChartData lineChartData = new LineChartData(Lists.newArrayList(mainLine));
-
-            // setup axis with dates.
-            lineChartData.setAxisXBottom(new Axis(dateAxisValues));
-
-            // setup axis with values.
-            lineChartData.setAxisYLeft(new Axis().setHasLines(true));
-
-            return lineChartData;
-        } else {
-            return new LineChartData(Lists.<Line>newArrayList());
-        }
-    }
-
-    private char[] getAxisLabel(Date dateTime) {
-//        int flags = DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE;
-//        return DateUtils.formatDateTime(getActivity(), dateTime.getTime(), flags).toCharArray();
-        String dateLabel = DateFormat.getDateFormat(DashboardFragment.this.getActivity()).format(dateTime.getTime());
-        String timeLabel = DateFormat.getTimeFormat(DashboardFragment.this.getActivity()).format(dateTime.getTime());
-        return (dateLabel + "\n" + timeLabel).toCharArray();
+        chartLabel.setText(getString(R.string.dashboardChartLabel, bubbleChartDataProvider.getColumnsNumber()));
+        setupChartOfLastNCashFlows();
     }
 
     private CharSequence getTotalAmountText() {
-        sumOfCurrentAmountOfWallets = getSumOfCurrentAmountOfWallets();
+        Double sumOfCurrentAmountOfWallets = getSumOfCurrentAmountOfWallets();
         String totalAmountString = NumberFormat.getCurrencyInstance().format(sumOfCurrentAmountOfWallets);
 
         SpannableStringBuilder spanTxt = new SpannableStringBuilder(getString(R.string.dashboardTotalAmountLabel) + "\n");
@@ -158,5 +100,32 @@ public class DashboardFragment extends Fragment {
             sum += wallet.getCurrentAmount();
         }
         return sum;
+    }
+
+    private void setupChartOfLastNCashFlows() {
+        LocalDate today = new LocalDate();
+        chart.setBubbleChartData(bubbleChartDataProvider.getBubbleChartData(today.plusDays(-bubbleChartDataProvider.getColumnsNumber() + 1), today));
+        chart.setViewportCalculationEnabled(false);
+        final Viewport v = new Viewport(chart.getMaximumViewport());
+        float diff = v.top - v.bottom;
+        v.bottom -= 0.2 * diff;
+        v.top += 0.2 * diff;
+        chart.setMaximumViewport(v);
+        chart.setCurrentViewport(v);
+        chart.setValueSelectionEnabled(true);
+        chart.setOnValueTouchListener(new BubbleChartOnValueSelectListener() {
+            @Override
+            public void onValueSelected(int i, BubbleValue bubbleValue) {
+                selectedCashFlow.setCashFlow(bubbleChartDataProvider.getCashFlow(bubbleValue));
+            }
+
+            @Override
+            public void onValueDeselected() {
+
+            }
+        });
+        chart.setZoomEnabled(true);
+        chart.setScrollEnabled(true);
+        chart.setContainerScrollEnabled(true, ContainerScrollType.VERTICAL);
     }
 }

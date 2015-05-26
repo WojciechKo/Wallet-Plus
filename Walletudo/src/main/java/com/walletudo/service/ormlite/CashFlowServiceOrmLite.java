@@ -132,7 +132,7 @@ public class CashFlowServiceOrmLite implements CashFlowService {
             numClauses++;
         }
         if (query.getToDate() != null) {
-            where.le(CashFlow.DATETIME_COLUMN_NAME, query.getToDate());
+            where.lt(CashFlow.DATETIME_COLUMN_NAME, query.getToDate());
             numClauses++;
         }
         if (query.getMinAmount() != null) {

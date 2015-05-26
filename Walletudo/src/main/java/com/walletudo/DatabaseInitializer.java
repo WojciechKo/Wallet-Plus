@@ -13,8 +13,11 @@ import com.walletudo.service.WalletService;
 import com.walletudo.service.exception.DatabaseException;
 import com.walletudo.util.PrefUtils;
 
+import org.joda.time.DateTime;
+
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.inject.Inject;
 
@@ -106,51 +109,49 @@ public class DatabaseInitializer {
         walletService.insert(bankAccount);
 
         /** Init cashflows **/
-        Calendar date = Calendar.getInstance();
-        date.set(Calendar.DAY_OF_MONTH, 0);
+        DateTime date = DateTime.now();
+        insertCashFlow(personalWallet, 100.0, EXPENSE, date, "Romantic dinner", love);
 
-        insertCashFlow(personalWallet, 30.0, EXPENSE, date, "Onion, flavor, oil, meat", food);
-        insertCashFlow(personalWallet, 100.0, INCOME, date, "Portrait", crafts, paintings);
+        date = date.plusDays(-1);
+        insertCashFlow(bankAccount, 75.0, EXPENSE, date, "", house, energy);
+        insertCashFlow(bankAccount, 100.0, EXPENSE, date, "", house, water);
+        insertCashFlow(bankAccount, 50.0, EXPENSE, date, "", house, gas);
+        insertCashFlow(bankAccount, 700.0, INCOME, date, "From Bob", roomRent);
 
-        date.add(Calendar.DATE, 2);
-        insertCashFlow(personalWallet, 15.0, EXPENSE, date, "Dinner", food);
-        insertCashFlow(personalWallet, 25.0, EXPENSE, date, "Red wine", alcohol);
-        insertCashFlow(bankAccount, 150.0, EXPENSE, date, "Cleaning products", house);
+        date = date.plusDays(-2);
+        insertCashFlow(personalWallet, 50.0, EXPENSE, date, "Sculpture materials", crafts, sculptures);
+        insertCashFlow(personalWallet, 150.0, INCOME, date, "Sculpture of Alicia", crafts, sculptures);
 
-        date.add(Calendar.DATE, 2);
-        insertCashFlow(personalWallet, 250.0, INCOME, date, "Hauberk", crafts, blacksmiths);
-        insertCashFlow(personalWallet, 50.0, EXPENSE, date, "Hauberk materials", crafts, blacksmiths);
-        insertCashFlow(personalWallet, 100.0, EXPENSE, date, "Meal voucher", food);
-        insertCashFlow(personalWallet, 40.0, EXPENSE, date, "Beer and vodka", alcohol);
+        date = date.plusDays(-1);
+        insertCashFlow(bankAccount, 25.0, INCOME, date, "Ads", internet, newsService);
 
-        date.add(Calendar.DATE, 3);
-        insertCashFlow(bankAccount, 1300.0, INCOME, date, "Salary", job);
-
-        date.add(Calendar.DATE, 2);
+        date = date.plusDays(-2);
         insertCashFlow(personalWallet, 100.0, EXPENSE, date, "Dinner", food);
         insertCashFlow(bankAccount, 200.0, INCOME, date, "Ads", internet, musicForum);
         insertCashFlow(bankAccount, 10.0, EXPENSE, date, "Servers", internet, musicForum);
         insertCashFlow(bankAccount, 10.0, EXPENSE, date, "Servers", internet, newsService);
         insertCashFlow(bankAccount, 150.0, EXPENSE, date, "Feature costs", internet, newsService);
 
-        date.add(Calendar.DATE, 1);
-        insertCashFlow(bankAccount, 25.0, INCOME, date, "Ads", internet, newsService);
+        date = date.plusDays(-3);
+        insertCashFlow(bankAccount, 1300.0, INCOME, date, "Salary", job);
 
-        date.add(Calendar.DATE, 1);
-        insertCashFlow(personalWallet, 50.0, EXPENSE, date, "Sculpture materials", crafts, sculptures);
-        insertCashFlow(personalWallet, 150.0, INCOME, date, "Sculpture of Alicia", crafts, sculptures);
+        date = date.plusDays(-1);
+        insertCashFlow(personalWallet, 250.0, INCOME, date, "Hauberk", crafts, blacksmiths);
+        insertCashFlow(personalWallet, 50.0, EXPENSE, date, "Hauberk materials", crafts, blacksmiths);
+        insertCashFlow(personalWallet, 100.0, EXPENSE, date, "Meal voucher", food);
+        insertCashFlow(personalWallet, 40.0, EXPENSE, date, "Beer and vodka", alcohol);
 
-        date.add(Calendar.DATE, 3);
-        insertCashFlow(bankAccount, 75.0, EXPENSE, date, "", house, energy);
-        insertCashFlow(bankAccount, 100.0, EXPENSE, date, "", house, water);
-        insertCashFlow(bankAccount, 50.0, EXPENSE, date, "", house, gas);
-        insertCashFlow(bankAccount, 700.0, INCOME, date, "From Bob", roomRent);
+        date = date.plusDays(-1);
+        insertCashFlow(personalWallet, 15.0, EXPENSE, date, "Dinner", food);
+        insertCashFlow(personalWallet, 25.0, EXPENSE, date, "Red wine", alcohol);
+        insertCashFlow(bankAccount, 150.0, EXPENSE, date, "Cleaning products", house);
 
-        date.add(Calendar.DATE, 3);
-        insertCashFlow(personalWallet, 100.0, EXPENSE, date, "Romantic dinner", love);
+        date = date.plusDays(-1);
+        insertCashFlow(personalWallet, 30.0, EXPENSE, date, "Onion, flavor, oil, meat", food);
+        insertCashFlow(personalWallet, 100.0, INCOME, date, "Portrait", crafts, paintings);
     }
 
-    private void insertCashFlow(Wallet wallet, Double amount, CashFlow.Type type, Calendar date, String comment, Tag... tags) {
-        cashFlowService.insert(new CashFlow().setWallet(wallet).setAmount(amount).setType(type).setDateTime(date.getTime()).setComment(comment).addTag(tags));
+    private void insertCashFlow(Wallet wallet, Double amount, CashFlow.Type type, DateTime date, String comment, Tag... tags) {
+        cashFlowService.insert(new CashFlow().setWallet(wallet).setAmount(amount).setType(type).setDateTime(date.toDate()).setComment(comment).addTag(tags));
     }
 }

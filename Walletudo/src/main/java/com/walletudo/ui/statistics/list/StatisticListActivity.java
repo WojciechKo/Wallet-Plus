@@ -17,7 +17,7 @@ import com.walletudo.R;
 import com.walletudo.model.Tag;
 import com.walletudo.ui.BaseActivity;
 import com.walletudo.ui.statistics.details.StaticticDetailsActivity;
-import com.walletudo.util.KorzeniowskiUtils;
+import com.walletudo.util.WalletudoUtils;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
@@ -29,7 +29,6 @@ import java.util.Date;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 public class StatisticListActivity extends BaseActivity {
     public static final String TAG = StatisticListActivity.class.getSimpleName();
@@ -166,7 +165,7 @@ public class StatisticListActivity extends BaseActivity {
             org.joda.time.Period period = getPeriodInJoda(statisticListActivityState.getPeriod());
             int iteration = getIterationFromPosition(position);
 
-            Interval interval = KorzeniowskiUtils.Times.getInterval(new DateTime(fromDate), period, iteration);
+            Interval interval = WalletudoUtils.Times.getInterval(new DateTime(fromDate), period, iteration);
             return getPageTitle(interval);
         }
 

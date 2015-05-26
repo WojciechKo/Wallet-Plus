@@ -4,6 +4,8 @@ import com.google.common.collect.Sets;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
 
+import org.joda.time.LocalDate;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +58,7 @@ public interface CashFlowService extends BaseService<CashFlow> {
         }
 
         public CashFlowQuery withFromDate(Date fromDate) {
-            this.fromDate = fromDate;
+            this.fromDate = new LocalDate(fromDate).toDate();
             return this;
         }
 
@@ -65,7 +67,7 @@ public interface CashFlowService extends BaseService<CashFlow> {
         }
 
         public CashFlowQuery withToDate(Date toDate) {
-            this.toDate = toDate;
+            this.toDate = new LocalDate(toDate).plusDays(1).toDate();
             return this;
         }
 

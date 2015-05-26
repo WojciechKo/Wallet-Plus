@@ -72,7 +72,7 @@ import butterknife.OnItemSelected;
 import butterknife.OnTextChanged;
 import info.hoang8f.widget.FButton;
 
-import static com.walletudo.util.KorzeniowskiUtils.Views.dipToPixels;
+import static com.walletudo.util.WalletudoUtils.Views.dipToPixels;
 
 public class CashFlowDetailsFragment extends Fragment {
     public static final String TAG = "CashFlowDetailsFragment";

@@ -10,18 +10,21 @@ import android.graphics.drawable.Drawable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.format.DateFormat;
-import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ImageSpan;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.google.common.base.Strings;
 import com.walletudo.R;
 import com.walletudo.model.CashFlow;
 import com.walletudo.model.Tag;
-import com.walletudo.widget.IdentifiableListAdapter;
+import com.walletudo.model.Wallet;
 
 import java.text.NumberFormat;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -29,41 +32,45 @@ import butterknife.InjectView;
 
 import static com.walletudo.util.WalletudoUtils.Views.dipToPixels;
 
-public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
+public class CashFlowListItemView extends FrameLayout {
+    @InjectView(R.id.date)
+    TextView date;
 
-    public CashFlowListAdapter(Context context, List<CashFlow> casFlows) {
-        super(context, casFlows, R.layout.item_cash_flow_list);
+    @InjectView(R.id.amount)
+    TextView amount;
+
+    @InjectView(R.id.wallet)
+    TextView wallet;
+
+    @InjectView(R.id.tag)
+    TextView tag;
+
+    @InjectView(R.id.comment)
+    TextView comment;
+
+    public CashFlowListItemView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        LayoutInflater.from(context).inflate(R.layout.item_cash_flow_list, this);
+        ButterKnife.inject(this);
     }
 
-    @Override
-    protected MyBaseViewHolder createHolder(View convertView) {
-        CashFlowViewHolder holder = new CashFlowViewHolder();
-        ButterKnife.inject(holder, convertView);
-        return holder;
+    public void setCashFlow(CashFlow cashFlow) {
+        setTags(cashFlow.getTags());
+        setWallet(cashFlow.getWallet());
+        setAmount(cashFlow.getAmount(), cashFlow.getType());
+        setComment(cashFlow.getComment());
+        setDate(cashFlow.getDateTime());
     }
 
-    @Override
-    protected void fillViewWithItem(MyBaseViewHolder baseHolder, CashFlow item) {
-        CashFlowViewHolder holder = (CashFlowViewHolder) baseHolder;
-
+    public void setTags(List<Tag> tags) {
         SpannableStringBuilder builder = new SpannableStringBuilder();
-        for (Tag tag : item.getTags()) {
+        for (Tag tag : tags) {
             ImageSpan imageSpan = new ImageSpan(getImageSpanForTag(tag));
             builder.append(tag.getName());
             builder.setSpan(imageSpan, builder.length() - tag.getName().length(), builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             builder.append(" ");
         }
-        holder.tag.setText(builder);
-        holder.wallet.setText(getWalletText(item));
-        holder.amount.setText(NumberFormat.getCurrencyInstance().format(item.getAmount()));
-        holder.amount.setTextColor(getAmountColor(item));
-        if (Strings.isNullOrEmpty(item.getComment())) {
-            holder.comment.setVisibility(View.GONE);
-        } else {
-            holder.comment.setVisibility(View.VISIBLE);
-            holder.comment.setText(item.getComment());
-        }
-        holder.date.setText(getDateText(item));
+        tag.setText(builder);
     }
 
     private BitmapDrawable getImageSpanForTag(Tag tag) {
@@ -96,49 +103,43 @@ public class CashFlowListAdapter extends IdentifiableListAdapter<CashFlow> {
         return bitmapDrawable;
     }
 
-    private CharSequence getWalletText(CashFlow item) {
-        return item.getWallet().getName();
+    public void setDate(Date date) {
+        this.date.setText(getDateText(date));
     }
 
-    private int getAmountColor(CashFlow item) {
-        CashFlow.Type type = item.getType();
+    private String getDateText(Date date) {
+        String timeString = DateFormat.getTimeFormat(getContext()).format(date);
+        String dateString = DateFormat.getDateFormat(getContext()).format(date);
+        return dateString + " " + timeString;
+    }
 
-        if (type == CashFlow.Type.EXPENSE) {
+    public void setAmount(Double amount, CashFlow.Type cashFlowType) {
+        this.amount.setText(NumberFormat.getCurrencyInstance().format(amount));
+        this.amount.setTextColor(getAmountColor(cashFlowType));
+    }
+
+    private int getAmountColor(CashFlow.Type cashFlowType) {
+        if (cashFlowType == CashFlow.Type.EXPENSE) {
             return getContext().getResources().getColor(R.color.red);
-        } else if (type == CashFlow.Type.INCOME) {
+        } else if (cashFlowType == CashFlow.Type.INCOME) {
             return getContext().getResources().getColor(R.color.green);
-        } else if (type == CashFlow.Type.TRANSFER) {
+        } else if (cashFlowType == CashFlow.Type.TRANSFER) {
             return getContext().getResources().getColor(R.color.blue);
         }
         return getContext().getResources().getColor(R.color.black);
     }
 
-    private String getDateText(CashFlow item) {
-        String timeString = DateFormat.getTimeFormat(getContext()).format(item.getDateTime());
-        String dateString = DateFormat.getDateFormat(getContext()).format(item.getDateTime());
-        return dateString + " " + timeString;
+    public void setWallet(Wallet wallet) {
+        this.wallet.setText(wallet.getName());
     }
 
-    private CharSequence getLabeledSpannable(String label, String text) {
-        SpannableStringBuilder spanTxt = new SpannableStringBuilder(label + " " + text);
-        spanTxt.setSpan(new AbsoluteSizeSpan((int) getContext().getResources().getDimension(R.dimen.mediumFontSize)), spanTxt.length() - text.length(), spanTxt.length(), 0);
-        return spanTxt;
-    }
 
-    class CashFlowViewHolder extends MyBaseViewHolder {
-        @InjectView(R.id.wallet)
-        TextView wallet;
-
-        @InjectView(R.id.amount)
-        TextView amount;
-
-        @InjectView(R.id.comment)
-        TextView comment;
-
-        @InjectView(R.id.tag)
-        TextView tag;
-
-        @InjectView(R.id.date)
-        TextView date;
+    public void setComment(String comment) {
+        if (Strings.isNullOrEmpty(comment)) {
+            this.comment.setVisibility(View.GONE);
+        } else {
+            this.comment.setVisibility(View.VISIBLE);
+            this.comment.setText(comment);
+        }
     }
 }

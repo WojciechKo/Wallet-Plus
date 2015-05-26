@@ -27,7 +27,7 @@ import com.walletudo.google.GoogleDriveReadService;
 import com.walletudo.model.Profile;
 import com.walletudo.service.ProfileService;
 import com.walletudo.ui.BaseActivity;
-import com.walletudo.util.KorzeniowskiUtils;
+import com.walletudo.util.WalletudoUtils;
 import com.walletudo.util.PrefUtils;
 
 import java.io.File;
@@ -260,7 +260,7 @@ public class ProfileActivity extends BaseActivity {
                     try {
                         InputStream inputStream = okHttpClient.newCall(request).execute().body().byteStream();
                         Profile newProfile = new Profile()
-                                .setName(KorzeniowskiUtils.Files.getBaseName(selectedProfile.getTitle()))
+                                .setName(WalletudoUtils.Files.getBaseName(selectedProfile.getTitle()))
                                 .setDriveId(selectedProfile.getId())
                                 .setGoogleAccount(selectedProfile.getOwner());
 

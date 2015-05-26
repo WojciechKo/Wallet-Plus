@@ -184,29 +184,27 @@ public class StatisticServiceOrmLiteTest extends ServiceInjectedUnitTest {
         // then
         StatisticService.Statistics incomeOnlyStats = statisticService.getStatistics(firstDay.toDate(), firstDay.plusDays(dayCount / 2 - 1).toDate());
 
-        assertThat(incomeOnlyStats.getProfit()).containsExactly(Maps.immutableEntry(tag1, 0.0), Maps.immutableEntry(tag2, 0.0));
+        assertThat(incomeOnlyStats.getProfit()).containsExactly(Maps.immutableEntry(tag2, 238.0), Maps.immutableEntry(tag4, 100.0), Maps.immutableEntry(tag3, 46.0), Maps.immutableEntry(tag1, 39.0));
+        assertThat(incomeOnlyStats.getLost()).isEmpty();
 
-        assertThat(incomeOnlyStats.getProfit()).containsExactly(Maps.immutableEntry(tag4, 100.0), Maps.immutableEntry(tag1, 39.0), Maps.immutableEntry(tag2, 238.0), Maps.immutableEntry(tag3, 35.0));
-        assertThat(incomeOnlyStats.getLost()).containsOnly(Maps.immutableEntry(tag1, 0.0), Maps.immutableEntry(tag2, 0.0), Maps.immutableEntry(tag3, 0.0), Maps.immutableEntry(tag4, 0.0));
-
-        assertThat(incomeOnlyStats.getIncome()).containsExactly(Maps.immutableEntry(tag4, 100.0), Maps.immutableEntry(tag1, 39.0), Maps.immutableEntry(tag2, 238.0), Maps.immutableEntry(tag3, 35.0));
+        assertThat(incomeOnlyStats.getIncome()).containsExactly(Maps.immutableEntry(tag2, 238.0), Maps.immutableEntry(tag4, 100.0), Maps.immutableEntry(tag3, 46.0), Maps.immutableEntry(tag1, 39.0));
         assertThat(incomeOnlyStats.getExpense()).containsOnly(Maps.immutableEntry(tag1, 0.0), Maps.immutableEntry(tag2, 0.0), Maps.immutableEntry(tag3, 0.0), Maps.immutableEntry(tag4, 0.0));
 
         StatisticService.Statistics expenseOnlyStats = statisticService.getStatistics(firstDay.plusDays(dayCount / 2).toDate(), firstDay.plusDays(dayCount).toDate());
 
-        assertThat(expenseOnlyStats.getProfit()).containsOnly(Maps.immutableEntry(tag1, 0.0), Maps.immutableEntry(tag2, 0.0), Maps.immutableEntry(tag3, 0.0), Maps.immutableEntry(tag4, 0.0));
-        assertThat(expenseOnlyStats.getLost()).containsExactly(Maps.immutableEntry(tag1, 134.0), Maps.immutableEntry(tag2, 152.0), Maps.immutableEntry(tag3, 168.0), Maps.immutableEntry(tag4, 100.0));
+        assertThat(expenseOnlyStats.getProfit()).isEmpty();
+        assertThat(expenseOnlyStats.getLost()).containsExactly(Maps.immutableEntry(tag3, 168.0), Maps.immutableEntry(tag2, 152.0), Maps.immutableEntry(tag1, 134.0), Maps.immutableEntry(tag4, 100.0));
 
         assertThat(expenseOnlyStats.getIncome()).containsOnly(Maps.immutableEntry(tag1, 0.0), Maps.immutableEntry(tag2, 0.0), Maps.immutableEntry(tag3, 0.0), Maps.immutableEntry(tag4, 0.0));
-        assertThat(expenseOnlyStats.getExpense()).containsExactly(Maps.immutableEntry(tag1, 134.0), Maps.immutableEntry(tag2, 152.0), Maps.immutableEntry(tag3, 168.0), Maps.immutableEntry(tag4, 100.0));
+        assertThat(expenseOnlyStats.getExpense()).containsExactly(Maps.immutableEntry(tag3, 168.0), Maps.immutableEntry(tag2, 152.0), Maps.immutableEntry(tag1, 134.0), Maps.immutableEntry(tag4, 100.0));
 
         StatisticService.Statistics totalStats = statisticService.getStatistics(firstDay.toDate(), firstDay.plusDays(dayCount).toDate());
 
         assertThat(totalStats.getProfit()).containsExactly(Maps.immutableEntry(tag2, 86.0), Maps.immutableEntry(tag4, 0.0));
-        assertThat(totalStats.getLost()).containsExactly(Maps.immutableEntry(tag3, 133.0), Maps.immutableEntry(tag1, 95.0), Maps.immutableEntry(tag4, 0.0));
+        assertThat(totalStats.getLost()).containsExactly(Maps.immutableEntry(tag3, 122.0), Maps.immutableEntry(tag1, 95.0), Maps.immutableEntry(tag4, 0.0));
 
-        assertThat(totalStats.getIncome()).containsExactly(Maps.immutableEntry(tag4, 100.0), Maps.immutableEntry(tag1, 39.0), Maps.immutableEntry(tag2, 238.0), Maps.immutableEntry(tag3, 35.0));
-        assertThat(totalStats.getExpense()).containsExactly(Maps.immutableEntry(tag1, 134.0), Maps.immutableEntry(tag2, 152.0), Maps.immutableEntry(tag3, 168.0), Maps.immutableEntry(tag4, 100.0));
+        assertThat(totalStats.getIncome()).containsExactly(Maps.immutableEntry(tag2, 238.0), Maps.immutableEntry(tag4, 100.0), Maps.immutableEntry(tag3, 46.0), Maps.immutableEntry(tag1, 39.0));
+        assertThat(totalStats.getExpense()).containsExactly(Maps.immutableEntry(tag3, 168.0), Maps.immutableEntry(tag2, 152.0), Maps.immutableEntry(tag1, 134.0), Maps.immutableEntry(tag4, 100.0));
     }
 
     @Test
