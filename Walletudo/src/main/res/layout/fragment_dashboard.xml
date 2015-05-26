@@ -35,10 +35,10 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/chartLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/dashboardChartLabel" />
+                    android:layout_gravity="center" />
 
                 <lecho.lib.hellocharts.view.BubbleChartView
                     android:id="@+id/chart"

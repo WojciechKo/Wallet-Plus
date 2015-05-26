@@ -30,7 +30,7 @@
 
     <!-- Dashboard fragment -->
     <string name="dashboardTotalAmountLabel">Total:</string>
-    <string name="dashboardChartLabel">Last cash flows</string>
+    <string name="dashboardChartLabel">Last %d days</string>
 
     <!-- Tag list fragment -->
     <string name="tagListLabel">Tags</string>
