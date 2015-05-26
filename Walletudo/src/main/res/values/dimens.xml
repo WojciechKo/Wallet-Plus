@@ -13,6 +13,7 @@
     <dimen name="edgePadding">12dp</dimen>
 
     <!-- font size -->
+    <dimen name="xxSmallFontSize">6sp</dimen>
     <dimen name="xSmallFontSize">9sp</dimen>
     <dimen name="smallFontSize">12sp</dimen>
     <dimen name="mediumFontSize">16sp</dimen>

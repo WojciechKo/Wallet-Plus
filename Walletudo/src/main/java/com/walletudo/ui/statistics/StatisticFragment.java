@@ -4,19 +4,25 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionMenu;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.walletudo.R;
 import com.walletudo.Walletudo;
 import com.walletudo.model.Tag;
 import com.walletudo.service.StatisticService;
+import com.walletudo.ui.view.AmountView;
+import com.walletudo.ui.view.TagView;
 
 import org.joda.time.LocalDate;
 
@@ -32,7 +38,10 @@ import butterknife.OnClick;
 public class StatisticFragment extends Fragment {
 
     @InjectView(R.id.balance)
-    TextView balance;
+    AmountView balance;
+
+    @InjectView(R.id.viewPager)
+    ViewPager viewPager;
 
     @InjectView(R.id.profitList)
     ListView profitList;
@@ -63,18 +72,40 @@ public class StatisticFragment extends Fragment {
 
     private void setupViews() {
         onFabWeekPeriodClick();
+        viewPager.setAdapter(new PagerAdapter() {
+            @Override
+            public Object instantiateItem(ViewGroup container, int position) {
+                switch (position) {
+                    case 0:
+                        return getActivity().findViewById(R.id.profitList);
+                    case 1:
+                        return getActivity().findViewById(R.id.lostList);
+                }
+                return null;
+            }
+
+            @Override
+            public int getCount() {
+                return 2;
+            }
+
+            @Override
+            public boolean isViewFromObject(View view, Object object) {
+                return view == ((View) object);
+            }
+        });
     }
 
     @OnClick(R.id.fab_week)
     public void onFabWeekPeriodClick() {
         LocalDate now = LocalDate.now();
-        showStatisticsFromPeriod(now.dayOfWeek().withMinimumValue(), now.dayOfMonth().withMaximumValue());
+        setupStatisticFromPeriod(now.dayOfWeek().withMinimumValue(), now.dayOfMonth().withMaximumValue());
     }
 
     @OnClick(R.id.fab_month)
     public void onFabMonthPeriodClick() {
         LocalDate now = LocalDate.now();
-        showStatisticsFromPeriod(now.dayOfMonth().withMinimumValue(), now.dayOfMonth().withMaximumValue());
+        setupStatisticFromPeriod(now.dayOfMonth().withMinimumValue(), now.dayOfMonth().withMaximumValue());
     }
 
     @OnClick(R.id.fab_custom)
@@ -82,12 +113,19 @@ public class StatisticFragment extends Fragment {
         Toast.makeText(getActivity(), getActivity().getString(R.string.statisticCustomPeriodNotAvailable), Toast.LENGTH_SHORT).show();
     }
 
-    private void showStatisticsFromPeriod(LocalDate from, LocalDate to) {
+    private void setupStatisticFromPeriod(LocalDate from, LocalDate to) {
         StatisticService.Statistics statistics = statisticService.getStatistics(from.toDate(), to.toDate());
-        balance.setText(statistics.getBalance().toString());
+        balance.setAmount(statistics.getBalance());
 
         profitList.setAdapter(new StatisticEntryAdapter(getActivity(), statistics.getProfit()));
-        lostList.setAdapter(new StatisticEntryAdapter(getActivity(), statistics.getLost()));
+
+        List<Map.Entry<Tag, Double>> lost = Lists.transform(statistics.getLost(), new Function<Map.Entry<Tag,Double>, Map.Entry<Tag, Double>>() {
+            @Override
+            public Map.Entry<Tag, Double> apply(@Nullable Map.Entry<Tag, Double> input) {
+                return Maps.immutableEntry(input.getKey(), -input.getValue());
+            }
+        });
+        lostList.setAdapter(new StatisticEntryAdapter(getActivity(), lost));
     }
 
     public static class StatisticEntryAdapter extends BaseAdapter {
@@ -118,24 +156,25 @@ public class StatisticFragment extends Fragment {
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder holder;
             if (convertView == null) {
-                convertView = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_2, parent, false);
+                convertView = LayoutInflater.from(context).inflate(R.layout.item_statistics_list, parent, false);
                 holder = new ViewHolder(convertView);
                 convertView.setTag(holder);
             } else {
                 holder = (ViewHolder) convertView.getTag();
             }
             Map.Entry<Tag, Double> item = getItem(position);
-            holder.text1.setText(item.getKey().getName());
-            holder.text2.setText(item.getValue().toString());
+            holder.tag.setText(item.getKey().getName());
+            holder.tag.setTagColor(item.getKey().getColor());
+            holder.amount.setAmount(item.getValue());
             return convertView;
         }
 
         static class ViewHolder {
-            @InjectView(android.R.id.text1)
-            TextView text1;
+            @InjectView(R.id.tag)
+            TagView tag;
 
-            @InjectView(android.R.id.text2)
-            TextView text2;
+            @InjectView(R.id.amount)
+            AmountView amount;
 
             ViewHolder(View view) {
                 ButterKnife.inject(this, view);
