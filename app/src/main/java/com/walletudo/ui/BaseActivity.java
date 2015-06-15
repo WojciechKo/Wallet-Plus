@@ -11,8 +11,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -24,8 +25,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,6 +32,7 @@ import com.google.samples.apps.iosched.ui.widget.ScrimInsetsScrollView;
 import com.walletudo.DatabaseInitializer;
 import com.walletudo.R;
 import com.walletudo.Walletudo;
+import com.walletudo.dagger.AppComponent;
 import com.walletudo.model.Profile;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.service.ProfileService;
@@ -52,7 +52,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 
-public class BaseActivity extends ActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
+public class BaseActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = BaseActivity.class.getSimpleName();
@@ -114,18 +114,15 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Walletudo application = (Walletudo) getApplication();
-        prefUtils = application.component().prefUtils();
+        super.onCreate(savedInstanceState);
+        AppComponent appComponent = ((Walletudo) getApplication()).component();
+        prefUtils = appComponent.prefUtils();
         // Perform one-time bootstrap setup, if needed
         if (!prefUtils.isDataBootstrapDone()) {
             Log.d(TAG, "One-time data bootstrap not done yet. Doing now.");
             performDataBootstrap();
         }
-
-        application.component().inject(this);
-
-        super.onCreate(savedInstanceState);
-
+        appComponent.inject(this);
         mHandler = new Handler();
     }
 
@@ -150,7 +147,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         startLoginProcess();
     }
 
-
     @Override
     public void onBackPressed() {
         if (isNavDrawerOpen()) {
@@ -174,18 +170,18 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
     }
 
     protected boolean isNavDrawerOpen() {
-        return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(Gravity.START);
+        return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.START);
     }
 
     protected void closeNavDrawer() {
         if (mDrawerLayout != null) {
-            mDrawerLayout.closeDrawer(Gravity.START);
+            mDrawerLayout.closeDrawer(GravityCompat.START);
         }
     }
 
     protected void openNavDrawer() {
         if (mDrawerLayout != null) {
-            mDrawerLayout.openDrawer(Gravity.START);
+            mDrawerLayout.openDrawer(GravityCompat.START);
         }
     }
 
@@ -263,7 +259,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             mActionBarToolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mDrawerLayout.openDrawer(Gravity.START);
+                    mDrawerLayout.openDrawer(GravityCompat.START);
                 }
             });
         }
@@ -295,8 +291,6 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             public void onDrawerStateChanged(int newState) {
             }
         });
-
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
 
         // populate the nav drawer with the correct items
         populateNavigationDrawer();
@@ -434,7 +428,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
 
     private void onNavDrawerItemClicked(final DrawerItemType type) {
         if (type == getSelfNavDrawerItem()) {
-            mDrawerLayout.closeDrawer(Gravity.START);
+            mDrawerLayout.closeDrawer(GravityCompat.START);
             return;
         }
 
@@ -462,7 +456,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
             }
         }
 
-        mDrawerLayout.closeDrawer(Gravity.START);
+        mDrawerLayout.closeDrawer(GravityCompat.START);
     }
 
     private boolean isSpecialItem(DrawerItemType type) {
@@ -499,7 +493,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
         if (!prefUtils.isWelcomeDone()) {
             // first run of the app starts with the nav drawer open
             prefUtils.markWelcomeDone();
-            mDrawerLayout.openDrawer(Gravity.START);
+            mDrawerLayout.openDrawer(GravityCompat.START);
         }
     }
 
@@ -614,7 +608,7 @@ public class BaseActivity extends ActionBarActivity implements GoogleApiClient.C
                     public void onClick(View view) {
                         mAccountBoxExpanded = false;
                         setupAccountBoxToggle();
-                        mDrawerLayout.closeDrawer(Gravity.START);
+                        mDrawerLayout.closeDrawer(GravityCompat.START);
                     }
                 });
             } else {
