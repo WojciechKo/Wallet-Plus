@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 import com.walletudo.R;
 import com.walletudo.ui.BaseActivity;
+import com.walletudo.ui.NavigationDrawerHelper;
 import com.walletudo.ui.tag.details.TagDetailsActivity;
 
 public class TagListActivity extends BaseActivity {
@@ -48,7 +49,7 @@ public class TagListActivity extends BaseActivity {
     }
 
     @Override
-    protected DrawerItemType getSelfNavDrawerItem() {
-        return DrawerItemType.TAG;
+    protected NavigationDrawerHelper.DrawerItemType getSelfNavDrawerItem() {
+        return NavigationDrawerHelper.DrawerItemType.TAG;
     }
 }

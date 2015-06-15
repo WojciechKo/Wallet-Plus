@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 import com.walletudo.R;
 import com.walletudo.ui.BaseActivity;
+import com.walletudo.ui.NavigationDrawerHelper;
 import com.walletudo.ui.wallets.details.WalletDetailsActivity;
 
 public class WalletListActivity extends BaseActivity {
@@ -41,14 +42,17 @@ public class WalletListActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_new) {
-            getSupportFragmentManager().findFragmentById(R.id.container).startActivityForResult(new Intent(this, WalletDetailsActivity.class), WalletDetailsActivity.REQUEST_CODE_ADD_WALLET);
+            Intent walletDetailsIntent = new Intent(this, WalletDetailsActivity.class);
+            getSupportFragmentManager()
+                    .findFragmentById(R.id.container)
+                    .startActivityForResult(walletDetailsIntent, WalletDetailsActivity.REQUEST_CODE_ADD_WALLET);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    protected DrawerItemType getSelfNavDrawerItem() {
-        return DrawerItemType.WALLET;
+    protected NavigationDrawerHelper.DrawerItemType getSelfNavDrawerItem() {
+        return NavigationDrawerHelper.DrawerItemType.WALLET;
     }
 }

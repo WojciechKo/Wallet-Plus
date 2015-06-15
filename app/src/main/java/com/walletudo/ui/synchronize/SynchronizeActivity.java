@@ -32,6 +32,7 @@ import com.walletudo.google.GoogleDriveUploadService;
 import com.walletudo.model.Profile;
 import com.walletudo.service.ProfileService;
 import com.walletudo.ui.BaseActivity;
+import com.walletudo.ui.NavigationDrawerHelper;
 import com.walletudo.util.PrefUtils;
 
 import java.io.File;
@@ -73,8 +74,8 @@ public class SynchronizeActivity extends BaseActivity {
     }
 
     @Override
-    protected DrawerItemType getSelfNavDrawerItem() {
-        return DrawerItemType.SYNCHRONIZE;
+    protected NavigationDrawerHelper.DrawerItemType getSelfNavDrawerItem() {
+        return NavigationDrawerHelper.DrawerItemType.SYNCHRONIZE;
     }
 
     public static class SynchronizeFragment extends Fragment {

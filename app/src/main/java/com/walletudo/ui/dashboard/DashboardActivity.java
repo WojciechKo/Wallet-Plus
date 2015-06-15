@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.walletudo.R;
 import com.walletudo.ui.BaseActivity;
+import com.walletudo.ui.NavigationDrawerHelper;
 
 public class DashboardActivity extends BaseActivity {
 
@@ -28,7 +29,7 @@ public class DashboardActivity extends BaseActivity {
     }
 
     @Override
-    protected DrawerItemType getSelfNavDrawerItem() {
-        return DrawerItemType.DASHBOARD;
+    protected NavigationDrawerHelper.DrawerItemType getSelfNavDrawerItem() {
+        return NavigationDrawerHelper.DrawerItemType.DASHBOARD;
     }
 }

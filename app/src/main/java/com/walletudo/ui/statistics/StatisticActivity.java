@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.walletudo.R;
 import com.walletudo.ui.BaseActivity;
+import com.walletudo.ui.NavigationDrawerHelper;
 
 public class StatisticActivity extends BaseActivity {
     @Override
@@ -27,7 +28,7 @@ public class StatisticActivity extends BaseActivity {
     }
 
     @Override
-    protected DrawerItemType getSelfNavDrawerItem() {
-        return DrawerItemType.STATISTIC;
+    protected NavigationDrawerHelper.DrawerItemType getSelfNavDrawerItem() {
+        return NavigationDrawerHelper.DrawerItemType.STATISTIC;
     }
 }

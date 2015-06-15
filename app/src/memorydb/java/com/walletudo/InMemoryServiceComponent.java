@@ -16,7 +16,7 @@ public interface InMemoryServiceComponent {
 
     void inject(ServiceInjectedUnitTest serviceInjectedUnitTest);
 
-    static class Initializer {
+    class Initializer {
 
         public static InMemoryServiceComponent init() {
             return DaggerInMemoryServiceComponent.create();

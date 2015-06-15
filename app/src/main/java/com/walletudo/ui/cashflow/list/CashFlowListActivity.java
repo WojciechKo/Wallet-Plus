@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 import com.walletudo.R;
 import com.walletudo.ui.BaseActivity;
+import com.walletudo.ui.NavigationDrawerHelper;
 import com.walletudo.ui.cashflow.details.CashFlowDetailsActivity;
 
 public class CashFlowListActivity extends BaseActivity {
@@ -59,7 +60,7 @@ public class CashFlowListActivity extends BaseActivity {
     }
 
     @Override
-    protected DrawerItemType getSelfNavDrawerItem() {
-        return DrawerItemType.CASH_FLOW;
+    protected NavigationDrawerHelper.DrawerItemType getSelfNavDrawerItem() {
+        return NavigationDrawerHelper.DrawerItemType.CASH_FLOW;
     }
 }

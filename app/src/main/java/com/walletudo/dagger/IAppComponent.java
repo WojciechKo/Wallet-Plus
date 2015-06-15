@@ -1,11 +1,11 @@
 package com.walletudo.dagger;
 
 import com.walletudo.DatabaseInitializer;
-import com.walletudo.MainActivity;
 import com.walletudo.Walletudo;
 import com.walletudo.service.ProfileService;
 import com.walletudo.service.ormlite.ProfileServiceOrmLite;
 import com.walletudo.ui.BaseActivity;
+import com.walletudo.ui.NavigationDrawerHelper;
 import com.walletudo.ui.cashflow.details.CashFlowDetailsActivity;
 import com.walletudo.ui.cashflow.details.CashFlowDetailsFragment;
 import com.walletudo.ui.cashflow.list.CashFlowListActivity;
@@ -15,10 +15,6 @@ import com.walletudo.ui.dashboard.DashboardFragment;
 import com.walletudo.ui.profile.ProfileActivity;
 import com.walletudo.ui.settings.SettingsActivity;
 import com.walletudo.ui.statistics.StatisticFragment;
-import com.walletudo.ui.statistics.details.StaticticDetailsActivity;
-import com.walletudo.ui.statistics.details.StatisticDetailsFragment;
-import com.walletudo.ui.statistics.list.StatisticListActivity;
-import com.walletudo.ui.statistics.list.StatisticListFragment;
 import com.walletudo.ui.synchronize.SynchronizeActivity;
 import com.walletudo.ui.tag.details.TagDetailsActivity;
 import com.walletudo.ui.tag.details.TagDetailsFragment;
@@ -36,21 +32,11 @@ public interface IAppComponent {
 
     void inject(BaseActivity object);
 
-    void inject(MainActivity object);
-
     void inject(DashboardActivity object);
 
     void inject(DashboardFragment object);
 
     void inject(StatisticFragment statisticFragment);
-
-    void inject(StatisticListActivity object);
-
-    void inject(StatisticListFragment object);
-
-    void inject(StaticticDetailsActivity object);
-
-    void inject(StatisticDetailsFragment object);
 
     void inject(CashFlowListActivity object);
 
@@ -89,6 +75,8 @@ public interface IAppComponent {
     void inject(ProfileServiceOrmLite object);
 
     void inject(SettingsActivity.SettingsFragment settingsFragment);
+
+    void inject(NavigationDrawerHelper navigationDrawerHelper);
 
     ProfileService profileService();
 
