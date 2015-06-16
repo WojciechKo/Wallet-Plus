@@ -14,13 +14,35 @@
   limitations under the License.
   -->
 
-<android.support.v7.widget.Toolbar android:id="@+id/toolbar_actionbar"
-        style="@style/HeaderBar"
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/theme_primary"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    card_view:cardCornerRadius="0dp"
+    card_view:cardElevation="2dp">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:myApp="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize"
-        myApp:contentInsetStart="?actionBarInsetStart"
-        myApp:popupTheme="@style/ActionBarPopupThemeOverlay"
-        myApp:theme="@style/ActionBarThemeOverlay"
-        myApp:titleTextAppearance="@style/ActionBar.TitleText"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_actionbar"
+            style="@style/HeaderBar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            myApp:contentInsetStart="?actionBarInsetStart"
+            myApp:popupTheme="@style/ActionBarPopupThemeOverlay"
+            myApp:theme="@style/ActionBarThemeOverlay"
+            myApp:titleTextAppearance="@style/ActionBar.TitleText" />
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/toolbar_tabs"
+            style="@style/TabLayoutStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+    </LinearLayout>
+</android.support.v7.widget.CardView>

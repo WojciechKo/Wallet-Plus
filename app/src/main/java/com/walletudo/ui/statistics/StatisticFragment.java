@@ -3,9 +3,11 @@ package com.walletudo.ui.statistics;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,6 +72,15 @@ public class StatisticFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        TabLayout tabLayout = (TabLayout) getActivity().findViewById(R.id.toolbar_tabs);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setElevation(0);
+        tabLayout.setVisibility(View.VISIBLE);
+        tabLayout.setupWithViewPager(viewPager);
+    }
+
     private void setupViews() {
         onFabWeekPeriodClick();
         viewPager.setAdapter(new PagerAdapter() {
@@ -82,6 +93,17 @@ public class StatisticFragment extends Fragment {
                         return getActivity().findViewById(R.id.lostList);
                 }
                 return null;
+            }
+
+            @Override
+            public CharSequence getPageTitle(int position) {
+                switch (position) {
+                    case 0:
+                        return "Profits";
+                    case 1:
+                        return "Losts";
+                }
+                return "";
             }
 
             @Override

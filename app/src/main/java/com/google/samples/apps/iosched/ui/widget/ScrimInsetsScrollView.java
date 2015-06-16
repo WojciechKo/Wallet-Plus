@@ -58,7 +58,7 @@ public class ScrimInsetsScrollView extends ScrollView {
         if (a == null) {
             return;
         }
-        mInsetForeground = a.getDrawable(R.styleable.ScrimInsetsView_insetForeground);
+        mInsetForeground = a.getDrawable(R.styleable.ScrimInsetsView_scrimInsetForeground);
         a.recycle();
 
         setWillNotDraw(true);

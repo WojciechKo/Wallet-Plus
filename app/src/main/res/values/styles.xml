@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="WalletUDoTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="actionBarIconColor">#fff</item>
         <item name="actionBarInsetStart">@dimen/keyline_2</item>
@@ -24,5 +25,12 @@
         <item name="android:textColorPrimary">#fff</item>
         <item name="colorControlNormal">?actionBarIconColor</item>
         <item name="colorControlHighlight">#3fff</item>
+    </style>
+
+    <style name="TabLayoutStyle" parent="Widget.Design.TabLayout">
+        <item name="android:background">@color/theme_primary</item>
+        <item name="tabTextColor">@color/theme_primary_light</item>
+        <item name="tabSelectedTextColor">@color/white</item>
+        <item name="tabIndicatorColor">@color/white</item>
     </style>
 </resources>
