@@ -47,13 +47,6 @@ public class WalletDetailsActivity extends BaseActivity {
                     .replace(R.id.container, WalletDetailsFragment.newInstance(walletId))
                     .commit();
         }
-
-        getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavUtils.navigateUpFromSameTask(WalletDetailsActivity.this);
-            }
-        });
     }
 
     @Override

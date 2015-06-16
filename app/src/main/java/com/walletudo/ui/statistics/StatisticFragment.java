@@ -100,12 +100,14 @@ public class StatisticFragment extends Fragment {
     public void onFabWeekPeriodClick() {
         LocalDate now = LocalDate.now();
         setupStatisticFromPeriod(now.dayOfWeek().withMinimumValue(), now.dayOfMonth().withMaximumValue());
+        fab.close(true);
     }
 
     @OnClick(R.id.fab_month)
     public void onFabMonthPeriodClick() {
         LocalDate now = LocalDate.now();
         setupStatisticFromPeriod(now.dayOfMonth().withMinimumValue(), now.dayOfMonth().withMaximumValue());
+        fab.close(true);
     }
 
     @OnClick(R.id.fab_custom)

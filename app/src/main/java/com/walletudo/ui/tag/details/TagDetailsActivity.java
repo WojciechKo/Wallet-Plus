@@ -58,13 +58,6 @@ public class TagDetailsActivity extends BaseActivity {
                     .replace(R.id.container, TagDetailsFragment.newInstance(tagId))
                     .commit();
         }
-
-        getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavUtils.navigateUpFromSameTask(TagDetailsActivity.this);
-            }
-        });
     }
 
     @Override

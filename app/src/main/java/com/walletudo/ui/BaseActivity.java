@@ -1,9 +1,11 @@
 package com.walletudo.ui;
 
+import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -19,6 +21,7 @@ import com.walletudo.service.ProfileService;
 import com.walletudo.service.StatisticService;
 import com.walletudo.service.TagService;
 import com.walletudo.service.WalletService;
+import com.walletudo.ui.dashboard.DashboardActivity;
 import com.walletudo.util.PrefUtils;
 import com.walletudo.util.RequestCode;
 
@@ -61,6 +64,23 @@ public class BaseActivity extends AppCompatActivity {
             performDataBootstrap();
         }
         appComponent.inject(this);
+        navigationDrawerHelper = NavigationDrawerHelper.attach(this);
+        openDrawerOnWelcome();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Toolbar toolbar = getActionBarToolbar();
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    navigationDrawerHelper.openNavDrawer();
+                }
+            });
+        }
     }
 
     private void performDataBootstrap() {
@@ -81,13 +101,16 @@ public class BaseActivity extends AppCompatActivity {
         }.execute();
     }
 
+    private void openDrawerOnWelcome() {
+        if (!prefUtils.isWelcomeDone()) {
+            prefUtils.markWelcomeDone();
+            navigationDrawerHelper.openNavDrawer();
+        }
+    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        navigationDrawerHelper = new NavigationDrawerHelper(this);
-        navigationDrawerHelper.setupNavDrawer();
-        openDrawerOnWelcome();
-
         View mainContent = findViewById(R.id.main_content);
         if (mainContent != null) {
             mainContent.setAlpha(0);
@@ -97,22 +120,28 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
-    private void openDrawerOnWelcome() {
-        // When the user runs the app for the first time, we want to land them with the
-        // navigation drawer open. But just the first time.
-        if (!prefUtils.isWelcomeDone()) {
-            // first run of the app starts with the nav drawer open
-            prefUtils.markWelcomeDone();
-            navigationDrawerHelper.openNavDrawer();
-        }
-    }
-
     @Override
     public void onBackPressed() {
         if (navigationDrawerHelper.isNavDrawerOpen()) {
             navigationDrawerHelper.closeNavDrawer();
         } else {
-            super.onBackPressed();
+            Intent parentIntent = NavUtils.getParentActivityIntent(this);
+            if (parentIntent != null) {
+                navigateToParent(parentIntent);
+            } else {
+                super.onBackPressed();
+            }
+        }
+    }
+
+    private void navigateToParent(Intent parentIntent) {
+        if ((DashboardActivity.class.getName().equals(parentIntent.getComponent().getClassName())
+                || NavUtils.shouldUpRecreateTask(this, parentIntent))) {
+            TaskStackBuilder.create(this)
+                    .addNextIntentWithParentStack(parentIntent)
+                    .startActivities();
+        } else {
+            NavUtils.navigateUpTo(this, parentIntent);
         }
     }
 
@@ -147,6 +176,7 @@ public class BaseActivity extends AppCompatActivity {
         return toolbar;
     }
 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case RequestCode.NEW_PROFILE_RC:

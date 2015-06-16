@@ -45,13 +45,6 @@ public class CashFlowDetailsActivity extends BaseActivity {
                     .replace(R.id.container, CashFlowDetailsFragment.newInstance(cashFlowId))
                     .commit();
         }
-
-        getActionBarToolbar().setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavUtils.navigateUpFromSameTask(CashFlowDetailsActivity.this);
-            }
-        });
     }
 
     @Override
