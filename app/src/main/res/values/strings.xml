@@ -98,5 +98,6 @@
     <string name="statisticCustomPeriodNotAvailable">Not yet available</string>
     <string name="statisticsNoProfit">There is no tag with profit\nin this period.</string>
     <string name="statisticsNoLost">There is no tag with lost\nin this period.</string>
+    <string name="statisticsPeriodLabel">Period:</string>
 
 </resources>

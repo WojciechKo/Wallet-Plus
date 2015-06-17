@@ -7,7 +7,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +25,7 @@ import com.walletudo.Walletudo;
 import com.walletudo.model.Tag;
 import com.walletudo.service.StatisticService;
 import com.walletudo.ui.view.AmountView;
+import com.walletudo.ui.view.PeriodView;
 import com.walletudo.ui.view.TagView;
 
 import org.joda.time.LocalDate;
@@ -39,9 +40,16 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 
 public class StatisticFragment extends Fragment {
+    private static final int FAB_MENU_COUNT = 3;
+
+    @InjectView(R.id.summaryView)
+    CardView summaryView;
 
     @InjectView(R.id.balance)
     AmountView balance;
+
+    @InjectView(R.id.period)
+    PeriodView period;
 
     @InjectView(R.id.viewPager)
     ViewPager viewPager;
@@ -129,7 +137,7 @@ public class StatisticFragment extends Fragment {
     @OnClick(R.id.fab_week)
     public void onFabWeekPeriodClick() {
         LocalDate now = LocalDate.now();
-        setupStatisticFromPeriod(now.dayOfWeek().withMinimumValue(), now.dayOfMonth().withMaximumValue());
+        setupStatisticFromPeriod(now.dayOfWeek().withMinimumValue(), now.dayOfWeek().withMaximumValue());
         fab.close(true);
     }
 
@@ -148,10 +156,15 @@ public class StatisticFragment extends Fragment {
     private void setupStatisticFromPeriod(LocalDate from, LocalDate to) {
         StatisticService.Statistics statistics = statisticService.getStatistics(from.toDate(), to.toDate());
         balance.setAmount(statistics.getBalance());
+        period.setPeriod(from.toDate(), to.plusDays(1).toDate());
 
         profitList.setAdapter(new StatisticEntryAdapter(getActivity(), statistics.getProfit()));
+        int listTopPadding = summaryView.getHeight() + ((ViewGroup.MarginLayoutParams) summaryView.getLayoutParams()).topMargin;
+        int listBottomPaddin = (fab.getHeight() / (FAB_MENU_COUNT + 1)) + ((ViewGroup.MarginLayoutParams) fab.getLayoutParams()).bottomMargin;
+        profitList.setPadding(0, listTopPadding, 0, listBottomPaddin);
+        lostList.setPadding(0, listTopPadding, 0, listBottomPaddin);
 
-        List<Map.Entry<Tag, Double>> lost = Lists.transform(statistics.getLost(), new Function<Map.Entry<Tag,Double>, Map.Entry<Tag, Double>>() {
+        List<Map.Entry<Tag, Double>> lost = Lists.transform(statistics.getLost(), new Function<Map.Entry<Tag, Double>, Map.Entry<Tag, Double>>() {
             @Override
             public Map.Entry<Tag, Double> apply(@Nullable Map.Entry<Tag, Double> input) {
                 return Maps.immutableEntry(input.getKey(), -input.getValue());
