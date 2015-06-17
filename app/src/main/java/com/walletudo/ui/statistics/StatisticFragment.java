@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionMenu;
@@ -45,8 +46,14 @@ public class StatisticFragment extends Fragment {
     @InjectView(R.id.viewPager)
     ViewPager viewPager;
 
+    @InjectView(R.id.emptyProfitList)
+    TextView emptyProfitList;
+
     @InjectView(R.id.profitList)
     ListView profitList;
+
+    @InjectView(R.id.emptyLostList)
+    TextView emptyLostList;
 
     @InjectView(R.id.lostList)
     ListView lostList;
@@ -69,6 +76,7 @@ public class StatisticFragment extends Fragment {
         View view = View.inflate(getActivity(), R.layout.fragment_statistics, null);
         ButterKnife.inject(this, view);
         setupViews();
+        onFabWeekPeriodClick();
         return view;
     }
 
@@ -76,21 +84,21 @@ public class StatisticFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         TabLayout tabLayout = (TabLayout) getActivity().findViewById(R.id.toolbar_tabs);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setElevation(0);
         tabLayout.setVisibility(View.VISIBLE);
         tabLayout.setupWithViewPager(viewPager);
     }
 
     private void setupViews() {
-        onFabWeekPeriodClick();
+        profitList.setEmptyView(emptyProfitList);
+        lostList.setEmptyView(emptyLostList);
         viewPager.setAdapter(new PagerAdapter() {
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
                 switch (position) {
                     case 0:
-                        return getActivity().findViewById(R.id.profitList);
+                        return getActivity().findViewById(R.id.profitView);
                     case 1:
-                        return getActivity().findViewById(R.id.lostList);
+                        return getActivity().findViewById(R.id.lostView);
                 }
                 return null;
             }
@@ -99,9 +107,9 @@ public class StatisticFragment extends Fragment {
             public CharSequence getPageTitle(int position) {
                 switch (position) {
                     case 0:
-                        return "Profits";
+                        return getString(R.string.statisticsProfitLabel);
                     case 1:
-                        return "Losts";
+                        return getString(R.string.statisticsLostLabel);
                 }
                 return "";
             }

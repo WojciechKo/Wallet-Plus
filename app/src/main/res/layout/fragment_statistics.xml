@@ -1,18 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout xmlns:fab="http://schemas.android.com/apk/res-auto"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/profitView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/profitList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="80dp"
+                android:paddingTop="72dp"
+                android:scrollbars="none" />
+
+            <TextView
+                android:id="@+id/emptyProfitList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/statisticsNoProfit"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/lostView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/lostList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="80dp"
+                android:paddingTop="72dp"
+                android:scrollbars="none" />
+
+            <TextView
+                android:id="@+id/emptyLostList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/statisticsNoLost"
+                android:visibility="gone" />
+        </LinearLayout>
+    </android.support.v4.view.ViewPager>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        custom:cardCornerRadius="2dp"
+        custom:cardElevation="2dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="16dp">
 
             <TextView
                 android:id="@+id/balanceLabel"
@@ -31,23 +91,7 @@
                 android:layout_alignParentTop="true"
                 android:gravity="center" />
         </RelativeLayout>
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ListView
-                android:id="@+id/profitList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <ListView
-                android:id="@+id/lostList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </android.support.v4.view.ViewPager>
-    </LinearLayout>
+    </android.support.v7.widget.CardView>
 
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/fab"
@@ -55,8 +99,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="16dp"
-        fab:menu_colorNormal="@color/theme_primary"
-        fab:menu_colorPressed="@color/theme_primary_dark">
+        custom:menu_colorNormal="@color/theme_primary"
+        custom:menu_colorPressed="@color/theme_primary_dark">
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fab_custom"
@@ -65,7 +109,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="16dp"
             android:src="@drawable/ic_fab_stats_main"
-            fab:fab_label="Custom period" />
+            custom:fab_label="Custom period" />
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fab_month"
@@ -74,7 +118,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="16dp"
             android:src="@drawable/ic_fab_stats_main"
-            fab:fab_label="Current month" />
+            custom:fab_label="Current month" />
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fab_week"
@@ -83,6 +127,6 @@
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="16dp"
             android:src="@drawable/ic_fab_stats_main"
-            fab:fab_label="Current week" />
+            custom:fab_label="Current week" />
     </com.github.clans.fab.FloatingActionMenu>
 </FrameLayout>

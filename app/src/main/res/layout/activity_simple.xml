@@ -7,10 +7,20 @@
     <include layout="@layout/toolbar_actionbar" />
 
     <FrameLayout
-        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="@drawable/bottom_shadow" />
+
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/focusable"

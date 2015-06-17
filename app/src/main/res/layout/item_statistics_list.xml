@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="62dp"
-    android:orientation="vertical">
+    android:layout_height="60dp"
+    android:orientation="vertical"
+    android:paddingEnd="8dp"
+    android:paddingStart="8dp">
 
     <com.walletudo.ui.view.TagView
         android:id="@+id/tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="16dp" />
+        android:layout_centerVertical="true" />
 
     <com.walletudo.ui.view.AmountView
         android:id="@+id/amount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="16dp" />
+        android:layout_centerVertical="true" />
 </RelativeLayout>

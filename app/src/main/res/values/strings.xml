@@ -93,8 +93,10 @@
     <!-- Settings fragment -->
     <string name="settingsLabel">Settings</string>
     <string name="statisticsBalanceLabel">Balance:</string>
-    <string name="statisticsProfitListLabel">Most profit:</string>
-    <string name="statisticsLostListLabel">Most lost:</string>
+    <string name="statisticsProfitLabel">profit</string>
+    <string name="statisticsLostLabel">lost</string>
     <string name="statisticCustomPeriodNotAvailable">Not yet available</string>
+    <string name="statisticsNoProfit">There is no tag with profit\nin this period.</string>
+    <string name="statisticsNoLost">There is no tag with lost\nin this period.</string>
 
 </resources>
