@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.walletudo"
+    android:installLocation="auto">
+
+    <application
+        android:name=".Walletudo"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/appName"
+        android:supportsRtl="false"
+        android:theme="@style/WalletUDoTheme">
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name="com.walletudo.ui.dashboard.DashboardActivity"
+            android:label="@string/appName">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.walletudo.ui.wallets.list.WalletListActivity"
+            android:label="@string/walletListLabel"
+            android:parentActivityName="com.walletudo.ui.dashboard.DashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.dashboard.DashboardActivity" />
+        </activity>
+
+        <activity
+            android:name="com.walletudo.ui.wallets.details.WalletDetailsActivity"
+            android:label="@string/walletDetailsLabel"
+            android:parentActivityName="com.walletudo.ui.wallets.list.WalletListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.wallets.list.WalletListActivity" />
+        </activity>
+
+        <activity
+            android:name="com.walletudo.ui.tag.list.TagListActivity"
+            android:label="@string/tagListLabel"
+            android:parentActivityName="com.walletudo.ui.dashboard.DashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.dashboard.DashboardActivity" />
+        </activity>
+
+        <activity
+            android:name="com.walletudo.ui.tag.details.TagDetailsActivity"
+            android:label="@string/tagDetailsLabel"
+            android:parentActivityName="com.walletudo.ui.tag.list.TagListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.tag.list.TagListActivity" />
+        </activity>
+
+        <activity
+            android:name="com.walletudo.ui.cashflow.list.CashFlowListActivity"
+            android:label="@string/cashFlowListLabel"
+            android:parentActivityName="com.walletudo.ui.dashboard.DashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.dashboard.DashboardActivity" />
+        </activity>
+
+        <activity
+            android:name="com.walletudo.ui.cashflow.details.CashFlowDetailsActivity"
+            android:label="@string/cashFlowDetailsLabel"
+            android:parentActivityName="com.walletudo.ui.cashflow.list.CashFlowListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.cashflow.list.CashFlowListActivity" />
+        </activity>
+
+        <activity
+            android:name="com.walletudo.ui.statistics.StatisticActivity"
+            android:label="@string/statisticListLabel"
+            android:parentActivityName="com.walletudo.ui.dashboard.DashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.dashboard.DashboardActivity" />
+        </activity>
+
+        <activity
+            android:name="com.walletudo.ui.synchronize.SynchronizeActivity"
+            android:label="@string/synchronizationLabel"
+            android:parentActivityName="com.walletudo.ui.dashboard.DashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.dashboard.DashboardActivity" />
+        </activity>
+
+        <activity
+            android:name="com.walletudo.ui.profile.ProfileActivity"
+            android:label="@string/profileLabel"
+            android:parentActivityName="com.walletudo.ui.dashboard.DashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.dashboard.DashboardActivity" />
+        </activity>
+
+        <activity
+            android:name="com.walletudo.ui.settings.SettingsActivity"
+            android:label="@string/settingsLabel"
+            android:parentActivityName="com.walletudo.ui.dashboard.DashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.walletudo.ui.dashboard.DashboardActivity" />
+        </activity>
+    </application>
+</manifest>
