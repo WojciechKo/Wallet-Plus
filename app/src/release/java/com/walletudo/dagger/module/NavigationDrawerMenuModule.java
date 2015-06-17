@@ -20,8 +20,8 @@ public class NavigationDrawerMenuModule {
         navigationDrawerItemList.add(NavigationDrawerHelper.DrawerItemType.SEPARATOR);
         navigationDrawerItemList.add(NavigationDrawerHelper.DrawerItemType.CASH_FLOW);
         navigationDrawerItemList.add(NavigationDrawerHelper.DrawerItemType.TAG);
-        navigationDrawerItemList.add(NavigationDrawerHelper.DrawerItemType.WALLET);
         navigationDrawerItemList.add(NavigationDrawerHelper.DrawerItemType.STATISTIC);
+        navigationDrawerItemList.add(NavigationDrawerHelper.DrawerItemType.WALLET);
         return navigationDrawerItemList;
     }
 }
