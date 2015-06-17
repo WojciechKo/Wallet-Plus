@@ -142,7 +142,7 @@ public class NavigationDrawerHelper extends Fragment {
     }
 
     public NavigationDrawerHelper setupNavDrawer() {
-        if (drawerLayout == null) {
+        if (!isDrawerPresent()) {
             return this;
         }
         drawerLayout.setStatusBarBackgroundColor(getActivity().getResources().getColor(R.color.theme_primary_dark));
@@ -171,6 +171,10 @@ public class NavigationDrawerHelper extends Fragment {
         makeSettingsMenuInNavDrawerFooter();
         setupProfileBox();
         return this;
+    }
+
+    public boolean isDrawerPresent() {
+        return drawerLayout != null;
     }
 
     private void setupProfileBox() {

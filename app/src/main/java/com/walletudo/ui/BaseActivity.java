@@ -72,7 +72,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Toolbar toolbar = getActionBarToolbar();
-        if (toolbar != null) {
+        if (toolbar != null && navigationDrawerHelper.isDrawerPresent()) {
             toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);
             toolbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
