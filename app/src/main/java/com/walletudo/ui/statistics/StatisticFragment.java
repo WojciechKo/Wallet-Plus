@@ -11,6 +11,7 @@ import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -159,10 +160,7 @@ public class StatisticFragment extends Fragment {
         period.setPeriod(from.toDate(), to.plusDays(1).toDate());
 
         profitList.setAdapter(new StatisticEntryAdapter(getActivity(), statistics.getProfit()));
-        int listTopPadding = summaryView.getHeight() + ((ViewGroup.MarginLayoutParams) summaryView.getLayoutParams()).topMargin;
-        int listBottomPaddin = (fab.getHeight() / (FAB_MENU_COUNT + 1)) + ((ViewGroup.MarginLayoutParams) fab.getLayoutParams()).bottomMargin;
-        profitList.setPadding(0, listTopPadding, 0, listBottomPaddin);
-        lostList.setPadding(0, listTopPadding, 0, listBottomPaddin);
+        handlePaddingOnProfitAndLostList();
 
         List<Map.Entry<Tag, Double>> lost = Lists.transform(statistics.getLost(), new Function<Map.Entry<Tag, Double>, Map.Entry<Tag, Double>>() {
             @Override
@@ -171,6 +169,27 @@ public class StatisticFragment extends Fragment {
             }
         });
         lostList.setAdapter(new StatisticEntryAdapter(getActivity(), lost));
+    }
+
+    private void handlePaddingOnProfitAndLostList() {
+        summaryView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int listTopPadding = summaryView.getHeight() + ((ViewGroup.MarginLayoutParams) summaryView.getLayoutParams()).topMargin;
+                profitList.setPadding(0, listTopPadding, 0, profitList.getPaddingBottom());
+                lostList.setPadding(0, listTopPadding, 0, lostList.getPaddingBottom());
+                summaryView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
+        fab.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int listBottomPadding = (fab.getHeight() / (FAB_MENU_COUNT + 1)) + ((ViewGroup.MarginLayoutParams) fab.getLayoutParams()).bottomMargin;
+                profitList.setPadding(0, profitList.getPaddingTop(), 0, listBottomPadding);
+                lostList.setPadding(0, profitList.getPaddingTop(), 0, listBottomPadding);
+                summaryView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
     }
 
     public static class StatisticEntryAdapter extends BaseAdapter {
