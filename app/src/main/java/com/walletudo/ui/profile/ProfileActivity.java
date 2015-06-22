@@ -27,8 +27,8 @@ import com.walletudo.google.GoogleDriveReadService;
 import com.walletudo.model.Profile;
 import com.walletudo.service.ProfileService;
 import com.walletudo.ui.BaseActivity;
-import com.walletudo.util.WalletudoUtils;
 import com.walletudo.util.PrefUtils;
+import com.walletudo.util.WalletudoUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;

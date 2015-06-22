@@ -50,7 +50,7 @@ public class CashFlowListItemView extends FrameLayout {
 
     public CashFlowListItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        LayoutInflater.from(context).inflate(R.layout.item_cash_flow_list, this);
+        LayoutInflater.from(context).inflate(R.layout.item_child_cash_flow_list, this);
         ButterKnife.inject(this);
     }
 

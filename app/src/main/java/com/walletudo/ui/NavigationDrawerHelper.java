@@ -37,6 +37,7 @@ import com.walletudo.ui.wallets.list.WalletListActivity;
 import com.walletudo.util.AndroidUtils;
 import com.walletudo.util.PrefUtils;
 import com.walletudo.util.RequestCode;
+import com.walletudo.util.StateManager;
 import com.walletudo.util.UIUtils;
 
 import java.util.List;
@@ -396,6 +397,8 @@ public class NavigationDrawerHelper extends Fragment {
             closeNavDrawer();
             return;
         }
+
+        StateManager.clearStates(getActivity());
 
         if (isSpecialItem(type)) {
             goToNavDrawerItem(type);

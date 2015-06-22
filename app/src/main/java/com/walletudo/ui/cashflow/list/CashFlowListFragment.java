@@ -8,9 +8,10 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 
+import com.diegocarloslima.fgelv.lib.FloatingGroupExpandableListView;
+import com.diegocarloslima.fgelv.lib.WrapperExpandableListAdapter;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -19,7 +20,7 @@ import com.walletudo.Walletudo;
 import com.walletudo.model.CashFlow;
 import com.walletudo.service.CashFlowService;
 import com.walletudo.ui.cashflow.details.CashFlowDetailsActivity;
-import com.walletudo.util.WalletudoUtils;
+import com.walletudo.util.StateManager;
 
 import java.util.List;
 
@@ -27,23 +28,17 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnItemClick;
-import butterknife.OnItemLongClick;
 
 public class CashFlowListFragment extends Fragment {
     public static final String TAG = CashFlowListFragment.class.getSimpleName();
 
     @InjectView(R.id.list)
-    ListView list;
+    FloatingGroupExpandableListView list;
 
     @Inject
     CashFlowService cashFlowService;
 
     private List<CashFlow> cashFlows;
-
-    private List<CashFlow> selected;
-
-    private String title;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,83 +56,53 @@ public class CashFlowListFragment extends Fragment {
         return view;
     }
 
-    void setupList() {
-        cashFlows = cashFlowService.getAll();
-        selected = Lists.newArrayList();
-        list.setAdapter(new CashFlowListAdapter(getActivity(), cashFlows));
-    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        int listItem = list.getFirstVisiblePosition();
+        View itemView = list.getChildAt(0);
+        int listItemScroll = itemView == null ? 0 : itemView.getTop();
+        StateManager.CashFlowListState listState = new StateManager.CashFlowListState(listItem, listItemScroll);
 
-    @OnItemLongClick(R.id.list)
-    boolean listItemLongClicked(int position) {
-        if (list.getChoiceMode() == AbsListView.CHOICE_MODE_SINGLE) {
-            startMultipleChoiceMode();
-            WalletudoUtils.Views.performItemClick(list, position);
-            return true;
-
-        } else if (list.getChoiceMode() == AbsListView.CHOICE_MODE_MULTIPLE) {
-            WalletudoUtils.Views.performItemClick(list, position);
-            return true;
-        }
-        return false;
-    }
-
-    @OnItemClick(R.id.list)
-    void listItemClicked(int position) {
-        if (list.getChoiceMode() == AbsListView.CHOICE_MODE_SINGLE) {
-            Intent intent = new Intent(getActivity(), CashFlowDetailsActivity.class);
-            intent.putExtra(CashFlowDetailsActivity.EXTRAS_CASH_FLOW_ID, list.getAdapter().getItemId(position));
-            startActivityForResult(intent, CashFlowDetailsActivity.REQUEST_CODE_EDIT_CASH_FLOW);
-            list.setItemChecked(position, false);
-
-        } else if (list.getChoiceMode() == AbsListView.CHOICE_MODE_MULTIPLE) {
-            CashFlow clickedCashFlow = cashFlows.get(position);
-
-            if (!selected.remove(clickedCashFlow)) {
-                selected.add(clickedCashFlow);
-            }
-
-            if (selected.size() == 0) {
-                endMultipleChoiceMode();
-            } else {
-                getActivity().setTitle(getTitleWithSelectedCount());
-            }
-        }
-    }
-
-    private void startMultipleChoiceMode() {
-        list.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-        ((CashFlowListActivity) getActivity()).getActionBarToolbar().setBackgroundColor(getResources().getColor(R.color.theme_primary_dark));
-
-        title = getActivity().getTitle().toString();
-        getActivity().setTitle(getTitleWithSelectedCount());
-
-        ((CashFlowListActivity) getActivity()).getActionBarToolbar().getMenu().clear();
-        ((CashFlowListActivity) getActivity()).getActionBarToolbar().inflateMenu(R.menu.action_delete);
-    }
-
-    private void endMultipleChoiceMode() {
-        list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-        ((CashFlowListActivity) getActivity()).getActionBarToolbar().setBackgroundColor(getResources().getColor(R.color.theme_primary));
-        getActivity().setTitle(title);
-        getActivity().supportInvalidateOptionsMenu();
-    }
-
-    private String getTitleWithSelectedCount() {
-        return title + " (" + selected.size() + ")";
+        StateManager.setCashFlowListState(getActivity(), listState);
     }
 
     @Override
-    public void onStop() {
-        ((CashFlowListActivity) getActivity()).getActionBarToolbar().setBackgroundColor(getResources().getColor(R.color.theme_primary));
-        super.onStop();
+    public void onStart() {
+        super.onStart();
+        StateManager.CashFlowListState state = StateManager.getCashFlowListState(getActivity());
+        list.setSelectionFromTop(state.getListItem(), state.getListItemScroll());
+    }
+
+    void setupList() {
+        cashFlows = cashFlowService.getAll();
+        CashFlowListAdapter adapter = new CashFlowListAdapter(getActivity(), cashFlows);
+        list.setAdapter(new WrapperExpandableListAdapter(adapter));
+        list.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                return onChildClicks(groupPosition, childPosition);
+            }
+        });
+
+        int count = list.getExpandableListAdapter().getGroupCount();
+        for (int index = 0; index < count; index++) {
+            list.expandGroup(index);
+        }
+    }
+
+    private boolean onChildClicks(int groupPosition, int childPosition) {
+        Intent intent = new Intent(getActivity(), CashFlowDetailsActivity.class);
+        long childId = list.getExpandableListAdapter().getChildId(groupPosition, childPosition);
+        intent.putExtra(CashFlowDetailsActivity.EXTRAS_CASH_FLOW_ID, childId);
+        startActivityForResult(intent, CashFlowDetailsActivity.REQUEST_CODE_EDIT_CASH_FLOW);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_delete) {
-            deleteSelectedCashFlows();
-            return true;
-        } else if (item.getItemId() == R.id.menu_switch) {
+        if (item.getItemId() == R.id.menu_switch) {
+            List<CashFlow> cashFlowToView;
             if (item.isChecked()) {
                 Predicate<CashFlow> notCompleted = new Predicate<CashFlow>() {
                     @Override
@@ -145,22 +110,14 @@ public class CashFlowListFragment extends Fragment {
                         return !input.isCompleted();
                     }
                 };
-                list.setAdapter(new CashFlowListAdapter(getActivity(), Lists.newArrayList(Iterables.filter(cashFlows, notCompleted))));
+                cashFlowToView = Lists.newArrayList(Iterables.filter(cashFlows, notCompleted));
             } else {
-                list.setAdapter(new CashFlowListAdapter(getActivity(), cashFlows));
+                cashFlowToView = this.cashFlows;
             }
+
+            list.setAdapter(new WrapperExpandableListAdapter(new CashFlowListAdapter(getActivity(), cashFlowToView)));
         }
         return false;
-    }
-
-    private void deleteSelectedCashFlows() {
-        for (CashFlow cashFlow : selected) {
-            cashFlowService.deleteById(cashFlow.getId());
-        }
-        cashFlows.removeAll(selected);
-        selected.clear();
-        endMultipleChoiceMode();
-        list.setAdapter(new CashFlowListAdapter(getActivity(), cashFlows));
     }
 
     @Override

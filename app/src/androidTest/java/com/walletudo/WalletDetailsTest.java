@@ -3,13 +3,13 @@ package com.walletudo;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
 
-import org.mockito.Mockito;
-
-import javax.inject.Inject;
-
 import com.walletudo.model.Wallet;
 import com.walletudo.service.WalletService;
 import com.walletudo.ui.wallets.details.WalletDetailsActivity;
+
+import org.mockito.Mockito;
+
+import javax.inject.Inject;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
