@@ -56,6 +56,7 @@ import com.walletudo.service.CashFlowService;
 import com.walletudo.service.TagService;
 import com.walletudo.service.WalletService;
 import com.walletudo.ui.tag.TagInputFilter;
+import com.walletudo.ui.view.AmountView;
 import com.walletudo.util.PrefUtils;
 
 import java.lang.ref.WeakReference;
@@ -464,15 +465,16 @@ public class CashFlowDetailsFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            TextView textView;
             if (convertView == null) {
-                textView = new TextView(context.get());
-                textView.setTextSize(context.get().getResources().getDimension(R.dimen.xSmallFontSize));
-            } else {
-                textView = (TextView) convertView;
+                convertView = LayoutInflater.from(context.get()).inflate(R.layout.item_wallet_spinner, parent, false);
+                convertView.setTag(new ViewHolder(convertView));
             }
-            textView.setText(getItem(position).getName());
-            return textView;
+            ViewHolder holder = (ViewHolder) convertView.getTag();
+            Wallet wallet = getItem(position);
+
+            holder.walletName.setText(wallet.getName());
+            holder.amount.setAmount(wallet.getCurrentAmount());
+            return convertView;
         }
 
         @Override
@@ -483,6 +485,18 @@ public class CashFlowDetailsFragment extends Fragment {
         @Override
         public long getItemId(int position) {
             return position;
+        }
+
+        static class ViewHolder {
+            @InjectView(R.id.walletName)
+            TextView walletName;
+
+            @InjectView(R.id.walletAmount)
+            AmountView amount;
+
+            public ViewHolder(View view) {
+                ButterKnife.inject(this, view);
+            }
         }
     }
 
