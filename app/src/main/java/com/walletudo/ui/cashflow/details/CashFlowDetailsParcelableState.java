@@ -32,7 +32,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     private String amount;
     private String comment;
     private Wallet wallet;
-    private String categories;
+    private String tags;
     private CashFlow.Type type;
     private CashFlow.Type previousType;
     private Long date;
@@ -40,7 +40,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     private Map<String, Integer> tagToColorMap = Maps.newHashMap();
 
     public CashFlowDetailsParcelableState() {
-        setCategories("");
+        setTags("");
         setDate(Calendar.getInstance().getTimeInMillis());
         setType(defaultType);
         this.previousType = defaultType;
@@ -53,7 +53,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         for (Tag tag : cashFlow.getTags()) {
             sb.append(tag.getName()).append(" ");
         }
-        setCategories(sb.toString());
+        setTags(sb.toString());
         setAmount(cashFlow.getAmount().toString());
         setComment(cashFlow.getComment());
         setDate(cashFlow.getDateTime().getTime());
@@ -67,7 +67,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         amount = in.readString();
         comment = in.readString();
         wallet = in.readParcelable(Wallet.class.getClassLoader());
-        categories = in.readString();
+        tags = in.readString();
         Integer typeOrdinal = (Integer) in.readValue(Integer.class.getClassLoader());
         type = typeOrdinal != null ? CashFlow.Type.values()[typeOrdinal] : null;
         Integer previousTypeOrdinal = (Integer) in.readValue(Integer.class.getClassLoader());
@@ -94,7 +94,7 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         dest.writeString(amount);
         dest.writeString(comment);
         dest.writeParcelable(wallet, flags);
-        dest.writeString(categories);
+        dest.writeString(tags);
         dest.writeValue(type != null ? type.ordinal() : null);
         dest.writeValue(previousType != null ? previousType.ordinal() : null);
         dest.writeValue(date);
@@ -194,11 +194,11 @@ public class CashFlowDetailsParcelableState implements Parcelable {
     }
 
     public String getTags() {
-        return categories;
+        return tags;
     }
 
-    public void setCategories(String categories) {
-        this.categories = categories;
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
     public Boolean isCompleted() {

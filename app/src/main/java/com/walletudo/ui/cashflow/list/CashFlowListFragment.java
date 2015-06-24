@@ -76,6 +76,10 @@ public class CashFlowListFragment extends Fragment {
 
     void setupList() {
         cashFlows = cashFlowService.getAll();
+        setupList(cashFlows);
+    }
+
+    void setupList(List<CashFlow> cashFlows) {
         CashFlowListAdapter adapter = new CashFlowListAdapter(getActivity(), cashFlows);
         list.setAdapter(new WrapperExpandableListAdapter(adapter));
         list.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -102,7 +106,7 @@ public class CashFlowListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_switch) {
-            List<CashFlow> cashFlowToView;
+            List<CashFlow> notCompletedCashFlows;
             if (item.isChecked()) {
                 Predicate<CashFlow> notCompleted = new Predicate<CashFlow>() {
                     @Override
@@ -110,12 +114,12 @@ public class CashFlowListFragment extends Fragment {
                         return !input.isCompleted();
                     }
                 };
-                cashFlowToView = Lists.newArrayList(Iterables.filter(cashFlows, notCompleted));
+                notCompletedCashFlows = Lists.newArrayList(Iterables.filter(cashFlows, notCompleted));
             } else {
-                cashFlowToView = this.cashFlows;
+                notCompletedCashFlows = this.cashFlows;
             }
 
-            list.setAdapter(new WrapperExpandableListAdapter(new CashFlowListAdapter(getActivity(), cashFlowToView)));
+            setupList(notCompletedCashFlows);
         }
         return false;
     }

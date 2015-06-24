@@ -44,7 +44,6 @@ import android.widget.TimePicker;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.walletudo.R;
@@ -73,6 +72,9 @@ import butterknife.OnItemSelected;
 import butterknife.OnTextChanged;
 import info.hoang8f.widget.FButton;
 
+import static com.google.common.base.Strings.commonSuffix;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.base.Strings.nullToEmpty;
 import static com.walletudo.util.WalletudoUtils.Views.dipToPixels;
 
 public class CashFlowDetailsFragment extends Fragment {
@@ -183,8 +185,8 @@ public class CashFlowDetailsFragment extends Fragment {
 
         setupTypeDependentViews();
         if (detailsAction == DetailsAction.EDIT) {
-            amount.setText(Strings.nullToEmpty(cashFlowDetailsState.getAmount()));
-            comment.setText(Strings.nullToEmpty(cashFlowDetailsState.getComment()));
+            amount.setText(nullToEmpty(cashFlowDetailsState.getAmount()));
+            comment.setText(nullToEmpty(cashFlowDetailsState.getComment()));
             tag.setText(cashFlowDetailsState.getTags());
             resetTagSpans(tag.getEditableText());
         }
@@ -201,6 +203,18 @@ public class CashFlowDetailsFragment extends Fragment {
         tag.setTokenizer(new SpaceTokenizer());
         tag.setFilters(new InputFilter[]{new TagInputFilter.MultipleTags()});
 
+        tag.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    String tagString = tag.getText().toString();
+                    if (isNullOrEmpty(commonSuffix(tagString, " "))) {
+                        tag.getEditableText().append(" ");
+                    }
+                }
+                resetTagSpans(tag.getEditableText());
+            }
+        });
         getActivity().findViewById(R.id.focusable).requestFocus();
         return view;
     }
@@ -246,36 +260,43 @@ public class CashFlowDetailsFragment extends Fragment {
     public void onAfterTagChanged(Editable s) {
         if (!cashFlowDetailsState.getTags().equals(tag.getText().toString())) {
             resetTagSpans(s);
-            cashFlowDetailsState.setCategories(s.toString());
+            cashFlowDetailsState.setTags(s.toString());
         }
     }
 
     private void resetTagSpans(Editable s) {
         ImageSpan[] spans = s.getSpans(0, s.length(), ImageSpan.class);
-        for (int i = 0; i < spans.length; i++) {
-            s.removeSpan(spans[i]);
+        for (ImageSpan span : spans) {
+            s.removeSpan(span);
         }
 
         int start = 0;
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == ' ') {
                 if (i - 1 >= start) {
-                    String tagName = s.subSequence(start, i).toString();
-                    Integer color = cashFlowDetailsState.getTagToColorMap().get(tagName);
-                    if (color == null) {
-                        Tag tag = tagService.findByName(tagName);
-                        color = tag != null
-                                ? tag.getColor()
-                                : prefUtils.getNextTagColor();
-                        cashFlowDetailsState.getTagToColorMap().put(tagName, color);
-                    }
-
-                    ImageSpan imageSpan = new ImageSpan(createTagDrawable(tagName, color));
-                    s.setSpan(imageSpan, start, i, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    setTagSpan(s, start, i);
                 }
                 start = i + 1;
             }
         }
+        if (!tag.hasFocus() && start < s.length()) {
+            setTagSpan(s, start, s.length());
+        }
+    }
+
+    private void setTagSpan(Editable s, int start, int end) {
+        String tagName = s.subSequence(start, end).toString();
+        Integer color = cashFlowDetailsState.getTagToColorMap().get(tagName);
+        if (color == null) {
+            Tag tag = tagService.findByName(tagName);
+            color = tag != null
+                    ? tag.getColor()
+                    : prefUtils.getNextTagColor();
+            cashFlowDetailsState.getTagToColorMap().put(tagName, color);
+        }
+
+        ImageSpan imageSpan = new ImageSpan(createTagDrawable(tagName, color));
+        s.setSpan(imageSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     private BitmapDrawable createTagDrawable(String tagName, Integer color) {
@@ -429,7 +450,7 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private boolean validateAmount(CashFlowDetailsParcelableState state) {
-        if (Strings.isNullOrEmpty(state.getAmount())) {
+        if (isNullOrEmpty(state.getAmount())) {
             if (amountLabel.getVisibility() == View.VISIBLE) {
                 amount.setError("Amount can't be empty.");
             }
