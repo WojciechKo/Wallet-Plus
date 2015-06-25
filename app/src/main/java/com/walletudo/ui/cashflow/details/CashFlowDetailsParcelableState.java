@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class CashFlowDetailsParcelableState implements Parcelable {
     public static final Parcelable.Creator<CashFlowDetailsParcelableState> CREATOR = new Parcelable.Creator<CashFlowDetailsParcelableState>() {
@@ -115,8 +116,8 @@ public class CashFlowDetailsParcelableState implements Parcelable {
         cashFlow.setAmount(Double.parseDouble(getAmount()));
         cashFlow.setWallet(getWallet());
 
-        if (!Strings.isNullOrEmpty(getTags())) {
-            for (String tagName : getTags().replaceAll("\\s+", " ").split(" ")) {
+        if (!isNullOrEmpty(getTags())) {
+            for (String tagName : getTags().trim().replaceAll("\\s+", " ").split(" ")) {
                 Tag tag = new Tag(tagName);
                 tag.setColor(tagToColorMap.get(tagName));
                 cashFlow.addTag(tag);
