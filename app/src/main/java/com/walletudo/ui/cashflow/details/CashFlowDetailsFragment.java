@@ -434,10 +434,7 @@ public class CashFlowDetailsFragment extends Fragment {
     }
 
     private void onSaveOptionSelected() {
-        boolean isValid = true;
-
-        isValid = validateAmount(cashFlowDetailsState);
-
+        boolean isValid = validateAmount(cashFlowDetailsState);
         if (isValid) {
             if (DetailsAction.ADD.equals(detailsAction)) {
                 cashFlowService.insert(cashFlowDetailsState.buildCashFlow());
