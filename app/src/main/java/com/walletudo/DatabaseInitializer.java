@@ -16,8 +16,6 @@ import com.walletudo.util.PrefUtils;
 import org.joda.time.DateTime;
 
 import java.lang.ref.WeakReference;
-import java.util.Calendar;
-import java.util.Date;
 
 import javax.inject.Inject;
 

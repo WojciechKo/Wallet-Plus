@@ -118,8 +118,8 @@ public class TagServiceOrmLite implements TagService {
 
     public void validateUpdate(Tag newTag) {
         checkNotNull(newTag);
+
         generateColorIfNull(newTag);
-        Tag oldTag = findById(newTag.getId());
         validateIfNameIsNotNullOrEmpty(newTag);
     }
 

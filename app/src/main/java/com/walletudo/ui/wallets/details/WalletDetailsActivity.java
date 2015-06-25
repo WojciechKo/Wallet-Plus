@@ -3,10 +3,8 @@ package com.walletudo.ui.wallets.details;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.walletudo.R;
 import com.walletudo.ui.BaseActivity;
